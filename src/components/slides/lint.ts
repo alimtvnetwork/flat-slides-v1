@@ -31,6 +31,19 @@ export function lintDeck(deck: Deck): LintIssue[] {
     }
   }
 
+  // Deck-level: volume must be a sane 0..1 number.
+  if (
+    typeof deck.settings.volume === "number" &&
+    (deck.settings.volume < 0 || deck.settings.volume > 1)
+  ) {
+    const anchor = deck.slides[0];
+    if (anchor) {
+      push(anchor, 0, "volume-out-of-range",
+        `Deck volume ${deck.settings.volume} is outside [0, 1] — audio API will clamp or error.`,
+        "warn");
+    }
+  }
+
   // Collision detection on authored slide.number
   const seen = new Map<number, string>();
   for (let i = 0; i < deck.slides.length; i++) {
