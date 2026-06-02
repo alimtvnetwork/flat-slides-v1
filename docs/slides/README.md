@@ -28,6 +28,12 @@ Source-of-truth shortcut sheet and module map for the slides app.
 | Camera      | C                 | Toggle camera bubble                    |
 | Camera      | Shift+C           | Cycle camera size                       |
 | Camera      | Shift+←→↑↓        | Nudge camera position                   |
+| Annotate    | L / K / X / 1–5   | Pointer · Ink · Clear · Color           |
+| Timer       | T / Shift+T / R   | Toggle overlay · Reset · Rehearsal      |
+| Timer       | ⌘E                | Export rehearsal report                 |
+| Annotate    | ⌘⇧E               | Export annotations (JSON)               |
+| Audience    | Q / V / Y         | QR · Live results · Copy share link     |
+| Presenter   | F                 | Edit focus regions                      |
 | Camera      | P                 | Picture-in-picture                      |
 | Annotate    | L                 | Toggle laser pointer                    |
 | Annotate    | K                 | Toggle ink (draw)                       |

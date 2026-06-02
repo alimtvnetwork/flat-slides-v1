@@ -48,6 +48,8 @@ export interface ChromeStore {
   slideNumberBadgeVisible: boolean;
   /** Presenter timer overlay (top-left). Visible by default in fullscreen. */
   timerVisible: boolean;
+  /** On-canvas focus-region editor open (toggled by `F`). */
+  focusEditorOpen: boolean;
   /** Recent jump history (linear positions), most-recent-first, max 8. */
   recentJumps: number[];
   /** Presenter webcam bubble (presenter-local, never exported). */
@@ -64,6 +66,8 @@ export interface ChromeStore {
   setSlideNumberBadgeVisible: (v: boolean) => void;
   setTimerVisible: (v: boolean) => void;
   toggleTimerVisible: () => void;
+  setFocusEditorOpen: (v: boolean) => void;
+  toggleFocusEditor: () => void;
   pushRecentJump: (n: number) => void;
   clearRecentJumps: () => void;
   setCamera: (patch: Partial<CameraState>) => void;
@@ -84,6 +88,7 @@ export const useChrome = create<ChromeStore>()(
       dotPaginationVisible: true,
       slideNumberBadgeVisible: true,
       timerVisible: true,
+      focusEditorOpen: false,
       recentJumps: [],
       camera: {
         visible: false,
@@ -104,6 +109,8 @@ export const useChrome = create<ChromeStore>()(
       setSlideNumberBadgeVisible: (v) => set({ slideNumberBadgeVisible: v }),
       setTimerVisible: (v) => set({ timerVisible: v }),
       toggleTimerVisible: () => set((s) => ({ timerVisible: !s.timerVisible })),
+      setFocusEditorOpen: (v) => set({ focusEditorOpen: v }),
+      toggleFocusEditor: () => set((s) => ({ focusEditorOpen: !s.focusEditorOpen })),
       pushRecentJump: (n) =>
         set((s) => {
           const next = [n, ...s.recentJumps.filter((x) => x !== n)].slice(0, 8);

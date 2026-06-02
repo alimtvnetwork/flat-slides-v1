@@ -1,6 +1,10 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 
+import { useChrome } from "./chrome-store";
+import { downloadAnnotations } from "./exportAnnotations";
+import { downloadRehearsalReport } from "./exportRehearsal";
+import { useDeck } from "./store";
 import type { Slide } from "./types";
 
 type Action = { id: string; label: string; hint?: string; run: () => void };
@@ -17,6 +21,8 @@ interface Props {
 /** ⌘K / Ctrl+K command palette: jump to slide or run an action. */
 export function CommandPalette({ open, onClose, slides, onOpenSettings, onPresent, onOpenLint }: Props) {
   const navigate = useNavigate();
+  const deckTitle = useDeck((s) => s.deck.title);
+  const toggleFocusEditor = useChrome((s) => s.toggleFocusEditor);
   const [q, setQ] = useState("");
   const [active, setActive] = useState(0);
 
@@ -30,6 +36,9 @@ export function CommandPalette({ open, onClose, slides, onOpenSettings, onPresen
       ...(onPresent ? [{ id: "act-present", label: "Present (fullscreen)", hint: "F5", run: onPresent }] : []),
       ...(onOpenSettings ? [{ id: "act-settings", label: "Open settings", hint: "S", run: onOpenSettings }] : []),
       ...(onOpenLint ? [{ id: "act-lint", label: "Run deck linter", hint: "L", run: onOpenLint }] : []),
+      { id: "act-focus", label: "Edit focus regions", hint: "F", run: toggleFocusEditor },
+      { id: "act-export-rehearsal", label: "Export rehearsal report", hint: "⌘E", run: () => downloadRehearsalReport(deckTitle) },
+      { id: "act-export-annotations", label: "Export annotations (JSON)", hint: "⌘⇧E", run: downloadAnnotations },
     ];
     const slideActs: Action[] = slides.map((s, i) => ({
       id: `slide-${s.id}`,
@@ -41,7 +50,7 @@ export function CommandPalette({ open, onClose, slides, onOpenSettings, onPresen
     if (!q.trim()) return all;
     const needle = q.toLowerCase();
     return all.filter((a) => a.label.toLowerCase().includes(needle));
-  }, [q, slides, navigate, onOpenSettings, onPresent, onOpenLint]);
+  }, [q, slides, navigate, onOpenSettings, onPresent, onOpenLint, deckTitle, toggleFocusEditor]);
 
   useEffect(() => setActive(0), [q]);
 
