@@ -173,7 +173,7 @@ function SlidePage() {
       <FocusEditor
         slide={slide}
         active={focusEditorOpen}
-        onRect={(rect) => {
+        onRect={(rect: { x: number; y: number; w: number; h: number }) => {
           useDeck.getState().upsertSlide({ ...slide, focus: [...(slide.focus ?? []), rect] });
           useChrome.getState().flashToast("Focus region added");
         }}
