@@ -24,7 +24,7 @@ function SlidesOverview() {
           <Link
             key={s.id}
             to="/slides/$slideId"
-            params={{ slideId: s.id }}
+            params={{ slideId: String(i + 1) }}
             className="group relative aspect-video w-full overflow-hidden rounded-lg ring-1 ring-neutral-800 bg-black transition hover:ring-neutral-500"
           >
             <ScaledSlide>
