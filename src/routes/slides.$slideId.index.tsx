@@ -14,7 +14,9 @@ import { SharePill } from "@/components/slides/controls/SharePill";
 import { TimerOverlay } from "@/components/slides/controls/TimerOverlay";
 import { useTimer } from "@/components/slides/timer-store";
 import { usePresentationTimer } from "@/components/slides/usePresentationTimer";
-import { CommandPalette } from "@/components/slides/CommandPalette";
+const CommandPalette = lazy(() =>
+  import("@/components/slides/CommandPalette").then((m) => ({ default: m.CommandPalette })),
+);
 import { CameraBubble } from "@/components/slides/controls/CameraBubble";
 import { ControllerPill } from "@/components/slides/controls/ControllerPill";
 import { DotPagination } from "@/components/slides/controls/DotPagination";
@@ -23,7 +25,9 @@ import { OnboardingCoachmark } from "@/components/slides/controls/OnboardingCoac
 import { PresenterToast } from "@/components/slides/controls/PresenterToast";
 import { PresenterTopBar } from "@/components/slides/controls/PresenterTopBar";
 import { SlideNumberBadge } from "@/components/slides/controls/SlideNumberBadge";
-import { LintPanel } from "@/components/slides/LintPanel";
+const LintPanel = lazy(() =>
+  import("@/components/slides/LintPanel").then((m) => ({ default: m.LintPanel })),
+);
 import { PresenterTools } from "@/components/slides/PresenterTools";
 import { RenderSlide } from "@/components/slides/RenderSlide";
 import { CameraStage } from "@/components/slides/CameraStage";
@@ -273,17 +277,25 @@ function SlidePage() {
       )}
       <SlideAriaAnnouncer current={current} total={total} title={slide.title} />
       <PresenterNotesPeek notes={slide.notes} />
-      <CommandPalette
-        open={paletteOpen}
-        onClose={() => setPaletteOpen(false)}
-        slides={allSlides}
-        onOpenSettings={() => setSettingsOpen(true)}
-        onPresent={toggleFs}
-        onOpenLint={() => setLintOpen(true)}
-      />
+      {paletteOpen && (
+        <Suspense fallback={null}>
+          <CommandPalette
+            open={paletteOpen}
+            onClose={() => setPaletteOpen(false)}
+            slides={allSlides}
+            onOpenSettings={() => setSettingsOpen(true)}
+            onPresent={toggleFs}
+            onOpenLint={() => setLintOpen(true)}
+          />
+        </Suspense>
+      )}
       <KeyboardShortcutsDialog open={helpOpen} onClose={() => setHelpOpen(false)} />
       <OnboardingCoachmark />
-      <LintPanel open={lintOpen} onClose={() => setLintOpen(false)} deck={deck} />
+      {lintOpen && (
+        <Suspense fallback={null}>
+          <LintPanel open={lintOpen} onClose={() => setLintOpen(false)} deck={deck} />
+        </Suspense>
+      )}
       <PresenterTools index={index} total={total} deck={deck} />
     </div>
   );

@@ -1,5 +1,5 @@
 import { AlertCircle, AlertTriangle, CheckCircle2, ClipboardCopy, Filter, ListTree, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 
 import { LINT_RULES, countIssues, lintDeck } from "./lint";
@@ -17,6 +17,12 @@ export function LintPanel({ open, onClose, deck }: Props) {
   const [filter, setFilter] = useState<"all" | "error" | "warn">("all");
   const [groupBySlide, setGroupBySlide] = useState(false);
   const [copied, setCopied] = useState(false);
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
   if (!open) return null;
   const all = lintDeck(deck);
   const { errors, warns } = countIssues(all);
@@ -35,6 +41,9 @@ export function LintPanel({ open, onClose, deck }: Props) {
   return (
     <div className="fixed inset-0 z-[55] flex justify-end bg-black/50" data-app-chrome onClick={onClose}>
       <aside
+        role="dialog"
+        aria-modal="true"
+        aria-label="Deck linter"
         onClick={(e) => e.stopPropagation()}
         className="h-full w-[min(420px,92vw)] overflow-y-auto bg-neutral-950 p-5 text-neutral-200 ring-1 ring-neutral-800"
       >

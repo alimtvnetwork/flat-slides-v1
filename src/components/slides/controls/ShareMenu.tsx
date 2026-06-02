@@ -68,7 +68,7 @@ export function ShareMenu({ current, step }: Props) {
         aria-expanded={open}
         aria-label="Share menu"
         className={cn(
-          "inline-flex h-7 w-7 items-center justify-center rounded-md",
+          "app-focusable inline-flex h-7 w-7 items-center justify-center rounded-md",
           "text-[color:var(--ctrl-fg)] transition-colors hover:bg-white/10",
           open && "bg-white/10 text-[color:var(--ctrl-accent)]",
         )}

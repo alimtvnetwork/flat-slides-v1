@@ -27,7 +27,7 @@ export function ThemeChip() {
       aria-label={`Theme: ${active.name}. Click to cycle.`}
       title={`Theme: ${active.name} — click to cycle (right-click to reverse)`}
       className={cn(
-        "inline-flex items-center gap-1.5 h-7 px-2 rounded-md",
+        "app-focusable inline-flex items-center gap-1.5 h-7 px-2 rounded-md",
         "text-[11px] font-medium text-[color:var(--ctrl-fg)] hover:bg-white/10 transition-colors",
       )}
     >
