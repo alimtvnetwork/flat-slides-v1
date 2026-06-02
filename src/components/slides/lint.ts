@@ -1,3 +1,4 @@
+import { slideStepCount } from "./types";
 import type { RichText, Slide, Deck } from "./types";
 
 export type LintSeverity = "warn" | "error";
