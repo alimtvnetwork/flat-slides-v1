@@ -69,6 +69,19 @@ export const StepsSlideSchema = z.object({
   steps: z.array(RichTextSchema).min(1).max(8),
 });
 
+export const TimelineItemSchema = z.object({
+  label: z.string().min(1).max(80),
+  title: z.string().max(120).optional(),
+  detail: RichTextSchema.optional(),
+});
+
+export const TimelineSlideSchema = z.object({
+  ...BaseSlideShape,
+  type: z.literal("timeline"),
+  heading: z.string().max(200).optional(),
+  items: z.array(TimelineItemSchema).min(2).max(8),
+});
+
 export const QuoteSlideSchema = z.object({
   ...BaseSlideShape,
   type: z.literal("quote"),
@@ -120,6 +133,7 @@ export const SlideSchema = z.discriminatedUnion("type", [
   LeftSlideSchema,
   CenterSlideSchema,
   StepsSlideSchema,
+  TimelineSlideSchema,
   QuoteSlideSchema,
   BulletsSlideSchema,
   ImageSlideSchema,

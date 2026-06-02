@@ -1,3 +1,4 @@
+import { AnimatePresence, motion } from "motion/react";
 import type { CSSProperties } from "react";
 
 import { Rich } from "./Rich";
@@ -17,6 +18,7 @@ import type {
   Slide,
   StepsSlideProps,
   TextPosition,
+  TimelineSlideProps,
 } from "./types";
 
 /** Map a 9-cell TextPosition to Tailwind/flex alignment styles. */
@@ -152,6 +154,149 @@ function StepsSlide({ slide, step }: { slide: StepsSlideProps; step: number }) {
   );
 }
 
+function TimelineSlide({ slide, step }: { slide: TimelineSlideProps; step: number }) {
+  const items = slide.items;
+  const focus = Math.max(0, Math.min(step, items.length - 1));
+  const focused = items[focus];
+
+  const railY = 780;
+  const railLeft = 240;
+  const railRight = 1680;
+  const railWidth = railRight - railLeft;
+  const railTop = railY - 2;
+  const lastIdx = Math.max(1, items.length - 1);
+  const xFor = (i: number) =>
+    items.length === 1 ? (railLeft + railRight) / 2 : railLeft + (railWidth * i) / lastIdx;
+  const progressWidth = items.length === 1 ? 0 : (railWidth * focus) / lastIdx;
+
+  return (
+    <SlideLayout background={slide.background}>
+      {slide.heading ? (
+        <div
+          className="slide-kicker absolute left-[120px] top-[100px]"
+          style={{ color: "var(--slide-muted)" }}
+        >
+          {slide.heading}
+        </div>
+      ) : null}
+
+      <div
+        className="absolute left-1/2 -translate-x-1/2 text-center"
+        style={{ top: 220, width: 1400 }}
+      >
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={focus}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <div className="slide-title slide-heading" style={{ color: "var(--slide-fg)" }}>
+              {focused?.title ? `${focused.label} · ${focused.title}` : focused?.label ?? ""}
+            </div>
+            {focused?.detail ? (
+              <div
+                className="slide-body-lg slide-body-font mx-auto mt-[28px]"
+                style={{ color: "var(--slide-muted)", maxWidth: 1100 }}
+              >
+                <Rich value={focused.detail} />
+              </div>
+            ) : null}
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      <div
+        className="absolute"
+        style={{
+          left: railLeft,
+          top: railTop,
+          width: railWidth,
+          height: 4,
+          borderRadius: 2,
+          background: "color-mix(in oklab, var(--slide-muted) 25%, transparent)",
+        }}
+      />
+      <div
+        className="absolute"
+        style={{
+          left: railLeft,
+          top: railTop,
+          width: progressWidth,
+          height: 4,
+          borderRadius: 2,
+          background: "var(--slide-hl)",
+          transition: "width 450ms cubic-bezier(0.22, 1, 0.36, 1)",
+        }}
+      />
+
+      {items.map((it, i) => {
+        const cx = xFor(i);
+        const isFocus = i === focus;
+        const isDone = i < focus;
+        const size = isFocus ? 28 : 18;
+        return (
+          <div key={i}>
+            {isFocus ? (
+              <div
+                className="absolute"
+                style={{
+                  left: cx - 22,
+                  top: railY - 22,
+                  width: 44,
+                  height: 44,
+                  borderRadius: "50%",
+                  background: "color-mix(in oklab, var(--slide-hl) 35%, transparent)",
+                  transition: "all 350ms ease",
+                }}
+              />
+            ) : null}
+            <div
+              className="absolute"
+              style={{
+                left: cx - size / 2,
+                top: railY - size / 2,
+                width: size,
+                height: size,
+                borderRadius: "50%",
+                background: isDone || isFocus ? "var(--slide-hl)" : "transparent",
+                border:
+                  isDone || isFocus
+                    ? "none"
+                    : "2px solid color-mix(in oklab, var(--slide-muted) 70%, transparent)",
+                transition: "all 350ms ease",
+              }}
+            />
+            <div
+              className="slide-caption slide-body-font absolute text-center"
+              style={{
+                left: cx - 120,
+                top: railY + 28,
+                width: 240,
+                color: isFocus ? "var(--slide-fg)" : "var(--slide-muted)",
+                opacity: isFocus ? 1 : 0.45,
+                fontWeight: isFocus ? 600 : 400,
+                transition: "opacity 350ms ease, color 350ms ease",
+              }}
+            >
+              {it.label}
+            </div>
+          </div>
+        );
+      })}
+
+      <div
+        className="slide-chrome absolute right-[60px] bottom-[44px]"
+        style={{ color: "var(--slide-muted)" }}
+      >
+        Step {focus + 1} / {items.length}
+      </div>
+    </SlideLayout>
+  );
+}
+
+
 function QuoteSlide({ slide }: { slide: QuoteSlideProps }) {
   return (
     <SlideLayout background={slide.background}>
@@ -268,6 +413,7 @@ export function RenderSlide({ slide, step = 0 }: { slide: Slide; step?: number }
     case "left":    body = <LeftSlide slide={slide} />; break;
     case "center":  body = <CenterSlide slide={slide} />; break;
     case "steps":   body = <StepsSlide slide={slide} step={step} />; break;
+    case "timeline": body = <TimelineSlide slide={slide} step={step} />; break;
     case "quote":   body = <QuoteSlide slide={slide} />; break;
     case "bullets": body = <BulletsSlide slide={slide} />; break;
     case "image":   body = <ImageSlide slide={slide} />; break;

@@ -11,10 +11,12 @@ const defaultSettings: DeckSettings = {
   backgroundColor: "#101010",
   darken: 0,
   blur: 0,
-  transition: "camera-zoom",
+  transition: "fade",
   soundEnabled: true,
   volume: 0.6,
 };
+
+const DECK_VERSION = 2;
 
 const seedSlides: Slide[] = [
   {
@@ -62,6 +64,18 @@ const seedSlides: Slide[] = [
     ],
   },
   {
+    id: "roadmap",
+    type: "timeline",
+    title: "2026 Roadmap",
+    heading: "Roadmap",
+    items: [
+      { label: "Q1", title: "Discovery", detail: ["Interview ", { text: "20 customers" }, " to validate the problem."] },
+      { label: "Q2", title: "Prototype", detail: ["Validate the ", { text: "core flow" }, " with design partners."] },
+      { label: "Q3", title: "Beta", detail: ["Ship to ", { text: "design partners" }, " and iterate weekly."] },
+      { label: "Q4", title: "GA", detail: ["Public launch with ", { text: "full pricing" }, "."] },
+    ],
+  },
+  {
     id: "bullets-demo",
     type: "bullets",
     title: "Why JSON-first?",
@@ -89,7 +103,7 @@ const defaultDeck: Deck = {
   themeId: DEFAULT_THEME_ID,
   slides: seedSlides,
   settings: defaultSettings,
-  version: 1,
+  version: DECK_VERSION,
 };
 
 function getUsablePersistedDeck(value: unknown): Pick<DeckStore, "deck" | "themeId"> | null {
@@ -98,6 +112,7 @@ function getUsablePersistedDeck(value: unknown): Pick<DeckStore, "deck" | "theme
 
   const parsed = DeckSchema.safeParse(state.deck);
   if (!parsed.success) return null;
+  if ((parsed.data.version ?? 1) !== DECK_VERSION) return null;
 
   return {
     deck: parsed.data as Deck,

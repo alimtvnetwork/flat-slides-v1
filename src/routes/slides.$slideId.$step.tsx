@@ -7,6 +7,7 @@ import { ScaledSlide } from "@/components/slides/ScaledSlide";
 import { SettingsDrawer } from "@/components/slides/SettingsDrawer";
 import { SlideTransition } from "@/components/slides/SlideTransition";
 import { useDeck } from "@/components/slides/store";
+import { slideStepCount } from "@/components/slides/types";
 import { useFullscreen } from "@/components/slides/useFullscreen";
 
 export const Route = createFileRoute("/slides/$slideId/$step")({
@@ -32,8 +33,9 @@ function SlideStepPage() {
   }, [slide, index, slides.length]);
 
   useEffect(() => {
-    if (!slide || slide.type !== "steps") return;
-    const last = slide.steps.length - 1;
+    const stepCount = slide ? slideStepCount(slide) : 0;
+    if (!slide || stepCount === 0) return;
+    const last = stepCount - 1;
     const slideParam = String(index + 1);
     const onKey = (e: KeyboardEvent) => {
       if ((e.target as HTMLElement)?.tagName === "INPUT") return;
@@ -68,13 +70,14 @@ function SlideStepPage() {
     return () => window.removeEventListener("keydown", onKey);
   }, [slide, index, slides, navigate, stepNum, isFs, toggleFs, exitFs]);
 
-  if (!slide || slide.type !== "steps") {
+  if (!slide || slideStepCount(slide) === 0) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-black text-white">
         <Link to="/slides" className="underline">Back to deck</Link>
       </div>
     );
   }
+  const totalSteps = slideStepCount(slide);
 
   if (isFs) {
     return (
@@ -90,7 +93,7 @@ function SlideStepPage() {
           slides={slides}
           index={index}
           step={stepNum}
-          totalSteps={slide.steps.length}
+          totalSteps={totalSteps}
           onOpenSettings={() => setSettingsOpen(true)}
           onPresent={toggleFs}
           isPresenting={isFs}
@@ -117,7 +120,7 @@ function SlideStepPage() {
         slides={slides}
         index={index}
         step={stepNum}
-        totalSteps={slide.steps.length}
+        totalSteps={totalSteps}
         onOpenSettings={() => setSettingsOpen(true)}
         onPresent={toggleFs}
         isPresenting={isFs}

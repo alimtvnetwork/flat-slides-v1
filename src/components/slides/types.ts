@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 export type SlideType =
-  | "left" | "center" | "steps" | "quote" | "bullets" | "image"
+  | "left" | "center" | "steps" | "timeline" | "quote" | "bullets" | "image"
   | "poll" | "qa" | "embed";
 
 export type Highlight = { text: string; pill?: boolean };
@@ -48,6 +48,21 @@ export interface StepsSlideProps extends BaseSlide {
   type: "steps";
   heading: string;
   steps: RichText[];
+}
+
+export interface TimelineItem {
+  /** Short tag rendered under the pinpoint (e.g. "Q1", "Step 1"). */
+  label: string;
+  /** Bold heading shown in the centre when this item is focused. */
+  title?: string;
+  /** Detail paragraph shown centred when this item is focused. */
+  detail?: RichText;
+}
+
+export interface TimelineSlideProps extends BaseSlide {
+  type: "timeline";
+  heading?: string;
+  items: TimelineItem[];
 }
 
 export interface QuoteSlideProps extends BaseSlide {
@@ -97,12 +112,20 @@ export type Slide =
   | LeftSlideProps
   | CenterSlideProps
   | StepsSlideProps
+  | TimelineSlideProps
   | QuoteSlideProps
   | BulletsSlideProps
   | ImageSlideProps
   | PollSlideProps
   | QaSlideProps
   | EmbedSlideProps;
+
+/** Number of advance-able sub-steps for keyboard / URL step navigation. */
+export function slideStepCount(slide: Slide): number {
+  if (slide.type === "steps") return slide.steps.length;
+  if (slide.type === "timeline") return slide.items.length;
+  return 0;
+}
 
 export type TransitionKind = "camera-zoom" | "morph" | "fade" | "eaten";
 

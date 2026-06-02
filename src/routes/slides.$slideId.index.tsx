@@ -10,6 +10,7 @@ import { ScaledSlide } from "@/components/slides/ScaledSlide";
 import { SettingsDrawer } from "@/components/slides/SettingsDrawer";
 import { SlideTransition } from "@/components/slides/SlideTransition";
 import { useDeck } from "@/components/slides/store";
+import { slideStepCount } from "@/components/slides/types";
 import { useFullscreen } from "@/components/slides/useFullscreen";
 
 export const Route = createFileRoute("/slides/$slideId/")({
@@ -46,7 +47,7 @@ function SlidePage() {
       if (e.key === "F5") { e.preventDefault(); toggleFs(); return; }
       if (e.key === "Escape" && isFs) { exitFs(); return; }
       if (e.key === "ArrowRight" || e.key === " " || e.key === "Enter") {
-        if (slide.type === "steps" && slide.steps.length > 1) {
+        if (slideStepCount(slide) > 1) {
           navigate({
             to: "/slides/$slideId/$step",
             params: { slideId: String(index + 1), step: "1" },
@@ -90,8 +91,8 @@ function SlidePage() {
         <ControlBar
           slides={slides}
           index={index}
-          step={slide.type === "steps" ? 0 : undefined}
-          totalSteps={slide.type === "steps" ? slide.steps.length : undefined}
+          step={slideStepCount(slide) > 0 ? 0 : undefined}
+          totalSteps={slideStepCount(slide) || undefined}
           onOpenSettings={() => setSettingsOpen(true)}
           onPresent={toggleFs}
           isPresenting={isFs}
@@ -117,8 +118,8 @@ function SlidePage() {
       <ControlBar
         slides={slides}
         index={index}
-        step={slide.type === "steps" ? 0 : undefined}
-        totalSteps={slide.type === "steps" ? slide.steps.length : undefined}
+        step={slideStepCount(slide) > 0 ? 0 : undefined}
+        totalSteps={slideStepCount(slide) || undefined}
         onOpenSettings={() => setSettingsOpen(true)}
         onPresent={toggleFs}
         isPresenting={isFs}
