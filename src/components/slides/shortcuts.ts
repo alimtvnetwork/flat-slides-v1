@@ -4,7 +4,7 @@
  * `KeyboardShortcutsDialog` (the `/` help popup).
  */
 
-export type ShortcutGroup = "Navigation" | "Steps" | "Surfaces" | "Presenter" | "Camera" | "Annotate";
+export type ShortcutGroup = "Navigation" | "Steps" | "Surfaces" | "Presenter" | "Camera" | "Annotate" | "Timer";
 
 export interface ShortcutDef {
   /** Display key (e.g. "←", "Space", "F"). */
