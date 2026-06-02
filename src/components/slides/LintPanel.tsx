@@ -150,30 +150,35 @@ export function LintPanel({ open, onClose, deck }: Props) {
           </div>
         ) : (
           <ul className="space-y-2">
-            {issues.map((iss, i) => (
-              <li key={i} className="rounded-md bg-neutral-900 p-3 text-sm ring-1 ring-neutral-800">
-                <div className="mb-1 flex items-center justify-between">
-                  <Link
-                    to="/slides/$slideId"
-                    params={{ slideId: String(iss.slideIndex + 1) }}
-                    onClick={onClose}
-                    className="font-medium text-white hover:underline"
-                  >
-                    {iss.slideIndex + 1}. {iss.slideTitle || iss.slideId}
-                  </Link>
-                  <span
-                    className={`inline-flex items-center gap-1 text-[10px] uppercase tracking-wider ${
-                      iss.severity === "error" ? "text-red-400" : "text-amber-400"
-                    }`}
-                  >
-                    {iss.severity === "error" ? <AlertCircle size={11} /> : <AlertTriangle size={11} />}
-                    {iss.severity}
-                  </span>
-                </div>
-                <div className="text-xs text-neutral-400">{iss.rule}</div>
-                <div className="mt-1 text-neutral-300">{iss.message}</div>
-              </li>
-            ))}
+            {issues.map((iss, i) => {
+              const isError = iss.severity === "error";
+              return (
+                <li key={i} className="rounded-md bg-neutral-900 p-3 text-sm ring-1 ring-neutral-800">
+                  <div className="mb-1 flex items-center justify-between">
+                    <Link
+                      to="/slides/$slideId"
+                      params={{ slideId: String(iss.slideIndex + 1) }}
+                      onClick={onClose}
+                      className="font-medium text-white hover:underline"
+                    >
+                      {iss.slideIndex + 1}. {iss.slideTitle || iss.slideId}
+                    </Link>
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] uppercase tracking-wider ${
+                        isError
+                          ? "bg-red-500/15 text-red-300 ring-1 ring-red-500/30"
+                          : "bg-amber-500/15 text-amber-300 ring-1 ring-amber-500/30"
+                      }`}
+                    >
+                      {isError ? <AlertCircle size={11} /> : <AlertTriangle size={11} />}
+                      {iss.severity}
+                    </span>
+                  </div>
+                  <div className="text-xs text-neutral-400">{iss.rule}</div>
+                  <div className="mt-1 text-neutral-300">{iss.message}</div>
+                </li>
+              );
+            })}
           </ul>
         )}
       </aside>
