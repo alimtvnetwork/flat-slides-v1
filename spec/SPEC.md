@@ -1880,3 +1880,106 @@ Stack: TanStack Start v1 (file routes under `src/routes/`), React 19, Tailwind v
 98. Cross-browser smoke — Chrome, Safari, Firefox.
 99. Lighthouse pass on `/slides` (perf + a11y).
 100. Final spec/README sync; tag v1.
+
+---
+
+## Steps 81–90 — Detailed Implementation
+
+### Step 81 — Audio throttle (120 ms) — ~10 min
+**File:** `src/lib/audio.ts`
+- Add module-level `let lastWhooshAt = 0;`.
+- In `triggerWhoosh()`: `const now = performance.now(); if (now - lastWhooshAt < 120) return; lastWhooshAt = now;` — BEFORE the `isSoundEnabled` / reduced-motion gates so the throttle is cheap and uniform.
+- Rationale: rapid `→ → →` taps queue back-to-back `CameraZoomTransition` mounts; without throttle the synthesized whoosh stacks into a buzzsaw on Chromium. 120 ms is below the 350 ms transition duration so legitimate sequential slide changes still get one whoosh each, but bursts collapse to a single playback.
+- **Acceptance:** Hold `→` for 1 s → ≤ 9 whooshes audible (was ~30+).
+
+### Step 82 — 60 Hz / 120 Hz smoke check — ~15 min
+**Files:** `src/transitions/CameraZoomTransition.tsx`, `src/transitions/MorphTransition.tsx`
+- Add `useReducedMotion()` guard already present; additionally verify no `setTimeout`-based animation fallbacks remain (motion handles raf).
+- Manual test matrix in `spec/QA.md`: Chrome 60 Hz laptop, Safari 120 Hz iPad, Firefox 60 Hz. Look for jank on `translateZ` interpolation.
+- If jank observed on 120 Hz Safari: lower blur cap from 14 px → 10 px (Safari composites blur on CPU above ~12 px).
+- **Acceptance:** All three browsers maintain 58+ fps during a CameraZoom transition (measured via DevTools Performance panel).
+
+### Step 83 — `?print` route renders all slides stacked — ~25 min
+**File:** `src/routes/slides/print.tsx`
+- New route `/slides/print`.
+- Loads `useDeck.getState().slides`, renders each inside a `<div class="print-slide">` containing `<ScaledSlide scale={1}>` (no scaling — print CSS uses physical 1920×1080 page).
+- Wrap in `<main data-print-root>` so global app chrome (`data-app-chrome`) stays hidden via existing `@media print` rule.
+- No router transitions, no `AnimatePresence` — every slide visible simultaneously in DOM order.
+- **Acceptance:** Navigating to `/slides/print` shows N slides stacked vertically; `Cmd+P` preview shows N pages.
+
+### Step 84 — `@page` rule for PDF fidelity — ~10 min
+**File:** `src/styles.css`
+```css
+@media print {
+  @page { size: 1920px 1080px landscape; margin: 0; }
+  body { margin: 0; background: white; }
+  .print-slide { width: 1920px; height: 1080px; page-break-after: always; break-after: page; overflow: hidden; }
+  .print-slide:last-child { page-break-after: auto; break-after: auto; }
+  [data-app-chrome] { display: none !important; }
+}
+```
+- `1920px 1080px landscape` is the canonical deck aspect; Chrome respects pixel units in `@page` since v85.
+- `break-after: page` is the modern spec name; keep `page-break-after` for Safari < 17.
+- **Acceptance:** Each slide occupies exactly one PDF page, edge-to-edge, no margins.
+
+### Step 85 — "Print to PDF" toast on print route — ~5 min
+**File:** `src/routes/slides/print.tsx`
+- On mount: `toast.info('Use Cmd/Ctrl+P → "Save as PDF" → set margins to None for best fidelity.', { duration: 8000 });`
+- Use existing `sonner` toast already wired in `src/components/ui/sonner.tsx`.
+- Toast has `data-app-chrome` (sonner default) so it's hidden during actual print.
+- **Acceptance:** Toast appears on `/slides/print` load; vanishes from printed PDF.
+
+### Step 86 — HTML export (single-file deck) — ~45 min
+**File:** `src/lib/export/exportHtml.ts`
+- New function `exportDeckAsHtml(deck: Deck): Promise<Blob>`.
+- Steps:
+  1. Render the deck to a string with `renderToString(<DeckPrintRoot deck={deck} />)` from `react-dom/server`.
+  2. Read compiled CSS via `import deckCss from '@/styles.css?inline'` — Vite returns the post-processed string.
+  3. Inline all images: walk `deck.slides`, for each `slide.background?.imageUrl` starting with `data:` keep as-is; for blob/http URLs fetch → base64 → swap into the rendered HTML.
+  4. Wrap in `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${deck.title}</title><style>${deckCss}</style></head><body>${html}</body></html>`.
+  5. Return `new Blob([fullHtml], { type: 'text/html' })`.
+- Invoked from SettingsDrawer → "Export → HTML" button; uses `URL.createObjectURL` + `<a download>`.
+- **Acceptance:** Downloaded `deck.html` opens in any browser offline, renders all slides stacked with correct fonts, colors, and background images.
+
+### Step 87 — Inline minimal CSS for HTML export — ~15 min
+**File:** `src/lib/export/exportHtml.ts`
+- After step 86 inline import, strip unused CSS via simple allowlist regex: keep `.slide-*`, `.print-slide`, `@page`, `@font-face`, `:root` custom properties, semantic typography classes.
+- Drop editor-only utilities (`.toolbar-*`, `.sidebar-*`, `[data-app-chrome]` rules — chrome isn't rendered).
+- Embed Google Fonts via `@import url('https://fonts.googleapis.com/...')` at top of `<style>` so offline-after-first-load works (browser caches).
+- Final CSS ≤ 40 KB (was ~180 KB with full Tailwind).
+- **Acceptance:** Exported HTML file ≤ 500 KB for a 10-slide deck with no images.
+
+### Step 88 — GIF export via `html-to-image` + `gif.js` — ~60 min
+**Files:** `src/lib/export/exportGif.ts`, `bun add html-to-image gif.js @types/gif.js`
+- Function `exportDeckAsGif(deck: Deck, opts: { resolution: 720 | 1080; currentSlideOnly: boolean; onProgress: (pct: number) => void }): Promise<Blob>`.
+- For each slide (or just current):
+  1. Mount `<ScaledSlide slide={s} scale={resolution/1080} />` into a hidden offscreen `<div style="position:fixed;left:-99999px">`.
+  2. `await htmlToImage.toPng(node, { pixelRatio: 1, width, height })` → dataURL.
+  3. Push frame to `gif.js` encoder with `delay: 1500` (1.5 s per slide).
+  4. Unmount, advance, call `onProgress((i + 1) / total)`.
+- `gif.js` runs encoding in a Web Worker (built-in); supply `workerScript: '/gif.worker.js'` (copy `node_modules/gif.js/dist/gif.worker.js` to `public/`).
+- Return `new Blob([gifData], { type: 'image/gif' })`.
+- **Acceptance:** 5-slide deck at 720p exports to a ~2 MB GIF in <15 s on M1.
+
+### Step 89 — GIF resolution selector — ~10 min
+**File:** `src/components/settings/ExportSection.tsx`
+- `RadioGroup` with two options: `720p (1280×720)` / `1080p (1920×1080)`.
+- Default `720p` (file size + encode time scale ~4× at 1080p).
+- Stored in transient `useExportUi` store (not persisted to `deck.settings`).
+- Passed to `exportDeckAsGif` as `resolution`.
+- **Acceptance:** Selecting 1080p produces a GIF whose intrinsic dimensions are 1920×1080.
+
+### Step 90 — GIF export progress bar — ~15 min
+**File:** `src/components/settings/ExportSection.tsx`
+- `useState<number>(0)` for `progress`; passed to `exportDeckAsGif`'s `onProgress`.
+- Render shadcn `<Progress value={progress * 100} />` below the Export button while `isExporting`.
+- Two phases combined into the 0–1 scale: rasterization 0 → 0.7, gif.js encoding `progress` callback 0.7 → 1.
+  - `new GIF({...}).on('progress', p => onProgress(0.7 + p * 0.3))`.
+- Disable Export button + show "Cancel" that calls `gif.abort()`.
+- Toast on completion: `toast.success('GIF ready', { action: { label: 'Download', onClick: triggerDownload } })`.
+- **Acceptance:** Progress bar smoothly advances 0 → 100% during export; cancel mid-encode aborts cleanly.
+
+---
+
+**Remaining batches:**
+- **91–100:** Export-current-slide toggle (91), completion toast wiring (92), projector readability audit (93), reduced-motion QA matrix (94), keyboard-only walkthrough (95), share link cold-load (96), slide-jump clamp + toast (97), cross-browser smoke (98), Lighthouse perf+a11y on `/slides` (99), spec/README sync + v1 tag (100).
