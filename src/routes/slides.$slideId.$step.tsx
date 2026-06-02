@@ -23,7 +23,8 @@ function SlideStepPage() {
   const slides = useDeck((s) => s.deck.slides);
   const index = Math.max(0, (parseInt(slideId, 10) || 0) - 1);
   const slide = index >= 0 && index < slides.length ? slides[index] : undefined;
-  const stepNum = Math.max(0, parseInt(step, 10) || 0);
+  const requestedStep = parseInt(step, 10);
+  const stepNum = Number.isFinite(requestedStep) ? Math.max(0, requestedStep - 1) : 0;
   const [settingsOpen, setSettingsOpen] = useState(false);
   const { isFs, toggle: toggleFs, exit: exitFs } = useFullscreen();
 
@@ -45,7 +46,7 @@ function SlideStepPage() {
         if (stepNum < last) {
           navigate({
             to: "/slides/$slideId/$step",
-            params: { slideId: slideParam, step: String(stepNum + 1) },
+            params: { slideId: slideParam, step: String(stepNum + 2) },
           });
         } else if (index + 1 < slides.length) {
           navigate({ to: "/slides/$slideId", params: { slideId: String(index + 2) } });
@@ -58,7 +59,7 @@ function SlideStepPage() {
           } else {
             navigate({
               to: "/slides/$slideId/$step",
-              params: { slideId: slideParam, step: String(target) },
+              params: { slideId: slideParam, step: String(target + 1) },
             });
           }
         } else if (index > 0) {
@@ -84,7 +85,7 @@ function SlideStepPage() {
       <div className="fixed inset-0 z-[100] flex flex-col bg-black">
         <div className="relative flex-1">
           <ScaledSlide>
-            <SlideTransition transitionKey={slide.id}>
+            <SlideTransition transitionKey={slide.id} allowZoom={slide.type === "center" && slide.display === true}>
               <RenderSlide slide={slide} step={stepNum} />
             </SlideTransition>
           </ScaledSlide>
@@ -111,7 +112,7 @@ function SlideStepPage() {
     <div className="flex min-h-screen flex-col bg-black">
       <div className="flex-1 relative">
         <ScaledSlide>
-          <SlideTransition transitionKey={slide.id}>
+          <SlideTransition transitionKey={slide.id} allowZoom={slide.type === "center" && slide.display === true}>
             <RenderSlide slide={slide} step={stepNum} />
           </SlideTransition>
         </ScaledSlide>

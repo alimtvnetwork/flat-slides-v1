@@ -50,7 +50,7 @@ function SlidePage() {
         if (slideStepCount(slide) > 1) {
           navigate({
             to: "/slides/$slideId/$step",
-            params: { slideId: String(index + 1), step: "1" },
+            params: { slideId: String(index + 1), step: "2" },
           });
           return;
         }
@@ -83,7 +83,7 @@ function SlidePage() {
       <div className="fixed inset-0 z-[100] flex flex-col bg-black">
         <div className="relative flex-1">
           <ScaledSlide>
-            <SlideTransition transitionKey={slide.id}>
+            <SlideTransition transitionKey={slide.id} allowZoom={slide.type === "center" && slide.display === true}>
               <RenderSlide slide={slide} step={0} />
             </SlideTransition>
           </ScaledSlide>
@@ -110,7 +110,7 @@ function SlidePage() {
     <div className="flex min-h-screen flex-col bg-black">
       <div className="flex-1 relative">
         <ScaledSlide>
-          <SlideTransition transitionKey={slide.id}>
+          <SlideTransition transitionKey={slide.id} allowZoom={slide.type === "center" && slide.display === true}>
             <RenderSlide slide={slide} step={0} />
           </SlideTransition>
         </ScaledSlide>

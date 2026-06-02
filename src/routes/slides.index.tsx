@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { RenderSlide } from "@/components/slides/RenderSlide";
 import { ScaledSlide } from "@/components/slides/ScaledSlide";
 import { useDeck } from "@/components/slides/store";
+import { slideStepCount } from "@/components/slides/types";
 
 export const Route = createFileRoute("/slides/")({
   head: () => ({
@@ -28,7 +29,7 @@ function SlidesOverview() {
             className="group relative aspect-video w-full overflow-hidden rounded-lg ring-1 ring-neutral-800 bg-black transition hover:ring-neutral-500"
           >
             <ScaledSlide>
-              <RenderSlide slide={s} step={s.type === "steps" ? s.steps.length - 1 : 0} />
+              <RenderSlide slide={s} step={Math.max(0, slideStepCount(s) - 1)} />
             </ScaledSlide>
             <div className="absolute left-3 top-3 rounded bg-black/70 px-2 py-0.5 text-xs text-white">
               {i + 1}. {s.title}
