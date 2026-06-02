@@ -113,6 +113,7 @@ export const useChrome = create<ChromeStore>()(
         mirror: true,
         greenScreen: false,
         fullscreenOnly: false,
+        autoFrame: false,
       },
       music: { playing: false, volume: 0.4 },
       scene: "normal",
