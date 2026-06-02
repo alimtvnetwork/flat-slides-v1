@@ -328,6 +328,7 @@ function looksLikeFilename(s: string): boolean {
  *  with the rules above so the LLM guideline / docs can reference it. */
 export const LINT_RULES: ReadonlyArray<{ id: string; severity: LintSeverity; summary: string }> = [
   { id: "deck-camera-zoom", severity: "warn", summary: 'Deck-level "camera-zoom" transition (use "fade" by default).' },
+  { id: "theme-contrast-low", severity: "warn", summary: "Theme fg/bg (<4.5:1) or hl-pill ink/hl (<3:1) below WCAG threshold." },
   { id: "number-collision", severity: "warn", summary: "Two slides share an authored slide.number." },
   { id: "duplicate-id", severity: "error", summary: "Two slides share the same id." },
   { id: "title-missing", severity: "error", summary: "Slide has no title." },
