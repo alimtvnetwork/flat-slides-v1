@@ -288,11 +288,7 @@ Stack: TanStack Start v1 (file routes under `src/routes/`), React 19, Tailwind v
   - Z-index: slots > background layer, < `<Outlet/>` modals.
 - **Acceptance:** Providing `topRight={<span className="slide-page">3 / 12</span>}` renders the counter 48 px from right edge, vertically centered in the 120 px header.
 
-### C. Scaling & Layout primitives (17–24)
-17. `src/components/slides/ScaledSlide.tsx` — 1920×1080 centered, `transform: scale(min(sx, sy))`.
-18. ResizeObserver-driven scale recompute (debounced 16 ms).
-19. `src/components/slides/SlideLayout.tsx` — header/footer reserves (120 / 90 px).
-20. Chrome slots: `topLeft / topRight / bottomLeft / bottomRight` named props.
+### C. Remaining Scaling & Layout primitives (21–24)
 21. `<Highlight pill?>` component → renders `<mark class="hl">` or `.hl-pill`.
 22. `useSlideKeyboard()` hook — registers ←/→/Space/Enter/G/F5/Esc with scope guard.
 23. `<TransitionStage>` wrapper providing `perspective` + camera vars to children.
