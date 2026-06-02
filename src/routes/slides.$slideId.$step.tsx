@@ -84,8 +84,8 @@ function SlideStepPage() {
 
   if (isFs) {
     return (
-      <div className="fixed inset-0 z-[100] flex flex-col bg-black">
-        <div className="relative flex-1">
+      <div className="fixed inset-0 z-[100] flex flex-col overflow-hidden bg-black">
+        <div className="relative min-h-0 flex-1">
           <ScaledSlide fitPadding={36}>
             <SlideTransition transitionKey={slide.id} allowZoom={slide.type === "center" && slide.display === true}>
               <RenderSlide slide={slide} step={stepNum} />
