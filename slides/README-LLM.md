@@ -137,7 +137,23 @@ cross-fades the focused title/detail; non-focused steps stay muted, not hidden.
 Legacy rich-text arrays are still accepted on import and become `{ "label":
 "Step N", "detail": [...] }` automatically.
 
-### 5.4 `type: "quote"` — pull quote with attribution
+### 5.4 `type: "timeline"` — rail + focused pinpoints (2–8 items)
+```json
+{
+  "id": "roadmap", "type": "timeline", "title": "Roadmap",
+  "heading": "Roadmap",
+  "items": [
+    { "label": "Q1", "title": "Discovery", "detail": ["Interview ", { "text": "20 customers" }] },
+    { "label": "Q2", "title": "Prototype", "detail": ["Validate the ", { "text": "core flow" }] },
+    { "label": "Q3", "title": "Beta", "detail": ["Ship to ", { "text": "design partners" }] }
+  ]
+}
+```
+
+Timeline items render as pinpoints on a rail. The focused item is highlighted,
+other labels stay muted/grey, and the centered title/detail fades between items.
+
+### 5.5 `type: "quote"` — pull quote with attribution
 ```json
 {
   "id": "epigraph", "type": "quote", "title": "Quote",
@@ -146,7 +162,7 @@ Legacy rich-text arrays are still accepted on import and become `{ "label":
 }
 ```
 
-### 5.5 `type: "bullets"` — heading + bullet list (1–8 items)
+### 5.6 `type: "bullets"` — heading + bullet list (1–8 items)
 ```json
 {
   "id": "why", "type": "bullets", "title": "Why",
@@ -161,7 +177,7 @@ Legacy rich-text arrays are still accepted on import and become `{ "label":
 }
 ```
 
-### 5.6 `type: "image"` — full-bleed or split image
+### 5.7 `type: "image"` — full-bleed or split image
 ```json
 {
   "id": "cover", "type": "image", "title": "Cover",
