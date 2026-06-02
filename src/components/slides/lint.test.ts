@@ -24,15 +24,8 @@ const deckOf = (slides: Slide[], overrides: Partial<Deck> = {}): Deck => ({
 const center: Slide = { id: "c", type: "center", title: "C", heading: ["Hello"] };
 
 describe("lintDeck — new spec rules", () => {
-  it("flags deck-level camera-zoom transition", () => {
-    const deck = deckOf([center], {
-      settings: { ...baseSettings, transition: "camera-zoom" },
-    });
-    const issues = lintDeck(deck);
-    expect(issues.some((i) => i.rule === "deck-camera-zoom")).toBe(true);
-  });
-
-  it("does NOT flag deck-level fade transition", () => {
+  it("does not expose the removed deck-level zoom transition rule", () => {
+    expect(LINT_RULES.some((rule) => rule.id === "deck-camera-zoom")).toBe(false);
     expect(lintDeck(deckOf([center])).some((i) => i.rule === "deck-camera-zoom")).toBe(false);
   });
 
