@@ -133,8 +133,8 @@ export function SettingsDrawer({
 
         {/* Background color */}
         <section className="mb-6 space-y-2">
-          <label className="text-xs uppercase tracking-wider text-neutral-400">
-            Background color
+          <label className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wider text-neutral-400">
+            <ImageIcon size={12} /> Background
           </label>
           <div className="flex gap-2">
             {(["color", "image"] as const).map((mode) => (
