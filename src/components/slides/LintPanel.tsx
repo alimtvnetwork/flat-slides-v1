@@ -133,12 +133,14 @@ export function LintPanel({ open, onClose, deck }: Props) {
                   </Link>
                   <ul className="space-y-1.5 text-xs">
                     {list.map((iss, i) => (
-                      <li key={i}>
-                        <span className={`mr-2 uppercase ${iss.severity === "error" ? "text-red-400" : "text-amber-400"}`}>
-                          {iss.severity}
-                        </span>
+                      <li key={i} className="flex items-start gap-1.5">
+                        {iss.severity === "error" ? (
+                          <AlertCircle size={11} className="mt-0.5 shrink-0 text-red-400" />
+                        ) : (
+                          <AlertTriangle size={11} className="mt-0.5 shrink-0 text-amber-400" />
+                        )}
                         <code className="text-neutral-400">{iss.rule}</code>
-                        <span className="ml-2 text-neutral-300">{iss.message}</span>
+                        <span className="text-neutral-300">{iss.message}</span>
                       </li>
                     ))}
                   </ul>
