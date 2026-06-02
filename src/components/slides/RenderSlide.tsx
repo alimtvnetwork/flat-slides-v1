@@ -127,15 +127,15 @@ function StepsSlide({ slide, step }: { slide: StepsSlideProps; step: number }) {
                 key={i}
                 className="slide-body slide-body-font flex items-start gap-[24px]"
                 style={{
-                  opacity: isFocus ? 1 : 0.42,
+                  opacity: isFocus ? 1 : 0.68,
                   transform: isFocus ? "translateX(12px)" : "translateX(0)",
                   transition: "opacity 350ms ease, transform 350ms ease, color 350ms ease",
-                  color: isFocus ? "var(--slide-fg)" : "var(--slide-muted)",
+                  color: isFocus ? "var(--slide-fg)" : "color-mix(in oklab, var(--slide-fg) 64%, var(--slide-muted))",
                 }}
               >
                 <span
                   className="slide-heading"
-                  style={{ color: isFocus ? "var(--slide-hl)" : "var(--slide-muted)", fontWeight: 700, minWidth: 72 }}
+                  style={{ color: isFocus ? "var(--slide-hl)" : "color-mix(in oklab, var(--slide-fg) 54%, var(--slide-muted))", fontWeight: 700, minWidth: 72 }}
                 >
                   {String(i + 1).padStart(2, "0")}
                 </span>
@@ -300,8 +300,8 @@ function TimelineSlide({ slide, step }: { slide: TimelineSlideProps; step: numbe
                 left: cx - 120,
                 top: railY + 28,
                 width: 240,
-                color: isFocus ? "var(--slide-fg)" : "var(--slide-muted)",
-                opacity: isFocus ? 1 : 0.45,
+                color: isFocus ? "var(--slide-fg)" : "color-mix(in oklab, var(--slide-fg) 58%, var(--slide-muted))",
+                opacity: isFocus ? 1 : 0.66,
                 fontWeight: isFocus ? 600 : 400,
                 transition: "opacity 350ms ease, color 350ms ease",
               }}
