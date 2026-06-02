@@ -62,6 +62,8 @@ export interface ChromeStore {
   setTopJumperHidden: (v: boolean) => void;
   setDotPaginationVisible: (v: boolean) => void;
   setSlideNumberBadgeVisible: (v: boolean) => void;
+  setTimerVisible: (v: boolean) => void;
+  toggleTimerVisible: () => void;
   pushRecentJump: (n: number) => void;
   clearRecentJumps: () => void;
   setCamera: (patch: Partial<CameraState>) => void;
