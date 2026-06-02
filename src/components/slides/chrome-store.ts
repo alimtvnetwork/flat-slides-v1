@@ -3,6 +3,7 @@ import { persist } from "zustand/middleware";
 
 export type CameraAnchor = "top-left" | "top-right" | "bottom-left" | "bottom-right";
 export type CameraSize = "sm" | "md" | "lg";
+export type Scene = "normal" | "cam-only" | "split";
 
 export interface CameraState {
   visible: boolean;
@@ -11,12 +12,28 @@ export interface CameraState {
   offsetY: number;
   size: CameraSize;
   mirror: boolean;
+  /** Apply a chroma-key style mix-blend; cheap visual stand-in for greenscreen. */
+  greenScreen: boolean;
+  /** Hide the bubble while NOT in fullscreen (presenter prefers cam only on stage). */
+  fullscreenOnly: boolean;
 }
 
 export interface MusicState {
   playing: boolean;
   volume: number;
 }
+
+const SIZE_ORDER: CameraSize[] = ["sm", "md", "lg"];
+export const nextSize = (s: CameraSize): CameraSize =>
+  SIZE_ORDER[(SIZE_ORDER.indexOf(s) + 1) % SIZE_ORDER.length];
+
+const ANCHOR_ORDER: CameraAnchor[] = ["bottom-right", "bottom-left", "top-left", "top-right"];
+export const nextAnchor = (a: CameraAnchor): CameraAnchor =>
+  ANCHOR_ORDER[(ANCHOR_ORDER.indexOf(a) + 1) % ANCHOR_ORDER.length];
+
+const SCENE_ORDER: Scene[] = ["normal", "split", "cam-only"];
+export const nextScene = (s: Scene): Scene =>
+  SCENE_ORDER[(SCENE_ORDER.indexOf(s) + 1) % SCENE_ORDER.length];
 
 /**
  * Transient chrome / surface visibility state. Persisted so a presenter's
@@ -35,6 +52,10 @@ export interface ChromeStore {
   camera: CameraState;
   /** Deck background music presenter state (never exported). */
   music: MusicState;
+  /** Active stage layout — drives bubble size and slide opacity. */
+  scene: Scene;
+  /** Brief toast text — used by routes to flash a scene/preset notice. */
+  toast: { text: string; ts: number } | null;
   toggleTopJumper: () => void;
   setTopJumperHidden: (v: boolean) => void;
   setDotPaginationVisible: (v: boolean) => void;
@@ -43,8 +64,13 @@ export interface ChromeStore {
   clearRecentJumps: () => void;
   setCamera: (patch: Partial<CameraState>) => void;
   toggleCamera: () => void;
+  cycleCameraSize: () => void;
+  cycleCameraAnchor: () => void;
   setMusic: (patch: Partial<MusicState>) => void;
   toggleMusic: () => void;
+  setScene: (s: Scene) => void;
+  cycleScene: () => void;
+  flashToast: (text: string) => void;
 }
 
 export const useChrome = create<ChromeStore>()(
