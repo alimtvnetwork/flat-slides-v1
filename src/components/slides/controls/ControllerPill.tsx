@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 
 import { MusicToggle } from "./MusicToggle";
 import { SlideIndicator } from "./SlideIndicator";
+import { ThemeChip } from "./ThemeChip";
 
 export type ControllerAnchor =
   | "top-left" | "top-center" | "top-right"
