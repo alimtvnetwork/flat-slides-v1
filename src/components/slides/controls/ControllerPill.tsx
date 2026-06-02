@@ -64,6 +64,19 @@ const reduceMotion = () =>
   typeof window !== "undefined" &&
   window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
+function useCompactViewport() {
+  const [compact, setCompact] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return;
+    const mql = window.matchMedia("(max-width: 640px)");
+    const sync = () => setCompact(mql.matches);
+    sync();
+    mql.addEventListener?.("change", sync);
+    return () => mql.removeEventListener?.("change", sync);
+  }, []);
+  return compact;
+}
+
 /**
  * Hover-reveal controller pill. Collapsed = faint chip, expanded = full
  * toolbar. Portaled to <body>, anchored at one of 8 positions (persisted),
