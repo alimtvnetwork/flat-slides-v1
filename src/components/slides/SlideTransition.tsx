@@ -2,39 +2,14 @@ import { AnimatePresence, motion, type Transition, type Variants } from "motion/
 import { useEffect, type ReactNode } from "react";
 
 import { triggerWhoosh } from "./audio";
-import { useDeck } from "./store";
 import type { TransitionKind } from "./types";
 import { useReducedMotion } from "./useReducedMotion";
 
 function variantsFor(kind: TransitionKind): { variants: Variants; transition: Transition } {
   switch (kind) {
     case "camera-zoom":
-      return {
-        variants: {
-          initial: { opacity: 0, scale: 0.78, z: -600, rotateX: 6, filter: "blur(8px)" },
-          animate: { opacity: 1, scale: 1, z: 0, rotateX: 0, filter: "blur(0px)" },
-          exit:    { opacity: 0, scale: 1.18, z: 200,  rotateX: -2, filter: "blur(10px)" },
-        },
-        transition: { duration: 0.72, ease: [0.16, 1, 0.3, 1] },
-      };
     case "morph":
-      return {
-        variants: {
-          initial: { opacity: 0, scale: 1.04 },
-          animate: { opacity: 1, scale: 1 },
-          exit:    { opacity: 0, scale: 0.97 },
-        },
-        transition: { duration: 0.45, ease: [0.4, 0, 0.2, 1] },
-      };
     case "eaten":
-      return {
-        variants: {
-          initial: { opacity: 0, scale: 1.06, filter: "blur(4px)" },
-          animate: { opacity: 1, scale: 1, filter: "blur(0px)" },
-          exit:    { opacity: 0, scale: 0.6, filter: "blur(14px)", x: -120 },
-        },
-        transition: { duration: 0.4, ease: [0.7, 0, 0.84, 0] },
-      };
     case "fade":
     default:
       return {
@@ -48,18 +23,17 @@ function variantsFor(kind: TransitionKind): { variants: Variants; transition: Tr
   }
 }
 
-type Props = { transitionKey: string; allowZoom?: boolean; children: ReactNode };
+type Props = { transitionKey: string; children: ReactNode };
 
 /**
  * Wraps the active slide in a motion transition. The `transitionKey` should
  * change whenever you want a transition. Step changes should keep the same key
  * so timeline/list reveals stay local and never trigger a full-slide zoom.
  */
-export function SlideTransition({ transitionKey, allowZoom = false, children }: Props) {
-  const kind = useDeck((s) => s.deck.settings.transition);
+export function SlideTransition({ transitionKey, children }: Props) {
   const reduced = useReducedMotion();
-  // Reduced motion: collapse to a near-instant opacity swap regardless of authored kind.
-  const effectiveKind: TransitionKind = reduced ? "fade" : (allowZoom ? kind : "fade");
+  // Zoom-style transitions are disabled globally: every authored transition now resolves to fade.
+  const effectiveKind: TransitionKind = "fade";
   const { variants, transition } = variantsFor(effectiveKind);
   const tx: Transition = reduced ? { duration: 0.05, ease: "linear" } : transition;
 
