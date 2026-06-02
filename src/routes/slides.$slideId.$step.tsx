@@ -119,6 +119,8 @@ function SlideStepPage() {
       <PresenterTopBar current={current} total={total} onPrev={() => prev(current)} onNext={() => next(current)} />
       <DotPagination current={current} total={total} slides={linearSlides} onJump={jump} />
       <SlideNumberBadge current={current} total={total} display={slide ? getDisplayNumber(slide, current) : undefined} />
+      <AnnotationLayer slideId={slide.id} />
+      <AnnotationToolbar slideId={slide.id} />
     </>
   );
 
