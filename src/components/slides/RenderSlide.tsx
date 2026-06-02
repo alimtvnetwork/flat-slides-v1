@@ -111,15 +111,15 @@ function StepsSlide({ slide, step }: { slide: StepsSlideProps; step: number }) {
   const focused = slide.steps[focus];
   return (
     <SlideLayout background={slide.background}>
-      <div className="absolute inset-0 grid grid-cols-[520px_1fr] gap-[80px] px-[120px] pt-[120px] pb-[110px]">
-        <div>
+      <div className="absolute inset-0 grid grid-cols-[600px_minmax(0,1fr)] gap-[80px] px-[120px] pt-[110px] pb-[110px]">
+        <div className="min-w-0">
         <h2
-          className="slide-heading slide-subtitle mb-[60px]"
+          className="slide-heading slide-subtitle mb-[52px]"
           style={{ color: "var(--slide-muted)" }}
         >
           {slide.heading}
         </h2>
-        <ol className="flex flex-col gap-[28px]">
+        <ol className="flex flex-col gap-[24px]">
           {slide.steps.map((s, i) => {
             const isFocus = i === focus;
             return (
@@ -148,7 +148,7 @@ function StepsSlide({ slide, step }: { slide: StepsSlideProps; step: number }) {
           })}
         </ol>
         </div>
-        <div className="flex items-center justify-center text-center">
+        <div className="min-w-0 flex items-center justify-center text-center">
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={focus}
@@ -156,13 +156,19 @@ function StepsSlide({ slide, step }: { slide: StepsSlideProps; step: number }) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -12 }}
               transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-              style={{ maxWidth: 980 }}
+              style={{ width: "100%", maxWidth: 940, overflowWrap: "break-word" }}
             >
-              <div className="slide-title slide-heading" style={{ color: "var(--slide-fg)" }}>
-                {focused?.title ? `${focused.label} · ${focused.title}` : focused?.label ?? ""}
+              <div className="slide-kicker slide-heading mb-[22px]" style={{ color: "var(--slide-hl)" }}>
+                {focused?.label ?? ""}
+              </div>
+              <div
+                className="slide-heading"
+                style={{ color: "var(--slide-fg)", fontSize: 104, lineHeight: 1.05, letterSpacing: 0 }}
+              >
+                {focused?.title ?? ""}
               </div>
               {focused?.detail ? (
-                <div className="slide-body-lg slide-body-font mx-auto mt-[28px]" style={{ color: "var(--slide-muted)" }}>
+                <div className="slide-body-lg slide-body-font mx-auto mt-[30px]" style={{ color: "var(--slide-muted)", maxWidth: 900 }}>
                   <Rich value={focused.detail} />
                 </div>
               ) : null}
