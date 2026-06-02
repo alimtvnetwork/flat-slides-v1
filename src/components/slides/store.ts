@@ -11,10 +11,12 @@ const defaultSettings: DeckSettings = {
   backgroundColor: "#101010",
   darken: 0,
   blur: 0,
-  transition: "camera-zoom",
+  transition: "fade",
   soundEnabled: true,
   volume: 0.6,
 };
+
+const DECK_VERSION = 2;
 
 const seedSlides: Slide[] = [
   {
