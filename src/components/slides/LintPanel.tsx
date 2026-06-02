@@ -101,10 +101,12 @@ export function LintPanel({ open, onClose, deck }: Props) {
             <p className="mb-2 text-xs text-neutral-400">All {LINT_RULES.length} rules:</p>
             <ul className="space-y-1 text-xs">
               {LINT_RULES.map((r) => (
-                <li key={r.id} className="flex gap-2">
-                  <span className={`w-10 shrink-0 uppercase ${r.severity === "error" ? "text-red-400" : "text-amber-400"}`}>
-                    {r.severity}
-                  </span>
+                <li key={r.id} className="flex items-start gap-2">
+                  {r.severity === "error" ? (
+                    <AlertCircle size={12} className="mt-0.5 shrink-0 text-red-400" />
+                  ) : (
+                    <AlertTriangle size={12} className="mt-0.5 shrink-0 text-amber-400" />
+                  )}
                   <code className="text-neutral-300">{r.id}</code>
                   <span className="text-neutral-500">— {r.summary}</span>
                 </li>
