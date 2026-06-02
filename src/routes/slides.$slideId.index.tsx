@@ -177,6 +177,11 @@ function SlidePage() {
           useDeck.getState().upsertSlide({ ...slide, focus: [...(slide.focus ?? []), rect] });
           useChrome.getState().flashToast("Focus region added");
         }}
+        onPopRegion={() => {
+          const next = (slide.focus ?? []).slice(0, -1);
+          useDeck.getState().upsertSlide({ ...slide, focus: next.length ? next : undefined });
+          useChrome.getState().flashToast("Removed last focus region");
+        }}
         onClose={() => useChrome.getState().setFocusEditorOpen(false)}
       />
       <AnnotationToolbar slideId={slide.id} />
