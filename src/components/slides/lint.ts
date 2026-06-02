@@ -87,6 +87,11 @@ export function lintDeck(deck: Deck): LintIssue[] {
         break;
       case "image": {
         if (!s.alt?.trim()) push(s, i, "image-alt-missing", "Image is missing alt text (a11y)", "error");
+        else if (looksLikeFilename(s.alt)) {
+          push(s, i, "image-alt-filename",
+            `Alt text "${s.alt}" looks like a filename — describe what's in the image instead.`,
+            "warn");
+        }
         // Inline base64 size budget — spec recommends ≤200 KB binary (~270 KB base64).
         if (s.src.startsWith("data:") && s.src.length > 270_000) {
           const kb = Math.round(s.src.length / 1024);
@@ -96,7 +101,31 @@ export function lintDeck(deck: Deck): LintIssue[] {
         }
         break;
       }
+      case "steps": {
+        const bg = (s as { background?: string }).background;
+        const isSvgBg = typeof bg === "string" && (bg.startsWith("data:image/svg") || /\.svg(\?|$)/i.test(bg));
+        if (isSvgBg && (!Array.isArray(s.focus) || s.focus.length === 0)) {
+          push(s, i, "steps-svg-no-focus",
+            "Steps slide uses an SVG background but defines no focus regions — multi-step SVG reveals (spec Pattern A) require per-step focus rectangles.",
+            "warn");
+        }
+        break;
+      }
+      case "embed": {
+        if (s.url && !/^https:\/\//i.test(s.url)) {
+          push(s, i, "embed-not-https",
+            `Embed URL must use https:// (got "${s.url.slice(0, 40)}…") — mixed content blocks the iframe on published sites.`,
+            "error");
+        }
+        break;
+      }
     }
   }
   return out;
+}
+
+const FILENAME_RE = /\.(png|jpe?g|gif|webp|svg|avif|bmp|tiff?)$/i;
+function looksLikeFilename(s: string): boolean {
+  const trimmed = s.trim();
+  return FILENAME_RE.test(trimmed) || /^[a-z0-9_\-./]+$/i.test(trimmed) && trimmed.includes("/");
 }
