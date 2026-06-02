@@ -1,13 +1,16 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { Camera, CameraOff, FlipHorizontal2, X } from "lucide-react";
+import { Camera, CameraOff, FlipHorizontal2, Maximize, PictureInPicture2, Sparkles, X } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 
 import { useChrome } from "@/components/slides/chrome-store";
 import { useCamera } from "@/components/slides/useCamera";
+import { useFullscreen } from "@/components/slides/useFullscreen";
 import { cn } from "@/lib/utils";
 
+// "split" scene blows the bubble up to a 16:9 hero card next to the slide.
 const SIZES = { sm: 144, md: 200, lg: 280 } as const;
+const SCENE_SCALE = { normal: 1, split: 1.6, "cam-only": 2.4 } as const;
 
 /**
  * Floating draggable webcam bubble. Anchors to one of 4 corners (persisted)
@@ -17,7 +20,11 @@ const SIZES = { sm: 144, md: 200, lg: 280 } as const;
 export function CameraBubble() {
   const camera = useChrome((s) => s.camera);
   const setCamera = useChrome((s) => s.setCamera);
-  const { status, errorMessage, start, stop, attach } = useCamera();
+  const scene = useChrome((s) => s.scene);
+  const cycleSize = useChrome((s) => s.cycleCameraSize);
+  const cycleAnchor = useChrome((s) => s.cycleCameraAnchor);
+  const { status, errorMessage, start, stop, attach, togglePiP } = useCamera();
+  const { isFs } = useFullscreen();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const dragState = useRef<{ x: number; y: number; ox: number; oy: number } | null>(null);
 
@@ -27,9 +34,38 @@ export function CameraBubble() {
     if (!camera.visible && (status === "active" || status === "requesting")) stop();
   }, [camera.visible, status, start, stop]);
 
-  if (!camera.visible) return null;
+  // Shift+Arrow nudges the bubble by 16px while it has focus on screen.
+  useEffect(() => {
+    if (!camera.visible) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (!e.shiftKey) return;
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || (e.target as HTMLElement)?.isContentEditable) return;
+      const step = 16;
+      if (e.key === "ArrowLeft")  { e.preventDefault(); setCamera({ offsetX: camera.offsetX - step }); }
+      if (e.key === "ArrowRight") { e.preventDefault(); setCamera({ offsetX: camera.offsetX + step }); }
+      if (e.key === "ArrowUp")    { e.preventDefault(); setCamera({ offsetY: camera.offsetY - step }); }
+      if (e.key === "ArrowDown")  { e.preventDefault(); setCamera({ offsetY: camera.offsetY + step }); }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [camera.visible, camera.offsetX, camera.offsetY, setCamera]);
 
-  const size = SIZES[camera.size];
+  // Respect "show only in fullscreen" preference.
+  // External `P` shortcut dispatched from route handler.
+  useEffect(() => {
+    if (!camera.visible) return;
+    const onPip = () => void togglePiP();
+    window.addEventListener("slides:camera-pip", onPip);
+    return () => window.removeEventListener("slides:camera-pip", onPip);
+  }, [camera.visible, togglePiP]);
+
+  // Respect "show only in fullscreen" preference.
+  if (!camera.visible) return null;
+  if (camera.fullscreenOnly && !isFs) return null;
+
+  const scale = SCENE_SCALE[scene];
+  const size = Math.round(SIZES[camera.size] * scale);
   const anchorStyle: React.CSSProperties = (() => {
     const margin = 20;
     switch (camera.anchor) {
@@ -65,7 +101,8 @@ export function CameraBubble() {
       aria-label="Presenter camera"
       style={{ position: "fixed", zIndex: 60, width: size, height: size, ...anchorStyle }}
       className={cn(
-        "overflow-hidden rounded-full border-2 shadow-2xl cursor-grab active:cursor-grabbing",
+        "overflow-hidden border-2 shadow-2xl cursor-grab active:cursor-grabbing",
+        scene === "cam-only" ? "rounded-3xl" : "rounded-full",
         "border-white/15 bg-black/60 backdrop-blur",
       )}
       initial={{ opacity: 0, scale: 0.8 }}
@@ -85,6 +122,8 @@ export function CameraBubble() {
         className={cn(
           "h-full w-full object-cover",
           camera.mirror && "scale-x-[-1]",
+          // Cheap chroma-key stand-in: brightens & subtracts green via blend.
+          camera.greenScreen && "mix-blend-screen contrast-125 saturate-150",
         )}
       />
 
@@ -129,6 +168,50 @@ export function CameraBubble() {
           className="rounded-full bg-black/70 p-1.5 text-white/90 hover:bg-black/90"
         >
           <FlipHorizontal2 size={12} />
+        </button>
+        <button
+          data-camera-control
+          type="button"
+          title="Green-screen"
+          aria-label="Toggle green-screen blend"
+          aria-pressed={camera.greenScreen}
+          onClick={() => setCamera({ greenScreen: !camera.greenScreen })}
+          className={cn(
+            "rounded-full bg-black/70 p-1.5 text-white/90 hover:bg-black/90",
+            camera.greenScreen && "text-emerald-300",
+          )}
+        >
+          <Sparkles size={12} />
+        </button>
+        <button
+          data-camera-control
+          type="button"
+          title="Cycle size (Shift+C)"
+          aria-label="Cycle camera size"
+          onClick={cycleSize}
+          className="rounded-full bg-black/70 p-1.5 text-white/90 hover:bg-black/90"
+        >
+          <Maximize size={12} />
+        </button>
+        <button
+          data-camera-control
+          type="button"
+          title="Picture-in-picture"
+          aria-label="Picture in picture"
+          onClick={() => void togglePiP()}
+          className="rounded-full bg-black/70 p-1.5 text-white/90 hover:bg-black/90"
+        >
+          <PictureInPicture2 size={12} />
+        </button>
+        <button
+          data-camera-control
+          type="button"
+          title="Move to next corner"
+          aria-label="Move camera to next corner"
+          onClick={cycleAnchor}
+          className="rounded-full bg-black/70 p-1.5 text-white/90 hover:bg-black/90"
+        >
+          <Camera size={12} />
         </button>
         <button
           data-camera-control

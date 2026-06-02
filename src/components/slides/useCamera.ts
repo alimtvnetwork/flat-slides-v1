@@ -70,5 +70,21 @@ export function useCamera() {
     }
   }, []);
 
-  return { status, errorMessage, start, stop, attach } as const;
+  const togglePiP = useCallback(async () => {
+    const el = videoRef.current;
+    if (!el || status !== "active") return;
+    try {
+      const anyDoc = document as Document & { pictureInPictureElement?: Element | null; exitPictureInPicture?: () => Promise<void> };
+      const anyVid = el as HTMLVideoElement & { requestPictureInPicture?: () => Promise<unknown> };
+      if (anyDoc.pictureInPictureElement) {
+        await anyDoc.exitPictureInPicture?.();
+      } else if (anyVid.requestPictureInPicture) {
+        await anyVid.requestPictureInPicture();
+      }
+    } catch {
+      /* user-gesture / unsupported — silent */
+    }
+  }, [status]);
+
+  return { status, errorMessage, start, stop, attach, togglePiP } as const;
 }

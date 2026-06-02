@@ -25,6 +25,12 @@ export const SHORTCUTS: ShortcutDef[] = [
   { display: "?",     keys: ["/", "?"],                    label: "Show keyboard shortcuts", group: "Presenter" },
   { display: "⌘K",    keys: [],                            label: "Command palette",        group: "Presenter" },
   { display: "Click N", keys: [],                          label: "Jump to slide N",        group: "Navigation" },
+  { display: "C",       keys: ["c"],                       label: "Toggle camera bubble",   group: "Camera" },
+  { display: "Shift+C", keys: [],                          label: "Cycle camera size",      group: "Camera" },
+  { display: "Shift+←→↑↓", keys: [],                       label: "Nudge camera position",  group: "Camera" },
+  { display: "P",       keys: ["p"],                       label: "Picture-in-picture",     group: "Camera" },
+  { display: "M",       keys: ["m"],                       label: "Toggle background music", group: "Presenter" },
+  { display: "S",       keys: ["s"],                       label: "Cycle scene preset",     group: "Presenter" },
 ];
 
 export function matchesShortcut(event: KeyboardEvent, def: ShortcutDef): boolean {

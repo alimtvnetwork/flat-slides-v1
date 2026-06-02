@@ -6,6 +6,7 @@ import { CameraBubble } from "@/components/slides/controls/CameraBubble";
 import { ControllerPill } from "@/components/slides/controls/ControllerPill";
 import { DotPagination } from "@/components/slides/controls/DotPagination";
 import { KeyboardShortcutsDialog } from "@/components/slides/controls/KeyboardShortcutsDialog";
+import { PresenterToast } from "@/components/slides/controls/PresenterToast";
 import { PresenterTopBar } from "@/components/slides/controls/PresenterTopBar";
 import { SlideNumberBadge } from "@/components/slides/controls/SlideNumberBadge";
 import { RenderSlide } from "@/components/slides/RenderSlide";
@@ -40,7 +41,10 @@ function SlideStepPage() {
   const { isFs, toggle: toggleFs, exit: exitFs } = useFullscreen();
   const toggleTopJumper = useChrome((s) => s.toggleTopJumper);
   const toggleCamera = useChrome((s) => s.toggleCamera);
+  const scene = useChrome((s) => s.scene);
+  const cycleCameraSize = useChrome((s) => s.cycleCameraSize);
   const toggleMusic = useChrome((s) => s.toggleMusic);
+  const cycleScene = useChrome((s) => s.cycleScene);
 
   useEffect(() => {
     if (!slide) return;
@@ -56,9 +60,18 @@ function SlideStepPage() {
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (e.key === "F5") { e.preventDefault(); toggleFs(); return; }
       if (e.key === "Escape" && isFs) { exitFs(); return; }
+      // Shift+arrows are handled by CameraBubble (nudge) — don't double-trigger nav.
+      if (e.shiftKey && (e.key === "ArrowLeft" || e.key === "ArrowRight" || e.key === "ArrowUp" || e.key === "ArrowDown")) return;
+      if (e.shiftKey && (e.key === "c" || e.key === "C")) { cycleCameraSize(); return; }
       if (e.key === "j" || e.key === "J") { toggleTopJumper(); return; }
       if (e.key === "c" || e.key === "C") { toggleCamera(); return; }
       if (e.key === "m" || e.key === "M") { toggleMusic(); return; }
+      if (e.key === "s" || e.key === "S") { cycleScene(); return; }
+      if (e.key === "p" || e.key === "P") {
+        // Defer to CameraBubble's own toggle via custom event so we don't duplicate logic.
+        window.dispatchEvent(new CustomEvent("slides:camera-pip"));
+        return;
+      }
       if (e.key === "?" || e.key === "/") { e.preventDefault(); setHelpOpen((o) => !o); return; }
       if (e.key === "g" || e.key === "G") { navigate({ to: "/slides" }); return; }
       if (e.key === "ArrowRight" || e.key === " " || e.key === "Enter") {
@@ -76,7 +89,7 @@ function SlideStepPage() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [slide, stepCount, stepNum, current, next, prev, goTo, isFs, toggleFs, exitFs, toggleTopJumper, toggleCamera, toggleMusic, navigate]);
+  }, [slide, stepCount, stepNum, current, next, prev, goTo, isFs, toggleFs, exitFs, toggleTopJumper, toggleCamera, cycleCameraSize, toggleMusic, cycleScene, navigate]);
 
   if (!slide || slideStepCount(slide) === 0) {
     return (
@@ -109,19 +122,27 @@ function SlideStepPage() {
     />
   );
 
+  const slideOpacity = scene === "cam-only" ? 0.05 : scene === "split" ? 0.75 : 1;
+  const slideStage = (
+    <div style={{ opacity: slideOpacity, transition: "opacity 300ms ease" }} className="absolute inset-0">
+      <ScaledSlide fitPadding={36}>
+        <SlideTransition transitionKey={slide.id} allowZoom={slide.type === "center" && slide.display === true}>
+          <RenderSlide slide={slide} step={stepNum} />
+        </SlideTransition>
+      </ScaledSlide>
+    </div>
+  );
+
   if (isFs) {
     return (
       <div className="fixed inset-0 z-[100] flex flex-col overflow-hidden bg-black">
         <div className="relative min-h-0 flex-1">
-          <ScaledSlide fitPadding={36}>
-            <SlideTransition transitionKey={slide.id} allowZoom={slide.type === "center" && slide.display === true}>
-              <RenderSlide slide={slide} step={stepNum} />
-            </SlideTransition>
-          </ScaledSlide>
+          {slideStage}
           {surfaces}
         </div>
         {controller}
         <CameraBubble />
+        <PresenterToast />
         <KeyboardShortcutsDialog open={helpOpen} onClose={() => setHelpOpen(false)} />
         <SettingsDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} currentSlideId={slide.id} />
       </div>
@@ -131,15 +152,12 @@ function SlideStepPage() {
   return (
     <div className="flex h-screen overflow-hidden flex-col bg-black">
       <div className="relative min-h-0 flex-1">
-        <ScaledSlide fitPadding={36}>
-          <SlideTransition transitionKey={slide.id} allowZoom={slide.type === "center" && slide.display === true}>
-            <RenderSlide slide={slide} step={stepNum} />
-          </SlideTransition>
-        </ScaledSlide>
+        {slideStage}
         {surfaces}
       </div>
       {controller}
       <CameraBubble />
+      <PresenterToast />
       <KeyboardShortcutsDialog open={helpOpen} onClose={() => setHelpOpen(false)} />
       <SettingsDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} currentSlideId={slide.id} />
     </div>
