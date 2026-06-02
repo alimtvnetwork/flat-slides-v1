@@ -82,6 +82,12 @@ function SlideStepPage() {
     const onKey = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement)?.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA" || (e.target as HTMLElement)?.isContentEditable) return;
+      if ((e.metaKey || e.ctrlKey) && (e.key === "e" || e.key === "E")) {
+        e.preventDefault();
+        if (e.shiftKey) { void import("@/components/slides/exportAnnotations").then((m) => m.downloadAnnotations()); }
+        else { void import("@/components/slides/exportRehearsal").then((m) => m.downloadRehearsalReport(useDeck.getState().deck.title)); }
+        return;
+      }
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (e.key === "F5") { e.preventDefault(); toggleFs(); return; }
       if (e.key === "Escape" && isFs) { exitFs(); return; }
