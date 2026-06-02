@@ -2,9 +2,14 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
 import { useAnnotations } from "@/components/slides/annotations-store";
+import { useAudience } from "@/components/slides/audience-store";
+import { useAudienceSync } from "@/components/slides/useAudienceSync";
 import { useChrome } from "@/components/slides/chrome-store";
 import { AnnotationLayer } from "@/components/slides/controls/AnnotationLayer";
 import { AnnotationToolbar } from "@/components/slides/controls/AnnotationToolbar";
+import { PollResultsOverlay } from "@/components/slides/controls/PollResultsOverlay";
+import { QrOverlay } from "@/components/slides/controls/QrOverlay";
+import { SharePill } from "@/components/slides/controls/SharePill";
 import { TimerOverlay } from "@/components/slides/controls/TimerOverlay";
 import { useTimer } from "@/components/slides/timer-store";
 import { usePresentationTimer } from "@/components/slides/usePresentationTimer";
