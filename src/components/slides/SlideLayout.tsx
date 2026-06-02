@@ -1,8 +1,13 @@
-import type { CSSProperties, ReactNode } from "react";
+import type { ReactNode } from "react";
 
 type Props = {
   children: ReactNode;
-  background?: string; // CSS color or url()
+  /**
+   * @deprecated Background is now resolved centrally in `ThemeWrap`
+   * (deck settings + per-slide override + theme). Kept for call-site
+   * compatibility; no longer painted here.
+   */
+  background?: string;
   className?: string;
   topLeft?: ReactNode;
   topRight?: ReactNode;
@@ -12,27 +17,18 @@ type Props = {
 
 /**
  * The 1920x1080 slide surface. Wrap inside <ScaledSlide>.
+ * Background painting is owned by ThemeWrap (see RenderSlide).
  */
 export function SlideLayout({
   children,
-  background,
   className,
   topLeft,
   topRight,
   bottomLeft,
   bottomRight,
 }: Props) {
-  const style: CSSProperties = background
-    ? background.startsWith("url(") || background.includes("://")
-      ? {
-          backgroundImage: background.startsWith("url(") ? background : `url(${background})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }
-      : { background }
-    : {};
   return (
-    <div className={`slide-content ${className ?? ""}`} style={style}>
+    <div className={`slide-content ${className ?? ""}`}>
       {children}
       {topLeft ? <div className="absolute left-[60px] top-[44px]">{topLeft}</div> : null}
       {topRight ? <div className="absolute right-[60px] top-[44px]">{topRight}</div> : null}
