@@ -61,6 +61,7 @@ function SlidePage() {
   const toggleMusic = useChrome((s) => s.toggleMusic);
   const cycleScene = useChrome((s) => s.cycleScene);
   const scene = useChrome((s) => s.scene);
+  const focusEditorOpen = useChrome((s) => s.focusEditorOpen);
 
   // Drive the presentation timer; record dwell into the active slide bucket.
   usePresentationTimer();
