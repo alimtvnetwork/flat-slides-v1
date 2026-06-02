@@ -68,14 +68,28 @@ export const THEMES: Theme[] = [
   },
 ];
 
-export const DEFAULT_THEME_ID = "midnight";
+export const DEFAULT_THEME_ID = "snow";
 
 export function getTheme(id: string | undefined): Theme {
   return THEMES.find((t) => t.id === id) ?? THEMES[0];
 }
 
+/** Relative perceived brightness 0..1 from a #rrggbb / #rgb hex. */
+function hexLuma(hex: string): number {
+  const h = hex.replace("#", "");
+  const f = h.length === 3 ? h.split("").map((c) => c + c).join("") : h;
+  const r = parseInt(f.slice(0, 2), 16) || 0;
+  const g = parseInt(f.slice(2, 4), 16) || 0;
+  const b = parseInt(f.slice(4, 6), 16) || 0;
+  return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+}
+
 /** Inline style block injecting the theme CSS variables into a slide container. */
 export function themeStyle(theme: Theme): React.CSSProperties {
+  // Apply the legibility ink-drop only when fg is lighter than bg
+  // (light text on dark surface). Dark-on-light themes look muddy with it.
+  const lightOnDark = hexLuma(theme.fg) > hexLuma(theme.bg);
+  const textShadow = lightOnDark ? "rgb(0 0 0) 1px 0.7px 0px" : "none";
   return {
     ["--slide-bg" as string]: theme.bg,
     ["--slide-fg" as string]: theme.fg,
@@ -85,5 +99,6 @@ export function themeStyle(theme: Theme): React.CSSProperties {
     ["--slide-font-heading" as string]: theme.fontHeading,
     ["--slide-font-body" as string]: theme.fontBody,
     ["--slide-font-display" as string]: theme.fontDisplay,
+    ["--slide-text-shadow" as string]: textShadow,
   };
 }
