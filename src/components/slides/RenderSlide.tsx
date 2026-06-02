@@ -111,7 +111,7 @@ function StepsSlide({ slide, step }: { slide: StepsSlideProps; step: number }) {
   const focused = slide.steps[focus];
   return (
     <SlideLayout background={slide.background}>
-      <div className="absolute inset-0 grid grid-cols-[600px_minmax(0,1fr)] gap-[80px] px-[120px] pt-[110px] pb-[110px]">
+      <div className="absolute inset-0 grid grid-cols-[640px_minmax(0,1fr)] gap-[60px] px-[150px] pt-[110px] pb-[110px]">
         <div className="min-w-0">
         <h2
           className="slide-heading slide-subtitle mb-[52px]"
@@ -163,7 +163,14 @@ function StepsSlide({ slide, step }: { slide: StepsSlideProps; step: number }) {
               </div>
               <div
                 className="slide-heading"
-                style={{ color: "var(--slide-fg)", fontSize: 104, lineHeight: 1.05, letterSpacing: 0 }}
+                style={{
+                  color: "var(--slide-fg)",
+                  fontSize: 96,
+                  lineHeight: 1.05,
+                  letterSpacing: 0,
+                  textWrap: "balance",
+                  overflowWrap: "anywhere",
+                }}
               >
                 {focused?.title ?? ""}
               </div>
