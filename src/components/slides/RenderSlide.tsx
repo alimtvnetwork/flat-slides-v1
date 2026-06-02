@@ -222,6 +222,7 @@ function TimelineSlide({ slide, step }: { slide: TimelineSlideProps; step: numbe
   const items = slide.items;
   const focus = Math.max(0, Math.min(step, items.length - 1));
   const focused = items[focus];
+  const jumpToStep = useStepJump(slide);
 
   const railY = 780;
   const railLeft = 240;
