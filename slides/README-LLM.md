@@ -72,7 +72,7 @@ Set `deck.themeId` to apply globally. Override on any individual slide with
   "backgroundImage": "https://...",     // optional, used when mode = "image"
   "darken":          0,                 // 0–100, overlay strength
   "blur":            0,                 // 0–20, px
-  "transition":      "camera-zoom",     // "camera-zoom" | "morph" | "fade" | "eaten"
+  "transition":      "fade",            // "fade" default; "camera-zoom" only for rare hero/title moments
   "soundEnabled":    true,
   "volume":          0.6                // 0–1
 }
@@ -119,20 +119,41 @@ Every slide has these **common fields** (in addition to type-specific ones):
 }
 ```
 
-### 5.3 `type: "steps"` — numbered progressive reveal (1–8 items)
+### 5.3 `type: "steps"` — named focused steps (1–8 items)
 ```json
 {
   "id": "process", "type": "steps", "title": "Process",
   "heading": "How it works",
   "steps": [
-    ["Listen to the ", { "text": "user" }],
-    ["Sketch the ",   { "text": "shape" }],
-    ["Ship and ",     { "text": "iterate" }]
+    { "label": "Step 1", "title": "Listen", "detail": ["Listen to the ", { "text": "user" }] },
+    { "label": "Step 2", "title": "Shape",  "detail": ["Sketch the ", { "text": "shape" }] },
+    { "label": "Step 3", "title": "Ship",   "detail": ["Ship and ", { "text": "iterate" }] }
   ]
 }
 ```
 
-### 5.4 `type: "quote"` — pull quote with attribution
+All step labels remain visible. Arrow navigation changes the focused step and
+cross-fades the focused title/detail; non-focused steps stay muted, not hidden.
+Legacy rich-text arrays are still accepted on import and become `{ "label":
+"Step N", "detail": [...] }` automatically.
+
+### 5.4 `type: "timeline"` — rail + focused pinpoints (2–8 items)
+```json
+{
+  "id": "roadmap", "type": "timeline", "title": "Roadmap",
+  "heading": "Roadmap",
+  "items": [
+    { "label": "Q1", "title": "Discovery", "detail": ["Interview ", { "text": "20 customers" }] },
+    { "label": "Q2", "title": "Prototype", "detail": ["Validate the ", { "text": "core flow" }] },
+    { "label": "Q3", "title": "Beta", "detail": ["Ship to ", { "text": "design partners" }] }
+  ]
+}
+```
+
+Timeline items render as pinpoints on a rail. The focused item is highlighted,
+other labels stay muted/grey, and the centered title/detail fades between items.
+
+### 5.5 `type: "quote"` — pull quote with attribution
 ```json
 {
   "id": "epigraph", "type": "quote", "title": "Quote",
@@ -141,7 +162,7 @@ Every slide has these **common fields** (in addition to type-specific ones):
 }
 ```
 
-### 5.5 `type: "bullets"` — heading + bullet list (1–8 items)
+### 5.6 `type: "bullets"` — heading + bullet list (1–8 items)
 ```json
 {
   "id": "why", "type": "bullets", "title": "Why",
@@ -156,7 +177,7 @@ Every slide has these **common fields** (in addition to type-specific ones):
 }
 ```
 
-### 5.6 `type: "image"` — full-bleed or split image
+### 5.7 `type: "image"` — full-bleed or split image
 ```json
 {
   "id": "cover", "type": "image", "title": "Cover",
@@ -190,7 +211,7 @@ Combine with `padding` (px in the 1920×1080 canvas) to fine-tune breathing room
 ## 7. Rich text — strings + highlight chips
 
 Every text field that takes "Rich" content (heading, body, bullets, quote,
-steps, subhead, caption) is an **array** of:
+step detail, subhead, caption) is an **array** of:
 
 - `"plain string"` — `\n` becomes a line break
 - `{ "text": "…" }` — inline highlight (`.hl` class, theme accent color)
@@ -232,7 +253,7 @@ Generated decks **must** respect:
     "backgroundMode":  "color",
     "backgroundColor": "#101010",
     "darken": 0, "blur": 0,
-    "transition": "camera-zoom",
+    "transition": "fade",
     "soundEnabled": true, "volume": 0.6
   },
   "slides": [

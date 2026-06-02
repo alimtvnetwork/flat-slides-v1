@@ -107,48 +107,74 @@ function CenterSlide({ slide }: { slide: CenterSlideProps }) {
 }
 
 function StepsSlide({ slide, step }: { slide: StepsSlideProps; step: number }) {
-  const visible = Math.max(0, Math.min(step, slide.steps.length - 1));
+  const focus = Math.max(0, Math.min(step, slide.steps.length - 1));
+  const focused = slide.steps[focus];
   return (
     <SlideLayout background={slide.background}>
-      <div className="absolute inset-0 flex flex-col px-[120px] pt-[120px]">
+      <div className="absolute inset-0 grid grid-cols-[520px_1fr] gap-[80px] px-[120px] pt-[120px] pb-[110px]">
+        <div>
         <h2
           className="slide-heading slide-subtitle mb-[60px]"
           style={{ color: "var(--slide-muted)" }}
         >
           {slide.heading}
         </h2>
-        <ol className="flex flex-col gap-[36px]">
+        <ol className="flex flex-col gap-[28px]">
           {slide.steps.map((s, i) => {
-            const isVisible = i <= visible;
+            const isFocus = i === focus;
             return (
               <li
                 key={i}
-                className="slide-body-lg slide-body-font flex items-baseline gap-[28px]"
+                className="slide-body slide-body-font flex items-start gap-[24px]"
                 style={{
-                  opacity: isVisible ? 1 : 0.12,
-                  transform: isVisible ? "translateX(0)" : "translateX(-16px)",
-                  transition: "opacity 350ms ease, transform 350ms ease",
+                  opacity: isFocus ? 1 : 0.42,
+                  transform: isFocus ? "translateX(12px)" : "translateX(0)",
+                  transition: "opacity 350ms ease, transform 350ms ease, color 350ms ease",
+                  color: isFocus ? "var(--slide-fg)" : "var(--slide-muted)",
                 }}
               >
                 <span
                   className="slide-heading"
-                  style={{ color: "var(--slide-hl)", fontWeight: 700, minWidth: 80 }}
+                  style={{ color: isFocus ? "var(--slide-hl)" : "var(--slide-muted)", fontWeight: 700, minWidth: 72 }}
                 >
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <span>
-                  <Rich value={s} />
+                  <span className="block slide-caption" style={{ color: "inherit" }}>{s.label}</span>
+                  {s.title ? <span className="block" style={{ fontWeight: isFocus ? 700 : 500 }}>{s.title}</span> : null}
                 </span>
               </li>
             );
           })}
         </ol>
+        </div>
+        <div className="flex items-center justify-center text-center">
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={focus}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+              style={{ maxWidth: 980 }}
+            >
+              <div className="slide-title slide-heading" style={{ color: "var(--slide-fg)" }}>
+                {focused?.title ? `${focused.label} · ${focused.title}` : focused?.label ?? ""}
+              </div>
+              {focused?.detail ? (
+                <div className="slide-body-lg slide-body-font mx-auto mt-[28px]" style={{ color: "var(--slide-muted)" }}>
+                  <Rich value={focused.detail} />
+                </div>
+              ) : null}
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </div>
       <div
         className="slide-chrome absolute right-[60px] bottom-[44px]"
         style={{ color: "var(--slide-muted)" }}
       >
-        Step {visible + 1} / {slide.steps.length}
+        Step {focus + 1} / {slide.steps.length}
       </div>
     </SlideLayout>
   );

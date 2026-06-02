@@ -8,7 +8,7 @@
     "backgroundColor": "#101010",
     "darken": 0,
     "blur": 0,
-    "transition": "camera-zoom",
+    "transition": "fade",
     "soundEnabled": true,
     "volume": 0.6
   },
@@ -40,9 +40,9 @@
       "title": "Process",
       "heading": "How it works",
       "steps": [
-        ["Write the ", { "text": "JSON" }],
-        ["Import via ", { "text": "Settings" }],
-        ["Present and ", { "text": "iterate" }]
+        { "label": "Step 1", "title": "Write", "detail": ["Write the ", { "text": "JSON" }] },
+        { "label": "Step 2", "title": "Import", "detail": ["Import via ", { "text": "Settings" }] },
+        { "label": "Step 3", "title": "Present", "detail": ["Present and ", { "text": "iterate" }] }
       ]
     },
     {
