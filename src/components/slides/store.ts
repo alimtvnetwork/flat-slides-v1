@@ -81,6 +81,25 @@ const seedSlides: Slide[] = [
   },
 ];
 
+const defaultDeck: Deck = {
+  id: "default",
+  title: "Sample Deck",
+  themeId: DEFAULT_THEME_ID,
+  slides: seedSlides,
+  settings: defaultSettings,
+  version: 1,
+};
+
+function hasUsableDeck(value: unknown): value is Pick<DeckStore, "deck" | "themeId"> {
+  const state = value as Partial<DeckStore> | undefined;
+  return Boolean(
+    state?.deck &&
+      Array.isArray(state.deck.slides) &&
+      state.deck.slides.length > 0 &&
+      state.deck.settings,
+  );
+}
+
 export interface DeckStore {
   deck: Deck;
   themeId: string;
@@ -100,14 +119,7 @@ export interface DeckStore {
 export const useDeck = create<DeckStore>()(
   persist(
     (set, get) => ({
-      deck: {
-        id: "default",
-        title: "Sample Deck",
-        themeId: DEFAULT_THEME_ID,
-        slides: seedSlides,
-        settings: defaultSettings,
-        version: 1,
-      },
+      deck: defaultDeck,
       themeId: DEFAULT_THEME_ID,
       setSettings: (patch) =>
         set((s) => ({ deck: { ...s.deck, settings: { ...s.deck.settings, ...patch } } })),
@@ -137,6 +149,14 @@ export const useDeck = create<DeckStore>()(
     }),
     {
       name: "slides-deck-v1",
+      merge: (persisted, current) => {
+        if (!hasUsableDeck(persisted)) return current;
+        return {
+          ...current,
+          deck: persisted.deck,
+          themeId: persisted.themeId ?? persisted.deck.themeId ?? DEFAULT_THEME_ID,
+        };
+      },
       // Persist only mutable user data — not transient UI state.
       partialize: (s) => ({ deck: s.deck, themeId: s.themeId }),
     },

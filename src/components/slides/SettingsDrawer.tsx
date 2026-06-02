@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { useRef } from "react";
 import { toast } from "sonner";
 
@@ -215,7 +216,11 @@ export function SettingsDrawer({
             </button>
           </div>
           <p className="text-xs text-neutral-500">
-            See <code>slides/README-LLM.md</code> for the JSON spec any LLM can write.
+            See the{" "}
+            <Link to="/slides/spec" className="underline decoration-neutral-600 underline-offset-2 hover:text-neutral-300">
+              JSON spec
+            </Link>{" "}
+            any LLM can write.
           </p>
           <input ref={fileRef} type="file" className="hidden" accept="application/json" />
         </section>
