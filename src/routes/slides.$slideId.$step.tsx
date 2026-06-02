@@ -79,12 +79,28 @@ function SlideStepPage() {
 
   if (isFs) {
     return (
-      <div className="fixed inset-0 z-[100] bg-black">
-        <ScaledSlide>
-          <SlideTransition transitionKey={`${slide.id}:${stepNum}`}>
-            <RenderSlide slide={slide} step={stepNum} />
-          </SlideTransition>
-        </ScaledSlide>
+      <div className="fixed inset-0 z-[100] flex flex-col bg-black">
+        <div className="relative flex-1">
+          <ScaledSlide>
+            <SlideTransition transitionKey={`${slide.id}:${stepNum}`}>
+              <RenderSlide slide={slide} step={stepNum} />
+            </SlideTransition>
+          </ScaledSlide>
+        </div>
+        <ControlBar
+          slides={slides}
+          index={index}
+          step={stepNum}
+          totalSteps={slide.steps.length}
+          onOpenSettings={() => setSettingsOpen(true)}
+          onPresent={toggleFs}
+          isPresenting={isFs}
+        />
+        <SettingsDrawer
+          open={settingsOpen}
+          onClose={() => setSettingsOpen(false)}
+          currentSlideId={slide.id}
+        />
       </div>
     );
   }
