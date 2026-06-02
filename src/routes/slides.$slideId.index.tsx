@@ -1,7 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
+import { useAnnotations } from "@/components/slides/annotations-store";
 import { useChrome } from "@/components/slides/chrome-store";
+import { AnnotationLayer } from "@/components/slides/controls/AnnotationLayer";
+import { AnnotationToolbar } from "@/components/slides/controls/AnnotationToolbar";
 import { CommandPalette } from "@/components/slides/CommandPalette";
 import { CameraBubble } from "@/components/slides/controls/CameraBubble";
 import { ControllerPill } from "@/components/slides/controls/ControllerPill";
