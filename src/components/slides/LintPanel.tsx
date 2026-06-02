@@ -162,10 +162,11 @@ export function LintPanel({ open, onClose, deck }: Props) {
                     {iss.slideIndex + 1}. {iss.slideTitle || iss.slideId}
                   </Link>
                   <span
-                    className={`text-[10px] uppercase tracking-wider ${
+                    className={`inline-flex items-center gap-1 text-[10px] uppercase tracking-wider ${
                       iss.severity === "error" ? "text-red-400" : "text-amber-400"
                     }`}
                   >
+                    {iss.severity === "error" ? <AlertCircle size={11} /> : <AlertTriangle size={11} />}
                     {iss.severity}
                   </span>
                 </div>
