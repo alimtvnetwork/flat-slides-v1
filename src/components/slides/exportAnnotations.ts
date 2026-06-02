@@ -1,6 +1,6 @@
-import { useAnnotations, type InkStroke } from "../annotations-store";
-import { useChrome } from "../chrome-store";
-import { useDeck } from "../store";
+import { useAnnotations, type InkStroke } from "./annotations-store";
+import { useChrome } from "./chrome-store";
+import { useDeck } from "./store";
 
 /**
  * Export all per-slide ink strokes as a JSON file. Coordinates are already

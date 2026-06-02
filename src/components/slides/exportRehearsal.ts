@@ -1,5 +1,5 @@
-import { useChrome } from "../chrome-store";
-import { useTimer } from "../timer-store";
+import { useChrome } from "./chrome-store";
+import { useTimer } from "./timer-store";
 
 /**
  * Download trigger for a rehearsal-mode session: dumps total + per-slide
