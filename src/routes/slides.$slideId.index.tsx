@@ -98,6 +98,15 @@ function SlidePage() {
         const colors = ["#ef4444","#facc15","#22d3ee","#a3e635","#ffffff"];
         useAnnotations.setState({ color: colors[Number(e.key) - 1] }); return;
       }
+      if (e.key === "t" || e.key === "T") {
+        if (e.shiftKey) { useTimer.getState().reset(); return; }
+        useChrome.getState().toggleTimerVisible(); return;
+      }
+      if (e.key === "r" || e.key === "R") {
+        if (e.shiftKey) { useTimer.getState().resetRehearsal(); return; }
+        useTimer.getState().toggleRehearsal(); return;
+      }
+      if (e.key === " " && e.shiftKey) { e.preventDefault(); useTimer.getState().toggle(); return; }
       if (e.key === "?" || e.key === "/") { e.preventDefault(); setHelpOpen((o) => !o); return; }
       if (e.key === "g" || e.key === "G") { navigate({ to: "/slides" }); return; }
       if (e.key === "ArrowRight" || e.key === " " || e.key === "Enter") {
