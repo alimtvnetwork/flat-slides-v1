@@ -9,6 +9,53 @@ topic, drop the output into **Settings → Import deck**.
 
 ---
 
+## For the AI agent — read this first
+
+If you are an AI assistant resuming work on this project, load these in order:
+
+1. [`.lovable/what-to-read.md`](./.lovable/what-to-read.md) — full onboarding map (folder structure, conventions, how to add features/tests/specs).
+2. [`.lovable/coding-guidelines.md`](./.lovable/coding-guidelines.md) — hard coding rules.
+3. [`.lovable/strictly-avoid.md`](./.lovable/strictly-avoid.md) — things never to do.
+4. [`.lovable/plan.md`](./.lovable/plan.md) — active roadmap (current = B19).
+5. [`.lovable/memory/index.md`](./.lovable/memory/index.md) — decisions, specs, avoid-list.
+6. [`.lovable/todo-tasks.md`](./.lovable/todo-tasks.md) — batch/step status.
+7. [`.lovable/prompts/index.md`](./.lovable/prompts/index.md) — reusable prompt registry (e.g. `write memory`).
+
+### Folder map
+
+```
+.lovable/
+├── what-to-read.md          # onboarding map (start here)
+├── coding-guidelines.md     # hard rules for any code change
+├── strictly-avoid.md        # forbidden patterns
+├── plan.md                  # single-file roadmap
+├── suggestions.md           # tracker
+├── suggestions/             # verbatim per-suggestion captures
+├── prompts/                 # reusable prompts + index.md
+├── memory/
+│   ├── index.md             # MASTER INDEX
+│   ├── workflow/            # current batch state
+│   ├── decisions/           # architectural decisions
+│   ├── specs/               # verbatim user specs
+│   └── avoid/               # do-not-do rules
+├── pending-issues/          # open issues, one file each
+├── solved-issues/           # resolved issues with ## Solution
+├── cicd-issues/             # CI/CD failures
+└── cicd-index.md            # CI/CD summary
+```
+
+### Workflow for the AI
+
+- **Add a feature** → read `what-to-read.md` §3.2 + `coding-guidelines.md`, update `plan.md` and `memory/workflow/`.
+- **Add a unit test** → `what-to-read.md` §3.3 (Vitest, co-located `*.test.ts(x)`).
+- **Add a spec** → save verbatim user spec to `.lovable/memory/specs/XX-slug.md` and link from `memory/index.md`; if it changes the roadmap, also update `plan.md`.
+- **Resolve an issue** → move file from `pending-issues/` to `solved-issues/` and append `## Solution`, `## Learning`, `## What NOT to Repeat`.
+- **End of session** → run the `write memory` prompt at `.lovable/prompts/01-write-memory.md`.
+
+Never write to `mem://` directly — all persistent notes live under `.lovable/` or `spec/`.
+
+---
+
 ## Quickstart
 
 ```bash
