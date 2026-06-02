@@ -3,6 +3,7 @@ import { persist } from "zustand/middleware";
 
 export type CameraAnchor = "top-left" | "top-right" | "bottom-left" | "bottom-right";
 export type CameraSize = "sm" | "md" | "lg";
+export type CameraShape = "circle" | "rect" | "squircle";
 export type Scene = "normal" | "cam-only" | "split";
 
 export interface CameraState {
@@ -11,6 +12,9 @@ export interface CameraState {
   offsetX: number;
   offsetY: number;
   size: CameraSize;
+  /** When set, overrides the preset size (presenter-resized via corner handle). */
+  customSize: number | null;
+  shape: CameraShape;
   mirror: boolean;
   /** Apply a chroma-key style mix-blend; cheap visual stand-in for greenscreen. */
   greenScreen: boolean;
@@ -34,6 +38,10 @@ export const nextAnchor = (a: CameraAnchor): CameraAnchor =>
 const SCENE_ORDER: Scene[] = ["normal", "split", "cam-only"];
 export const nextScene = (s: Scene): Scene =>
   SCENE_ORDER[(SCENE_ORDER.indexOf(s) + 1) % SCENE_ORDER.length];
+
+const SHAPE_ORDER: CameraShape[] = ["circle", "squircle", "rect"];
+export const nextShape = (s: CameraShape): CameraShape =>
+  SHAPE_ORDER[(SHAPE_ORDER.indexOf(s) + 1) % SHAPE_ORDER.length];
 
 /**
  * Transient chrome / surface visibility state. Persisted so a presenter's
@@ -74,6 +82,8 @@ export interface ChromeStore {
   toggleCamera: () => void;
   cycleCameraSize: () => void;
   cycleCameraAnchor: () => void;
+  cycleCameraShape: () => void;
+  setCameraCustomSize: (px: number | null) => void;
   setMusic: (patch: Partial<MusicState>) => void;
   toggleMusic: () => void;
   setScene: (s: Scene) => void;
@@ -96,6 +106,8 @@ export const useChrome = create<ChromeStore>()(
         offsetX: 0,
         offsetY: 0,
         size: "md",
+        customSize: null,
+        shape: "circle",
         mirror: true,
         greenScreen: false,
         fullscreenOnly: false,
@@ -121,6 +133,8 @@ export const useChrome = create<ChromeStore>()(
       toggleCamera: () => set((s) => ({ camera: { ...s.camera, visible: !s.camera.visible } })),
       cycleCameraSize: () => set((s) => ({ camera: { ...s.camera, size: nextSize(s.camera.size) } })),
       cycleCameraAnchor: () => set((s) => ({ camera: { ...s.camera, anchor: nextAnchor(s.camera.anchor), offsetX: 0, offsetY: 0 } })),
+      cycleCameraShape: () => set((s) => ({ camera: { ...s.camera, shape: nextShape(s.camera.shape) } })),
+      setCameraCustomSize: (px) => set((s) => ({ camera: { ...s.camera, customSize: px } })),
       setMusic: (patch) => set((s) => ({ music: { ...s.music, ...patch } })),
       toggleMusic: () => set((s) => ({ music: { ...s.music, playing: !s.music.playing } })),
       setScene: (scene) => set({ scene, toast: { text: `Scene: ${scene}`, ts: Date.now() } }),

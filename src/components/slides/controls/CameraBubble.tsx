@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { Camera, CameraOff, FlipHorizontal2, Maximize, PictureInPicture2, Sparkles, X } from "lucide-react";
+import { Camera, CameraOff, FlipHorizontal2, Maximize, PictureInPicture2, Shapes, Sparkles, X } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 
@@ -11,6 +11,14 @@ import { cn } from "@/lib/utils";
 // "split" scene blows the bubble up to a 16:9 hero card next to the slide.
 const SIZES = { sm: 144, md: 200, lg: 280 } as const;
 const SCENE_SCALE = { normal: 1, split: 1.6, "cam-only": 2.4 } as const;
+const MIN_SIZE = 96;
+const MAX_SIZE = 720;
+// CSS squircle approximation via border-radius (superellipse-ish).
+const SHAPE_RADIUS = {
+  circle: "9999px",
+  squircle: "32%",
+  rect: "12px",
+} as const;
 
 /**
  * Floating draggable webcam bubble. Anchors to one of 4 corners (persisted)
@@ -23,10 +31,13 @@ export function CameraBubble() {
   const scene = useChrome((s) => s.scene);
   const cycleSize = useChrome((s) => s.cycleCameraSize);
   const cycleAnchor = useChrome((s) => s.cycleCameraAnchor);
+  const cycleShape = useChrome((s) => s.cycleCameraShape);
+  const setCameraCustomSize = useChrome((s) => s.setCameraCustomSize);
   const { status, errorMessage, start, stop, attach, togglePiP } = useCamera();
   const { isFs } = useFullscreen();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const dragState = useRef<{ x: number; y: number; ox: number; oy: number } | null>(null);
+  const resizeState = useRef<{ x: number; y: number; size: number } | null>(null);
 
   // Auto-start whenever the bubble is opened from chrome state.
   useEffect(() => {
@@ -65,7 +76,10 @@ export function CameraBubble() {
   if (camera.fullscreenOnly && !isFs) return null;
 
   const scale = SCENE_SCALE[scene];
-  const size = Math.round(SIZES[camera.size] * scale);
+  const baseSize = camera.customSize ?? SIZES[camera.size];
+  const size = Math.max(MIN_SIZE, Math.min(MAX_SIZE, Math.round(baseSize * scale)));
+  const radius =
+    scene === "cam-only" ? "32px" : SHAPE_RADIUS[camera.shape];
   const anchorStyle: React.CSSProperties = (() => {
     const margin = 20;
     switch (camera.anchor) {
@@ -79,6 +93,7 @@ export function CameraBubble() {
 
   function onPointerDown(e: React.PointerEvent) {
     if ((e.target as HTMLElement).closest("[data-camera-control]")) return;
+    if ((e.target as HTMLElement).closest("[data-resize-handle]")) return;
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     dragState.current = { x: e.clientX, y: e.clientY, ox: camera.offsetX, oy: camera.offsetY };
   }
@@ -94,15 +109,63 @@ export function CameraBubble() {
     dragState.current = null;
   }
 
+  // Resize via opposite-corner handle (relative to anchor) — same-side feels weird.
+  const resizeCorner =
+    camera.anchor === "top-left" ? "br"
+    : camera.anchor === "top-right" ? "bl"
+    : camera.anchor === "bottom-left" ? "tr"
+    : "tl";
+  const resizeStyle: React.CSSProperties = {
+    position: "absolute",
+    width: 18,
+    height: 18,
+    cursor: "nwse-resize",
+    ...(resizeCorner === "br" ? { right: 4, bottom: 4 } : {}),
+    ...(resizeCorner === "bl" ? { left: 4, bottom: 4, cursor: "nesw-resize" } : {}),
+    ...(resizeCorner === "tr" ? { right: 4, top: 4, cursor: "nesw-resize" } : {}),
+    ...(resizeCorner === "tl" ? { left: 4, top: 4 } : {}),
+  };
+  function onResizeDown(e: React.PointerEvent) {
+    e.stopPropagation();
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    resizeState.current = { x: e.clientX, y: e.clientY, size };
+  }
+  function onResizeMove(e: React.PointerEvent) {
+    const r = resizeState.current;
+    if (!r) return;
+    // Distance from start, signed so the handle "pulls" outward away from the anchor.
+    const dx = e.clientX - r.x;
+    const dy = e.clientY - r.y;
+    const sign =
+      resizeCorner === "br" ? 1
+      : resizeCorner === "tl" ? -1
+      : resizeCorner === "bl" ? Math.sign(-dx + dy) || 1
+      : Math.sign(dx + -dy) || 1;
+    const delta = sign * Math.max(Math.abs(dx), Math.abs(dy));
+    const nextRaw = Math.round((r.size + delta) / scale);
+    const next = Math.max(MIN_SIZE, Math.min(MAX_SIZE, nextRaw));
+    setCameraCustomSize(next);
+  }
+  function onResizeUp(e: React.PointerEvent) {
+    (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+    resizeState.current = null;
+  }
+
   const node = (
     <motion.div
       data-print-hide="true"
       role="region"
       aria-label="Presenter camera"
-      style={{ position: "fixed", zIndex: 60, width: size, height: size, ...anchorStyle }}
+      style={{
+        position: "fixed",
+        zIndex: 60,
+        width: size,
+        height: size,
+        borderRadius: radius,
+        ...anchorStyle,
+      }}
       className={cn(
         "overflow-hidden border-2 shadow-2xl cursor-grab active:cursor-grabbing",
-        scene === "cam-only" ? "rounded-3xl" : "rounded-full",
         "border-white/15 bg-black/60 backdrop-blur",
       )}
       initial={{ opacity: 0, scale: 0.8 }}
@@ -196,6 +259,16 @@ export function CameraBubble() {
         <button
           data-camera-control
           type="button"
+          title={`Shape: ${camera.shape} (click to cycle)`}
+          aria-label="Cycle camera shape"
+          onClick={cycleShape}
+          className="rounded-full bg-black/70 p-1.5 text-white/90 hover:bg-black/90"
+        >
+          <Shapes size={12} />
+        </button>
+        <button
+          data-camera-control
+          type="button"
           title="Picture-in-picture"
           aria-label="Picture in picture"
           onClick={() => void togglePiP()}
@@ -224,6 +297,23 @@ export function CameraBubble() {
           <X size={12} />
         </button>
       </div>
+
+      <div
+        data-resize-handle
+        role="slider"
+        aria-label="Resize camera"
+        aria-valuemin={MIN_SIZE}
+        aria-valuemax={MAX_SIZE}
+        aria-valuenow={size}
+        title="Drag to resize · double-click to reset"
+        onPointerDown={onResizeDown}
+        onPointerMove={onResizeMove}
+        onPointerUp={onResizeUp}
+        onPointerCancel={onResizeUp}
+        onDoubleClick={(e) => { e.stopPropagation(); setCameraCustomSize(null); }}
+        style={resizeStyle}
+        className="rounded-sm bg-white/40 hover:bg-white/80 ring-1 ring-black/30"
+      />
     </motion.div>
   );
 

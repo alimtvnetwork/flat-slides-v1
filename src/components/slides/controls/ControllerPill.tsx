@@ -64,6 +64,19 @@ const reduceMotion = () =>
   typeof window !== "undefined" &&
   window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
+function useCompactViewport() {
+  const [compact, setCompact] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return;
+    const mql = window.matchMedia("(max-width: 640px)");
+    const sync = () => setCompact(mql.matches);
+    sync();
+    mql.addEventListener?.("change", sync);
+    return () => mql.removeEventListener?.("change", sync);
+  }, []);
+  return compact;
+}
+
 /**
  * Hover-reveal controller pill. Collapsed = faint chip, expanded = full
  * toolbar. Portaled to <body>, anchored at one of 8 positions (persisted),
@@ -75,6 +88,7 @@ export function ControllerPill(props: Props) {
   const setAnchor = usePositionStore((s) => s.setAnchor);
   const cameraVisible = useChrome((s) => s.camera.visible);
   const toggleCamera = useChrome((s) => s.toggleCamera);
+  const compact = useCompactViewport();
   const [expanded, setExpanded] = useState(false);
   const collapseTimer = useRef<number | undefined>(undefined);
   const [mounted, setMounted] = useState(false);
@@ -151,28 +165,40 @@ export function ControllerPill(props: Props) {
               <ChevronRight size={16} />
             </PillButton>
 
-            <span className="mx-1 h-4 w-px bg-white/15" aria-hidden />
+            {!compact && (
+              <>
+                <span className="mx-1 h-4 w-px bg-white/15" aria-hidden />
 
-            <PillButton onClick={onOpenGrid} ariaLabel="Deck overview">
-              <Grid3x3 size={15} />
-            </PillButton>
-            <PillButton onClick={onToggleFullscreen} ariaLabel={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}>
-              {isFullscreen ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
-            </PillButton>
-            <PillButton
-              onClick={toggleCamera}
-              ariaLabel={cameraVisible ? "Hide camera" : "Show camera"}
-              active={cameraVisible}
-            >
-              <Camera size={15} />
-            </PillButton>
-            <MusicToggle compact />
-            <PillButton onClick={onOpenSettings} ariaLabel="Settings">
-              <Settings size={15} />
-            </PillButton>
-            <PillButton onClick={onOpenHelp} ariaLabel="Keyboard shortcuts">
-              <HelpCircle size={15} />
-            </PillButton>
+                <PillButton onClick={onOpenGrid} ariaLabel="Deck overview">
+                  <Grid3x3 size={15} />
+                </PillButton>
+                <PillButton onClick={onToggleFullscreen} ariaLabel={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}>
+                  {isFullscreen ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
+                </PillButton>
+                <PillButton
+                  onClick={toggleCamera}
+                  ariaLabel={cameraVisible ? "Hide camera" : "Show camera"}
+                  active={cameraVisible}
+                >
+                  <Camera size={15} />
+                </PillButton>
+                <MusicToggle compact />
+                <PillButton onClick={onOpenSettings} ariaLabel="Settings">
+                  <Settings size={15} />
+                </PillButton>
+                <PillButton onClick={onOpenHelp} ariaLabel="Keyboard shortcuts">
+                  <HelpCircle size={15} />
+                </PillButton>
+
+                <span
+                  className="ml-1 hidden text-[10px] uppercase tracking-wider text-white/35 md:inline"
+                  aria-hidden
+                  title="Right-click anywhere on the pill to cycle through 8 positions"
+                >
+                  right-click to move
+                </span>
+              </>
+            )}
           </motion.div>
         ) : (
           <motion.button

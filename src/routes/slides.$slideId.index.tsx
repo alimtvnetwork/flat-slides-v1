@@ -19,6 +19,7 @@ import { CameraBubble } from "@/components/slides/controls/CameraBubble";
 import { ControllerPill } from "@/components/slides/controls/ControllerPill";
 import { DotPagination } from "@/components/slides/controls/DotPagination";
 import { KeyboardShortcutsDialog } from "@/components/slides/controls/KeyboardShortcutsDialog";
+import { OnboardingCoachmark } from "@/components/slides/controls/OnboardingCoachmark";
 import { PresenterToast } from "@/components/slides/controls/PresenterToast";
 import { PresenterTopBar } from "@/components/slides/controls/PresenterTopBar";
 import { SlideNumberBadge } from "@/components/slides/controls/SlideNumberBadge";
@@ -264,6 +265,7 @@ function SlidePage() {
         onOpenLint={() => setLintOpen(true)}
       />
       <KeyboardShortcutsDialog open={helpOpen} onClose={() => setHelpOpen(false)} />
+      <OnboardingCoachmark />
       <LintPanel open={lintOpen} onClose={() => setLintOpen(false)} deck={deck} />
       <PresenterTools index={index} total={total} deck={deck} />
     </div>
