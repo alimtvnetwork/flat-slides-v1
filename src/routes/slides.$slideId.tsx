@@ -5,7 +5,9 @@ import { ControlBar } from "@/components/slides/ControlBar";
 import { RenderSlide } from "@/components/slides/RenderSlide";
 import { ScaledSlide } from "@/components/slides/ScaledSlide";
 import { SettingsDrawer } from "@/components/slides/SettingsDrawer";
+import { SlideTransition } from "@/components/slides/SlideTransition";
 import { useDeck } from "@/components/slides/store";
+import { useFullscreen } from "@/components/slides/useFullscreen";
 
 export const Route = createFileRoute("/slides/$slideId")({
   head: ({ params }) => ({
