@@ -8,7 +8,8 @@ export type SlidesEventDetail =
   | { type: "slide-change"; current: number; total: number; slideId?: string; title?: string }
   | { type: "step-change"; current: number; step: number; stepCount: number }
   | { type: "scene-change"; scene: string }
-  | { type: "theme-change"; themeId: string };
+  | { type: "theme-change"; themeId: string }
+  | { type: "deck-load"; slideCount: number; deckId?: string; title?: string };
 
 export const SLIDES_EVENT = "slides:event" as const;
 
