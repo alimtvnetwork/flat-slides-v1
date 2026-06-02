@@ -446,11 +446,218 @@ For the full timeline rendering contract see
 
 ---
 
+## 10. Media slides
+
+### 10.1 `image` — full-bleed, letterbox, or split
+
+The `src` MUST be either an `https://` URL or a `data:` URI. Both are
+validated by the importer.
+
+| Field     | Type                              | Required | Notes |
+|-----------|-----------------------------------|----------|-------|
+| `type`    | `"image"`                         | ✱        ||
+| `src`     | url \| `data:` URI                | ✱        | the image |
+| `alt`     | string ≤200                       |          | screen-reader text |
+| `caption` | RichText                          |          | rendered under/over the image |
+| `heading` | RichText                          |          | optional headline above the image (split mode) |
+| `fit`     | `"cover" \| "contain" \| "split"` |          | default `"cover"` |
+
+`fit` modes:
+
+- **`cover`** — image fills the full 1920×1080 canvas, cropped to fit. Good
+  for hero photos. Pair with a short `caption` overlay.
+- **`contain`** — image is letterboxed inside the canvas. Use for screenshots,
+  diagrams, or anything that must not be cropped.
+- **`split`** — image on one half, `heading` + `caption` on the other.
+  Use when the audience needs to read text and see the image at the same time.
+
+#### 10.1.1 Image from a URL
+
+```jsonc
+{
+  "id": "hero-photo",
+  "type": "image",
+  "title": "Office on launch day",
+  "src": "https://images.example.com/launch-day.jpg",
+  "alt": "Team photo on launch morning",
+  "fit": "cover",
+  "caption": ["Launch morning, ", { "text": "Mar 14 2026" }]
+}
+```
+
+#### 10.1.2 Image as base64 (`data:` URI)
+
+Use for tiny inline icons, logos, or one-off snapshots that you do not want
+to host. **Keep base64 payloads small** — anything over a few hundred KB
+bloats the deck JSON and slows imports. For real photos, use a URL.
+
+Format: `data:<mime>;base64,<payload>` — exactly the format `<img src="…">`
+accepts. The schema accepts any string that **starts with `data:`** (no
+length cap is enforced beyond the JSON document size, but be reasonable).
+
+```jsonc
+{
+  "id": "logo-mark",
+  "type": "image",
+  "title": "Logo",
+  "fit": "contain",
+  "alt": "Acme logomark",
+  "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg=="
+}
+```
+
+#### 10.1.3 SVG as a `data:` URI (preferred for SVG)
+
+SVG must be wrapped as a data URI to fit the `src` field. Two options:
+
+- **`data:image/svg+xml;utf8,` + URL-encoded XML** — human-readable, smaller
+  for short SVGs. Encode `#` as `%23`, `<` as `%3C`, `>` as `%3E`, etc.
+- **`data:image/svg+xml;base64,` + base64** — opaque but binary-safe;
+  required if the SVG contains characters that are awkward to URL-encode.
+
+```jsonc
+{
+  "id": "diagram-svg",
+  "type": "image",
+  "title": "System diagram",
+  "fit": "contain",
+  "alt": "Three-tier system: client → API → DB",
+  "src": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D'http%3A//www.w3.org/2000/svg'%20viewBox%3D'0%200%20480%20120'%3E%3Crect%20x%3D'10'%20y%3D'30'%20width%3D'120'%20height%3D'60'%20rx%3D'10'%20fill%3D'%231d4ed8'/%3E%3Crect%20x%3D'180'%20y%3D'30'%20width%3D'120'%20height%3D'60'%20rx%3D'10'%20fill%3D'%2316a34a'/%3E%3Crect%20x%3D'350'%20y%3D'30'%20width%3D'120'%20height%3D'60'%20rx%3D'10'%20fill%3D'%23db2777'/%3E%3Cline%20x1%3D'130'%20y1%3D'60'%20x2%3D'180'%20y2%3D'60'%20stroke%3D'white'%20stroke-width%3D'4'/%3E%3Cline%20x1%3D'300'%20y1%3D'60'%20x2%3D'350'%20y2%3D'60'%20stroke%3D'white'%20stroke-width%3D'4'/%3E%3C/svg%3E"
+}
+```
+
+#### 10.1.4 Multi-step SVG reveals (the "build" pattern)
+
+The `image` slide itself has no `steps` array. To reveal an SVG in stages,
+use one of the two patterns below.
+
+**Pattern A — single big SVG + per-step `focus` regions (preferred).**
+Author one SVG that contains the whole diagram, then use `slide.focus` to
+zoom the camera onto each chunk per step. The user advances with →; the
+SVG never changes, only the framing does. This is the only way to keep all
+labels and connectors visible to the audience.
+
+The slide needs sub-steps for the URL contract to register them. Today only
+`steps` and `timeline` are step-aware (see `slideStepCount`). The cleanest
+authoring shape is therefore a `steps` slide whose `detail` text describes
+what to look at, paired with a sibling `image` slide that owns the SVG —
+**OR** put the SVG diagram as the slide `background` and use a `steps` slide
+with matching per-step focus regions:
+
+```jsonc
+{
+  "id": "arch-build",
+  "type": "steps",
+  "title": "Architecture, in three reveals",
+  "background": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D'http%3A//www.w3.org/2000/svg'%20viewBox%3D'0%200%201920%201080'%3E%3C!--%20full%20diagram%20here%20--%3E%3C/svg%3E",
+  "heading": "From request to response",
+  "steps": [
+    { "label": "Client",  "title": "What the user sees", "detail": ["The browser sends a single ", { "text": "GET /deck" }, " on load."] },
+    { "label": "Edge",    "title": "Cached & validated", "detail": ["The edge serves a stale copy in <20ms, revalidates in the background."] },
+    { "label": "Origin",  "title": "Render & persist",  "detail": ["Origin renders the deck JSON, writes the new revision to storage."] }
+  ],
+  "focus": [
+    { "step": 1, "x":   60, "y":  80, "w": 600, "h": 920, "label": "Client column" },
+    { "step": 2, "x":  660, "y":  80, "w": 600, "h": 920, "label": "Edge column"   },
+    { "step": 3, "x": 1260, "y":  80, "w": 600, "h": 920, "label": "Origin column" }
+  ]
+}
+```
+
+**Pattern B — N consecutive `image` slides, each a more-complete SVG.**
+Author the SVG once with every layer, then export N variants where each
+later variant has more `<g>` groups visible (or use `opacity="0"` on the
+hidden ones). Each variant is its own `image` slide; → advances between
+them. Use this when the SVG itself must change between steps (a node
+appearing, a number updating, an arrow being drawn) rather than just the
+framing. Keep all slides at the same `fit`, `align`, and `background` so
+the only visible change is the SVG itself; that reads as a single animated
+reveal rather than separate slides.
+
+```jsonc
+// Slide 1 — only the client node visible
+{ "id": "arch-1", "type": "image", "title": "Architecture (1/3)", "fit": "contain",
+  "src": "data:image/svg+xml;utf8,..." },
+// Slide 2 — client + edge
+{ "id": "arch-2", "type": "image", "title": "Architecture (2/3)", "fit": "contain",
+  "src": "data:image/svg+xml;utf8,..." },
+// Slide 3 — full diagram
+{ "id": "arch-3", "type": "image", "title": "Architecture (3/3)", "fit": "contain",
+  "src": "data:image/svg+xml;utf8,..." }
+```
+
+### 10.2 `embed` — iframe (https only)
+
+| Field     | Type        | Required | Notes |
+|-----------|-------------|----------|-------|
+| `type`    | `"embed"`   | ✱        ||
+| `url`     | https URL   | ✱        | must start with `https://` |
+| `heading` | string ≤200 |          | text above the iframe |
+| `caption` | string ≤400 |          | text below the iframe |
+| `allow`   | string ≤200 |          | iframe `allow` attribute (default `"fullscreen"`) |
+
+```jsonc
+{
+  "id": "demo",
+  "type": "embed",
+  "title": "Live demo",
+  "heading": "Try it yourself",
+  "url": "https://demo.example.com/playground",
+  "allow": "fullscreen; clipboard-read; clipboard-write",
+  "caption": "Tab into the input to focus. Esc returns to the deck."
+}
+```
+
+`http://` URLs are rejected by the schema. Sites that block framing
+(`X-Frame-Options: DENY`) will render as a blank area — test before
+shipping.
+
+### 10.3 `poll` — live audience poll
+
+| Field      | Type       | Required | Notes |
+|------------|------------|----------|-------|
+| `type`     | `"poll"`   | ✱        ||
+| `question` | string 1..280 | ✱     | plain string (no RichText) |
+| `options`  | string[]   | ✱        | 2..8 options, each 1..120 chars |
+
+```jsonc
+{
+  "id": "poll-prio",
+  "type": "poll",
+  "title": "Audience poll",
+  "question": "Which area should we ship first in Q1?",
+  "options": ["Public API", "Workspaces", "Audit log", "Mobile app"]
+}
+```
+
+Results render via the `PollResultsOverlay` when audience devices vote
+through the share QR.
+
+### 10.4 `qa` — Q&A holding slide
+
+| Field    | Type     | Required | Notes |
+|----------|----------|----------|-------|
+| `type`   | `"qa"`   | ✱        ||
+| `prompt` | string ≤200 |       | optional headline (defaults to "Questions?") |
+
+```jsonc
+{
+  "id": "qa",
+  "type": "qa",
+  "title": "Q&A",
+  "prompt": "What did we miss?"
+}
+```
+
+Typically the final slide of a deck. The share QR stays visible so the
+audience can submit questions while you talk.
+
+---
+
 ## Continued in batches
 
-- **B3 (steps 21–30):** Media slides (`image`, `embed`, `poll`, `qa`) including
-  URL / base64 / inline-SVG image patterns and multi-step SVG reveals.
 - **B4 (steps 31–40):** Authoring patterns and density rules.
 - **B5 (steps 41–50):** Full `sample-deck.json`, validation, common mistakes,
   versioning.
+
 
