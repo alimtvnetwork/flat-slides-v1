@@ -156,10 +156,16 @@ export function CameraBubble() {
       data-print-hide="true"
       role="region"
       aria-label="Presenter camera"
-      style={{ position: "fixed", zIndex: 60, width: size, height: size, ...anchorStyle }}
+      style={{
+        position: "fixed",
+        zIndex: 60,
+        width: size,
+        height: size,
+        borderRadius: radius,
+        ...anchorStyle,
+      }}
       className={cn(
         "overflow-hidden border-2 shadow-2xl cursor-grab active:cursor-grabbing",
-        scene === "cam-only" ? "rounded-3xl" : "rounded-full",
         "border-white/15 bg-black/60 backdrop-blur",
       )}
       initial={{ opacity: 0, scale: 0.8 }}
@@ -249,6 +255,16 @@ export function CameraBubble() {
           className="rounded-full bg-black/70 p-1.5 text-white/90 hover:bg-black/90"
         >
           <Maximize size={12} />
+        </button>
+        <button
+          data-camera-control
+          type="button"
+          title={`Shape: ${camera.shape} (click to cycle)`}
+          aria-label="Cycle camera shape"
+          onClick={cycleShape}
+          className="rounded-full bg-black/70 p-1.5 text-white/90 hover:bg-black/90"
+        >
+          <Shapes size={12} />
         </button>
         <button
           data-camera-control
