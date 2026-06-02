@@ -51,7 +51,10 @@ export function ControlBar({ slides, index, step, totalSteps, onOpenSettings, on
   };
 
   return (
-    <div className="flex items-center justify-between gap-4 bg-neutral-950 px-6 py-3 text-sm text-neutral-300">
+    <div
+      className="flex items-center justify-between gap-4 bg-neutral-950 px-6 py-3 text-sm text-neutral-300"
+      data-app-chrome
+    >
       <Link to="/slides" className="opacity-70 hover:opacity-100">← Overview</Link>
 
       <div className="flex items-center gap-4">
