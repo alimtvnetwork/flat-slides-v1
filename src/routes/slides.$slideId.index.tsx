@@ -77,12 +77,28 @@ function SlidePage() {
 
   if (isFs) {
     return (
-      <div className="fixed inset-0 z-[100] bg-black">
-        <ScaledSlide>
-          <SlideTransition transitionKey={slide.id}>
-            <RenderSlide slide={slide} step={0} />
-          </SlideTransition>
-        </ScaledSlide>
+      <div className="fixed inset-0 z-[100] flex flex-col bg-black">
+        <div className="relative flex-1">
+          <ScaledSlide>
+            <SlideTransition transitionKey={slide.id}>
+              <RenderSlide slide={slide} step={0} />
+            </SlideTransition>
+          </ScaledSlide>
+        </div>
+        <ControlBar
+          slides={slides}
+          index={index}
+          step={slide.type === "steps" ? 0 : undefined}
+          totalSteps={slide.type === "steps" ? slide.steps.length : undefined}
+          onOpenSettings={() => setSettingsOpen(true)}
+          onPresent={toggleFs}
+          isPresenting={isFs}
+        />
+        <SettingsDrawer
+          open={settingsOpen}
+          onClose={() => setSettingsOpen(false)}
+          currentSlideId={slide.id}
+        />
       </div>
     );
   }
