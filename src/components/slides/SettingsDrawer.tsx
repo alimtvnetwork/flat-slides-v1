@@ -1,30 +1,113 @@
+import { useRef } from "react";
+import { toast } from "sonner";
+
+import {
+  exportDeck,
+  exportSlide,
+  parseDeckJson,
+  parseSlideJson,
+  pickJsonFile,
+} from "@/lib/slides/io";
+
 import { useDeck } from "./store";
+import { DEFAULT_THEME_ID, THEMES } from "./themes";
 import type { TransitionKind } from "./types";
 
 const TRANSITIONS: TransitionKind[] = ["camera-zoom", "morph", "fade", "eaten"];
 
-export function SettingsDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const settings = useDeck((s) => s.deck.settings);
+const PALETTE_PRESETS = ["#101010", "#000000", "#1d1d1d", "#0c2340", "#1b0d1f", "#f5f0e6"];
+
+export function SettingsDrawer({
+  open,
+  onClose,
+  currentSlideId,
+}: {
+  open: boolean;
+  onClose: () => void;
+  currentSlideId?: string;
+}) {
+  const deck = useDeck((s) => s.deck);
+  const themeId = useDeck((s) => s.themeId);
   const setSettings = useDeck((s) => s.setSettings);
+  const setThemeId = useDeck((s) => s.setThemeId);
+  const setDeck = useDeck((s) => s.setDeck);
+  const upsertSlide = useDeck((s) => s.upsertSlide);
+  const settings = deck.settings;
+  const fileRef = useRef<HTMLInputElement>(null);
 
   if (!open) return null;
+
+  const handleImportDeck = async () => {
+    const text = await pickJsonFile();
+    if (!text) return;
+    const r = parseDeckJson(text);
+    if (!r.ok) return toast.error(`Import failed:\n${r.error}`, { duration: 8000 });
+    setDeck(r.value);
+    toast.success(`Imported deck "${r.value.title}" (${r.value.slides.length} slides)`);
+  };
+
+  const handleImportSlide = async () => {
+    const text = await pickJsonFile();
+    if (!text) return;
+    const r = parseSlideJson(text);
+    if (!r.ok) return toast.error(`Import failed:\n${r.error}`, { duration: 8000 });
+    upsertSlide(r.value);
+    toast.success(`Imported slide "${r.value.id}"`);
+  };
+
+  const handleExportSlide = () => {
+    const target = deck.slides.find((s) => s.id === currentSlideId) ?? deck.slides[0];
+    if (!target) return toast.error("No slide to export");
+    exportSlide(target);
+    toast.success(`Exported ${target.id}.slide.json`);
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex">
+    <div className="fixed inset-0 z-50 flex" data-app-chrome>
       <div className="flex-1 bg-black/50" onClick={onClose} />
-      <aside className="w-[360px] bg-neutral-950 p-6 text-neutral-200 overflow-y-auto">
+      <aside className="w-[400px] bg-neutral-950 p-6 text-neutral-200 overflow-y-auto">
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-lg font-semibold">Settings</h2>
           <button onClick={onClose} className="text-neutral-400 hover:text-white">✕</button>
         </div>
 
+        {/* Theme */}
         <section className="mb-6 space-y-2">
-          <label className="text-xs uppercase tracking-wider text-neutral-400">Background</label>
+          <label className="text-xs uppercase tracking-wider text-neutral-400">Theme</label>
+          <div className="grid grid-cols-3 gap-2">
+            {THEMES.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => setThemeId(t.id)}
+                className={`flex flex-col items-stretch gap-1 rounded p-2 text-left text-xs ring-1 transition ${
+                  (themeId ?? DEFAULT_THEME_ID) === t.id
+                    ? "ring-white"
+                    : "ring-neutral-800 hover:ring-neutral-600"
+                }`}
+                style={{ background: t.bg, color: t.fg }}
+              >
+                <span className="font-semibold">{t.name}</span>
+                <span className="flex gap-1">
+                  <span className="h-3 w-3 rounded-sm" style={{ background: t.fg }} />
+                  <span className="h-3 w-3 rounded-sm" style={{ background: t.muted }} />
+                  <span className="h-3 w-3 rounded-sm" style={{ background: t.hl }} />
+                </span>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        {/* Background color */}
+        <section className="mb-6 space-y-2">
+          <label className="text-xs uppercase tracking-wider text-neutral-400">
+            Background color
+          </label>
           <div className="flex gap-2">
             {(["color", "image"] as const).map((mode) => (
               <button
                 key={mode}
                 onClick={() => setSettings({ backgroundMode: mode })}
-                className={`flex-1 rounded px-3 py-1 text-sm ${
+                className={`flex-1 rounded px-3 py-1 text-sm capitalize ${
                   settings.backgroundMode === mode
                     ? "bg-neutral-700 text-white"
                     : "bg-neutral-800 text-neutral-400 hover:text-white"
@@ -40,16 +123,31 @@ export function SettingsDrawer({ open, onClose }: { open: boolean; onClose: () =
             onChange={(e) => setSettings({ backgroundColor: e.target.value })}
             className="h-10 w-full rounded bg-neutral-800"
           />
+          <div className="flex flex-wrap gap-1">
+            {PALETTE_PRESETS.map((c) => (
+              <button
+                key={c}
+                onClick={() => setSettings({ backgroundColor: c })}
+                title={c}
+                className="h-7 w-7 rounded ring-1 ring-neutral-700 hover:ring-white"
+                style={{ background: c }}
+              />
+            ))}
+          </div>
         </section>
 
         <section className="mb-6 space-y-2">
-          <label className="text-xs uppercase tracking-wider text-neutral-400">Darken ({settings.darken}%)</label>
+          <label className="text-xs uppercase tracking-wider text-neutral-400">
+            Darken ({settings.darken}%)
+          </label>
           <input
             type="range" min={0} max={100} value={settings.darken}
             onChange={(e) => setSettings({ darken: Number(e.target.value) })}
             className="w-full"
           />
-          <label className="text-xs uppercase tracking-wider text-neutral-400">Blur ({settings.blur}px)</label>
+          <label className="text-xs uppercase tracking-wider text-neutral-400">
+            Blur ({settings.blur}px)
+          </label>
           <input
             type="range" min={0} max={20} value={settings.blur}
             onChange={(e) => setSettings({ blur: Number(e.target.value) })}
@@ -68,7 +166,7 @@ export function SettingsDrawer({ open, onClose }: { open: boolean; onClose: () =
           </select>
         </section>
 
-        <section className="space-y-2">
+        <section className="mb-6 space-y-2">
           <label className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"
@@ -83,6 +181,43 @@ export function SettingsDrawer({ open, onClose }: { open: boolean; onClose: () =
             className="w-full"
             disabled={!settings.soundEnabled}
           />
+        </section>
+
+        {/* Import / Export */}
+        <section className="space-y-2 border-t border-neutral-800 pt-4">
+          <label className="text-xs uppercase tracking-wider text-neutral-400">
+            Import / Export
+          </label>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={handleImportDeck}
+              className="rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700"
+            >
+              ⬆ Import deck
+            </button>
+            <button
+              onClick={() => exportDeck(deck)}
+              className="rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700"
+            >
+              ⬇ Export deck
+            </button>
+            <button
+              onClick={handleImportSlide}
+              className="rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700"
+            >
+              ⬆ Import slide
+            </button>
+            <button
+              onClick={handleExportSlide}
+              className="rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700"
+            >
+              ⬇ Export slide
+            </button>
+          </div>
+          <p className="text-xs text-neutral-500">
+            See <code>slides/README-LLM.md</code> for the JSON spec any LLM can write.
+          </p>
+          <input ref={fileRef} type="file" className="hidden" accept="application/json" />
         </section>
       </aside>
     </div>
