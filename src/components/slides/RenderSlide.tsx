@@ -3,6 +3,7 @@ import type { CSSProperties } from "react";
 
 import { Rich } from "./Rich";
 import { SlideLayout } from "./SlideLayout";
+import { CodeJourneyDecor, shouldAutoEnableCodeDecor } from "./decor/CodeJourneyDecor";
 import { getRegisteredSlideType } from "./registry";
 import { getTheme, themeStyle } from "./themes";
 import { useDeck } from "./store";
