@@ -3,6 +3,7 @@ import type { RichText, Slide, Deck } from "./types";
 export type LintSeverity = "warn" | "error";
 export interface LintIssue {
   slideId: string;
+  slideIndex: number;
   slideTitle: string;
   rule: string;
   message: string;
@@ -15,10 +16,11 @@ const richLen = (r?: RichText) =>
 /** Pure deck linter — flags overcrowding, missing alt text, empty headings. */
 export function lintDeck(deck: Deck): LintIssue[] {
   const out: LintIssue[] = [];
-  const push = (s: Slide, rule: string, message: string, severity: LintSeverity = "warn") =>
-    out.push({ slideId: s.id, slideTitle: s.title, rule, message, severity });
+  const push = (s: Slide, i: number, rule: string, message: string, severity: LintSeverity = "warn") =>
+    out.push({ slideId: s.id, slideIndex: i, slideTitle: s.title, rule, message, severity });
 
-  for (const s of deck.slides) {
+  for (let i = 0; i < deck.slides.length; i++) {
+    const s = deck.slides[i];
     if (!s.title?.trim()) push(s, "title-missing", "Slide has no title", "error");
 
     switch (s.type) {
