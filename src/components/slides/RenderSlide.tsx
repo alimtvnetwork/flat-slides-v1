@@ -7,6 +7,7 @@ import { CodeJourneyDecor, shouldAutoEnableCodeDecor } from "./decor/CodeJourney
 import { getRegisteredSlideType } from "./registry";
 import { getTheme, themeStyle } from "./themes";
 import { useDeck } from "./store";
+import { useSlideNavigation } from "./useSlideNavigation";
 import { EmbedSlide } from "./widgets/EmbedSlide";
 import { PollSlide } from "./widgets/PollSlide";
 import { QaSlide } from "./widgets/QaSlide";
@@ -114,9 +115,21 @@ function CenterSlide({ slide }: { slide: CenterSlideProps }) {
   );
 }
 
+/** Resolve a click-to-jump handler for step rows on `steps`/`timeline` slides. */
+function useStepJump(slide: Slide) {
+  const slides = useDeck((s) => s.deck.slides);
+  const { goTo } = useSlideNavigation();
+  const linearIndex = slides.filter((s) => s.enabled !== false).findIndex((s) => s.id === slide.id);
+  return (stepIndex: number) => {
+    if (linearIndex < 0) return;
+    goTo(linearIndex + 1, "forward", stepIndex + 1);
+  };
+}
+
 function StepsSlide({ slide, step }: { slide: StepsSlideProps; step: number }) {
   const focus = Math.max(0, Math.min(step, slide.steps.length - 1));
   const focused = slide.steps[focus];
+  const jumpToStep = useStepJump(slide);
   return (
     <SlideLayout background={slide.background}>
       <div className="absolute inset-0 grid grid-cols-[520px_minmax(0,1fr)] gap-[70px] pl-[380px] pr-[260px] pt-[110px] pb-[110px]">
@@ -133,7 +146,11 @@ function StepsSlide({ slide, step }: { slide: StepsSlideProps; step: number }) {
             return (
               <li
                 key={i}
-                className="slide-body slide-body-font flex items-start gap-[24px]"
+                role="button"
+                tabIndex={0}
+                onClick={() => jumpToStep(i)}
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); jumpToStep(i); } }}
+                className="slide-body slide-body-font flex items-start gap-[24px] cursor-pointer rounded-[14px] px-[12px] py-[8px] -mx-[12px] -my-[8px] outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--slide-hl)]"
                 style={{
                   opacity: isFocus ? 1 : 0.68,
                   transform: isFocus ? "translateX(12px)" : "translateX(0)",
@@ -205,6 +222,7 @@ function TimelineSlide({ slide, step }: { slide: TimelineSlideProps; step: numbe
   const items = slide.items;
   const focus = Math.max(0, Math.min(step, items.length - 1));
   const focused = items[focus];
+  const jumpToStep = useStepJump(slide);
 
   const railY = 780;
   const railLeft = 240;
@@ -356,6 +374,20 @@ function TimelineSlide({ slide, step }: { slide: TimelineSlideProps; step: numbe
                 </div>
               ) : null}
             </div>
+            <button
+              type="button"
+              aria-label={`Jump to ${it.label}`}
+              onClick={() => jumpToStep(i)}
+              className="absolute cursor-pointer rounded-[14px] outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--slide-hl)]"
+              style={{
+                left: cx - 140,
+                top: railY - 40,
+                width: 280,
+                height: 180,
+                background: "transparent",
+                border: "none",
+              }}
+            />
           </div>
         );
       })}
