@@ -72,9 +72,20 @@ function SlideStepPage() {
       if (e.key === "m" || e.key === "M") { toggleMusic(); return; }
       if (e.key === "s" || e.key === "S") { cycleScene(); return; }
       if (e.key === "p" || e.key === "P") {
-        // Defer to CameraBubble's own toggle via custom event so we don't duplicate logic.
         window.dispatchEvent(new CustomEvent("slides:camera-pip"));
         return;
+      }
+      if (e.key === "l" || e.key === "L") {
+        useAnnotations.setState((st) => ({ mode: st.mode === "pointer" ? "off" : "pointer" })); return;
+      }
+      if (e.key === "k" || e.key === "K") {
+        useAnnotations.setState((st) => ({ mode: st.mode === "ink" ? "off" : "ink" })); return;
+      }
+      if (e.key === "x" || e.key === "X") { useAnnotations.getState().clear(slide!.id); return; }
+      if (e.key === "Escape") { useAnnotations.setState({ mode: "off" }); }
+      if (/^[1-5]$/.test(e.key)) {
+        const colors = ["#ef4444","#facc15","#22d3ee","#a3e635","#ffffff"];
+        useAnnotations.setState({ color: colors[Number(e.key) - 1] }); return;
       }
       if (e.key === "?" || e.key === "/") { e.preventDefault(); setHelpOpen((o) => !o); return; }
       if (e.key === "g" || e.key === "G") { navigate({ to: "/slides" }); return; }
