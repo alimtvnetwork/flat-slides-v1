@@ -21,7 +21,7 @@ import { CameraBubble } from "@/components/slides/controls/CameraBubble";
 import { ControllerPill } from "@/components/slides/controls/ControllerPill";
 import { DotPagination } from "@/components/slides/controls/DotPagination";
 import { KeyboardShortcutsDialog } from "@/components/slides/controls/KeyboardShortcutsDialog";
-import { OnboardingCoachmark } from "@/components/slides/controls/OnboardingCoachmark";
+const OnboardingCoachmark = lazy(() => import("@/components/slides/controls/OnboardingCoachmark").then((m) => ({ default: m.OnboardingCoachmark })));
 import { PresenterToast } from "@/components/slides/controls/PresenterToast";
 import { PresenterTopBar } from "@/components/slides/controls/PresenterTopBar";
 import { SlideNumberBadge } from "@/components/slides/controls/SlideNumberBadge";
@@ -290,7 +290,7 @@ function SlidePage() {
         </Suspense>
       )}
       <KeyboardShortcutsDialog open={helpOpen} onClose={() => setHelpOpen(false)} />
-      <OnboardingCoachmark />
+      <Suspense fallback={null}><OnboardingCoachmark /></Suspense>
       {lintOpen && (
         <Suspense fallback={null}>
           <LintPanel open={lintOpen} onClose={() => setLintOpen(false)} deck={deck} />

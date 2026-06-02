@@ -19,7 +19,7 @@ import { CameraBubble } from "@/components/slides/controls/CameraBubble";
 import { ControllerPill } from "@/components/slides/controls/ControllerPill";
 import { DotPagination } from "@/components/slides/controls/DotPagination";
 import { KeyboardShortcutsDialog } from "@/components/slides/controls/KeyboardShortcutsDialog";
-import { OnboardingCoachmark } from "@/components/slides/controls/OnboardingCoachmark";
+const OnboardingCoachmark = lazy(() => import("@/components/slides/controls/OnboardingCoachmark").then((m) => ({ default: m.OnboardingCoachmark })));
 import { PresenterToast } from "@/components/slides/controls/PresenterToast";
 import { PresenterTopBar } from "@/components/slides/controls/PresenterTopBar";
 import { SlideNumberBadge } from "@/components/slides/controls/SlideNumberBadge";
@@ -257,7 +257,7 @@ function SlideStepPage() {
       )}
       <SlideAriaAnnouncer current={current} total={total} step={stepNum + 1} stepCount={stepCount} title={slide.title} />
       <PresenterNotesPeek notes={slide.notes} />
-      <OnboardingCoachmark />
+      <Suspense fallback={null}><OnboardingCoachmark /></Suspense>
     </div>
   );
 }
