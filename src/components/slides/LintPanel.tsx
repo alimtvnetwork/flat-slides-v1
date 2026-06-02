@@ -116,7 +116,7 @@ export function LintPanel({ open, onClose, deck }: Props) {
         )}
 
         {issues.length === 0 ? (
-          <p className="text-sm text-emerald-400">✓ No issues match the current filter.</p>
+          <p className="inline-flex items-center gap-1.5 text-sm text-emerald-400"><CheckCircle2 size={14} /> No issues match the current filter.</p>
         ) : groups ? (
           <div className="space-y-3">
             {groups.map(([key, list]) => {
