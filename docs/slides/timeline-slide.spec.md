@@ -98,8 +98,8 @@ JSON example:
 The timeline slide participates in the existing step-URL contract:
 
 - URL `/slides/N` shows focus on item 0 (first pinpoint).
-- URL `/slides/N/S` shows focus on item `S` (0-indexed in URL terms, matching
-  how the `StepsSlide` already encodes step).
+- URL `/slides/N/S` shows focus on item `S - 1` (1-based URL terms, so
+  `/slides/2/3` means slide 2, step 3).
 - `→` / `Space` / `Enter` advance focus by one; on the last item, advance to
   the next slide.
 - `←` reverses focus; from focus 0, go to the previous slide.
