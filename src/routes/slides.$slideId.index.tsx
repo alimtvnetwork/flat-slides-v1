@@ -118,8 +118,8 @@ function SlidePage() {
       <ControlBar
         slides={slides}
         index={index}
-        step={slide.type === "steps" ? 0 : undefined}
-        totalSteps={slide.type === "steps" ? slide.steps.length : undefined}
+        step={slideStepCount(slide) > 0 ? 0 : undefined}
+        totalSteps={slideStepCount(slide) || undefined}
         onOpenSettings={() => setSettingsOpen(true)}
         onPresent={toggleFs}
         isPresenting={isFs}
