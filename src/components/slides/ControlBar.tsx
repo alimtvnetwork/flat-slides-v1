@@ -103,6 +103,15 @@ export function ControlBar({ slides, index, step, totalSteps, onOpenSettings, on
       </div>
 
       <div className="flex items-center gap-3">
+        {onPresent ? (
+          <button
+            onClick={onPresent}
+            className="rounded bg-amber-400 px-3 py-1 font-semibold text-neutral-900 hover:bg-amber-300"
+            title="Toggle fullscreen presentation (F5)"
+          >
+            {isPresenting ? "⤢ Exit" : "▶ Present"}
+          </button>
+        ) : null}
         <button onClick={share} className="opacity-70 hover:opacity-100">🔗 Share</button>
         {onOpenSettings ? (
           <button onClick={onOpenSettings} className="opacity-70 hover:opacity-100">⚙ Settings</button>
