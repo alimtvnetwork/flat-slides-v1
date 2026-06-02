@@ -4,7 +4,7 @@
  * `KeyboardShortcutsDialog` (the `/` help popup).
  */
 
-export type ShortcutGroup = "Navigation" | "Steps" | "Surfaces" | "Presenter" | "Camera" | "Annotate" | "Timer";
+export type ShortcutGroup = "Navigation" | "Steps" | "Surfaces" | "Presenter" | "Camera" | "Annotate" | "Timer" | "Audience";
 
 export interface ShortcutDef {
   /** Display key (e.g. "←", "Space", "F"). */
@@ -41,6 +41,9 @@ export const SHORTCUTS: ShortcutDef[] = [
   { display: "R",       keys: ["r"],                       label: "Toggle rehearsal mode",  group: "Timer" },
   { display: "Shift+R", keys: [],                          label: "Reset rehearsal data",   group: "Timer" },
   { display: "Shift+Space", keys: [],                      label: "Pause / resume timer",   group: "Timer" },
+  { display: "Q",       keys: ["q"],                       label: "Toggle audience QR",     group: "Audience" },
+  { display: "V",       keys: ["v"],                       label: "Toggle live poll results", group: "Audience" },
+  { display: "Y",       keys: ["y"],                       label: "Copy share link",        group: "Audience" },
 ];
 
 export function matchesShortcut(event: KeyboardEvent, def: ShortcutDef): boolean {
