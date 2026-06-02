@@ -10,6 +10,8 @@ import {
   pickJsonFile,
 } from "@/lib/slides/io";
 
+import { useAnnotations } from "./annotations-store";
+import { useChrome } from "./chrome-store";
 import { useDeck } from "./store";
 import { DEFAULT_THEME_ID, THEMES } from "./themes";
 import type { TransitionKind } from "./types";
