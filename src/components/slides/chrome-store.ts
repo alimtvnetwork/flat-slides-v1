@@ -132,6 +132,8 @@ export const useChrome = create<ChromeStore>()(
       toggleTimerVisible: () => set((s) => ({ timerVisible: !s.timerVisible })),
       setFocusEditorOpen: (v) => set({ focusEditorOpen: v }),
       toggleFocusEditor: () => set((s) => ({ focusEditorOpen: !s.focusEditorOpen })),
+      setNotesPeekOpen: (v) => set({ notesPeekOpen: v }),
+      toggleNotesPeek: () => set((s) => ({ notesPeekOpen: !s.notesPeekOpen })),
       pushRecentJump: (n) =>
         set((s) => {
           const next = [n, ...s.recentJumps.filter((x) => x !== n)].slice(0, 8);
