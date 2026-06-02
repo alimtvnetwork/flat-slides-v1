@@ -3,7 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { RenderSlide } from "@/components/slides/RenderSlide";
 import { ScaledSlide } from "@/components/slides/ScaledSlide";
 import { useDeck } from "@/components/slides/store";
-import { slideStepCount } from "@/components/slides/types";
+import { getDisplayNumber, slideStepCount } from "@/components/slides/types";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/slides/")({
