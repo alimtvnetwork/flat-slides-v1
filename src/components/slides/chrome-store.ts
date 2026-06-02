@@ -4,7 +4,7 @@ import { persist } from "zustand/middleware";
 export type CameraAnchor = "top-left" | "top-right" | "bottom-left" | "bottom-right";
 export type CameraSize = "sm" | "md" | "lg";
 export type CameraShape = "circle" | "rect" | "squircle";
-export type Scene = "normal" | "cam-only" | "split";
+export type Scene = "normal" | "cam-only" | "split" | "stage-fill";
 
 export interface CameraState {
   visible: boolean;
