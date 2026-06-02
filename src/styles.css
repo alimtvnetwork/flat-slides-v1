@@ -243,7 +243,11 @@
   margin-top: -540px;
   transform: scale(var(--scale, 1));
   transform-origin: center center;
+  overflow: hidden;
+  isolation: isolate;
+  contain: layout paint;
 }
+
 
 @media (prefers-reduced-motion: reduce) {
   .slide-anim { animation: none !important; transition: opacity 150ms ease !important; }
