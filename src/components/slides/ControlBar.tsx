@@ -92,8 +92,8 @@ export function ControlBar({ slides, index, step, totalSteps, onOpenSettings, on
       <Link to="/slides" className="opacity-70 hover:opacity-100">← Overview</Link>
 
       <div className="flex items-center gap-4">
-        {prev ? (
-          <Link to="/slides/$slideId" params={{ slideId: prev.id }}>◀ Prev</Link>
+        {hasPrev ? (
+          <button onClick={goPrev} className="hover:opacity-100">◀ Prev</button>
         ) : (
           <span className="opacity-30">◀ Prev</span>
         )}
