@@ -61,6 +61,14 @@ export function SettingsDrawer({
     toast.success(`Imported slide "${r.value.id}"`);
   };
 
+  const handleLoadSpecSample = () => {
+    const r = parseDeckJson(sampleDeckJson);
+    if (!r.ok) return toast.error(`Spec sample failed to parse:\n${r.error}`, { duration: 8000 });
+    setDeck(r.value);
+    toast.success(`Loaded spec sample deck (${r.value.slides.length} slides)`);
+  };
+
+
   const handleExportSlide = () => {
     const target = deck.slides.find((s) => s.id === currentSlideId) ?? deck.slides[0];
     if (!target) return toast.error("No slide to export");
