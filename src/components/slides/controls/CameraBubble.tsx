@@ -1,12 +1,15 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { Camera, CameraOff, FlipHorizontal2, Maximize, PictureInPicture2, Shapes, Sparkles, X } from "lucide-react";
+import { Camera, CameraOff, Crosshair, FlipHorizontal2, Maximize, PictureInPicture2, Shapes, Sparkles, X } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 
 import { useChrome } from "@/components/slides/chrome-store";
 import { useCamera } from "@/components/slides/useCamera";
 import { useFullscreen } from "@/components/slides/useFullscreen";
+import { useAutoFrame } from "@/components/slides/useAutoFrame";
 import { cn } from "@/lib/utils";
+
+import { CameraPlate } from "./CameraPlate";
 
 // "split" blows the bubble up next to the slide; "stage-fill" takes over the entire viewport.
 const SIZES = { sm: 144, md: 200, lg: 280 } as const;
@@ -38,6 +41,7 @@ export function CameraBubble() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const dragState = useRef<{ x: number; y: number; ox: number; oy: number } | null>(null);
   const resizeState = useRef<{ x: number; y: number; size: number } | null>(null);
+  const autoFrame = useAutoFrame(videoRef, camera.visible && camera.autoFrame && status === "active");
 
   // Auto-start whenever the bubble is opened from chrome state.
   useEffect(() => {
@@ -207,13 +211,18 @@ export function CameraBubble() {
         autoPlay
         muted
         playsInline
+        style={autoFrame.active ? { objectPosition: autoFrame.objectPosition } : undefined}
         className={cn(
-          "h-full w-full object-cover",
+          "h-full w-full object-cover transition-[object-position] duration-300",
           camera.mirror && "scale-x-[-1]",
           // Cheap chroma-key stand-in: brightens & subtracts green via blend.
           camera.greenScreen && "mix-blend-screen contrast-125 saturate-150",
         )}
       />
+
+      {(scene === "cam-only" || stageFill) && (
+        <CameraPlate variant={stageFill ? "stage" : "squircle"} />
+      )}
 
       {status !== "active" && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-black/70 px-2 text-center text-[11px] text-white">
@@ -271,6 +280,22 @@ export function CameraBubble() {
         >
           <Sparkles size={12} />
         </button>
+        {autoFrame.supported && (
+          <button
+            data-camera-control
+            type="button"
+            title={camera.autoFrame ? "Auto-frame: ON (face tracking)" : "Auto-frame: OFF"}
+            aria-label="Toggle auto-frame face tracking"
+            aria-pressed={camera.autoFrame}
+            onClick={() => setCamera({ autoFrame: !camera.autoFrame })}
+            className={cn(
+              "rounded-full bg-black/70 p-1.5 text-white/90 hover:bg-black/90",
+              camera.autoFrame && "text-sky-300",
+            )}
+          >
+            <Crosshair size={12} />
+          </button>
+        )}
         <button
           data-camera-control
           type="button"

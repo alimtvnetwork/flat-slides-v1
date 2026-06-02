@@ -20,6 +20,8 @@ export interface CameraState {
   greenScreen: boolean;
   /** Hide the bubble while NOT in fullscreen (presenter prefers cam only on stage). */
   fullscreenOnly: boolean;
+  /** Auto-frame face via experimental FaceDetector (graceful no-op when unsupported). */
+  autoFrame: boolean;
 }
 
 export interface MusicState {
@@ -111,6 +113,7 @@ export const useChrome = create<ChromeStore>()(
         mirror: true,
         greenScreen: false,
         fullscreenOnly: false,
+        autoFrame: false,
       },
       music: { playing: false, volume: 0.4 },
       scene: "normal",
