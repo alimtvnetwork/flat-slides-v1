@@ -8,14 +8,19 @@
  * of the repo.
  *
  * Asset URLs that match these patterns are followed:
- *   - "/something.ext"          → resolved against --public (default: "public")
- *   - "./" or "../" relatives   → resolved against the deck file's directory
+ *   - "/foo.ext"        → resolved against --public (default: "public")
+ *   - "./" / "../"      → resolved against the deck file's directory
  * Remote (https://) and inline (data:) assets are recorded as-is and not copied.
  *
  * Exits 0 on success, 1 if any referenced local asset is missing.
  */
-import { readFileSync, existsSync, statSync } from "node:fs";
+import {
+  readFileSync, existsSync, statSync, mkdtempSync, writeFileSync,
+  cpSync, rmSync, mkdirSync,
+} from "node:fs";
 import { dirname, join, basename, relative, resolve } from "node:path";
+import { spawnSync } from "node:child_process";
+import { tmpdir } from "node:os";
 
 import type { Deck, Slide } from "../src/components/slides/types";
 
@@ -73,33 +78,23 @@ if (missing.length) {
   process.exit(1);
 }
 
-// Bun's archive support is unstable across versions; shell out to `zip` for
-// portability. It is preinstalled on every supported CI runner.
-import { spawnSync, mkdtempSync, writeFileSync, cpSync, rmSync } from "node:fs";
-// (mkdtempSync etc. live on node:fs; spawnSync on node:child_process)
-import { spawnSync as _ } from "node:child_process"; void _;
-
-const { spawnSync: run } = await import("node:child_process");
-const { mkdtempSync: mkdtemp, writeFileSync: writeFile, cpSync: copy, rmSync: rm } =
-  await import("node:fs");
-const { tmpdir } = await import("node:os");
-
-const staging = mkdtemp(join(tmpdir(), "deck-export-"));
+// Bun's archive APIs vary across versions; shell out to `zip` for portability.
+// `zip` is preinstalled on every supported CI runner.
+const staging = mkdtempSync(join(tmpdir(), "deck-export-"));
 try {
-  writeFile(join(staging, "deck.json"), JSON.stringify(deck, null, 2));
+  writeFileSync(join(staging, "deck.json"), JSON.stringify(deck, null, 2));
   for (const f of localFiles) {
     const dst = join(staging, f.zipPath);
-    const dstDir = dirname(dst);
-    spawnSync("mkdir", ["-p", dstDir]);
-    copy(f.src, dst);
+    mkdirSync(dirname(dst), { recursive: true });
+    cpSync(f.src, dst);
   }
   const outAbs = resolve(out);
-  const res = run("zip", ["-r", outAbs, "."], { cwd: staging, stdio: "inherit" });
+  const res = spawnSync("zip", ["-r", outAbs, "."], { cwd: staging, stdio: "inherit" });
   if (res.status !== 0) {
     console.error("zip command failed (is `zip` installed?)");
     process.exit(1);
   }
   console.log(`✓ Exported ${localFiles.length} asset(s) → ${relative(process.cwd(), outAbs)}`);
 } finally {
-  rm(staging, { recursive: true, force: true });
+  rmSync(staging, { recursive: true, force: true });
 }
