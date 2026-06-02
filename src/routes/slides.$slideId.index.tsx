@@ -2,9 +2,14 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
 import { useAnnotations } from "@/components/slides/annotations-store";
+import { useAudience } from "@/components/slides/audience-store";
+import { useAudienceSync } from "@/components/slides/useAudienceSync";
 import { useChrome } from "@/components/slides/chrome-store";
 import { AnnotationLayer } from "@/components/slides/controls/AnnotationLayer";
 import { AnnotationToolbar } from "@/components/slides/controls/AnnotationToolbar";
+import { PollResultsOverlay } from "@/components/slides/controls/PollResultsOverlay";
+import { QrOverlay } from "@/components/slides/controls/QrOverlay";
+import { SharePill } from "@/components/slides/controls/SharePill";
 import { TimerOverlay } from "@/components/slides/controls/TimerOverlay";
 import { useTimer } from "@/components/slides/timer-store";
 import { usePresentationTimer } from "@/components/slides/usePresentationTimer";
@@ -58,6 +63,14 @@ function SlidePage() {
 
   // Drive the presentation timer; record dwell into the active slide bucket.
   usePresentationTimer();
+  // Broadcast presenter state so audience tabs stay in sync.
+  useAudienceSync({
+    slideIndex: current,
+    slideId: slide?.id ?? "",
+    stepNum: 1,
+    total,
+    title: slide?.title,
+  });
   useEffect(() => {
     if (!slide) return;
     document.title = `${current}/${total} — ${slide.title}`;
@@ -108,6 +121,17 @@ function SlidePage() {
       }
       if (e.key === " " && e.shiftKey) { e.preventDefault(); useTimer.getState().toggle(); return; }
       if (e.key === "?" || e.key === "/") { e.preventDefault(); setHelpOpen((o) => !o); return; }
+      if (e.key === "q" || e.key === "Q") { useAudience.getState().toggleQr(); return; }
+      if (e.key === "v" || e.key === "V") { useAudience.getState().toggleResults(); return; }
+      if (e.key === "y" || e.key === "Y") {
+        const sid = useAudience.getState().sessionId;
+        const url = `${window.location.origin}/slides/${current}?session=${sid}`;
+        navigator.clipboard?.writeText(url).then(
+          () => useChrome.getState().flashToast("Share link copied"),
+          () => useChrome.getState().flashToast("Copy failed"),
+        );
+        return;
+      }
       if (e.key === "g" || e.key === "G") { navigate({ to: "/slides" }); return; }
       if (e.key === "ArrowRight" || e.key === " " || e.key === "Enter") {
         if (slideStepCount(slide) > 1) { goTo(current, "forward", 2); return; }
@@ -139,6 +163,9 @@ function SlidePage() {
       <AnnotationLayer slideId={slide.id} />
       <AnnotationToolbar slideId={slide.id} />
       <TimerOverlay slide={slide} />
+      <PollResultsOverlay slide={slide} />
+      <SharePill current={current} />
+      <QrOverlay />
     </>
   );
 
