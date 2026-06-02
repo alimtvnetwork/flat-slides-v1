@@ -10,6 +10,8 @@ import {
   pickJsonFile,
 } from "@/lib/slides/io";
 
+import { useAnnotations } from "./annotations-store";
+import { useChrome } from "./chrome-store";
 import { useDeck } from "./store";
 import { DEFAULT_THEME_ID, THEMES } from "./themes";
 import type { TransitionKind } from "./types";
@@ -233,6 +235,29 @@ export function SettingsDrawer({
             any LLM can write.
           </p>
           <input ref={fileRef} type="file" className="hidden" accept="application/json" />
+        </section>
+
+        {/* Presenter tools */}
+        <section className="mb-6 space-y-2">
+          <label className="text-xs uppercase tracking-wider text-neutral-400">Presenter tools</label>
+          <button
+            type="button"
+            onClick={() => { useChrome.getState().toggleFocusEditor(); onClose(); }}
+            className="w-full rounded bg-neutral-800 px-3 py-2 text-left text-sm hover:bg-neutral-700"
+          >
+            Edit focus regions <span className="ml-1 text-neutral-500">(F)</span>
+          </button>
+          <label className="mt-2 flex items-center justify-between gap-3 rounded bg-neutral-900 px-3 py-2 text-sm">
+            <span>
+              Persist annotations across reloads
+              <span className="block text-[11px] text-neutral-500">Stores ink strokes in this browser.</span>
+            </span>
+            <input
+              type="checkbox"
+              checked={useAnnotations((s) => s.persistStrokes)}
+              onChange={(e) => useAnnotations.getState().setPersist(e.target.checked)}
+            />
+          </label>
         </section>
       </aside>
     </div>

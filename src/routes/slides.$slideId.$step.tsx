@@ -6,6 +6,7 @@ import { useAudience } from "@/components/slides/audience-store";
 import { useAudienceSync } from "@/components/slides/useAudienceSync";
 import { useChrome } from "@/components/slides/chrome-store";
 import { AnnotationLayer } from "@/components/slides/controls/AnnotationLayer";
+import { FocusEditor } from "@/components/slides/controls/FocusEditor";
 import { AnnotationToolbar } from "@/components/slides/controls/AnnotationToolbar";
 import { PollResultsOverlay } from "@/components/slides/controls/PollResultsOverlay";
 import { QrOverlay } from "@/components/slides/controls/QrOverlay";
@@ -55,6 +56,7 @@ function SlideStepPage() {
   const toggleTopJumper = useChrome((s) => s.toggleTopJumper);
   const toggleCamera = useChrome((s) => s.toggleCamera);
   const scene = useChrome((s) => s.scene);
+  const focusEditorOpen = useChrome((s) => s.focusEditorOpen);
   const cycleCameraSize = useChrome((s) => s.cycleCameraSize);
   const toggleMusic = useChrome((s) => s.toggleMusic);
   const cycleScene = useChrome((s) => s.cycleScene);
@@ -168,6 +170,15 @@ function SlideStepPage() {
       <DotPagination current={current} total={total} slides={linearSlides} onJump={jump} />
       <SlideNumberBadge current={current} total={total} display={slide ? getDisplayNumber(slide, current) : undefined} />
       <AnnotationLayer slideId={slide.id} />
+      <FocusEditor
+        slide={slide}
+        active={focusEditorOpen}
+        onRect={(rect: { x: number; y: number; w: number; h: number }) => {
+          useDeck.getState().upsertSlide({ ...slide, focus: [...(slide.focus ?? []), rect] });
+          useChrome.getState().flashToast("Focus region added");
+        }}
+        onClose={() => useChrome.getState().setFocusEditorOpen(false)}
+      />
       <AnnotationToolbar slideId={slide.id} />
       <TimerOverlay slide={slide} />
       <PollResultsOverlay slide={slide} />

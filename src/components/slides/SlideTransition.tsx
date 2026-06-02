@@ -4,6 +4,7 @@ import { useEffect, type ReactNode } from "react";
 import { triggerWhoosh } from "./audio";
 import { useDeck } from "./store";
 import type { TransitionKind } from "./types";
+import { useReducedMotion } from "./useReducedMotion";
 
 function variantsFor(kind: TransitionKind): { variants: Variants; transition: Transition } {
   switch (kind) {
@@ -56,8 +57,11 @@ type Props = { transitionKey: string; allowZoom?: boolean; children: ReactNode }
  */
 export function SlideTransition({ transitionKey, allowZoom = false, children }: Props) {
   const kind = useDeck((s) => s.deck.settings.transition);
-  const effectiveKind = allowZoom ? kind : "fade";
+  const reduced = useReducedMotion();
+  // Reduced motion: collapse to a near-instant opacity swap regardless of authored kind.
+  const effectiveKind: TransitionKind = reduced ? "fade" : (allowZoom ? kind : "fade");
   const { variants, transition } = variantsFor(effectiveKind);
+  const tx: Transition = reduced ? { duration: 0.05, ease: "linear" } : transition;
 
   useEffect(() => {
     if (effectiveKind === "camera-zoom") triggerWhoosh();
@@ -75,7 +79,7 @@ export function SlideTransition({ transitionKey, allowZoom = false, children }: 
           initial="initial"
           animate="animate"
           exit="exit"
-          transition={transition}
+          transition={tx}
           className="absolute inset-0"
           style={{ transformStyle: "preserve-3d" }}
         >

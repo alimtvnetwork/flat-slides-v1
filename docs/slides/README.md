@@ -49,6 +49,12 @@ Source-of-truth shortcut sheet and module map for the slides app.
 | Audience    | V                 | Toggle live poll results                |
 | Audience    | Y                 | Copy share link to clipboard            |
 
+## Accessibility & motion
+All slide motion (transitions, camera-zoom, in-slide reveals) consults `useReducedMotion()`. When the OS flag is on, transitions collapse to a 50 ms opacity fade and camera-zoom snaps to scale instantly.
+
+## Annotation persistence
+Ink strokes are session-only by default. Enable **Settings → Presenter tools → Persist annotations across reloads** to mirror them into `localStorage`.
+
 ## Module Map
 
 ```
