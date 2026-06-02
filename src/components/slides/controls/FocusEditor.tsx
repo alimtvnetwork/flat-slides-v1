@@ -18,10 +18,12 @@ interface Props {
   active: boolean;
   /** Called with the drawn rectangle in 1920×1080 slide-space. */
   onRect?: (rect: { x: number; y: number; w: number; h: number }) => void;
+  /** Remove the most recently added focus region. */
+  onPopRegion?: () => void;
   onClose?: () => void;
 }
 
-export function FocusEditor({ slide, active, onRect, onClose }: Props) {
+export function FocusEditor({ slide, active, onRect, onPopRegion, onClose }: Props) {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const [drag, setDrag] = useState<{ x0: number; y0: number; x: number; y: number } | null>(null);
 
