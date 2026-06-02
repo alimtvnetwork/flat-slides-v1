@@ -23,3 +23,18 @@ export function onSlidesEvent(handler: (detail: SlidesEventDetail) => void) {
   window.addEventListener(SLIDES_EVENT, listener);
   return () => window.removeEventListener(SLIDES_EVENT, listener);
 }
+
+/**
+ * Dev-only console sink. Subscribes to `slides:event` and prints a compact,
+ * grouped log line. Returns an unsubscribe; call once per app boot.
+ * No-op in production builds.
+ */
+export function installConsoleSink(): () => void {
+  if (typeof window === "undefined") return () => {};
+  if (import.meta.env.PROD) return () => {};
+  return onSlidesEvent((d) => {
+    // eslint-disable-next-line no-console
+    console.debug("[slides]", d.type, d);
+  });
+}
+
