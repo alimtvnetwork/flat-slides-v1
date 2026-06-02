@@ -88,17 +88,24 @@ function LeftSlide({ slide }: { slide: LeftSlideProps }) {
 }
 
 function CenterSlide({ slide }: { slide: CenterSlideProps }) {
+  const headingText = Array.isArray(slide.heading)
+    ? slide.heading.map((p) => (typeof p === "string" ? p : p.text)).join(" ")
+    : "";
+  const showDecor =
+    slide.decor === "code" ||
+    (slide.decor !== "none" && shouldAutoEnableCodeDecor(headingText));
   return (
     <SlideLayout background={slide.background}>
+      {showDecor ? <CodeJourneyDecor /> : null}
       <div style={positionStyle(slide.align ?? "center", slide.padding ?? 120)}>
         <h1
-          className={`${slide.display ? "slide-display slide-title-lg" : "slide-heading slide-title"}`}
+          className={`${slide.display ? "slide-display slide-title-lg" : "slide-heading slide-title"} relative z-[1]`}
           style={{ color: "var(--slide-fg)", fontWeight: 700 }}
         >
           <Rich value={slide.heading} />
         </h1>
         {slide.subhead ? (
-          <div className="slide-subtitle slide-heading mt-[36px]" style={{ fontWeight: 700 }}>
+          <div className="slide-subtitle slide-heading mt-[36px] relative z-[1]" style={{ fontWeight: 700 }}>
             <Rich value={slide.subhead} />
           </div>
         ) : null}
