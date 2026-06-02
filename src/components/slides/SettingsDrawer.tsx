@@ -6,6 +6,7 @@ import {
   Image as ImageIcon,
   Palette,
   PenLine,
+  Printer,
   RotateCcw,
   Settings as SettingsIcon,
   Sparkles,
