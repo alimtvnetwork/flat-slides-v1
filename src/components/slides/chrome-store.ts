@@ -46,6 +46,8 @@ export interface ChromeStore {
   dotPaginationVisible: boolean;
   /** Bottom-right small badge "04 / 13"; visible by default. */
   slideNumberBadgeVisible: boolean;
+  /** Presenter timer overlay (top-left). Visible by default in fullscreen. */
+  timerVisible: boolean;
   /** Recent jump history (linear positions), most-recent-first, max 8. */
   recentJumps: number[];
   /** Presenter webcam bubble (presenter-local, never exported). */
@@ -60,6 +62,8 @@ export interface ChromeStore {
   setTopJumperHidden: (v: boolean) => void;
   setDotPaginationVisible: (v: boolean) => void;
   setSlideNumberBadgeVisible: (v: boolean) => void;
+  setTimerVisible: (v: boolean) => void;
+  toggleTimerVisible: () => void;
   pushRecentJump: (n: number) => void;
   clearRecentJumps: () => void;
   setCamera: (patch: Partial<CameraState>) => void;
@@ -79,6 +83,7 @@ export const useChrome = create<ChromeStore>()(
       topJumperHidden: true,
       dotPaginationVisible: true,
       slideNumberBadgeVisible: true,
+      timerVisible: true,
       recentJumps: [],
       camera: {
         visible: false,
@@ -97,6 +102,8 @@ export const useChrome = create<ChromeStore>()(
       setTopJumperHidden: (v) => set({ topJumperHidden: v }),
       setDotPaginationVisible: (v) => set({ dotPaginationVisible: v }),
       setSlideNumberBadgeVisible: (v) => set({ slideNumberBadgeVisible: v }),
+      setTimerVisible: (v) => set({ timerVisible: v }),
+      toggleTimerVisible: () => set((s) => ({ timerVisible: !s.timerVisible })),
       pushRecentJump: (n) =>
         set((s) => {
           const next = [n, ...s.recentJumps.filter((x) => x !== n)].slice(0, 8);
@@ -124,6 +131,7 @@ export const useChrome = create<ChromeStore>()(
         topJumperHidden: s.topJumperHidden,
         dotPaginationVisible: s.dotPaginationVisible,
         slideNumberBadgeVisible: s.slideNumberBadgeVisible,
+        timerVisible: s.timerVisible,
         camera: { ...s.camera, visible: false },
         music: { ...s.music, playing: false },
         scene: s.scene,

@@ -63,6 +63,8 @@ export interface BaseSlide {
    * step. The first matching region wins. Empty/undefined ⇒ full frame.
    */
   focus?: FocusRegion[];
+  /** Target dwell time in seconds for the pacing/rehearsal badge. */
+  budget?: number;
 }
 
 export interface LeftSlideProps extends BaseSlide {

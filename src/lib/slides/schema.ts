@@ -44,6 +44,7 @@ const BaseSlideShape = {
   enabled: z.boolean().optional(),
   /** Optional authored display number; defaults to linear position when omitted. */
   number: z.number().int().min(0).max(9999).optional(),
+  budget: z.number().min(1).max(3600).optional(),
   focus: z
     .array(z.object({
       x: z.number().min(-1920).max(1920),

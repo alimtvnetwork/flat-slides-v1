@@ -5,6 +5,9 @@ import { useAnnotations } from "@/components/slides/annotations-store";
 import { useChrome } from "@/components/slides/chrome-store";
 import { AnnotationLayer } from "@/components/slides/controls/AnnotationLayer";
 import { AnnotationToolbar } from "@/components/slides/controls/AnnotationToolbar";
+import { TimerOverlay } from "@/components/slides/controls/TimerOverlay";
+import { useTimer } from "@/components/slides/timer-store";
+import { usePresentationTimer } from "@/components/slides/usePresentationTimer";
 import { CameraBubble } from "@/components/slides/controls/CameraBubble";
 import { ControllerPill } from "@/components/slides/controls/ControllerPill";
 import { DotPagination } from "@/components/slides/controls/DotPagination";
@@ -50,9 +53,14 @@ function SlideStepPage() {
   const toggleMusic = useChrome((s) => s.toggleMusic);
   const cycleScene = useChrome((s) => s.cycleScene);
 
+  usePresentationTimer();
   useEffect(() => {
     if (!slide) return;
     document.title = `${current}/${total} — ${slide.title}`;
+    useTimer.getState().setActiveSlide(slide.id);
+    if (!useTimer.getState().running && useTimer.getState().elapsed === 0) {
+      useTimer.getState().start();
+    }
   }, [slide, current, total]);
 
   useEffect(() => {
@@ -87,6 +95,15 @@ function SlideStepPage() {
         const colors = ["#ef4444","#facc15","#22d3ee","#a3e635","#ffffff"];
         useAnnotations.setState({ color: colors[Number(e.key) - 1] }); return;
       }
+      if (e.key === "t" || e.key === "T") {
+        if (e.shiftKey) { useTimer.getState().reset(); return; }
+        useChrome.getState().toggleTimerVisible(); return;
+      }
+      if (e.key === "r" || e.key === "R") {
+        if (e.shiftKey) { useTimer.getState().resetRehearsal(); return; }
+        useTimer.getState().toggleRehearsal(); return;
+      }
+      if (e.key === " " && e.shiftKey) { e.preventDefault(); useTimer.getState().toggle(); return; }
       if (e.key === "?" || e.key === "/") { e.preventDefault(); setHelpOpen((o) => !o); return; }
       if (e.key === "g" || e.key === "G") { navigate({ to: "/slides" }); return; }
       if (e.key === "ArrowRight" || e.key === " " || e.key === "Enter") {
@@ -121,6 +138,7 @@ function SlideStepPage() {
       <SlideNumberBadge current={current} total={total} display={slide ? getDisplayNumber(slide, current) : undefined} />
       <AnnotationLayer slideId={slide.id} />
       <AnnotationToolbar slideId={slide.id} />
+      <TimerOverlay slide={slide} />
     </>
   );
 
