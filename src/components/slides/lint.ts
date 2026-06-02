@@ -50,17 +50,6 @@ export function lintDeck(deck: Deck): LintIssue[] {
   const push = (s: Slide, i: number, rule: string, message: string, severity: LintSeverity = "warn") =>
     out.push({ slideId: s.id, slideIndex: i, slideTitle: s.title, rule, message, severity });
 
-  // Deck-level: default transition camera-zoom is a known sore spot — the spec
-  // says reserve it for hero/title moments, not as the deck default.
-  if (deck.settings.transition === "camera-zoom") {
-    const first = deck.slides[0];
-    if (first) {
-      push(first, 0, "deck-camera-zoom",
-        'Deck transition is "camera-zoom" — spec recommends "fade" by default; use per-slide focus regions for hero zooms.',
-        "warn");
-    }
-  }
-
   // Deck-level: volume must be a sane 0..1 number.
   if (
     typeof deck.settings.volume === "number" &&
@@ -345,7 +334,6 @@ function looksLikeFilename(s: string): boolean {
 /** Documented list of every rule the linter can emit. Kept in sync by hand
  *  with the rules above so the LLM guideline / docs can reference it. */
 export const LINT_RULES: ReadonlyArray<{ id: string; severity: LintSeverity; summary: string }> = [
-  { id: "deck-camera-zoom", severity: "warn", summary: 'Deck-level "camera-zoom" transition (use "fade" by default).' },
   { id: "theme-contrast-low", severity: "warn", summary: "Theme fg/bg (<4.5:1) or hl-pill ink/hl (<3:1) below WCAG threshold." },
   { id: "number-collision", severity: "warn", summary: "Two slides share an authored slide.number." },
   { id: "duplicate-id", severity: "error", summary: "Two slides share the same id." },
