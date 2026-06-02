@@ -413,6 +413,7 @@ export function RenderSlide({ slide, step = 0 }: { slide: Slide; step?: number }
     case "left":    body = <LeftSlide slide={slide} />; break;
     case "center":  body = <CenterSlide slide={slide} />; break;
     case "steps":   body = <StepsSlide slide={slide} step={step} />; break;
+    case "timeline": body = <TimelineSlide slide={slide} step={step} />; break;
     case "quote":   body = <QuoteSlide slide={slide} />; break;
     case "bullets": body = <BulletsSlide slide={slide} />; break;
     case "image":   body = <ImageSlide slide={slide} />; break;
