@@ -88,6 +88,7 @@ export function ControllerPill(props: Props) {
   const setAnchor = usePositionStore((s) => s.setAnchor);
   const cameraVisible = useChrome((s) => s.camera.visible);
   const toggleCamera = useChrome((s) => s.toggleCamera);
+  const compact = useCompactViewport();
   const [expanded, setExpanded] = useState(false);
   const collapseTimer = useRef<number | undefined>(undefined);
   const [mounted, setMounted] = useState(false);
