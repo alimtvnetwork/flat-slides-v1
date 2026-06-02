@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+import { DeckSchema } from "@/lib/slides/schema";
+
 import { DEFAULT_THEME_ID } from "./themes";
 import type { Deck, DeckSettings, Slide } from "./types";
 
@@ -90,14 +92,17 @@ const defaultDeck: Deck = {
   version: 1,
 };
 
-function hasUsableDeck(value: unknown): value is Pick<DeckStore, "deck" | "themeId"> {
+function getUsablePersistedDeck(value: unknown): Pick<DeckStore, "deck" | "themeId"> | null {
   const state = value as Partial<DeckStore> | undefined;
-  return Boolean(
-    state?.deck &&
-      Array.isArray(state.deck.slides) &&
-      state.deck.slides.length > 0 &&
-      state.deck.settings,
-  );
+  if (!state?.deck) return null;
+
+  const parsed = DeckSchema.safeParse(state.deck);
+  if (!parsed.success) return null;
+
+  return {
+    deck: parsed.data as Deck,
+    themeId: state.themeId ?? parsed.data.themeId ?? DEFAULT_THEME_ID,
+  };
 }
 
 export interface DeckStore {
@@ -150,11 +155,12 @@ export const useDeck = create<DeckStore>()(
     {
       name: "slides-deck-v1",
       merge: (persisted, current) => {
-        if (!hasUsableDeck(persisted)) return current;
+        const usable = getUsablePersistedDeck(persisted);
+        if (!usable) return current;
         return {
           ...current,
-          deck: persisted.deck,
-          themeId: persisted.themeId ?? persisted.deck.themeId ?? DEFAULT_THEME_ID,
+          deck: usable.deck,
+          themeId: usable.themeId,
         };
       },
       // Persist only mutable user data — not transient UI state.
