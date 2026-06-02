@@ -17,6 +17,12 @@ export function LintPanel({ open, onClose, deck }: Props) {
   const [filter, setFilter] = useState<"all" | "error" | "warn">("all");
   const [groupBySlide, setGroupBySlide] = useState(false);
   const [copied, setCopied] = useState(false);
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
   if (!open) return null;
   const all = lintDeck(deck);
   const { errors, warns } = countIssues(all);
