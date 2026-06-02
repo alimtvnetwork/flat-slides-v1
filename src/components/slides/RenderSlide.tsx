@@ -115,6 +115,17 @@ function CenterSlide({ slide }: { slide: CenterSlideProps }) {
   );
 }
 
+/** Resolve a click-to-jump handler for step rows on `steps`/`timeline` slides. */
+function useStepJump(slide: Slide) {
+  const slides = useDeck((s) => s.deck.slides);
+  const { goTo } = useSlideNavigation();
+  const linearIndex = slides.filter((s) => s.enabled !== false).findIndex((s) => s.id === slide.id);
+  return (stepIndex: number) => {
+    if (linearIndex < 0) return;
+    goTo(linearIndex + 1, "forward", stepIndex + 1);
+  };
+}
+
 function StepsSlide({ slide, step }: { slide: StepsSlideProps; step: number }) {
   const focus = Math.max(0, Math.min(step, slide.steps.length - 1));
   const focused = slide.steps[focus];
