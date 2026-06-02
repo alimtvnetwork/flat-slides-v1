@@ -109,16 +109,6 @@ export function lintDeck(deck: Deck): LintIssue[] {
         }
         break;
       }
-      case "steps": {
-        const bg = (s as { background?: string }).background;
-        const isSvgBg = typeof bg === "string" && (bg.startsWith("data:image/svg") || /\.svg(\?|$)/i.test(bg));
-        if (isSvgBg && (!Array.isArray(s.focus) || s.focus.length === 0)) {
-          push(s, i, "steps-svg-no-focus",
-            "Steps slide uses an SVG background but defines no focus regions — multi-step SVG reveals (spec Pattern A) require per-step focus rectangles.",
-            "warn");
-        }
-        break;
-      }
       case "embed": {
         if (s.url && !/^https:\/\//i.test(s.url)) {
           push(s, i, "embed-not-https",
