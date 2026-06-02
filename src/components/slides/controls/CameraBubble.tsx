@@ -280,6 +280,22 @@ export function CameraBubble() {
         >
           <Sparkles size={12} />
         </button>
+        {autoFrame.supported && (
+          <button
+            data-camera-control
+            type="button"
+            title={camera.autoFrame ? "Auto-frame: ON (face tracking)" : "Auto-frame: OFF"}
+            aria-label="Toggle auto-frame face tracking"
+            aria-pressed={camera.autoFrame}
+            onClick={() => setCamera({ autoFrame: !camera.autoFrame })}
+            className={cn(
+              "rounded-full bg-black/70 p-1.5 text-white/90 hover:bg-black/90",
+              camera.autoFrame && "text-sky-300",
+            )}
+          >
+            <Crosshair size={12} />
+          </button>
+        )}
         <button
           data-camera-control
           type="button"
