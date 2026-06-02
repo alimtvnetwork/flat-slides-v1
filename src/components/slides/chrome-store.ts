@@ -111,6 +111,7 @@ export const useChrome = create<ChromeStore>()(
       timerVisible: true,
       focusEditorOpen: false,
       notesPeekOpen: false,
+      lastUsedThemeId: null,
       recentJumps: [],
       camera: {
         visible: false,
