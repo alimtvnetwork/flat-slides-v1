@@ -121,6 +121,7 @@ function SlideStepPage() {
           {surfaces}
         </div>
         {controller}
+        <CameraBubble />
         <KeyboardShortcutsDialog open={helpOpen} onClose={() => setHelpOpen(false)} />
         <SettingsDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} currentSlideId={slide.id} />
       </div>
@@ -138,6 +139,7 @@ function SlideStepPage() {
         {surfaces}
       </div>
       {controller}
+      <CameraBubble />
       <KeyboardShortcutsDialog open={helpOpen} onClose={() => setHelpOpen(false)} />
       <SettingsDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} currentSlideId={slide.id} />
     </div>

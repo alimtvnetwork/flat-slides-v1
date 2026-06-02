@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 
 import { useChrome } from "@/components/slides/chrome-store";
 import { CommandPalette } from "@/components/slides/CommandPalette";
+import { CameraBubble } from "@/components/slides/controls/CameraBubble";
 import { ControllerPill } from "@/components/slides/controls/ControllerPill";
 import { DotPagination } from "@/components/slides/controls/DotPagination";
 import { KeyboardShortcutsDialog } from "@/components/slides/controls/KeyboardShortcutsDialog";
@@ -41,6 +42,8 @@ function SlidePage() {
   const [helpOpen, setHelpOpen] = useState(false);
   const { isFs, toggle: toggleFs, exit: exitFs } = useFullscreen();
   const toggleTopJumper = useChrome((s) => s.toggleTopJumper);
+  const toggleCamera = useChrome((s) => s.toggleCamera);
+  const toggleMusic = useChrome((s) => s.toggleMusic);
 
   useEffect(() => {
     if (!slide) return;
@@ -59,6 +62,8 @@ function SlidePage() {
       if (e.key === "F5") { e.preventDefault(); toggleFs(); return; }
       if (e.key === "Escape" && isFs) { exitFs(); return; }
       if (e.key === "j" || e.key === "J") { toggleTopJumper(); return; }
+      if (e.key === "c" || e.key === "C") { toggleCamera(); return; }
+      if (e.key === "m" || e.key === "M") { toggleMusic(); return; }
       if (e.key === "?" || e.key === "/") { e.preventDefault(); setHelpOpen((o) => !o); return; }
       if (e.key === "g" || e.key === "G") { navigate({ to: "/slides" }); return; }
       if (e.key === "ArrowRight" || e.key === " " || e.key === "Enter") {
@@ -70,7 +75,7 @@ function SlidePage() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [slide, current, next, prev, goTo, isFs, toggleFs, exitFs, toggleTopJumper, navigate]);
+  }, [slide, current, next, prev, goTo, isFs, toggleFs, exitFs, toggleTopJumper, toggleCamera, toggleMusic, navigate]);
 
   if (!slide) {
     return (
