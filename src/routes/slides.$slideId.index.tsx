@@ -47,7 +47,7 @@ function SlidePage() {
       if (e.key === "F5") { e.preventDefault(); toggleFs(); return; }
       if (e.key === "Escape" && isFs) { exitFs(); return; }
       if (e.key === "ArrowRight" || e.key === " " || e.key === "Enter") {
-        if (slide.type === "steps" && slide.steps.length > 1) {
+        if (slideStepCount(slide) > 1) {
           navigate({
             to: "/slides/$slideId/$step",
             params: { slideId: String(index + 1), step: "1" },
