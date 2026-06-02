@@ -151,6 +151,12 @@ export interface DeckSettings {
   volume: number; // 0-1
 }
 
+export interface DeckMusic {
+  url: string;
+  loop?: boolean;
+  volume?: number; // initial 0..1
+}
+
 export interface Deck {
   id: string;
   title: string;
@@ -158,6 +164,8 @@ export interface Deck {
   themeId?: string;
   slides: Slide[];
   settings: DeckSettings;
+  /** Optional deck-level background music. Playback is presenter-local. */
+  music?: DeckMusic;
   /** Schema version for migration. */
   version?: number;
 }

@@ -1,12 +1,14 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, Grid3x3, HelpCircle, Maximize2, Minimize2, Settings } from "lucide-react";
+import { Camera, ChevronLeft, ChevronRight, Grid3x3, HelpCircle, Maximize2, Minimize2, Settings } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+import { useChrome } from "@/components/slides/chrome-store";
 import { cn } from "@/lib/utils";
 
+import { MusicToggle } from "./MusicToggle";
 import { SlideIndicator } from "./SlideIndicator";
 
 export type ControllerAnchor =
@@ -71,6 +73,8 @@ export function ControllerPill(props: Props) {
   const { current, total, onPrev, onNext, onJump, onOpenGrid, onToggleFullscreen, onOpenHelp, onOpenSettings, isFullscreen } = props;
   const anchor = usePositionStore((s) => s.anchor);
   const setAnchor = usePositionStore((s) => s.setAnchor);
+  const cameraVisible = useChrome((s) => s.camera.visible);
+  const toggleCamera = useChrome((s) => s.toggleCamera);
   const [expanded, setExpanded] = useState(false);
   const collapseTimer = useRef<number | undefined>(undefined);
   const [mounted, setMounted] = useState(false);
@@ -155,6 +159,14 @@ export function ControllerPill(props: Props) {
             <PillButton onClick={onToggleFullscreen} ariaLabel={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}>
               {isFullscreen ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
             </PillButton>
+            <PillButton
+              onClick={toggleCamera}
+              ariaLabel={cameraVisible ? "Hide camera" : "Show camera"}
+              active={cameraVisible}
+            >
+              <Camera size={15} />
+            </PillButton>
+            <MusicToggle compact />
             <PillButton onClick={onOpenSettings} ariaLabel="Settings">
               <Settings size={15} />
             </PillButton>
@@ -197,11 +209,13 @@ function PillButton({
   onClick,
   disabled,
   ariaLabel,
+  active,
 }: {
   children: React.ReactNode;
   onClick: () => void;
   disabled?: boolean;
   ariaLabel: string;
+  active?: boolean;
 }) {
   return (
     <button
@@ -209,10 +223,12 @@ function PillButton({
       onClick={onClick}
       disabled={disabled}
       aria-label={ariaLabel}
+      aria-pressed={active}
       className={cn(
         "inline-flex h-7 w-7 items-center justify-center rounded-md",
         "text-[color:var(--ctrl-fg)] transition-colors",
         "hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-transparent",
+        active && "text-[color:var(--ctrl-accent)] bg-white/10",
       )}
     >
       {children}

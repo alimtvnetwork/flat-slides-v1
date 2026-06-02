@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
 import { useChrome } from "@/components/slides/chrome-store";
+import { CameraBubble } from "@/components/slides/controls/CameraBubble";
 import { ControllerPill } from "@/components/slides/controls/ControllerPill";
 import { DotPagination } from "@/components/slides/controls/DotPagination";
 import { KeyboardShortcutsDialog } from "@/components/slides/controls/KeyboardShortcutsDialog";
@@ -38,6 +39,8 @@ function SlideStepPage() {
   const [helpOpen, setHelpOpen] = useState(false);
   const { isFs, toggle: toggleFs, exit: exitFs } = useFullscreen();
   const toggleTopJumper = useChrome((s) => s.toggleTopJumper);
+  const toggleCamera = useChrome((s) => s.toggleCamera);
+  const toggleMusic = useChrome((s) => s.toggleMusic);
 
   useEffect(() => {
     if (!slide) return;
@@ -54,6 +57,8 @@ function SlideStepPage() {
       if (e.key === "F5") { e.preventDefault(); toggleFs(); return; }
       if (e.key === "Escape" && isFs) { exitFs(); return; }
       if (e.key === "j" || e.key === "J") { toggleTopJumper(); return; }
+      if (e.key === "c" || e.key === "C") { toggleCamera(); return; }
+      if (e.key === "m" || e.key === "M") { toggleMusic(); return; }
       if (e.key === "?" || e.key === "/") { e.preventDefault(); setHelpOpen((o) => !o); return; }
       if (e.key === "g" || e.key === "G") { navigate({ to: "/slides" }); return; }
       if (e.key === "ArrowRight" || e.key === " " || e.key === "Enter") {
@@ -71,7 +76,7 @@ function SlideStepPage() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [slide, stepCount, stepNum, current, next, prev, goTo, isFs, toggleFs, exitFs, toggleTopJumper, navigate]);
+  }, [slide, stepCount, stepNum, current, next, prev, goTo, isFs, toggleFs, exitFs, toggleTopJumper, toggleCamera, toggleMusic, navigate]);
 
   if (!slide || slideStepCount(slide) === 0) {
     return (
@@ -116,6 +121,7 @@ function SlideStepPage() {
           {surfaces}
         </div>
         {controller}
+        <CameraBubble />
         <KeyboardShortcutsDialog open={helpOpen} onClose={() => setHelpOpen(false)} />
         <SettingsDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} currentSlideId={slide.id} />
       </div>
@@ -133,6 +139,7 @@ function SlideStepPage() {
         {surfaces}
       </div>
       {controller}
+      <CameraBubble />
       <KeyboardShortcutsDialog open={helpOpen} onClose={() => setHelpOpen(false)} />
       <SettingsDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} currentSlideId={slide.id} />
     </div>
