@@ -19,13 +19,13 @@ B19A — repair settings/fullscreen/camera based on RCA:
 
 ## ⏳ Pending (B19 lint/CI candidates after B19A)
 1. ✅ theme-token contrast rule (WCAG AA on fg/bg + hl/hlInk per theme)
-2. deck export-zip CLI (deck + assets bundle)
-3. CI workflow wiring (GitHub Actions)
-4. per-slide `sound` schema validation
-5. LintPanel "Copy as JSON" button
+2. deck export-zip CLI (deck + assets bundle) — REMAINING
+3. ✅ CI workflow wiring (`.github/workflows/ci.yml`: bun install + lint + vitest)
+4. ✅ per-slide `sound` schema validation (url + volume; 3 new rules)
+5. ✅ LintPanel "Copy as JSON" button (copies filtered issues JSON)
 
 ## 🚫 Blocked
-- Implementation is waiting for the user's next instruction after the RCA/task list.
+- None.
 
 ## Next session resume point
-If the user says to proceed, implement B19A tasks in order, then validate fullscreen/settings/camera behavior before returning to B19 lint/CI polish.
+Only B19 #2 (export-zip CLI) remains. If user says proceed, scaffold a Node script under `scripts/export-deck.ts` that reads a deck JSON, follows image/sound URLs under `/public`, and writes a zip with the deck + referenced assets.
