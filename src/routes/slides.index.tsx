@@ -4,7 +4,7 @@ import { RenderSlide } from "@/components/slides/RenderSlide";
 import { ScaledSlide } from "@/components/slides/ScaledSlide";
 import { useDeck } from "@/components/slides/store";
 
-export const Route = createFileRoute("/slides")({
+export const Route = createFileRoute("/slides/")({
   head: () => ({
     meta: [
       { title: "Slides — Overview" },
