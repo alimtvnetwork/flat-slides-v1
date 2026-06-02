@@ -1,7 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
+import { CommandPalette } from "@/components/slides/CommandPalette";
 import { ControlBar } from "@/components/slides/ControlBar";
+import { LintPanel } from "@/components/slides/LintPanel";
+import { PresenterTools } from "@/components/slides/PresenterTools";
 import { RenderSlide } from "@/components/slides/RenderSlide";
 import { ScaledSlide } from "@/components/slides/ScaledSlide";
 import { SettingsDrawer } from "@/components/slides/SettingsDrawer";
@@ -19,10 +22,13 @@ export const Route = createFileRoute("/slides/$slideId")({
 function SlidePage() {
   const { slideId } = Route.useParams();
   const navigate = useNavigate();
-  const slides = useDeck((s) => s.deck.slides);
+  const deck = useDeck((s) => s.deck);
+  const slides = deck.slides;
   const index = slides.findIndex((s) => s.id === slideId);
   const slide = index >= 0 ? slides[index] : undefined;
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const [lintOpen, setLintOpen] = useState(false);
   const { isFs, toggle: toggleFs, exit: exitFs } = useFullscreen();
 
   useEffect(() => {
@@ -34,6 +40,9 @@ function SlidePage() {
     if (!slide) return;
     const onKey = (e: KeyboardEvent) => {
       if ((e.target as HTMLElement)?.tagName === "INPUT") return;
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault(); setPaletteOpen((o) => !o); return;
+      }
       if (e.key === "F5") { e.preventDefault(); toggleFs(); return; }
       if (e.key === "Escape" && isFs) { exitFs(); return; }
       if (e.key === "ArrowRight" || e.key === " " || e.key === "Enter") {
@@ -89,6 +98,16 @@ function SlidePage() {
         onClose={() => setSettingsOpen(false)}
         currentSlideId={slide.id}
       />
+      <CommandPalette
+        open={paletteOpen}
+        onClose={() => setPaletteOpen(false)}
+        slides={slides}
+        onOpenSettings={() => setSettingsOpen(true)}
+        onPresent={toggleFs}
+        onOpenLint={() => setLintOpen(true)}
+      />
+      <LintPanel open={lintOpen} onClose={() => setLintOpen(false)} deck={deck} />
+      <PresenterTools index={index} total={slides.length} />
     </div>
   );
 }
