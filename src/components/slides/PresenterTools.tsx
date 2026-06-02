@@ -129,18 +129,24 @@ export function PresenterTools({ targetMinutes = 10, index, total, deck }: Props
 
           <div className="mb-2 flex gap-1">
             <button
-              onClick={() => setRunning((r) => !r)}
+              onClick={() => {
+                setRunning((r) => {
+                  if (!r && startedAtRef.current === null) startedAtRef.current = Date.now();
+                  return !r;
+                });
+              }}
               className="flex-1 rounded bg-amber-400 px-2 py-1 font-semibold text-neutral-900 hover:bg-amber-300"
             >
               {running ? "Pause" : "Start"}
             </button>
             <button
-              onClick={() => { setRunning(false); setElapsed(0); }}
+              onClick={() => { setRunning(false); setElapsed(0); startedAtRef.current = null; viewedRef.current = new Set([index]); }}
               className="rounded bg-neutral-800 px-2 py-1 hover:bg-neutral-700"
             >
               Reset
             </button>
           </div>
+
 
           <label className="mb-2 flex items-center justify-between gap-2">
             <span className="opacity-70">Target (min)</span>
