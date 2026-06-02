@@ -23,8 +23,11 @@ function SlideStepPage() {
   const slides = useDeck((s) => s.deck.slides);
   const index = Math.max(0, (parseInt(slideId, 10) || 0) - 1);
   const slide = index >= 0 && index < slides.length ? slides[index] : undefined;
+  const stepCount = slide ? slideStepCount(slide) : 0;
   const requestedStep = parseInt(step, 10);
-  const stepNum = Number.isFinite(requestedStep) ? Math.max(0, requestedStep - 1) : 0;
+  const stepNum = Number.isFinite(requestedStep)
+    ? Math.max(0, Math.min(requestedStep - 1, Math.max(0, stepCount - 1)))
+    : 0;
   const [settingsOpen, setSettingsOpen] = useState(false);
   const { isFs, toggle: toggleFs, exit: exitFs } = useFullscreen();
 
@@ -34,7 +37,6 @@ function SlideStepPage() {
   }, [slide, index, slides.length]);
 
   useEffect(() => {
-    const stepCount = slide ? slideStepCount(slide) : 0;
     if (!slide || stepCount === 0) return;
     const last = stepCount - 1;
     const slideParam = String(index + 1);
