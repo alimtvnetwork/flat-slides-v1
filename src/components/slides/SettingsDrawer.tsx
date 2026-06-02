@@ -1,4 +1,18 @@
 import { Link } from "@tanstack/react-router";
+import {
+  ArrowLeftRight,
+  Download,
+  Focus,
+  Image as ImageIcon,
+  Palette,
+  PenLine,
+  RotateCcw,
+  Settings as SettingsIcon,
+  Sparkles,
+  Upload,
+  Volume2,
+  X,
+} from "lucide-react";
 import { useRef } from "react";
 import { toast } from "sonner";
 
