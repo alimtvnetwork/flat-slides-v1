@@ -133,8 +133,9 @@ Every slide has these **common fields** (in addition to type-specific ones):
 ```
 
 All step labels and titles remain visible. Arrow navigation changes the focused
-step and cross-fades only the centered title/detail; non-focused steps stay
-readable but muted/grey, never hidden.
+step and cross-fades only the centered label/title/detail; non-focused steps
+stay readable but muted/grey, never hidden. The focused label and title render
+as separate lines so long names do not clip.
 Legacy rich-text arrays are still accepted on import and become `{ "label":
 "Step N", "detail": [...] }` automatically.
 
@@ -153,7 +154,9 @@ Legacy rich-text arrays are still accepted on import and become `{ "label":
 
 Timeline items render as pinpoints on a rail. The focused item is highlighted,
 completed/other pinpoints stay visible in muted/grey states, and the centered
-title/detail fades between items without zooming the slide.
+label/title/detail fades between items without zooming the slide. Keep the
+focused label and title as separate lines; do not concatenate them into one
+oversized heading.
 
 ### 5.5 `type: "quote"` — pull quote with attribution
 ```json
