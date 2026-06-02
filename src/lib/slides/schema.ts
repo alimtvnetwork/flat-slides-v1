@@ -83,6 +83,28 @@ export const ImageSlideSchema = z.object({
   heading: RichTextSchema.optional(),
 });
 
+export const PollSlideSchema = z.object({
+  ...BaseSlideShape,
+  type: z.literal("poll"),
+  question: z.string().min(1).max(280),
+  options: z.array(z.string().min(1).max(120)).min(2).max(8),
+});
+
+export const QaSlideSchema = z.object({
+  ...BaseSlideShape,
+  type: z.literal("qa"),
+  prompt: z.string().max(200).optional(),
+});
+
+export const EmbedSlideSchema = z.object({
+  ...BaseSlideShape,
+  type: z.literal("embed"),
+  url: z.string().url().startsWith("https://", "embed URL must be https"),
+  heading: z.string().max(200).optional(),
+  caption: z.string().max(400).optional(),
+  allow: z.string().max(200).optional(),
+});
+
 export const SlideSchema = z.discriminatedUnion("type", [
   LeftSlideSchema,
   CenterSlideSchema,
@@ -90,6 +112,9 @@ export const SlideSchema = z.discriminatedUnion("type", [
   QuoteSlideSchema,
   BulletsSlideSchema,
   ImageSlideSchema,
+  PollSlideSchema,
+  QaSlideSchema,
+  EmbedSlideSchema,
 ]);
 
 export const DeckSettingsSchema = z.object({
