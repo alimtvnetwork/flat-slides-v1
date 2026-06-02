@@ -205,14 +205,11 @@
 .slide-badge,
 .slide-page     { white-space: nowrap; }
 
-/* Inline yellow highlight with soft glow */
+/* Inline yellow highlight — crisp ink-stamp shadow (user spec, no glow). */
 .hl {
   color: var(--slide-hl);
   font-weight: 700;
-  text-shadow:
-    0 0 1px rgba(0, 0, 0, 0.35),
-    0 2px 0 rgba(0, 0, 0, 0.25),
-    0 0 18px color-mix(in oklab, var(--slide-hl) 35%, transparent);
+  text-shadow: rgb(0 0 0) 1px 0.7px 0px;
 }
 
 /* Pill variant (Type B "Think" chip) */
