@@ -56,11 +56,11 @@ const seedSlides: Slide[] = [
     title: "Five Principles",
     heading: "Five principles",
     steps: [
-      ["Lead with the ", { text: "user" }],
-      ["Default to ", { text: "motion" }],
-      ["Reveal one ", { text: "idea" }, " per slide"],
-      ["Highlight in ", { text: "yellow", pill: true }],
-      ["Ship and ", { text: "iterate" }],
+      { label: "Principle 1", title: "Lead with the user", detail: ["Lead with the ", { text: "user" }, " before anything else."] },
+      { label: "Principle 2", title: "Default to motion", detail: ["Use ", { text: "motion" }, " to guide attention, not distract."] },
+      { label: "Principle 3", title: "One idea per step", detail: ["Reveal one ", { text: "idea" }, " at a time with clear focus."] },
+      { label: "Principle 4", title: "Highlight deliberately", detail: ["Use ", { text: "yellow", pill: true }, " only for the current emphasis."] },
+      { label: "Principle 5", title: "Ship and iterate", detail: ["Ship, learn, and ", { text: "iterate" }, " quickly."] },
     ],
   },
   {
