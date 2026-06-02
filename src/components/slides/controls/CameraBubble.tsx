@@ -41,6 +41,7 @@ export function CameraBubble() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const dragState = useRef<{ x: number; y: number; ox: number; oy: number } | null>(null);
   const resizeState = useRef<{ x: number; y: number; size: number } | null>(null);
+  const autoFrame = useAutoFrame(videoRef, camera.visible && camera.autoFrame && status === "active");
 
   // Auto-start whenever the bubble is opened from chrome state.
   useEffect(() => {
