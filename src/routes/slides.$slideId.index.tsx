@@ -28,7 +28,12 @@ import { PresenterTools } from "@/components/slides/PresenterTools";
 import { RenderSlide } from "@/components/slides/RenderSlide";
 import { CameraStage } from "@/components/slides/CameraStage";
 import { ScaledSlide } from "@/components/slides/ScaledSlide";
-import { SettingsDrawer } from "@/components/slides/SettingsDrawer";
+// SettingsDrawer is heavy (imports the LLM spec sample); split it out of the slide bundle.
+const SettingsDrawer = lazy(() =>
+  import("@/components/slides/SettingsDrawer").then((m) => ({ default: m.SettingsDrawer })),
+);
+import { PresenterNotesPeek } from "@/components/slides/controls/PresenterNotesPeek";
+import { SlideAriaAnnouncer } from "@/components/slides/controls/SlideAriaAnnouncer";
 import { SlideTransition } from "@/components/slides/SlideTransition";
 import { useDeck } from "@/components/slides/store";
 import { getDisplayNumber, slideStepCount } from "@/components/slides/types";
