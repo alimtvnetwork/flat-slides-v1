@@ -89,6 +89,7 @@ export interface ChromeStore {
   setLastUsedThemeId: (id: string) => void;
   pushRecentJump: (n: number) => void;
   clearRecentJumps: () => void;
+  setRecentJumps: (jumps: number[]) => void;
   setCamera: (patch: Partial<CameraState>) => void;
   toggleCamera: () => void;
   cycleCameraSize: () => void;
@@ -146,6 +147,7 @@ export const useChrome = create<ChromeStore>()(
           return { recentJumps: next };
         }),
       clearRecentJumps: () => set({ recentJumps: [] }),
+      setRecentJumps: (jumps) => set({ recentJumps: jumps.slice(0, 8) }),
       setCamera: (patch) => set((s) => ({ camera: { ...s.camera, ...patch } })),
       toggleCamera: () => set((s) => ({ camera: { ...s.camera, visible: !s.camera.visible } })),
       cycleCameraSize: () => set((s) => ({ camera: { ...s.camera, size: nextSize(s.camera.size) } })),

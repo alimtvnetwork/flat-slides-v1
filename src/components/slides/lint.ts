@@ -50,6 +50,33 @@ export function lintDeck(deck: Deck): LintIssue[] {
   const push = (s: Slide, i: number, rule: string, message: string, severity: LintSeverity = "warn") =>
     out.push({ slideId: s.id, slideIndex: i, slideTitle: s.title, rule, message, severity });
 
+  // Deck-level: must have at least one slide.
+  if (deck.slides.length === 0) {
+    out.push({
+      slideId: "", slideIndex: 0, slideTitle: "",
+      rule: "empty-deck",
+      message: "Deck has no slides — add at least one to render anything.",
+      severity: "error",
+    });
+    return out;
+  }
+
+  // Deck-level: warn on very long decks (cognitive load + nav UX).
+  if (deck.slides.length > 60) {
+    push(deck.slides[0], 0, "deck-too-long",
+      `Deck has ${deck.slides.length} slides — split into shorter chapters; nav and rendering degrade past ~60.`,
+      "warn");
+  }
+
+  // Deck-level: more than one Q&A slide is usually a copy/paste mistake.
+  const qaCount = deck.slides.filter((s) => s.type === "qa").length;
+  if (qaCount > 1) {
+    const first = deck.slides.findIndex((s) => s.type === "qa");
+    push(deck.slides[first], first, "multiple-qa-slides",
+      `Deck has ${qaCount} Q&A slides — usually only the final slide should be a Q&A.`,
+      "warn");
+  }
+
   // Deck-level: title must be present and not the default "Untitled".
   if (deck.slides[0]) {
     const t = deck.title?.trim() ?? "";
@@ -149,6 +176,17 @@ export function lintDeck(deck: Deck): LintIssue[] {
       push(s, i, "duplicate-title", `Title "${t}" duplicates slide #${prior + 1} — confusing for navigation.`, "warn");
     } else {
       titleSeen.set(t, i);
+    }
+  }
+
+  // Slide ids should be URL-safe kebab-case (used in `/slides/$id` deep links
+  // by some integrations). Warn on whitespace, uppercase, or punctuation.
+  for (let i = 0; i < deck.slides.length; i++) {
+    const s = deck.slides[i];
+    if (s.id && !/^[a-z0-9][a-z0-9-]*$/.test(s.id)) {
+      push(s, i, "slide-id-not-kebab",
+        `Slide id "${s.id}" is not kebab-case — prefer [a-z0-9-] for URL safety.`,
+        "warn");
     }
   }
 
@@ -415,6 +453,10 @@ export const LINT_RULES: ReadonlyArray<{ id: string; severity: LintSeverity; sum
   { id: "budget-invalid", severity: "warn", summary: "Slide budget <= 0." },
   { id: "budget-too-long", severity: "warn", summary: "Slide budget > 600s (10 min)." },
   { id: "deck-title-untitled", severity: "warn", summary: "Deck title is empty or 'Untitled'." },
+  { id: "empty-deck", severity: "error", summary: "Deck has zero slides." },
+  { id: "deck-too-long", severity: "warn", summary: "Deck has >60 slides." },
+  { id: "multiple-qa-slides", severity: "warn", summary: "Deck has more than one Q&A slide." },
+  { id: "slide-id-not-kebab", severity: "warn", summary: "Slide id is not URL-safe kebab-case." },
   { id: "background-not-https", severity: "warn", summary: "Slide background URL uses http://." },
   { id: "embed-missing-url", severity: "error", summary: "Embed slide has no URL." },
   { id: "left-media-alt-missing", severity: "warn", summary: "Left-slide media missing alt text." },
@@ -425,3 +467,20 @@ export const LINT_RULES: ReadonlyArray<{ id: string; severity: LintSeverity; sum
   { id: "slide-sound-volume-out-of-range", severity: "warn", summary: "Per-slide sound.volume outside [0, 1]." },
 ];
 
+/** Pure deck stats — counts by slide type plus totals. Used by overview UIs and analytics. */
+export function deckStats(deck: Deck): {
+  total: number;
+  byType: Record<string, number>;
+  withFocus: number;
+  withBackground: number;
+} {
+  const byType: Record<string, number> = {};
+  let withFocus = 0;
+  let withBackground = 0;
+  for (const s of deck.slides) {
+    byType[s.type] = (byType[s.type] ?? 0) + 1;
+    if (Array.isArray(s.focus) && s.focus.length > 0) withFocus++;
+    if (typeof s.background === "string" && s.background.length > 0) withBackground++;
+  }
+  return { total: deck.slides.length, byType, withFocus, withBackground };
+}

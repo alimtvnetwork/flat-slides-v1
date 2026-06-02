@@ -404,3 +404,34 @@ describe("lintDeck — budget & deck-title rules", () => {
     expect(ids).toContain("deck-title-untitled");
   });
 });
+
+describe("lintDeck — deck-level structural rules", () => {
+  it("emits empty-deck error and stops further linting", () => {
+    const issues = lintDeck(deckOf([]));
+    expect(issues).toHaveLength(1);
+    expect(issues[0].rule).toBe("empty-deck");
+    expect(issues[0].severity).toBe("error");
+  });
+
+  it("flags decks with more than 60 slides", () => {
+    const many = Array.from({ length: 65 }, (_, i): Slide => ({
+      id: `s-${i}`, type: "center", title: `S${i}`, heading: ["x"],
+    }));
+    expect(lintDeck(deckOf(many)).some((i) => i.rule === "deck-too-long")).toBe(true);
+  });
+
+  it("flags multiple Q&A slides", () => {
+    const qa = (id: string): Slide => ({ id, type: "qa", title: id, prompt: "?" });
+    expect(lintDeck(deckOf([qa("q1"), center, qa("q2")])).some((i) => i.rule === "multiple-qa-slides")).toBe(true);
+  });
+
+  it("flags non-kebab slide ids", () => {
+    const s: Slide = { id: "My Slide!", type: "center", title: "C", heading: ["x"] };
+    expect(lintDeck(deckOf([s])).some((i) => i.rule === "slide-id-not-kebab")).toBe(true);
+  });
+
+  it("does NOT flag a kebab id", () => {
+    const s: Slide = { id: "hero-intro", type: "center", title: "C", heading: ["x"] };
+    expect(lintDeck(deckOf([s])).some((i) => i.rule === "slide-id-not-kebab")).toBe(false);
+  });
+});
