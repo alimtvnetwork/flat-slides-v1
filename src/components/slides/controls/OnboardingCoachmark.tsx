@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
 import { useOnboardingFlag } from "@/components/slides/useOnboardingFlag";
+import { useReducedMotion } from "@/components/slides/useReducedMotion";
 
 /**
  * First-run coachmark. Renders once per browser (gated by useOnboardingFlag).
