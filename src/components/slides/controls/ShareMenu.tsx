@@ -39,10 +39,24 @@ export function ShareMenu({ current, step }: Props) {
     return `${base}?session=${sessionId}`;
   }
 
+  function cleanLink() {
+    return `${window.location.origin}/slides/${current}${step && step > 1 ? `/${step}` : ""}`;
+  }
+
   async function copyLink() {
     try {
       await navigator.clipboard.writeText(deepLink());
       flash("Share link copied");
+    } catch {
+      flash("Copy failed — check clipboard permissions");
+    }
+    setOpen(false);
+  }
+
+  async function copyCleanLink() {
+    try {
+      await navigator.clipboard.writeText(cleanLink());
+      flash("Slide link copied");
     } catch {
       flash("Copy failed — check clipboard permissions");
     }
