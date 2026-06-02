@@ -1,6 +1,10 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 
+import { useChrome } from "./chrome-store";
+import { downloadAnnotations } from "./exportAnnotations";
+import { downloadRehearsalReport } from "./exportRehearsal";
+import { useDeck } from "./store";
 import type { Slide } from "./types";
 
 type Action = { id: string; label: string; hint?: string; run: () => void };
