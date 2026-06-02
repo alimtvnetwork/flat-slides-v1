@@ -96,17 +96,12 @@ export function ControllerPill(props: Props) {
 
   // Cycle through 8 anchors on right-click of the pill.
   function cycleAnchor() {
-    const order: ControllerAnchor[] = [
-      "bottom-right", "bottom-center", "bottom-left",
-      "middle-left", "top-left", "top-center", "top-right", "middle-right",
-    ];
-    const idx = order.indexOf(anchor);
-    setAnchor(order[(idx + 1) % order.length]);
+    setAnchor(nextControllerAnchor(anchor));
   }
 
   if (!mounted) return null;
 
-  const motionPreset = reduceMotion()
+  const motionPreset = reduced
     ? { duration: 0 }
     : { type: "spring" as const, stiffness: 400, damping: 32 };
 
