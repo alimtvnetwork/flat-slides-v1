@@ -391,6 +391,8 @@ export const LINT_RULES: ReadonlyArray<{ id: string; severity: LintSeverity; sum
   { id: "embed-not-https", severity: "error", summary: "Embed URL not https://." },
   { id: "consecutive-quotes", severity: "warn", summary: "Two quote slides back-to-back." },
   { id: "consecutive-images", severity: "warn", summary: "Three image slides back-to-back." },
+  { id: "consecutive-embeds", severity: "warn", summary: "Two embed slides back-to-back." },
+  { id: "embed-too-many-deck", severity: "warn", summary: "More than 3 embed slides in the deck." },
   { id: "volume-out-of-range", severity: "warn", summary: "Deck volume outside [0, 1]." },
   { id: "duplicate-title", severity: "warn", summary: "Two slides share the same title." },
   { id: "focus-rect-invalid", severity: "error", summary: "Focus rect has w<=0, h<=0, or negative x/y." },
