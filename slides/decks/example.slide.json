@@ -1,0 +1,13 @@
+{
+  "id": "single-bullets",
+  "type": "bullets",
+  "title": "Single-slide import demo",
+  "kicker": "Demo",
+  "align": "center-left",
+  "heading": ["Imported as a ", { "text": "single slide" }],
+  "bullets": [
+    ["Drop a ", { "text": ".slide.json" }, " file"],
+    ["Existing id overwrites; new id appends"],
+    ["Same ", { "text": "schema" }, " as deck slides"]
+  ]
+}

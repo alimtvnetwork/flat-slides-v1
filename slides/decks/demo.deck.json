@@ -1,0 +1,56 @@
+{
+  "id": "demo",
+  "title": "Glasswing Demo",
+  "themeId": "midnight",
+  "version": 1,
+  "settings": {
+    "backgroundMode": "color",
+    "backgroundColor": "#101010",
+    "darken": 0,
+    "blur": 0,
+    "transition": "camera-zoom",
+    "soundEnabled": true,
+    "volume": 0.6
+  },
+  "slides": [
+    {
+      "id": "cover",
+      "type": "center",
+      "title": "Cover",
+      "display": true,
+      "align": "center",
+      "heading": ["Glasswing"]
+    },
+    {
+      "id": "why",
+      "type": "bullets",
+      "title": "Why JSON-first?",
+      "kicker": "Why",
+      "align": "center-left",
+      "heading": ["Why ", { "text": "JSON", "pill": true }, "-first?"],
+      "bullets": [
+        ["Any ", { "text": "LLM" }, " can author a deck"],
+        ["Version-controlled like code"],
+        ["Import / export ", { "text": "single slides" }]
+      ]
+    },
+    {
+      "id": "process",
+      "type": "steps",
+      "title": "Process",
+      "heading": "How it works",
+      "steps": [
+        ["Write the ", { "text": "JSON" }],
+        ["Import via ", { "text": "Settings" }],
+        ["Present and ", { "text": "iterate" }]
+      ]
+    },
+    {
+      "id": "outro",
+      "type": "quote",
+      "title": "Outro",
+      "quote": ["Animation is the ", { "text": "priority" }, "."],
+      "attribution": "— Project brief"
+    }
+  ]
+}
