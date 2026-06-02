@@ -26,7 +26,11 @@ import { SlideNumberBadge } from "@/components/slides/controls/SlideNumberBadge"
 import { RenderSlide } from "@/components/slides/RenderSlide";
 import { CameraStage } from "@/components/slides/CameraStage";
 import { ScaledSlide } from "@/components/slides/ScaledSlide";
-import { SettingsDrawer } from "@/components/slides/SettingsDrawer";
+const SettingsDrawer = lazy(() =>
+  import("@/components/slides/SettingsDrawer").then((m) => ({ default: m.SettingsDrawer })),
+);
+import { PresenterNotesPeek } from "@/components/slides/controls/PresenterNotesPeek";
+import { SlideAriaAnnouncer } from "@/components/slides/controls/SlideAriaAnnouncer";
 import { SlideTransition } from "@/components/slides/SlideTransition";
 import { getDisplayNumber, slideStepCount } from "@/components/slides/types";
 import { useFullscreen } from "@/components/slides/useFullscreen";
