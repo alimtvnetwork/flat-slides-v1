@@ -413,6 +413,8 @@ export const LINT_RULES: ReadonlyArray<{ id: string; severity: LintSeverity; sum
   { id: "focus-rect-out-of-bounds", severity: "warn", summary: "Focus rect extends past 1920×1080." },
   { id: "padding-out-of-range", severity: "warn", summary: "Slide padding outside [0, 400]." },
   { id: "budget-invalid", severity: "warn", summary: "Slide budget <= 0." },
+  { id: "budget-too-long", severity: "warn", summary: "Slide budget > 600s (10 min)." },
+  { id: "deck-title-untitled", severity: "warn", summary: "Deck title is empty or 'Untitled'." },
   { id: "background-not-https", severity: "warn", summary: "Slide background URL uses http://." },
   { id: "embed-missing-url", severity: "error", summary: "Embed slide has no URL." },
   { id: "left-media-alt-missing", severity: "warn", summary: "Left-slide media missing alt text." },
