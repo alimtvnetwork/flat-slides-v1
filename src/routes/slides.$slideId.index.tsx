@@ -277,17 +277,25 @@ function SlidePage() {
       )}
       <SlideAriaAnnouncer current={current} total={total} title={slide.title} />
       <PresenterNotesPeek notes={slide.notes} />
-      <CommandPalette
-        open={paletteOpen}
-        onClose={() => setPaletteOpen(false)}
-        slides={allSlides}
-        onOpenSettings={() => setSettingsOpen(true)}
-        onPresent={toggleFs}
-        onOpenLint={() => setLintOpen(true)}
-      />
+      {paletteOpen && (
+        <Suspense fallback={null}>
+          <CommandPalette
+            open={paletteOpen}
+            onClose={() => setPaletteOpen(false)}
+            slides={allSlides}
+            onOpenSettings={() => setSettingsOpen(true)}
+            onPresent={toggleFs}
+            onOpenLint={() => setLintOpen(true)}
+          />
+        </Suspense>
+      )}
       <KeyboardShortcutsDialog open={helpOpen} onClose={() => setHelpOpen(false)} />
       <OnboardingCoachmark />
-      <LintPanel open={lintOpen} onClose={() => setLintOpen(false)} deck={deck} />
+      {lintOpen && (
+        <Suspense fallback={null}>
+          <LintPanel open={lintOpen} onClose={() => setLintOpen(false)} deck={deck} />
+        </Suspense>
+      )}
       <PresenterTools index={index} total={total} deck={deck} />
     </div>
   );
