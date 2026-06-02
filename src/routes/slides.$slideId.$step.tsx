@@ -250,7 +250,13 @@ function SlideStepPage() {
       <CameraBubble />
       <PresenterToast />
       <KeyboardShortcutsDialog open={helpOpen} onClose={() => setHelpOpen(false)} />
-      <SettingsDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} currentSlideId={slide.id} />
+      {settingsOpen && (
+        <Suspense fallback={null}>
+          <SettingsDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} currentSlideId={slide.id} />
+        </Suspense>
+      )}
+      <SlideAriaAnnouncer current={current} total={total} step={stepNum + 1} stepCount={stepCount} title={slide.title} />
+      <PresenterNotesPeek notes={slide.notes} />
       <OnboardingCoachmark />
     </div>
   );
