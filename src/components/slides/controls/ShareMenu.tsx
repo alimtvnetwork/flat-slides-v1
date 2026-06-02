@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { useAudience } from "@/components/slides/audience-store";
 import { useChrome } from "@/components/slides/chrome-store";
+import { useReducedMotion } from "@/components/slides/useReducedMotion";
 import { cn } from "@/lib/utils";
 
 interface Props {
