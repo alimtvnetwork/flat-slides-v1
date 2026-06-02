@@ -12,7 +12,7 @@ import { SlideTransition } from "@/components/slides/SlideTransition";
 import { useDeck } from "@/components/slides/store";
 import { useFullscreen } from "@/components/slides/useFullscreen";
 
-export const Route = createFileRoute("/slides/$slideId")({
+export const Route = createFileRoute("/slides/$slideId/")({
   head: ({ params }) => ({
     meta: [{ title: `Slide — ${params.slideId}` }],
   }),
