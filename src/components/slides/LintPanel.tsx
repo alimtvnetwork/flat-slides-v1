@@ -13,9 +13,22 @@ interface Props {
 /** Side panel listing lint issues for the deck. */
 export function LintPanel({ open, onClose, deck }: Props) {
   const [showRules, setShowRules] = useState(false);
+  const [filter, setFilter] = useState<"all" | "error" | "warn">("all");
+  const [groupBySlide, setGroupBySlide] = useState(false);
   if (!open) return null;
-  const issues = lintDeck(deck);
-  const { errors, warns } = countIssues(issues);
+  const all = lintDeck(deck);
+  const { errors, warns } = countIssues(all);
+  const issues = filter === "all" ? all : all.filter((i) => i.severity === filter);
+
+  const groups = groupBySlide
+    ? Array.from(
+        issues.reduce((m, iss) => {
+          const k = `${iss.slideIndex}::${iss.slideTitle || iss.slideId}`;
+          (m.get(k) ?? m.set(k, []).get(k))!.push(iss);
+          return m;
+        }, new Map<string, typeof issues>()),
+      )
+    : null;
 
   return (
     <div className="fixed inset-0 z-[55] flex justify-end bg-black/50" data-app-chrome onClick={onClose}>
@@ -28,12 +41,34 @@ export function LintPanel({ open, onClose, deck }: Props) {
           <button onClick={onClose} className="text-sm opacity-70 hover:opacity-100">Close</button>
         </div>
 
-        <div className="mb-4 flex gap-2 text-xs">
-          <span className="rounded bg-red-500/15 px-2 py-0.5 text-red-300">{errors} errors</span>
-          <span className="rounded bg-amber-500/15 px-2 py-0.5 text-amber-300">{warns} warnings</span>
+        <div className="mb-3 flex flex-wrap gap-2 text-xs">
+          <button
+            onClick={() => setFilter("all")}
+            className={`rounded px-2 py-0.5 ${filter === "all" ? "bg-neutral-700 text-white" : "bg-neutral-900 text-neutral-400 hover:bg-neutral-800"}`}
+          >
+            All ({all.length})
+          </button>
+          <button
+            onClick={() => setFilter("error")}
+            className={`rounded px-2 py-0.5 ${filter === "error" ? "bg-red-500/30 text-red-200" : "bg-red-500/10 text-red-300 hover:bg-red-500/20"}`}
+          >
+            {errors} errors
+          </button>
+          <button
+            onClick={() => setFilter("warn")}
+            className={`rounded px-2 py-0.5 ${filter === "warn" ? "bg-amber-500/30 text-amber-200" : "bg-amber-500/10 text-amber-300 hover:bg-amber-500/20"}`}
+          >
+            {warns} warnings
+          </button>
+          <button
+            onClick={() => setGroupBySlide((v) => !v)}
+            className={`ml-auto rounded px-2 py-0.5 ${groupBySlide ? "bg-neutral-700 text-white" : "bg-neutral-900 text-neutral-400 hover:bg-neutral-800"}`}
+          >
+            {groupBySlide ? "Flat" : "Group"}
+          </button>
           <button
             onClick={() => setShowRules((v) => !v)}
-            className="ml-auto rounded bg-neutral-800 px-2 py-0.5 text-neutral-300 hover:bg-neutral-700"
+            className="rounded bg-neutral-800 px-2 py-0.5 text-neutral-300 hover:bg-neutral-700"
           >
             {showRules ? "Hide" : "Rules"} ({LINT_RULES.length})
           </button>
@@ -57,7 +92,36 @@ export function LintPanel({ open, onClose, deck }: Props) {
         )}
 
         {issues.length === 0 ? (
-          <p className="text-sm text-emerald-400">✓ No issues. Deck looks clean.</p>
+          <p className="text-sm text-emerald-400">✓ No issues match the current filter.</p>
+        ) : groups ? (
+          <div className="space-y-3">
+            {groups.map(([key, list]) => {
+              const first = list[0];
+              return (
+                <div key={key} className="rounded-md bg-neutral-900 p-3 ring-1 ring-neutral-800">
+                  <Link
+                    to="/slides/$slideId"
+                    params={{ slideId: String(first.slideIndex + 1) }}
+                    onClick={onClose}
+                    className="mb-2 block text-sm font-medium text-white hover:underline"
+                  >
+                    {first.slideIndex + 1}. {first.slideTitle || first.slideId} ({list.length})
+                  </Link>
+                  <ul className="space-y-1.5 text-xs">
+                    {list.map((iss, i) => (
+                      <li key={i}>
+                        <span className={`mr-2 uppercase ${iss.severity === "error" ? "text-red-400" : "text-amber-400"}`}>
+                          {iss.severity}
+                        </span>
+                        <code className="text-neutral-400">{iss.rule}</code>
+                        <span className="ml-2 text-neutral-300">{iss.message}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })}
+          </div>
         ) : (
           <ul className="space-y-2">
             {issues.map((iss, i) => (
