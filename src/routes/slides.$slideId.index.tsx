@@ -1,10 +1,11 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useChrome } from "@/components/slides/chrome-store";
 import { CommandPalette } from "@/components/slides/CommandPalette";
-import { ControlBar } from "@/components/slides/ControlBar";
+import { ControllerPill } from "@/components/slides/controls/ControllerPill";
 import { DotPagination } from "@/components/slides/controls/DotPagination";
+import { KeyboardShortcutsDialog } from "@/components/slides/controls/KeyboardShortcutsDialog";
 import { PresenterTopBar } from "@/components/slides/controls/PresenterTopBar";
 import { SlideNumberBadge } from "@/components/slides/controls/SlideNumberBadge";
 import { LintPanel } from "@/components/slides/LintPanel";
@@ -37,15 +38,9 @@ function SlidePage() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [lintOpen, setLintOpen] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
   const { isFs, toggle: toggleFs, exit: exitFs } = useFullscreen();
   const toggleTopJumper = useChrome((s) => s.toggleTopJumper);
-
-  // Maintain ControlBar compatibility: pass the original `slides` and the
-  // index of the current slide within that array.
-  const indexInAll = useMemo(
-    () => (slide ? allSlides.findIndex((s) => s.id === slide.id) : -1),
-    [allSlides, slide],
-  );
 
   useEffect(() => {
     if (!slide) return;
@@ -60,14 +55,14 @@ function SlidePage() {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault(); setPaletteOpen((o) => !o); return;
       }
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (e.key === "F5") { e.preventDefault(); toggleFs(); return; }
       if (e.key === "Escape" && isFs) { exitFs(); return; }
       if (e.key === "j" || e.key === "J") { toggleTopJumper(); return; }
+      if (e.key === "?" || e.key === "/") { e.preventDefault(); setHelpOpen((o) => !o); return; }
+      if (e.key === "g" || e.key === "G") { navigate({ to: "/slides" }); return; }
       if (e.key === "ArrowRight" || e.key === " " || e.key === "Enter") {
-        if (slideStepCount(slide) > 1) {
-          goTo(current, "forward", 2);
-          return;
-        }
+        if (slideStepCount(slide) > 1) { goTo(current, "forward", 2); return; }
         next(current);
       } else if (e.key === "ArrowLeft") {
         prev(current);
@@ -75,7 +70,7 @@ function SlidePage() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [slide, current, next, prev, goTo, isFs, toggleFs, exitFs, toggleTopJumper]);
+  }, [slide, current, next, prev, goTo, isFs, toggleFs, exitFs, toggleTopJumper, navigate]);
 
   if (!slide) {
     return (
@@ -88,12 +83,27 @@ function SlidePage() {
     );
   }
 
-  const overlays = (
+  const surfaces = (
     <>
       <PresenterTopBar current={current} total={total} onPrev={() => prev(current)} onNext={() => next(current)} />
       <DotPagination current={current} total={total} slides={linearSlides} onJump={jump} />
       <SlideNumberBadge current={current} total={total} />
     </>
+  );
+
+  const controller = (
+    <ControllerPill
+      current={current}
+      total={total}
+      onPrev={() => prev(current)}
+      onNext={() => next(current)}
+      onJump={jump}
+      onOpenGrid={() => navigate({ to: "/slides" })}
+      onToggleFullscreen={toggleFs}
+      onOpenHelp={() => setHelpOpen(true)}
+      onOpenSettings={() => setSettingsOpen(true)}
+      isFullscreen={isFs}
+    />
   );
 
   if (isFs) {
@@ -105,22 +115,11 @@ function SlidePage() {
               <RenderSlide slide={slide} step={0} />
             </SlideTransition>
           </ScaledSlide>
-          {overlays}
+          {surfaces}
         </div>
-        <ControlBar
-          slides={allSlides}
-          index={indexInAll >= 0 ? indexInAll : 0}
-          step={slideStepCount(slide) > 0 ? 0 : undefined}
-          totalSteps={slideStepCount(slide) || undefined}
-          onOpenSettings={() => setSettingsOpen(true)}
-          onPresent={toggleFs}
-          isPresenting={isFs}
-        />
-        <SettingsDrawer
-          open={settingsOpen}
-          onClose={() => setSettingsOpen(false)}
-          currentSlideId={slide.id}
-        />
+        {controller}
+        <KeyboardShortcutsDialog open={helpOpen} onClose={() => setHelpOpen(false)} />
+        <SettingsDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} currentSlideId={slide.id} />
       </div>
     );
   }
@@ -133,22 +132,10 @@ function SlidePage() {
             <RenderSlide slide={slide} step={0} />
           </SlideTransition>
         </ScaledSlide>
-        {overlays}
+        {surfaces}
       </div>
-      <ControlBar
-        slides={allSlides}
-        index={indexInAll >= 0 ? indexInAll : 0}
-        step={slideStepCount(slide) > 0 ? 0 : undefined}
-        totalSteps={slideStepCount(slide) || undefined}
-        onOpenSettings={() => setSettingsOpen(true)}
-        onPresent={toggleFs}
-        isPresenting={isFs}
-      />
-      <SettingsDrawer
-        open={settingsOpen}
-        onClose={() => setSettingsOpen(false)}
-        currentSlideId={slide.id}
-      />
+      {controller}
+      <SettingsDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} currentSlideId={slide.id} />
       <CommandPalette
         open={paletteOpen}
         onClose={() => setPaletteOpen(false)}
@@ -157,8 +144,9 @@ function SlidePage() {
         onPresent={toggleFs}
         onOpenLint={() => setLintOpen(true)}
       />
+      <KeyboardShortcutsDialog open={helpOpen} onClose={() => setHelpOpen(false)} />
       <LintPanel open={lintOpen} onClose={() => setLintOpen(false)} deck={deck} />
-      <PresenterTools index={indexInAll >= 0 ? indexInAll : 0} total={allSlides.length} deck={deck} />
+      <PresenterTools index={index} total={total} deck={deck} />
     </div>
   );
 }
