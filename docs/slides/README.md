@@ -2,6 +2,10 @@
 
 Source-of-truth shortcut sheet and module map for the slides app.
 
+**LLM-targeted JSON spec:** see
+[`spec/llm-json-guideline.md`](./spec/llm-json-guideline.md) and the
+importable [`spec/sample-deck.json`](./spec/sample-deck.json).
+
 ## Routes
 
 | URL                          | Purpose                                |
