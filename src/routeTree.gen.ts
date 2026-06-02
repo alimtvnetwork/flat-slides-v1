@@ -25,9 +25,9 @@ const SlidesIndexRoute = SlidesIndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const SlidesSlideIdRoute = SlidesSlideIdRouteImport.update({
-  id: '/$slideId',
-  path: '/$slideId',
-  getParentRoute: () => SlidesRoute,
+  id: '/slides/$slideId',
+  path: '/slides/$slideId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const SlidesSlideIdStepRoute = SlidesSlideIdStepRouteImport.update({
   id: '/$step',
@@ -69,6 +69,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  SlidesSlideIdRoute: typeof SlidesSlideIdRouteWithChildren
   SlidesIndexRoute: typeof SlidesIndexRoute
 }
 
@@ -90,10 +91,10 @@ declare module '@tanstack/react-router' {
     }
     '/slides/$slideId': {
       id: '/slides/$slideId'
-      path: '/$slideId'
+      path: '/slides/$slideId'
       fullPath: '/slides/$slideId'
       preLoaderRoute: typeof SlidesSlideIdRouteImport
-      parentRoute: typeof SlidesRoute
+      parentRoute: typeof rootRouteImport
     }
     '/slides/$slideId/$step': {
       id: '/slides/$slideId/$step'
@@ -105,8 +106,21 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface SlidesSlideIdRouteChildren {
+  SlidesSlideIdStepRoute: typeof SlidesSlideIdStepRoute
+}
+
+const SlidesSlideIdRouteChildren: SlidesSlideIdRouteChildren = {
+  SlidesSlideIdStepRoute: SlidesSlideIdStepRoute,
+}
+
+const SlidesSlideIdRouteWithChildren = SlidesSlideIdRoute._addFileChildren(
+  SlidesSlideIdRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  SlidesSlideIdRoute: SlidesSlideIdRouteWithChildren,
   SlidesIndexRoute: SlidesIndexRoute,
 }
 export const routeTree = rootRouteImport
