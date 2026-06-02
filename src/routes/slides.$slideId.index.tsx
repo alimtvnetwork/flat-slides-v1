@@ -6,6 +6,7 @@ import { useAudience } from "@/components/slides/audience-store";
 import { useAudienceSync } from "@/components/slides/useAudienceSync";
 import { useChrome } from "@/components/slides/chrome-store";
 import { AnnotationLayer } from "@/components/slides/controls/AnnotationLayer";
+import { FocusEditor } from "@/components/slides/controls/FocusEditor";
 import { AnnotationToolbar } from "@/components/slides/controls/AnnotationToolbar";
 import { PollResultsOverlay } from "@/components/slides/controls/PollResultsOverlay";
 import { QrOverlay } from "@/components/slides/controls/QrOverlay";
