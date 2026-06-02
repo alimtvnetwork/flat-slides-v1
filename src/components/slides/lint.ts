@@ -179,6 +179,17 @@ export function lintDeck(deck: Deck): LintIssue[] {
     }
   }
 
+  // Slide ids should be URL-safe kebab-case (used in `/slides/$id` deep links
+  // by some integrations). Warn on whitespace, uppercase, or punctuation.
+  for (let i = 0; i < deck.slides.length; i++) {
+    const s = deck.slides[i];
+    if (s.id && !/^[a-z0-9][a-z0-9-]*$/.test(s.id)) {
+      push(s, i, "slide-id-not-kebab",
+        `Slide id "${s.id}" is not kebab-case — prefer [a-z0-9-] for URL safety.`,
+        "warn");
+    }
+  }
+
 
   for (let i = 0; i < deck.slides.length; i++) {
     const s = deck.slides[i];
