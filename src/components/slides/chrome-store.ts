@@ -60,6 +60,9 @@ export interface ChromeStore {
   timerVisible: boolean;
   /** On-canvas focus-region editor open (toggled by `F`). */
   focusEditorOpen: boolean;
+  /** Presenter notes peek panel open (toggled by `N`). Persisted so the
+   *  presenter doesn't have to reopen it on every slide. */
+  notesPeekOpen: boolean;
   /** Recent jump history (linear positions), most-recent-first, max 8. */
   recentJumps: number[];
   /** Presenter webcam bubble (presenter-local, never exported). */
@@ -78,6 +81,8 @@ export interface ChromeStore {
   toggleTimerVisible: () => void;
   setFocusEditorOpen: (v: boolean) => void;
   toggleFocusEditor: () => void;
+  setNotesPeekOpen: (v: boolean) => void;
+  toggleNotesPeek: () => void;
   pushRecentJump: (n: number) => void;
   clearRecentJumps: () => void;
   setCamera: (patch: Partial<CameraState>) => void;
