@@ -92,9 +92,19 @@ export function FocusEditor({ slide, active, onRect, onPopRegion, onClose }: Pro
           vectorEffect="non-scaling-stroke"
         />
       )}
-      <foreignObject x={24} y={24} width={520} height={56}>
+      <foreignObject x={24} y={24} width={720} height={56}>
         <div className="flex items-center gap-3 rounded-full bg-black/70 px-4 py-2 text-white">
           <span className="text-[14px] uppercase tracking-[0.2em] text-white/70">Focus editor</span>
+          <span className="text-[12px] text-white/60">{existing.length} region{existing.length === 1 ? "" : "s"}</span>
+          {existing.length > 0 && onPopRegion && (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); onPopRegion(); }}
+              className="rounded-full border border-white/30 px-2 py-0.5 text-[12px] hover:bg-white/10"
+            >
+              Remove last
+            </button>
+          )}
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); onClose?.(); }}
