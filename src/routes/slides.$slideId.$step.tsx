@@ -221,7 +221,7 @@ function SlideStepPage() {
   const slideStage = (
     <div style={{ opacity: slideOpacity, transition: "opacity 300ms ease" }} className="absolute inset-0">
       <ScaledSlide fitPadding={36}>
-        <SlideTransition transitionKey={slide.id} allowZoom={(slide.focus?.length ?? 0) === 0 && slide.type === "center" && slide.display === true}>
+        <SlideTransition transitionKey={slide.id}>
           <CameraStage slide={slide} step={stepNum + 1}><RenderSlide slide={slide} step={stepNum} /></CameraStage>
         </SlideTransition>
       </ScaledSlide>

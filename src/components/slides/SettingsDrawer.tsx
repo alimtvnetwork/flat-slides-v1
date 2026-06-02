@@ -33,7 +33,7 @@ import { useDeck } from "./store";
 import { DEFAULT_THEME_ID, THEMES } from "./themes";
 import type { TransitionKind } from "./types";
 
-const TRANSITIONS: TransitionKind[] = ["camera-zoom", "morph", "fade", "eaten"];
+const TRANSITIONS: TransitionKind[] = ["fade"];
 
 const PALETTE_PRESETS = ["#101010", "#000000", "#1d1d1d", "#0c2340", "#1b0d1f", "#f5f0e6"];
 
@@ -201,7 +201,7 @@ export function SettingsDrawer({
             <ArrowLeftRight size={12} /> Transition
           </label>
           <select
-            value={settings.transition}
+            value="fade"
             onChange={(e) => setSettings({ transition: e.target.value as TransitionKind })}
             className="w-full rounded bg-neutral-800 px-2 py-1 text-sm"
           >
