@@ -185,6 +185,10 @@ export function lintDeck(deck: Deck): LintIssue[] {
       push(s, i, "budget-invalid",
         `budget=${s.budget}s must be > 0 — pacing badge will divide by zero.`, "warn");
     }
+    if (typeof s.budget === "number" && s.budget > 600) {
+      push(s, i, "budget-too-long",
+        `budget=${s.budget}s (>10 min) is unusually long for a single slide — split or revisit.`, "warn");
+    }
 
     // Background URL must be https:// when remote.
     if (typeof s.background === "string" && /^http:\/\//i.test(s.background)) {
