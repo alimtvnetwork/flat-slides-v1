@@ -1,3 +1,4 @@
+import { AlertCircle, AlertTriangle, CheckCircle2, ClipboardCopy, Filter, ListTree, X } from "lucide-react";
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 
@@ -50,39 +51,42 @@ export function LintPanel({ open, onClose, deck }: Props) {
                   /* clipboard blocked — silently ignore */
                 }
               }}
-              className="rounded bg-neutral-800 px-2 py-0.5 text-xs text-neutral-300 hover:bg-neutral-700"
+              className="inline-flex items-center gap-1 rounded bg-neutral-800 px-2 py-0.5 text-xs text-neutral-300 hover:bg-neutral-700"
               title="Copy filtered issues as JSON"
             >
-              {copied ? "Copied ✓" : "Copy as JSON"}
+              <ClipboardCopy size={11} />
+              {copied ? "Copied ✓" : "Copy JSON"}
             </button>
-            <button onClick={onClose} className="text-sm opacity-70 hover:opacity-100">Close</button>
+            <button onClick={onClose} aria-label="Close linter" className="inline-flex h-6 w-6 items-center justify-center rounded text-neutral-400 hover:text-white hover:bg-neutral-800">
+              <X size={14} />
+            </button>
           </div>
         </div>
 
         <div className="mb-3 flex flex-wrap gap-2 text-xs">
           <button
             onClick={() => setFilter("all")}
-            className={`rounded px-2 py-0.5 ${filter === "all" ? "bg-neutral-700 text-white" : "bg-neutral-900 text-neutral-400 hover:bg-neutral-800"}`}
+            className={`inline-flex items-center gap-1 rounded px-2 py-0.5 ${filter === "all" ? "bg-neutral-700 text-white" : "bg-neutral-900 text-neutral-400 hover:bg-neutral-800"}`}
           >
-            All ({all.length})
+            <Filter size={10} /> All ({all.length})
           </button>
           <button
             onClick={() => setFilter("error")}
-            className={`rounded px-2 py-0.5 ${filter === "error" ? "bg-red-500/30 text-red-200" : "bg-red-500/10 text-red-300 hover:bg-red-500/20"}`}
+            className={`inline-flex items-center gap-1 rounded px-2 py-0.5 ${filter === "error" ? "bg-red-500/30 text-red-200" : "bg-red-500/10 text-red-300 hover:bg-red-500/20"}`}
           >
-            {errors} errors
+            <AlertCircle size={11} /> {errors} errors
           </button>
           <button
             onClick={() => setFilter("warn")}
-            className={`rounded px-2 py-0.5 ${filter === "warn" ? "bg-amber-500/30 text-amber-200" : "bg-amber-500/10 text-amber-300 hover:bg-amber-500/20"}`}
+            className={`inline-flex items-center gap-1 rounded px-2 py-0.5 ${filter === "warn" ? "bg-amber-500/30 text-amber-200" : "bg-amber-500/10 text-amber-300 hover:bg-amber-500/20"}`}
           >
-            {warns} warnings
+            <AlertTriangle size={11} /> {warns} warnings
           </button>
           <button
             onClick={() => setGroupBySlide((v) => !v)}
-            className={`ml-auto rounded px-2 py-0.5 ${groupBySlide ? "bg-neutral-700 text-white" : "bg-neutral-900 text-neutral-400 hover:bg-neutral-800"}`}
+            className={`ml-auto inline-flex items-center gap-1 rounded px-2 py-0.5 ${groupBySlide ? "bg-neutral-700 text-white" : "bg-neutral-900 text-neutral-400 hover:bg-neutral-800"}`}
           >
-            {groupBySlide ? "Flat" : "Group"}
+            <ListTree size={11} /> {groupBySlide ? "Flat" : "Group"}
           </button>
           <button
             onClick={() => setShowRules((v) => !v)}
@@ -97,10 +101,12 @@ export function LintPanel({ open, onClose, deck }: Props) {
             <p className="mb-2 text-xs text-neutral-400">All {LINT_RULES.length} rules:</p>
             <ul className="space-y-1 text-xs">
               {LINT_RULES.map((r) => (
-                <li key={r.id} className="flex gap-2">
-                  <span className={`w-10 shrink-0 uppercase ${r.severity === "error" ? "text-red-400" : "text-amber-400"}`}>
-                    {r.severity}
-                  </span>
+                <li key={r.id} className="flex items-start gap-2">
+                  {r.severity === "error" ? (
+                    <AlertCircle size={12} className="mt-0.5 shrink-0 text-red-400" />
+                  ) : (
+                    <AlertTriangle size={12} className="mt-0.5 shrink-0 text-amber-400" />
+                  )}
                   <code className="text-neutral-300">{r.id}</code>
                   <span className="text-neutral-500">— {r.summary}</span>
                 </li>
@@ -110,7 +116,7 @@ export function LintPanel({ open, onClose, deck }: Props) {
         )}
 
         {issues.length === 0 ? (
-          <p className="text-sm text-emerald-400">✓ No issues match the current filter.</p>
+          <p className="inline-flex items-center gap-1.5 text-sm text-emerald-400"><CheckCircle2 size={14} /> No issues match the current filter.</p>
         ) : groups ? (
           <div className="space-y-3">
             {groups.map(([key, list]) => {
@@ -127,12 +133,14 @@ export function LintPanel({ open, onClose, deck }: Props) {
                   </Link>
                   <ul className="space-y-1.5 text-xs">
                     {list.map((iss, i) => (
-                      <li key={i}>
-                        <span className={`mr-2 uppercase ${iss.severity === "error" ? "text-red-400" : "text-amber-400"}`}>
-                          {iss.severity}
-                        </span>
+                      <li key={i} className="flex items-start gap-1.5">
+                        {iss.severity === "error" ? (
+                          <AlertCircle size={11} className="mt-0.5 shrink-0 text-red-400" />
+                        ) : (
+                          <AlertTriangle size={11} className="mt-0.5 shrink-0 text-amber-400" />
+                        )}
                         <code className="text-neutral-400">{iss.rule}</code>
-                        <span className="ml-2 text-neutral-300">{iss.message}</span>
+                        <span className="text-neutral-300">{iss.message}</span>
                       </li>
                     ))}
                   </ul>
@@ -154,10 +162,11 @@ export function LintPanel({ open, onClose, deck }: Props) {
                     {iss.slideIndex + 1}. {iss.slideTitle || iss.slideId}
                   </Link>
                   <span
-                    className={`text-[10px] uppercase tracking-wider ${
+                    className={`inline-flex items-center gap-1 text-[10px] uppercase tracking-wider ${
                       iss.severity === "error" ? "text-red-400" : "text-amber-400"
                     }`}
                   >
+                    {iss.severity === "error" ? <AlertCircle size={11} /> : <AlertTriangle size={11} />}
                     {iss.severity}
                   </span>
                 </div>

@@ -45,22 +45,43 @@ export function CameraBubble() {
     if (!camera.visible && (status === "active" || status === "requesting")) stop();
   }, [camera.visible, status, start, stop]);
 
-  // Shift+Arrow nudges the bubble by 16px while it has focus on screen.
+  // Camera keyboard shortcuts (active only when bubble is visible).
+  // - Shift+Arrow: nudge by 16px
+  // - "+" / "-": resize by 32px
+  // - "M": toggle mirror
+  // - "B": toggle background (green-screen blend)
   useEffect(() => {
     if (!camera.visible) return;
     const onKey = (e: KeyboardEvent) => {
-      if (!e.shiftKey) return;
       const tag = (e.target as HTMLElement)?.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA" || (e.target as HTMLElement)?.isContentEditable) return;
-      const step = 16;
-      if (e.key === "ArrowLeft")  { e.preventDefault(); setCamera({ offsetX: camera.offsetX - step }); }
-      if (e.key === "ArrowRight") { e.preventDefault(); setCamera({ offsetX: camera.offsetX + step }); }
-      if (e.key === "ArrowUp")    { e.preventDefault(); setCamera({ offsetY: camera.offsetY - step }); }
-      if (e.key === "ArrowDown")  { e.preventDefault(); setCamera({ offsetY: camera.offsetY + step }); }
+      if (e.shiftKey) {
+        const step = 16;
+        if (e.key === "ArrowLeft")  { e.preventDefault(); setCamera({ offsetX: camera.offsetX - step }); return; }
+        if (e.key === "ArrowRight") { e.preventDefault(); setCamera({ offsetX: camera.offsetX + step }); return; }
+        if (e.key === "ArrowUp")    { e.preventDefault(); setCamera({ offsetY: camera.offsetY - step }); return; }
+        if (e.key === "ArrowDown")  { e.preventDefault(); setCamera({ offsetY: camera.offsetY + step }); return; }
+      }
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.key === "+" || e.key === "=") {
+        e.preventDefault();
+        const base = camera.customSize ?? SIZES[camera.size];
+        setCameraCustomSize(Math.min(MAX_SIZE, base + 32));
+      } else if (e.key === "-" || e.key === "_") {
+        e.preventDefault();
+        const base = camera.customSize ?? SIZES[camera.size];
+        setCameraCustomSize(Math.max(MIN_SIZE, base - 32));
+      } else if (e.key === "m" || e.key === "M") {
+        e.preventDefault();
+        setCamera({ mirror: !camera.mirror });
+      } else if (e.key === "b" || e.key === "B") {
+        e.preventDefault();
+        setCamera({ greenScreen: !camera.greenScreen });
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [camera.visible, camera.offsetX, camera.offsetY, setCamera]);
+  }, [camera.visible, camera.offsetX, camera.offsetY, camera.mirror, camera.greenScreen, camera.customSize, camera.size, setCamera, setCameraCustomSize]);
 
   // Respect "show only in fullscreen" preference.
   // External `P` shortcut dispatched from route handler.

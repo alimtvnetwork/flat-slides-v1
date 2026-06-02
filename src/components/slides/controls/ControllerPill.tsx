@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 
 import { MusicToggle } from "./MusicToggle";
 import { SlideIndicator } from "./SlideIndicator";
+import { ThemeChip } from "./ThemeChip";
 
 export type ControllerAnchor =
   | "top-left" | "top-center" | "top-right"
@@ -183,6 +184,7 @@ export function ControllerPill(props: Props) {
                   <Camera size={15} />
                 </PillButton>
                 <MusicToggle compact />
+                <ThemeChip />
                 <PillButton onClick={onOpenSettings} ariaLabel="Settings">
                   <Settings size={15} />
                 </PillButton>
