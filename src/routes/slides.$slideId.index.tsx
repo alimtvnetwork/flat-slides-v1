@@ -14,7 +14,9 @@ import { SharePill } from "@/components/slides/controls/SharePill";
 import { TimerOverlay } from "@/components/slides/controls/TimerOverlay";
 import { useTimer } from "@/components/slides/timer-store";
 import { usePresentationTimer } from "@/components/slides/usePresentationTimer";
-import { CommandPalette } from "@/components/slides/CommandPalette";
+const CommandPalette = lazy(() =>
+  import("@/components/slides/CommandPalette").then((m) => ({ default: m.CommandPalette })),
+);
 import { CameraBubble } from "@/components/slides/controls/CameraBubble";
 import { ControllerPill } from "@/components/slides/controls/ControllerPill";
 import { DotPagination } from "@/components/slides/controls/DotPagination";
