@@ -35,6 +35,13 @@ export interface BaseSlide {
    * URLs (those remain 1-based linear positions).
    */
   number?: number;
+  /**
+   * Optional per-slide focus regions (Ken-Burns / "camera-zoom" into a rect).
+   * Coordinates are in the 1920×1080 slide space. When `step` is set the
+   * region activates on that 1-based step; otherwise it activates on every
+   * step. The first matching region wins. Empty/undefined ⇒ full frame.
+   */
+  focus?: FocusRegion[];
 }
 
 export interface LeftSlideProps extends BaseSlide {
