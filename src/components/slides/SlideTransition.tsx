@@ -47,19 +47,21 @@ function variantsFor(kind: TransitionKind): { variants: Variants; transition: Tr
   }
 }
 
-type Props = { transitionKey: string; children: ReactNode };
+type Props = { transitionKey: string; allowZoom?: boolean; children: ReactNode };
 
 /**
  * Wraps the active slide in a motion transition. The `transitionKey` should
- * change whenever you want a transition (e.g. `${slideId}:${step}`).
+ * change whenever you want a transition. Step changes should keep the same key
+ * so timeline/list reveals stay local and never trigger a full-slide zoom.
  */
-export function SlideTransition({ transitionKey, children }: Props) {
+export function SlideTransition({ transitionKey, allowZoom = false, children }: Props) {
   const kind = useDeck((s) => s.deck.settings.transition);
-  const { variants, transition } = variantsFor(kind);
+  const effectiveKind = kind === "camera-zoom" && !allowZoom ? "fade" : kind;
+  const { variants, transition } = variantsFor(effectiveKind);
 
   useEffect(() => {
-    if (kind === "camera-zoom") triggerWhoosh();
-  }, [transitionKey, kind]);
+    if (effectiveKind === "camera-zoom") triggerWhoosh();
+  }, [transitionKey, effectiveKind]);
 
   return (
     <div
