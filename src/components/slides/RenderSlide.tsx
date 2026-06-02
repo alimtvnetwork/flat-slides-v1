@@ -2,8 +2,12 @@ import type { CSSProperties } from "react";
 
 import { Rich } from "./Rich";
 import { SlideLayout } from "./SlideLayout";
+import { getRegisteredSlideType } from "./registry";
 import { getTheme, themeStyle } from "./themes";
 import { useDeck } from "./store";
+import { EmbedSlide } from "./widgets/EmbedSlide";
+import { PollSlide } from "./widgets/PollSlide";
+import { QaSlide } from "./widgets/QaSlide";
 import type {
   BulletsSlideProps,
   CenterSlideProps,
@@ -261,24 +265,24 @@ function ImageSlide({ slide }: { slide: ImageSlideProps }) {
 export function RenderSlide({ slide, step = 0 }: { slide: Slide; step?: number }) {
   let body: React.ReactNode;
   switch (slide.type) {
-    case "left":
-      body = <LeftSlide slide={slide} />;
-      break;
-    case "center":
-      body = <CenterSlide slide={slide} />;
-      break;
-    case "steps":
-      body = <StepsSlide slide={slide} step={step} />;
-      break;
-    case "quote":
-      body = <QuoteSlide slide={slide} />;
-      break;
-    case "bullets":
-      body = <BulletsSlide slide={slide} />;
-      break;
-    case "image":
-      body = <ImageSlide slide={slide} />;
-      break;
+    case "left":    body = <LeftSlide slide={slide} />; break;
+    case "center":  body = <CenterSlide slide={slide} />; break;
+    case "steps":   body = <StepsSlide slide={slide} step={step} />; break;
+    case "quote":   body = <QuoteSlide slide={slide} />; break;
+    case "bullets": body = <BulletsSlide slide={slide} />; break;
+    case "image":   body = <ImageSlide slide={slide} />; break;
+    case "poll":    body = <PollSlide slide={slide} />; break;
+    case "qa":      body = <QaSlide slide={slide} />; break;
+    case "embed":   body = <EmbedSlide slide={slide} />; break;
+    default: {
+      // Plugin registry fallback (step 333).
+      const Custom = getRegisteredSlideType((slide as { type: string }).type);
+      body = Custom ? <Custom slide={slide} step={step} /> : (
+        <SlideLayout><div className="absolute inset-0 grid place-items-center slide-body">
+          Unknown slide type: {(slide as { type: string }).type}
+        </div></SlideLayout>
+      );
+    }
   }
   return <ThemeWrap slide={slide}>{body}</ThemeWrap>;
 }
