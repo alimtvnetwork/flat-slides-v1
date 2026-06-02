@@ -163,6 +163,12 @@ export const DeckSettingsSchema = z.object({
   volume: z.number().min(0).max(1),
 });
 
+export const DeckMusicSchema = z.object({
+  url: z.string().min(1).max(4096),
+  loop: z.boolean().optional(),
+  volume: z.number().min(0).max(1).optional(),
+});
+
 export const DeckSchema = z.object({
   id: z.string().min(1).max(64).regex(/^[a-zA-Z0-9_-]+$/),
   title: z.string().min(1).max(200),
@@ -170,6 +176,7 @@ export const DeckSchema = z.object({
   version: z.number().int().min(1).optional(),
   slides: z.array(SlideSchema).min(1).max(200),
   settings: DeckSettingsSchema,
+  music: DeckMusicSchema.optional(),
 });
 
 export type ParsedDeck = z.infer<typeof DeckSchema>;
