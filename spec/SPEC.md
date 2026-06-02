@@ -288,21 +288,199 @@ Stack: TanStack Start v1 (file routes under `src/routes/`), React 19, Tailwind v
   - Z-index: slots > background layer, < `<Outlet/>` modals.
 - **Acceptance:** Providing `topRight={<span className="slide-page">3 / 12</span>}` renders the counter 48 px from right edge, vertically centered in the 120 px header.
 
-### C. Remaining Scaling & Layout primitives (21–24)
-21. `<Highlight pill?>` component → renders `<mark class="hl">` or `.hl-pill`.
-22. `useSlideKeyboard()` hook — registers ←/→/Space/Enter/G/F5/Esc with scope guard.
-23. `<TransitionStage>` wrapper providing `perspective` + camera vars to children.
-24. `useReducedMotion()` helper (reads `matchMedia('(prefers-reduced-motion: reduce)')`).
+## Steps 21–30 — Highlight, Keyboard, Stage, Reduced-motion, Data Model
 
-### D. Slide Data Model & Registry (25–32)
-25. `Slide` TS type: `{ id; type: 'left'|'center'|'steps'|'quote'|'media'; props; notes?; transitionIn? }`.
-26. `Deck` TS type: `{ id; title; slides: Slide[]; settings: DeckSettings }`.
-27. `DeckSettings`: `{ theme; backgroundMode; backgroundColor; backgroundImage?; darken; blur; transition; isSoundEnabled; volume }`.
-28. Zustand store `useDeck` with selectors + actions.
-29. localStorage autosave (debounced 500 ms) keyed by `deck.id`.
-30. JSON import/export helpers (`exportDeck()`, `importDeck(json)`).
-31. Seed example deck reproducing the three sample thumbnails.
-32. Vitest tests for `add/delete/reorder/duplicate` reducers.
+### Step 21 — `<Highlight>` component
+- **Goal:** Single component that renders inline glow (`.hl`) or block pill (`.hl-pill`) matching `02-sample.webp`.
+- **Files:** `src/components/slides/Highlight.tsx`.
+- **Contract:**
+  ```tsx
+  type HighlightProps = {
+    children: ReactNode;
+    pill?: boolean;        // false → .hl; true → .hl-pill
+    as?: 'mark' | 'span';  // default 'mark' for inline, 'span' for pill
+    className?: string;
+  };
+  export function Highlight({ children, pill = false, as, className }: HighlightProps) {
+    const Tag = (as ?? (pill ? 'span' : 'mark')) as any;
+    return <Tag className={cn(pill ? 'hl-pill' : 'hl', className)}>{children}</Tag>;
+  }
+  ```
+  - MUST forward className (lets slides add `whitespace-nowrap` or extra padding).
+  - Inline `.hl` keeps inherited color; `.hl-pill` overrides to `--slide-hl-ink`.
+- **Acceptance:** `<Highlight>fast</Highlight>` renders `<mark class="hl">fast</mark>`; `<Highlight pill>Riseup Pro</Highlight>` renders the yellow pill with dark ink.
+
+### Step 22 — `useSlideKeyboard()` hook
+- **Goal:** Centralize keyboard handling so every slide route gets identical bindings without duplicating effects.
+- **Files:** `src/components/slides/useSlideKeyboard.ts`.
+- **Contract:**
+  ```ts
+  type Handlers = {
+    onPrev?: () => void;       // ArrowLeft, PageUp
+    onNext?: () => void;       // ArrowRight, ArrowDown, PageDown, Space, Enter
+    onGrid?: () => void;       // 'g' or 'G'
+    onPresent?: () => void;    // F5
+    onEscape?: () => void;     // Escape
+    onJump?: (n: number) => void; // 0-9 digits (build buffer over 500 ms then jump)
+  };
+  export function useSlideKeyboard(h: Handlers, opts?: { enabled?: boolean }): void;
+  ```
+  - Scope guard: ignore when `e.target` is `INPUT`, `TEXTAREA`, or `[contenteditable]`.
+  - Ignore when any modifier (ctrl/meta/alt) is held EXCEPT Shift+Space → onPrev.
+  - Digit buffer cleared on non-digit key or 500 ms inactivity.
+  - Single `keydown` listener on `window`; cleanup on unmount.
+- **Acceptance:** Pressing `→` calls `onNext` once; typing in `<input>` does NOT trigger handlers; pressing `12 Enter` calls `onJump(12)`.
+
+### Step 23 — `<TransitionStage>` wrapper
+- **Goal:** Provide the 3D perspective context that camera-zoom and morph transitions need, exposed as CSS vars overridable per deck.
+- **Files:** `src/components/slides/TransitionStage.tsx`.
+- **Contract:**
+  ```tsx
+  type StageProps = {
+    children: ReactNode;
+    perspective?: number;   // default reads var(--slide-perspective)
+    cameraZ?: number;       // default reads var(--slide-camera-z)
+    cameraBlur?: number;    // default reads var(--slide-camera-blur)
+    durationMs?: number;    // default 720
+    className?: string;
+  };
+  ```
+  - Renders a `div.slide-stage` with inline style overrides only for props that are provided.
+  - Sets `transform-style: preserve-3d`, `perspective-origin: 50% 50%`, `overflow: hidden`.
+  - MUST be the immediate parent of `<AnimatePresence>` so child transforms compose correctly.
+- **Acceptance:** Camera-zoom transition reads stage vars; changing `perspective` prop visibly changes parallax depth without code change.
+
+### Step 24 — `useReducedMotion()` helper
+- **Goal:** Single source of truth for motion preference, reactive to OS-level changes.
+- **Files:** `src/components/slides/useReducedMotion.ts`.
+- **Contract:**
+  ```ts
+  export function useReducedMotion(): boolean;
+  ```
+  - On mount: `const mql = window.matchMedia('(prefers-reduced-motion: reduce)')`.
+  - Subscribe via `mql.addEventListener('change', …)`; cleanup on unmount.
+  - SSR-safe: returns `false` when `window` undefined.
+  - Consumers: `SlideTransition` (forces fade, 150 ms), `audio.ts` (skips whoosh), `StepsSlide` (instant reveal).
+- **Acceptance:** Toggling OS reduce-motion while preview is open updates returned boolean within one frame.
+
+### Step 25 — `Slide` TS type + `SlideType` union
+- **Goal:** Discriminated union so each slide's `props` is type-checked against its `type`.
+- **Files:** `src/components/slides/types.ts`.
+- **Contract:**
+  ```ts
+  export type SlideType = 'left' | 'center' | 'steps' | 'quote' | 'media';
+  export type TransitionName = 'camera-zoom' | 'morph' | 'fade' | 'eaten';
+
+  export type LeftProps   = { kicker?: string; title: string; subtitle?: string; media?: MediaRef };
+  export type CenterProps = { title: string; subtitle?: string; highlight?: { text: string; pill?: boolean } };
+  export type StepsProps  = { title?: string; steps: string[] /* max 5 */ };
+  export type QuoteProps  = { quote: string; author: string; role?: string; avatar?: string };
+  export type MediaProps  = { src: string; kind: 'image' | 'video'; caption?: string };
+
+  export type Slide =
+    | { id: string; type: 'left';   props: LeftProps;   notes?: string; transitionIn?: TransitionName; background?: BackgroundOverride }
+    | { id: string; type: 'center'; props: CenterProps; notes?: string; transitionIn?: TransitionName; background?: BackgroundOverride }
+    | { id: string; type: 'steps';  props: StepsProps;  notes?: string; transitionIn?: TransitionName; background?: BackgroundOverride }
+    | { id: string; type: 'quote';  props: QuoteProps;  notes?: string; transitionIn?: TransitionName; background?: BackgroundOverride }
+    | { id: string; type: 'media';  props: MediaProps;  notes?: string; transitionIn?: TransitionName; background?: BackgroundOverride };
+
+  export type MediaRef = { kind: 'image' | 'video' | 'none'; src?: string; alt?: string };
+  export type BackgroundOverride = Partial<Pick<DeckSettings, 'backgroundMode'|'backgroundColor'|'backgroundImage'|'darken'|'blur'>>;
+  ```
+  - `id` MUST be URL-safe slug; uniqueness enforced by reducer (Step 28).
+- **Acceptance:** `tsc --noEmit` passes; constructing `{ type: 'quote', props: { steps: [] } }` is a type error.
+
+### Step 26 — `Deck` TS type
+- **Goal:** Top-level container with metadata and ordered slides.
+- **Files:** `src/components/slides/types.ts` (same file).
+- **Contract:**
+  ```ts
+  export type Deck = {
+    id: string;                // slug, unique per browser
+    title: string;
+    slides: Slide[];           // ordered; min 1
+    settings: DeckSettings;
+    createdAt: number;         // epoch ms
+    updatedAt: number;         // epoch ms, bumped by every reducer
+    version: 1;                // bump on breaking schema change
+  };
+  ```
+  - Deck `id` derived from `title` slug at creation; renaming does NOT change id.
+  - `version: 1` lets future loaders detect old payloads in localStorage and migrate.
+- **Acceptance:** `Deck` exported; `version` literal type forces `1` only.
+
+### Step 27 — `DeckSettings` type
+- **Goal:** All deck-wide presentation prefs in one object.
+- **Files:** `src/components/slides/types.ts`.
+- **Contract:**
+  ```ts
+  export type DeckSettings = {
+    theme: 'light' | 'dark';                       // default 'dark'
+    backgroundMode: 'color' | 'image';             // default 'color'
+    backgroundColor: string;                       // CSS color, default var(--slide-bg) literal '#101010'
+    backgroundImage?: string;                      // URL or data: URL
+    darken: number;                                // 0..100, default 0
+    blur: number;                                  // 0..20 px, default 0
+    transition: TransitionName;                    // default 'camera-zoom'
+    isSoundEnabled: boolean;                       // default true
+    volume: number;                                // 0..100, default 60
+  };
+  export const DEFAULT_SETTINGS: DeckSettings = { /* exact defaults above */ };
+  ```
+- **Validation:** A `validateSettings(input: unknown): DeckSettings` clamps numbers and falls back to defaults on bad input. Used by `importDeck` and on localStorage hydrate.
+- **Acceptance:** `DEFAULT_SETTINGS` exported; clamping `darken: 150` returns `100`.
+
+### Step 28 — Zustand `useDeck` store
+- **Goal:** Single source of truth for the active deck; React components subscribe via selectors.
+- **Files:** `src/components/slides/store.ts`.
+- **Contract:**
+  ```ts
+  type DeckState = {
+    deck: Deck;
+    // selectors
+    slideIndex: (id: string) => number;
+    // actions
+    setTitle(title: string): void;
+    setSettings(patch: Partial<DeckSettings>): void;
+    addSlide(slide: Slide, atIndex?: number): void;
+    deleteSlide(id: string): void;
+    reorder(fromIndex: number, toIndex: number): void;
+    duplicate(id: string): void;
+    updateSlide(id: string, patch: Partial<Slide>): void;
+    replaceDeck(next: Deck): void;
+  };
+  export const useDeck = create<DeckState>()((set, get) => ({ … }));
+  ```
+  - Every mutating action MUST bump `deck.updatedAt = Date.now()`.
+  - Reducers immutably clone `slides` array (no in-place mutation).
+  - `addSlide` rejects duplicate `id`; auto-suffixes `-2`, `-3`, … via helper.
+  - Selectors are pure; components MUST use `useDeck(selector, shallow)` for list reads to avoid re-render storms.
+- **Acceptance:** A 5-slide deck after `reorder(0,4)` returns the original slide 0 in position 4; `updatedAt` advanced.
+
+### Step 29 — localStorage autosave (debounced 500 ms)
+- **Goal:** Survive reloads without saving on every keystroke.
+- **Files:** `src/components/slides/store.ts` (same file) + `src/components/slides/persist.ts`.
+- **Contract:**
+  - Key: `slides:deck:${deck.id}`; index key `slides:decks` listing all known deck ids.
+  - On store subscribe: debounce 500 ms, then `localStorage.setItem(key, JSON.stringify(deck))`.
+  - On store create: read `slides:deck:${activeId}`, run `validateDeck` (Step 30), hydrate; on failure, fall back to seed deck (Step 31) and `console.warn` (no toast).
+  - Quota errors: catch `QuotaExceededError`, call `toast.error('Storage full — export to keep changes')`.
+- **Acceptance:** Rapid 20 reorder actions trigger exactly one `setItem` call after 500 ms idle.
+
+### Step 30 — JSON import/export helpers
+- **Goal:** Round-trip a deck as a single `.json` file for sharing/backup.
+- **Files:** `src/components/slides/io.ts`.
+- **Contract:**
+  ```ts
+  export function exportDeck(deck: Deck): Blob;          // application/json, pretty-printed (2-space)
+  export function downloadDeck(deck: Deck): void;        // triggers <a download> for `${slug(deck.title)}.deck.json`
+  export function importDeck(input: unknown): Deck;       // throws Error('Invalid deck') on schema mismatch
+  export function validateDeck(input: unknown): Deck | null; // non-throwing variant for hydrate
+  ```
+  - Validation rules: `version === 1`; `slides.length >= 1`; every slide `id` matches `/^[a-z0-9-]+$/`; every slide `type` in `SlideType` union; `props` shape matches its discriminator (delegate to `validateSlide`).
+  - Future-proofing: unknown extra fields are stripped, not rejected.
+  - Errors surface as `toast.error(err.message)` at call site, not inside helpers.
+- **Acceptance:** Export → import round-trip yields a deep-equal `Deck` (modulo `updatedAt` being refreshed on import).
 
 ### E. Slide Type Components (33–48)
 33. `LeftSlide.tsx` — 45/55 split, media slot right.
