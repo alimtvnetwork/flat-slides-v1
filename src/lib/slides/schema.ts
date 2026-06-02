@@ -10,11 +10,22 @@ import { z } from "zod";
  */
 
 export const HighlightSchema = z.object({
-  text: z.string().min(1),
+  text: z.string().refine((value) => value.trim().length > 0, "highlight text must not be blank"),
   pill: z.boolean().optional(),
 });
 
-export const RichTextSchema = z.array(z.union([z.string(), HighlightSchema]));
+export const RichTextSchema = z
+  .array(z.union([
+    z.string().refine((value) => value.trim().length > 0, "text segment must not be blank"),
+    HighlightSchema,
+  ]))
+  .min(1)
+  .refine(
+    (segments) => segments.some((segment) => (
+      typeof segment === "string" ? segment.trim().length > 0 : segment.text.trim().length > 0
+    )),
+    "rich text must contain visible content",
+  );
 
 export const TextPositionSchema = z.enum([
   "top-left", "top-center", "top-right",
