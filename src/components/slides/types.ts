@@ -29,6 +29,12 @@ export interface BaseSlide {
   padding?: number;
   /** When false, the slide is skipped from linear navigation, jump, dot pagination, and the badge total. Defaults to true. */
   enabled?: boolean;
+  /**
+   * Optional authored display number shown in the badge & grid (e.g. "07").
+   * When omitted, the linear position is used. Authored numbers do not affect
+   * URLs (those remain 1-based linear positions).
+   */
+  number?: number;
 }
 
 export interface LeftSlideProps extends BaseSlide {
