@@ -51,12 +51,15 @@ export function LintPanel({ open, onClose, deck }: Props) {
                   /* clipboard blocked — silently ignore */
                 }
               }}
-              className="rounded bg-neutral-800 px-2 py-0.5 text-xs text-neutral-300 hover:bg-neutral-700"
+              className="inline-flex items-center gap-1 rounded bg-neutral-800 px-2 py-0.5 text-xs text-neutral-300 hover:bg-neutral-700"
               title="Copy filtered issues as JSON"
             >
-              {copied ? "Copied ✓" : "Copy as JSON"}
+              <ClipboardCopy size={11} />
+              {copied ? "Copied ✓" : "Copy JSON"}
             </button>
-            <button onClick={onClose} className="text-sm opacity-70 hover:opacity-100">Close</button>
+            <button onClick={onClose} aria-label="Close linter" className="inline-flex h-6 w-6 items-center justify-center rounded text-neutral-400 hover:text-white hover:bg-neutral-800">
+              <X size={14} />
+            </button>
           </div>
         </div>
 
