@@ -35,7 +35,7 @@ const ANCHOR_ORDER: CameraAnchor[] = ["bottom-right", "bottom-left", "top-left",
 export const nextAnchor = (a: CameraAnchor): CameraAnchor =>
   ANCHOR_ORDER[(ANCHOR_ORDER.indexOf(a) + 1) % ANCHOR_ORDER.length];
 
-const SCENE_ORDER: Scene[] = ["normal", "split", "cam-only"];
+const SCENE_ORDER: Scene[] = ["normal", "split", "cam-only", "stage-fill"];
 export const nextScene = (s: Scene): Scene =>
   SCENE_ORDER[(SCENE_ORDER.indexOf(s) + 1) % SCENE_ORDER.length];
 
