@@ -15,6 +15,7 @@ export function LintPanel({ open, onClose, deck }: Props) {
   const [showRules, setShowRules] = useState(false);
   const [filter, setFilter] = useState<"all" | "error" | "warn">("all");
   const [groupBySlide, setGroupBySlide] = useState(false);
+  const [copied, setCopied] = useState(false);
   if (!open) return null;
   const all = lintDeck(deck);
   const { errors, warns } = countIssues(all);
