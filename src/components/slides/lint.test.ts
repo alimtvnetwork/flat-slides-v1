@@ -187,3 +187,48 @@ describe("lintDeck — B15 rules", () => {
     expect(lintDeck(deckOf([s])).some((i) => i.rule === "qa-no-prompt")).toBe(true);
   });
 });
+
+describe("lintDeck — B16 rules", () => {
+  const quote = (id: string): Slide => ({ id, type: "quote", title: id, quote: ["hi"], attribution: "x" });
+
+  it("flags two consecutive quote slides", () => {
+    const issues = lintDeck(deckOf([quote("a"), quote("b")]));
+    expect(issues.some((i) => i.rule === "consecutive-quotes")).toBe(true);
+  });
+
+  it("does NOT flag quote slides separated by another type", () => {
+    const issues = lintDeck(deckOf([quote("a"), center, quote("b")]));
+    expect(issues.some((i) => i.rule === "consecutive-quotes")).toBe(false);
+  });
+
+  it('flags image fit:"split" with no heading', () => {
+    const s: Slide = { id: "i", type: "image", title: "I", src: "https://x/y.png", alt: "ok", fit: "split" };
+    expect(lintDeck(deckOf([s])).some((i) => i.rule === "image-split-no-heading")).toBe(true);
+  });
+
+  it('does NOT flag image fit:"split" when heading present', () => {
+    const s: Slide = { id: "i", type: "image", title: "I", src: "https://x/y.png", alt: "ok", fit: "split", heading: ["Hi"] };
+    expect(lintDeck(deckOf([s])).some((i) => i.rule === "image-split-no-heading")).toBe(false);
+  });
+
+  it("flags markdown markers in caption", () => {
+    const s: Slide = { id: "i", type: "image", title: "I", src: "https://x/y.png", alt: "ok", caption: ["**bold** text"] };
+    expect(lintDeck(deckOf([s])).some((i) => i.rule === "caption-markdown")).toBe(true);
+  });
+
+  it("countIssues sums errors and warns", () => {
+    const dup1: Slide = { id: "dup", type: "center", title: "A", heading: ["H"] };
+    const dup2: Slide = { id: "dup", type: "center", title: "B", heading: ["H"] };
+    const counts = countIssues(lintDeck(deckOf([dup1, dup2, quote("a"), quote("b")])));
+    expect(counts.errors).toBeGreaterThan(0);
+    expect(counts.warns).toBeGreaterThan(0);
+    expect(counts.total).toBe(counts.errors + counts.warns);
+  });
+
+  it("LINT_RULES registry contains every B16 rule", () => {
+    const ids = LINT_RULES.map((r) => r.id);
+    expect(ids).toContain("consecutive-quotes");
+    expect(ids).toContain("image-split-no-heading");
+    expect(ids).toContain("caption-markdown");
+  });
+});
