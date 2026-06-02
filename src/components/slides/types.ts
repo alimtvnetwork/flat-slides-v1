@@ -44,10 +44,19 @@ export interface CenterSlideProps extends BaseSlide {
   display?: boolean;
 }
 
+export interface StepItem {
+  /** Short name shown in the persistent step list (e.g. "Step 1", "Discover"). */
+  label: string;
+  /** Focus heading shown when this step is active. */
+  title?: string;
+  /** Detail text that changes with a fade when the active step changes. */
+  detail: RichText;
+}
+
 export interface StepsSlideProps extends BaseSlide {
   type: "steps";
   heading: string;
-  steps: RichText[];
+  steps: StepItem[];
 }
 
 export interface TimelineItem {
