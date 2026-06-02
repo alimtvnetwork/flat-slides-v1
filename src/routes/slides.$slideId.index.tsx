@@ -101,6 +101,10 @@ function SlidePage() {
     emitSlidesEvent({ type: "scene-change", scene });
   }, [scene]);
 
+  // Install dev-only console sink for `slides:event` (no-op in prod).
+  useEffect(() => installConsoleSink(), []);
+
+
   useEffect(() => {
     if (!slide) return;
     const onKey = (e: KeyboardEvent) => {
