@@ -63,7 +63,8 @@ JSON example:
 └──────────────────────────────────────────────────────────────────┘
 ```
 
-- Centre detail block lives in the upper-middle (y ≈ 360, vertically centred above the rail).
+- Centre detail block lives in the upper-middle (y ≈ 205–360, vertically centred above the rail).
+- The focused `label` and `title` are separate lines. Do not concatenate them into one oversized heading; this prevents clipping and makes the name/title contract explicit.
 - Rail sits at y ≈ 780, runs from x = 240 to x = 1680 with equal-spaced pinpoints.
 - Bottom chrome `Step N / Total` mirrors the existing `StepsSlide` chrome.
 
@@ -88,8 +89,9 @@ JSON example:
 
 - Wrap the focused item's `title` + `detail` in a motion-keyed block
   (`key={focusIndex}`) so it cross-fades + slides up 12px when focus changes.
-- Title: `.slide-title` (≈88px), shows `${label} · ${title}` when both exist,
-  otherwise whichever is present.
+- Label: `.slide-kicker` (≈26px), always shown when present.
+- Title: slide heading at ≈104px, shows `title` when present; do not combine with
+  `label` in the same line.
 - Detail: `.slide-body-lg` (≈40px), max-width 1100px, centred, 1–3 lines.
 - If `detail` is missing, omit the paragraph (don't render an empty block).
 
@@ -147,9 +149,9 @@ interface StepItem {
 }
 ```
 
-- All step labels remain visible at all times.
+- All step labels and titles remain visible at all times.
 - Only the active step is fully emphasized; other steps are muted/grey.
-- Arrow navigation changes the active step; the title/detail block cross-fades
+- Arrow navigation changes the active step; the focused label/title/detail block cross-fades
   and translates by ≤16px.
 - Import stays backward-compatible: legacy `steps: RichText[]` JSON is
   normalized to `{ label: "Step N", detail }`.
