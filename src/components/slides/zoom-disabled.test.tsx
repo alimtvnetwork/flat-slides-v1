@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it } from "vitest";
 
 import { CameraStage } from "./CameraStage";
 import { useDeck } from "./store";
-import type { Deck } from "./types";
+import { parseDeckJson } from "@/lib/slides/io";
 
 const focusedSlide = {
   id: "focus",
@@ -29,8 +29,8 @@ describe("disabled zoom effects", () => {
     expect(screen.getByTestId("slide-body").parentElement?.style.transform).toBe("");
   });
 
-  it("normalizes imported non-fade deck transitions back to fade", () => {
-    const deck: Deck = {
+  it("normalizes legacy imported non-fade deck transitions back to fade", () => {
+    const parsed = parseDeckJson(JSON.stringify({
       id: "zoom-deck",
       title: "Zoom Deck",
       slides: [focusedSlide],
@@ -43,12 +43,12 @@ describe("disabled zoom effects", () => {
         soundEnabled: true,
         volume: 0.6,
       },
-    };
+    }));
 
-    useDeck.getState().setDeck(deck);
-    expect(useDeck.getState().deck.settings.transition).toBe("fade");
+    expect(parsed.ok).toBe(true);
+    if (!parsed.ok) throw new Error(parsed.error);
 
-    useDeck.getState().setSettings({ transition: "morph" });
+    useDeck.getState().setDeck(parsed.value);
     expect(useDeck.getState().deck.settings.transition).toBe("fade");
   });
 });
