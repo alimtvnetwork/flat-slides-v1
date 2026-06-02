@@ -4,6 +4,7 @@ import { persist } from "zustand/middleware";
 import { DeckSchema } from "@/lib/slides/schema";
 import { DECK_SCHEMA_VERSION } from "@/lib/slides/version";
 
+import { useChrome } from "./chrome-store";
 import { emitSlidesEvent } from "./telemetry";
 import { DEFAULT_THEME_ID } from "./themes";
 import type { Deck, DeckSettings, Slide } from "./types";
@@ -140,7 +141,7 @@ const defaultDeck: Deck = {
   version: DECK_SCHEMA_VERSION,
 };
 
-function forceFadeTransition(deck: Deck): Deck {
+export function forceFadeTransition(deck: Deck): Deck {
   if (deck.settings.transition === "fade") return deck;
   return { ...deck, settings: { ...deck.settings, transition: "fade" } };
 }
@@ -185,6 +186,10 @@ export const useDeck = create<DeckStore>()(
         set((s) => ({ deck: forceFadeTransition({ ...s.deck, settings: { ...s.deck.settings, ...patch } }) })),
       setThemeId: (id) => {
         set((s) => ({ themeId: id, deck: { ...s.deck, themeId: id } }));
+        // Remember the user's most-recent theme choice so future scratch decks
+        // / resetDeck start with it. chrome-store has no dep on store, so this
+        // direct import is cycle-safe.
+        useChrome.getState().setLastUsedThemeId(id);
         emitSlidesEvent({ type: "theme-change", themeId: id });
       },
       setDeck: (deck) =>
@@ -215,7 +220,10 @@ export const useDeck = create<DeckStore>()(
         }),
       removeSlide: (id) =>
         set((s) => ({ deck: { ...s.deck, slides: s.deck.slides.filter((x) => x.id !== id) } })),
-      resetDeck: () => set({ deck: defaultDeck, themeId: DEFAULT_THEME_ID }),
+      resetDeck: () => {
+        const preferred = useChrome.getState().lastUsedThemeId ?? DEFAULT_THEME_ID;
+        set({ deck: { ...defaultDeck, themeId: preferred }, themeId: preferred });
+      },
       setLastVisited: (id) => set({ lastVisitedSlideId: id }),
       getSlideIndex: (id) => get().deck.slides.findIndex((s) => s.id === id),
     }),

@@ -50,6 +50,16 @@ export function lintDeck(deck: Deck): LintIssue[] {
   const push = (s: Slide, i: number, rule: string, message: string, severity: LintSeverity = "warn") =>
     out.push({ slideId: s.id, slideIndex: i, slideTitle: s.title, rule, message, severity });
 
+  // Deck-level: title must be present and not the default "Untitled".
+  if (deck.slides[0]) {
+    const t = deck.title?.trim() ?? "";
+    if (!t || /^untitled$/i.test(t)) {
+      push(deck.slides[0], 0, "deck-title-untitled",
+        `Deck title is "${t || "(empty)"}" — set a real title; it shows in tab labels and exports.`,
+        "warn");
+    }
+  }
+
   // Deck-level: volume must be a sane 0..1 number.
   if (
     typeof deck.settings.volume === "number" &&
@@ -184,6 +194,10 @@ export function lintDeck(deck: Deck): LintIssue[] {
     if (typeof s.budget === "number" && s.budget <= 0) {
       push(s, i, "budget-invalid",
         `budget=${s.budget}s must be > 0 — pacing badge will divide by zero.`, "warn");
+    }
+    if (typeof s.budget === "number" && s.budget > 600) {
+      push(s, i, "budget-too-long",
+        `budget=${s.budget}s (>10 min) is unusually long for a single slide — split or revisit.`, "warn");
     }
 
     // Background URL must be https:// when remote.
@@ -399,6 +413,8 @@ export const LINT_RULES: ReadonlyArray<{ id: string; severity: LintSeverity; sum
   { id: "focus-rect-out-of-bounds", severity: "warn", summary: "Focus rect extends past 1920×1080." },
   { id: "padding-out-of-range", severity: "warn", summary: "Slide padding outside [0, 400]." },
   { id: "budget-invalid", severity: "warn", summary: "Slide budget <= 0." },
+  { id: "budget-too-long", severity: "warn", summary: "Slide budget > 600s (10 min)." },
+  { id: "deck-title-untitled", severity: "warn", summary: "Deck title is empty or 'Untitled'." },
   { id: "background-not-https", severity: "warn", summary: "Slide background URL uses http://." },
   { id: "embed-missing-url", severity: "error", summary: "Embed slide has no URL." },
   { id: "left-media-alt-missing", severity: "warn", summary: "Left-slide media missing alt text." },
