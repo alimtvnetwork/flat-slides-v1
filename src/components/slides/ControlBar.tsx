@@ -37,7 +37,7 @@ export function ControlBar({ slides, index, step, totalSteps, onOpenSettings, on
     if (typeof step === "number" && curStep < lastStep) {
       navigate({
         to: "/slides/$slideId/$step",
-        params: { slideId: String(index + 1), step: String(curStep + 1) },
+        params: { slideId: String(index + 1), step: String(curStep + 2) },
       });
     } else if (nextSlide) {
       navigate({ to: "/slides/$slideId", params: { slideId: String(index + 2) } });
@@ -53,7 +53,7 @@ export function ControlBar({ slides, index, step, totalSteps, onOpenSettings, on
       } else {
         navigate({
           to: "/slides/$slideId/$step",
-          params: { slideId: String(index + 1), step: String(target) },
+          params: { slideId: String(index + 1), step: String(target + 1) },
         });
       }
     } else if (prevSlide) {
