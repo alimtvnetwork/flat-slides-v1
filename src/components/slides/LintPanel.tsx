@@ -41,11 +41,11 @@ export function LintPanel({ open, onClose, deck }: Props) {
                 <div className="mb-1 flex items-center justify-between">
                   <Link
                     to="/slides/$slideId"
-                    params={{ slideId: iss.slideId }}
+                    params={{ slideId: String(iss.slideIndex + 1) }}
                     onClick={onClose}
                     className="font-medium text-white hover:underline"
                   >
-                    {iss.slideTitle || iss.slideId}
+                    {iss.slideIndex + 1}. {iss.slideTitle || iss.slideId}
                   </Link>
                   <span
                     className={`text-[10px] uppercase tracking-wider ${
