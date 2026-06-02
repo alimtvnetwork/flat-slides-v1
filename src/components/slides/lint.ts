@@ -1,5 +1,35 @@
+import { THEMES } from "./themes";
 import { slideStepCount } from "./types";
 import type { RichText, Slide, Deck } from "./types";
+
+/** Parse `#rgb` / `#rrggbb` to [r,g,b] in 0..255, or null. */
+function parseHex(c: string): [number, number, number] | null {
+  if (typeof c !== "string") return null;
+  const m = c.trim().match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
+  if (!m) return null;
+  const h = m[1].length === 3 ? m[1].split("").map((x) => x + x).join("") : m[1];
+  return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+}
+
+function relLuminance([r, g, b]: [number, number, number]): number {
+  const f = (v: number) => {
+    const s = v / 255;
+    return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+  };
+  return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+}
+
+/** WCAG 2.x contrast ratio (1..21). Returns null if either color isn't hex. */
+export function contrastRatio(a: string, b: string): number | null {
+  const ra = parseHex(a);
+  const rb = parseHex(b);
+  if (!ra || !rb) return null;
+  const la = relLuminance(ra);
+  const lb = relLuminance(rb);
+  const [hi, lo] = la > lb ? [la, lb] : [lb, la];
+  return (hi + 0.05) / (lo + 0.05);
+}
+
 
 export type LintSeverity = "warn" | "error";
 export interface LintIssue {
