@@ -52,6 +52,15 @@ export function CameraBubble() {
   }, [camera.visible, camera.offsetX, camera.offsetY, setCamera]);
 
   // Respect "show only in fullscreen" preference.
+  // External `P` shortcut dispatched from route handler.
+  useEffect(() => {
+    if (!camera.visible) return;
+    const onPip = () => void togglePiP();
+    window.addEventListener("slides:camera-pip", onPip);
+    return () => window.removeEventListener("slides:camera-pip", onPip);
+  }, [camera.visible, togglePiP]);
+
+  // Respect "show only in fullscreen" preference.
   if (!camera.visible) return null;
   if (camera.fullscreenOnly && !isFs) return null;
 
