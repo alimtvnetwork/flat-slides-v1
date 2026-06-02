@@ -25,7 +25,9 @@ import { OnboardingCoachmark } from "@/components/slides/controls/OnboardingCoac
 import { PresenterToast } from "@/components/slides/controls/PresenterToast";
 import { PresenterTopBar } from "@/components/slides/controls/PresenterTopBar";
 import { SlideNumberBadge } from "@/components/slides/controls/SlideNumberBadge";
-import { LintPanel } from "@/components/slides/LintPanel";
+const LintPanel = lazy(() =>
+  import("@/components/slides/LintPanel").then((m) => ({ default: m.LintPanel })),
+);
 import { PresenterTools } from "@/components/slides/PresenterTools";
 import { RenderSlide } from "@/components/slides/RenderSlide";
 import { CameraStage } from "@/components/slides/CameraStage";
