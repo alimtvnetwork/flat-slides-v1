@@ -19,7 +19,7 @@ import { CameraBubble } from "@/components/slides/controls/CameraBubble";
 import { ControllerPill } from "@/components/slides/controls/ControllerPill";
 import { DotPagination } from "@/components/slides/controls/DotPagination";
 import { KeyboardShortcutsDialog } from "@/components/slides/controls/KeyboardShortcutsDialog";
-import { OnboardingCoachmark } from "@/components/slides/controls/OnboardingCoachmark";
+const OnboardingCoachmark = lazy(() => import("@/components/slides/controls/OnboardingCoachmark").then((m) => ({ default: m.OnboardingCoachmark })));
 import { PresenterToast } from "@/components/slides/controls/PresenterToast";
 import { PresenterTopBar } from "@/components/slides/controls/PresenterTopBar";
 import { SlideNumberBadge } from "@/components/slides/controls/SlideNumberBadge";
@@ -34,6 +34,7 @@ import { SlideAriaAnnouncer } from "@/components/slides/controls/SlideAriaAnnoun
 import { SlideTransition } from "@/components/slides/SlideTransition";
 import { getDisplayNumber, slideStepCount } from "@/components/slides/types";
 import { useFullscreen } from "@/components/slides/useFullscreen";
+import { emitSlidesEvent } from "@/components/slides/telemetry";
 import { useSlideNavigation } from "@/components/slides/useSlideNavigation";
 
 export const Route = createFileRoute("/slides/$slideId/$step")({
@@ -81,7 +82,16 @@ function SlideStepPage() {
     if (!useTimer.getState().running && useTimer.getState().elapsed === 0) {
       useTimer.getState().start();
     }
+    emitSlidesEvent({ type: "slide-change", current, total, slideId: slide.id, title: slide.title });
   }, [slide, current, total]);
+
+  useEffect(() => {
+    if (stepCount > 1) emitSlidesEvent({ type: "step-change", current, step: stepNum + 1, stepCount });
+  }, [current, stepNum, stepCount]);
+
+  useEffect(() => {
+    emitSlidesEvent({ type: "scene-change", scene });
+  }, [scene]);
 
   useEffect(() => {
     if (!slide || stepCount === 0) return;
@@ -163,7 +173,7 @@ function SlideStepPage() {
 
   if (!slide || slideStepCount(slide) === 0) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-black text-white">
+      <div className="flex min-h-dvh items-center justify-center bg-black text-white">
         <Link to="/slides" className="underline">Back to deck</Link>
       </div>
     );
@@ -241,7 +251,7 @@ function SlideStepPage() {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden flex-col bg-black">
+    <div className="flex h-dvh overflow-hidden flex-col bg-black">
       <div className="relative min-h-0 flex-1">
         {slideStage}
         {surfaces}
@@ -257,7 +267,7 @@ function SlideStepPage() {
       )}
       <SlideAriaAnnouncer current={current} total={total} step={stepNum + 1} stepCount={stepCount} title={slide.title} />
       <PresenterNotesPeek notes={slide.notes} />
-      <OnboardingCoachmark />
+      <Suspense fallback={null}><OnboardingCoachmark /></Suspense>
     </div>
   );
 }

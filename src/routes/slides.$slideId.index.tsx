@@ -21,7 +21,7 @@ import { CameraBubble } from "@/components/slides/controls/CameraBubble";
 import { ControllerPill } from "@/components/slides/controls/ControllerPill";
 import { DotPagination } from "@/components/slides/controls/DotPagination";
 import { KeyboardShortcutsDialog } from "@/components/slides/controls/KeyboardShortcutsDialog";
-import { OnboardingCoachmark } from "@/components/slides/controls/OnboardingCoachmark";
+const OnboardingCoachmark = lazy(() => import("@/components/slides/controls/OnboardingCoachmark").then((m) => ({ default: m.OnboardingCoachmark })));
 import { PresenterToast } from "@/components/slides/controls/PresenterToast";
 import { PresenterTopBar } from "@/components/slides/controls/PresenterTopBar";
 import { SlideNumberBadge } from "@/components/slides/controls/SlideNumberBadge";
@@ -42,6 +42,7 @@ import { SlideTransition } from "@/components/slides/SlideTransition";
 import { useDeck } from "@/components/slides/store";
 import { getDisplayNumber, slideStepCount } from "@/components/slides/types";
 import { useFullscreen } from "@/components/slides/useFullscreen";
+import { emitSlidesEvent } from "@/components/slides/telemetry";
 import { useSlideNavigation } from "@/components/slides/useSlideNavigation";
 
 export const Route = createFileRoute("/slides/$slideId/")({
@@ -91,7 +92,14 @@ function SlidePage() {
     if (!useTimer.getState().running && useTimer.getState().elapsed === 0) {
       useTimer.getState().start();
     }
+    // Telemetry: external listeners (analytics, audience devtools) hook here.
+    emitSlidesEvent({ type: "slide-change", current, total, slideId: slide.id, title: slide.title });
   }, [slide, current, total]);
+
+  // Emit scene-change distinctly so dashboards can graph scene usage.
+  useEffect(() => {
+    emitSlidesEvent({ type: "scene-change", scene });
+  }, [scene]);
 
   useEffect(() => {
     if (!slide) return;
@@ -168,7 +176,7 @@ function SlidePage() {
 
   if (!slide) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-black text-white">
+      <div className="flex min-h-dvh items-center justify-center bg-black text-white">
         <div className="text-center">
           <p className="mb-4">Slide not found.</p>
           <Link to="/slides" className="underline">Back to deck</Link>
@@ -253,7 +261,7 @@ function SlidePage() {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden flex-col bg-black">
+    <div className="flex h-dvh overflow-hidden flex-col bg-black">
       <div className="relative min-h-0 flex-1">
         <div
           style={{ opacity: scene === "cam-only" ? 0.05 : scene === "split" ? 0.75 : 1, transition: "opacity 300ms ease" }}
@@ -290,7 +298,7 @@ function SlidePage() {
         </Suspense>
       )}
       <KeyboardShortcutsDialog open={helpOpen} onClose={() => setHelpOpen(false)} />
-      <OnboardingCoachmark />
+      <Suspense fallback={null}><OnboardingCoachmark /></Suspense>
       {lintOpen && (
         <Suspense fallback={null}>
           <LintPanel open={lintOpen} onClose={() => setLintOpen(false)} deck={deck} />
