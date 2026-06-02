@@ -59,3 +59,34 @@ export function triggerWhoosh() {
   lastAt = now;
   playWhoosh(settings.volume);
 }
+
+/** Short, soft click cue for jump / dot-pagination actions. */
+export function playClick(volume: number) {
+  if (typeof window === "undefined") return;
+  const ac = getCtx();
+  if (!ac) return;
+  if (ac.state === "suspended") void ac.resume();
+  const t = ac.currentTime;
+  const osc = ac.createOscillator();
+  osc.type = "triangle";
+  osc.frequency.setValueAtTime(880, t);
+  osc.frequency.exponentialRampToValueAtTime(440, t + 0.08);
+  const gain = ac.createGain();
+  const peak = Math.max(0, Math.min(1, volume)) * 0.5;
+  gain.gain.setValueAtTime(0.0001, t);
+  gain.gain.exponentialRampToValueAtTime(peak, t + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.1);
+  osc.connect(gain).connect(ac.destination);
+  osc.start(t);
+  osc.stop(t + 0.12);
+}
+
+let lastClickAt = 0;
+export function triggerClick() {
+  const { settings } = useDeck.getState().deck;
+  if (!settings.soundEnabled) return;
+  const now = Date.now();
+  if (now - lastClickAt < 80) return;
+  lastClickAt = now;
+  playClick(settings.volume);
+}

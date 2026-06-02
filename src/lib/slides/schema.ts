@@ -41,6 +41,7 @@ const BaseSlideShape = {
   themeId: z.string().max(64).optional(),
   align: TextPositionSchema.optional(),
   padding: z.number().min(0).max(400).optional(),
+  enabled: z.boolean().optional(),
 };
 
 export const LeftSlideSchema = z.object({
