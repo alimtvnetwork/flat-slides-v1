@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 
 type Props = { children: ReactNode; className?: string };
 
@@ -10,7 +10,7 @@ export function ScaledSlide({ children, className }: Props) {
   const stageRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const el = stageRef.current;
     if (!el) return;
     const recompute = () => {
@@ -19,14 +19,21 @@ export function ScaledSlide({ children, className }: Props) {
       setScale(Math.min(width / 1920, height / 1080));
     };
     recompute();
+    const frame = requestAnimationFrame(recompute);
     const ro = new ResizeObserver(recompute);
     ro.observe(el);
-    return () => ro.disconnect();
+    if (el.parentElement) ro.observe(el.parentElement);
+    window.addEventListener("resize", recompute);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("resize", recompute);
+      ro.disconnect();
+    };
   }, []);
 
   return (
     <div ref={stageRef} className={`slide-stage ${className ?? ""}`}>
-      <div className="slide-wrapper" style={{ ["--scale" as string]: scale }}>
+      <div className="slide-wrapper" style={{ ["--scale" as string]: String(scale) }}>
         {children}
       </div>
     </div>
