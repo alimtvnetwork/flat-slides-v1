@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { Camera, CameraOff, FlipHorizontal2, Maximize, PictureInPicture2, Sparkles, X } from "lucide-react";
+import { Camera, CameraOff, FlipHorizontal2, Maximize, PictureInPicture2, Shapes, Sparkles, X } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 
@@ -11,6 +11,14 @@ import { cn } from "@/lib/utils";
 // "split" scene blows the bubble up to a 16:9 hero card next to the slide.
 const SIZES = { sm: 144, md: 200, lg: 280 } as const;
 const SCENE_SCALE = { normal: 1, split: 1.6, "cam-only": 2.4 } as const;
+const MIN_SIZE = 96;
+const MAX_SIZE = 720;
+// CSS squircle approximation via border-radius (superellipse-ish).
+const SHAPE_RADIUS = {
+  circle: "9999px",
+  squircle: "32%",
+  rect: "12px",
+} as const;
 
 /**
  * Floating draggable webcam bubble. Anchors to one of 4 corners (persisted)
@@ -23,10 +31,13 @@ export function CameraBubble() {
   const scene = useChrome((s) => s.scene);
   const cycleSize = useChrome((s) => s.cycleCameraSize);
   const cycleAnchor = useChrome((s) => s.cycleCameraAnchor);
+  const cycleShape = useChrome((s) => s.cycleCameraShape);
+  const setCameraCustomSize = useChrome((s) => s.setCameraCustomSize);
   const { status, errorMessage, start, stop, attach, togglePiP } = useCamera();
   const { isFs } = useFullscreen();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const dragState = useRef<{ x: number; y: number; ox: number; oy: number } | null>(null);
+  const resizeState = useRef<{ x: number; y: number; size: number } | null>(null);
 
   // Auto-start whenever the bubble is opened from chrome state.
   useEffect(() => {
