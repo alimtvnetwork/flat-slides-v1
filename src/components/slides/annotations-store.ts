@@ -43,48 +43,65 @@ interface AnnotationsState {
 let strokeCounter = 0;
 const nextStrokeId = () => `ink_${Date.now().toString(36)}_${strokeCounter++}`;
 
-export const useAnnotations = create<AnnotationsState>((set) => ({
-  mode: "off",
-  color: INK_COLORS[0],
-  width: 6,
-  strokes: {},
+/**
+ * Annotations store. By default strokes are session-only — they live in
+ * memory and disappear on reload. Toggling `persistStrokes` via the
+ * Settings drawer enables a localStorage snapshot keyed by slide id so
+ * presenters can resume a session.
+ */
+export const useAnnotations = create<AnnotationsState & { persistStrokes: boolean; setPersist: (v: boolean) => void }>()(
+  persist(
+    (set) => ({
+      mode: "off",
+      color: INK_COLORS[0],
+      width: 6,
+      strokes: {},
+      persistStrokes: false,
 
-  setMode: (mode) => set({ mode }),
-  cycleMode: () =>
-    set((s) => ({ mode: s.mode === "off" ? "pointer" : s.mode === "pointer" ? "ink" : "off" })),
-  setColor: (color) => set({ color }),
-  setWidth: (width) => set({ width: Math.max(1, Math.min(40, width)) }),
+      setMode: (mode) => set({ mode }),
+      cycleMode: () =>
+        set((s) => ({ mode: s.mode === "off" ? "pointer" : s.mode === "pointer" ? "ink" : "off" })),
+      setColor: (color) => set({ color }),
+      setWidth: (width) => set({ width: Math.max(1, Math.min(40, width)) }),
+      setPersist: (v) => set({ persistStrokes: v }),
 
-  beginStroke: (slideId, p) => {
-    const id = nextStrokeId();
-    set((s) => {
-      const list = s.strokes[slideId] ?? [];
-      const stroke: InkStroke = { id, color: s.color, width: s.width, points: [p] };
-      return { strokes: { ...s.strokes, [slideId]: [...list, stroke] } };
-    });
-    return id;
-  },
-  extendStroke: (slideId, strokeId, p) =>
-    set((s) => {
-      const list = s.strokes[slideId];
-      if (!list) return {};
-      const updated = list.map((stroke) =>
-        stroke.id === strokeId ? { ...stroke, points: [...stroke.points, p] } : stroke,
-      );
-      return { strokes: { ...s.strokes, [slideId]: updated } };
+      beginStroke: (slideId, p) => {
+        const id = nextStrokeId();
+        set((s) => {
+          const list = s.strokes[slideId] ?? [];
+          const stroke: InkStroke = { id, color: s.color, width: s.width, points: [p] };
+          return { strokes: { ...s.strokes, [slideId]: [...list, stroke] } };
+        });
+        return id;
+      },
+      extendStroke: (slideId, strokeId, p) =>
+        set((s) => {
+          const list = s.strokes[slideId];
+          if (!list) return {};
+          const updated = list.map((stroke) =>
+            stroke.id === strokeId ? { ...stroke, points: [...stroke.points, p] } : stroke,
+          );
+          return { strokes: { ...s.strokes, [slideId]: updated } };
+        }),
+      undo: (slideId) =>
+        set((s) => {
+          const list = s.strokes[slideId];
+          if (!list || list.length === 0) return {};
+          return { strokes: { ...s.strokes, [slideId]: list.slice(0, -1) } };
+        }),
+      clear: (slideId) =>
+        set((s) => {
+          if (!s.strokes[slideId]) return {};
+          const next = { ...s.strokes };
+          delete next[slideId];
+          return { strokes: next };
+        }),
+      clearAll: () => set({ strokes: {} }),
     }),
-  undo: (slideId) =>
-    set((s) => {
-      const list = s.strokes[slideId];
-      if (!list || list.length === 0) return {};
-      return { strokes: { ...s.strokes, [slideId]: list.slice(0, -1) } };
-    }),
-  clear: (slideId) =>
-    set((s) => {
-      if (!s.strokes[slideId]) return {};
-      const next = { ...s.strokes };
-      delete next[slideId];
-      return { strokes: next };
-    }),
-  clearAll: () => set({ strokes: {} }),
-}));
+    {
+      name: "slides-annotations-v1",
+      // Only persist strokes when the user opts in; always persist the flag itself.
+      partialize: (s) => (s.persistStrokes ? { strokes: s.strokes, persistStrokes: true } : { persistStrokes: false }),
+    },
+  ),
+);
