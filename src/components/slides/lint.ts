@@ -31,6 +31,19 @@ export function lintDeck(deck: Deck): LintIssue[] {
     }
   }
 
+  // Deck-level: volume must be a sane 0..1 number.
+  if (
+    typeof deck.settings.volume === "number" &&
+    (deck.settings.volume < 0 || deck.settings.volume > 1)
+  ) {
+    const anchor = deck.slides[0];
+    if (anchor) {
+      push(anchor, 0, "volume-out-of-range",
+        `Deck volume ${deck.settings.volume} is outside [0, 1] — audio API will clamp or error.`,
+        "warn");
+    }
+  }
+
   // Collision detection on authored slide.number
   const seen = new Map<number, string>();
   for (let i = 0; i < deck.slides.length; i++) {
@@ -57,6 +70,22 @@ export function lintDeck(deck: Deck): LintIssue[] {
     }
   }
 
+  // Duplicate title detection — warn (not error), since identical titles are
+  // sometimes intentional (e.g. "Demo" / "Demo (cont.)") but usually a copy mistake.
+  const titleSeen = new Map<string, number>();
+  for (let i = 0; i < deck.slides.length; i++) {
+    const s = deck.slides[i];
+    const t = s.title?.trim();
+    if (!t) continue;
+    const prior = titleSeen.get(t);
+    if (prior !== undefined) {
+      push(s, i, "duplicate-title", `Title "${t}" duplicates slide #${prior + 1} — confusing for navigation.`, "warn");
+    } else {
+      titleSeen.set(t, i);
+    }
+  }
+
+
   for (let i = 0; i < deck.slides.length; i++) {
     const s = deck.slides[i];
     if (!s.title?.trim()) push(s, i, "title-missing", "Slide has no title", "error");
@@ -78,8 +107,36 @@ export function lintDeck(deck: Deck): LintIssue[] {
             `Focus region targets step ${r.step}, but slide has ${steps || "no"} step${steps === 1 ? "" : "s"}.`,
             "warn");
         }
+        if (r.w <= 0 || r.h <= 0 || r.x < 0 || r.y < 0) {
+          push(s, i, "focus-rect-invalid",
+            `Focus rect has invalid dimensions (x=${r.x}, y=${r.y}, w=${r.w}, h=${r.h}) — w/h must be > 0, x/y >= 0.`,
+            "error");
+        } else if (r.x + r.w > 1920 || r.y + r.h > 1080) {
+          push(s, i, "focus-rect-out-of-bounds",
+            `Focus rect extends past the 1920×1080 canvas (ends at ${r.x + r.w},${r.y + r.h}).`,
+            "warn");
+        }
       }
     }
+
+    // Padding & budget sanity.
+    if (typeof s.padding === "number" && (s.padding < 0 || s.padding > 400)) {
+      push(s, i, "padding-out-of-range",
+        `padding=${s.padding} is outside [0, 400] — text will clip or float oddly.`, "warn");
+    }
+    if (typeof s.budget === "number" && s.budget <= 0) {
+      push(s, i, "budget-invalid",
+        `budget=${s.budget}s must be > 0 — pacing badge will divide by zero.`, "warn");
+    }
+
+    // Background URL must be https:// when remote.
+    if (typeof s.background === "string" && /^http:\/\//i.test(s.background)) {
+      push(s, i, "background-not-https",
+        "Slide background uses http:// — mixed-content blocks the image on published https sites.",
+        "warn");
+    }
+
+
 
     switch (s.type) {
       case "bullets":
@@ -115,6 +172,9 @@ export function lintDeck(deck: Deck): LintIssue[] {
         if (richLen(s.body) > 320) push(s, i, "body-too-long", "Body copy is dense (>320 chars) — consider splitting");
         if (richLen(s.body) === 0) push(s, i, "body-empty", "Left slide is missing body text", "error");
         if (richLen(s.heading) === 0) push(s, i, "heading-empty", "Left slide is missing a heading", "error");
+        if (s.media && typeof s.media === "object" && "src" in s.media && !(s.media as { alt?: string }).alt?.trim()) {
+          push(s, i, "left-media-alt-missing", "Left-slide media is missing alt text (a11y).", "warn");
+        }
         break;
       case "quote":
         if (richLen(s.quote) > 220) push(s, i, "quote-too-long", "Quote is long — trim for impact");
@@ -158,7 +218,9 @@ export function lintDeck(deck: Deck): LintIssue[] {
         break;
       }
       case "embed": {
-        if (s.url && !/^https:\/\//i.test(s.url)) {
+        if (!s.url?.trim()) {
+          push(s, i, "embed-missing-url", "Embed slide has no URL — iframe will be blank.", "error");
+        } else if (!/^https:\/\//i.test(s.url)) {
           push(s, i, "embed-not-https",
             `Embed URL must use https:// (got "${s.url.slice(0, 40)}…") — mixed content blocks the iframe on published sites.`,
             "error");
@@ -229,5 +291,14 @@ export const LINT_RULES: ReadonlyArray<{ id: string; severity: LintSeverity; sum
   { id: "base64-image-large", severity: "warn", summary: "Inline base64 image >200 KB." },
   { id: "embed-not-https", severity: "error", summary: "Embed URL not https://." },
   { id: "consecutive-quotes", severity: "warn", summary: "Two quote slides back-to-back." },
+  { id: "volume-out-of-range", severity: "warn", summary: "Deck volume outside [0, 1]." },
+  { id: "duplicate-title", severity: "warn", summary: "Two slides share the same title." },
+  { id: "focus-rect-invalid", severity: "error", summary: "Focus rect has w<=0, h<=0, or negative x/y." },
+  { id: "focus-rect-out-of-bounds", severity: "warn", summary: "Focus rect extends past 1920×1080." },
+  { id: "padding-out-of-range", severity: "warn", summary: "Slide padding outside [0, 400]." },
+  { id: "budget-invalid", severity: "warn", summary: "Slide budget <= 0." },
+  { id: "background-not-https", severity: "warn", summary: "Slide background URL uses http://." },
+  { id: "embed-missing-url", severity: "error", summary: "Embed slide has no URL." },
+  { id: "left-media-alt-missing", severity: "warn", summary: "Left-slide media missing alt text." },
 ];
 
