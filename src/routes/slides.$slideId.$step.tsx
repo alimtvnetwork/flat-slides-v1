@@ -70,13 +70,14 @@ function SlideStepPage() {
     return () => window.removeEventListener("keydown", onKey);
   }, [slide, index, slides, navigate, stepNum, isFs, toggleFs, exitFs]);
 
-  if (!slide || slide.type !== "steps") {
+  if (!slide || slideStepCount(slide) === 0) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-black text-white">
         <Link to="/slides" className="underline">Back to deck</Link>
       </div>
     );
   }
+  const totalSteps = slideStepCount(slide);
 
   if (isFs) {
     return (
