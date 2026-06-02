@@ -66,12 +66,30 @@ export const THEMES: Theme[] = [
     fontBody: '"Poppins", system-ui, sans-serif',
     fontDisplay: '"Instrument Serif", "Ubuntu", serif',
   },
+  {
+    // High-contrast theme tuned for exported PDFs / paper printouts.
+    id: "print",
+    name: "Print (high-contrast)",
+    bg: "#ffffff",
+    fg: "#000000",
+    muted: "#444444",
+    hl: "#000000",
+    hlInk: "#ffffff",
+    fontHeading: '"Ubuntu", system-ui, sans-serif',
+    fontBody: '"Poppins", system-ui, sans-serif',
+    fontDisplay: '"Instrument Serif", "Ubuntu", serif',
+  },
 ];
 
 export const DEFAULT_THEME_ID = "snow";
 
+// Tiny memo — themes are immutable so a Map lookup beats a linear scan when
+// every slide / every render asks for the same id.
+const THEME_INDEX: Map<string | undefined, Theme> = new Map();
+for (const t of THEMES) THEME_INDEX.set(t.id, t);
+
 export function getTheme(id: string | undefined): Theme {
-  return THEMES.find((t) => t.id === id) ?? THEMES[0];
+  return THEME_INDEX.get(id) ?? THEMES[0];
 }
 
 /** Relative perceived brightness 0..1 from a #rrggbb / #rgb hex. */
