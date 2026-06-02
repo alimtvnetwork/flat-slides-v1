@@ -87,6 +87,31 @@ export function lintDeck(deck: Deck): LintIssue[] {
       `Deck music volume ${deck.music.volume} is outside [0, 1].`, "warn");
   }
 
+  // Theme token contrast (WCAG AA): fg/bg must reach 4.5:1 for body text;
+  // .hl-pill ink-on-highlight must reach 3:1 (large-text threshold — pills
+  // are display-sized). Only checks hex tokens; non-hex (oklch/var) is skipped.
+  const themeIds = new Set<string>();
+  if (deck.themeId) themeIds.add(deck.themeId);
+  for (const s of deck.slides) if (s.themeId) themeIds.add(s.themeId);
+  for (const tid of themeIds) {
+    const theme = THEMES.find((t) => t.id === tid);
+    if (!theme) continue;
+    const anchor = deck.slides.find((s) => s.themeId === tid) ?? deck.slides[0];
+    if (!anchor) continue;
+    const i = deck.slides.indexOf(anchor);
+    const fgBg = contrastRatio(theme.fg, theme.bg);
+    if (fgBg !== null && fgBg < 4.5) {
+      push(anchor, i, "theme-contrast-low",
+        `Theme "${theme.id}" fg/bg contrast ${fgBg.toFixed(2)}:1 below WCAG AA 4.5:1.`, "warn");
+    }
+    const hlInk = contrastRatio(theme.hlInk, theme.hl);
+    if (hlInk !== null && hlInk < 3) {
+      push(anchor, i, "theme-contrast-low",
+        `Theme "${theme.id}" hl-pill ink/hl contrast ${hlInk.toFixed(2)}:1 below 3:1.`, "warn");
+    }
+  }
+
+
   // Collision detection on authored slide.number
   const seen = new Map<number, string>();
   for (let i = 0; i < deck.slides.length; i++) {
