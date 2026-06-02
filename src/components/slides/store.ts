@@ -117,6 +117,7 @@ export interface DeckStore {
   /** Replace a slide by id; if missing, append. */
   upsertSlide: (slide: Slide) => void;
   removeSlide: (id: string) => void;
+  resetDeck: () => void;
   setLastVisited: (id: string) => void;
   getSlideIndex: (id: string) => number;
 }
@@ -149,6 +150,7 @@ export const useDeck = create<DeckStore>()(
         }),
       removeSlide: (id) =>
         set((s) => ({ deck: { ...s.deck, slides: s.deck.slides.filter((x) => x.id !== id) } })),
+      resetDeck: () => set({ deck: defaultDeck, themeId: DEFAULT_THEME_ID }),
       setLastVisited: (id) => set({ lastVisitedSlideId: id }),
       getSlideIndex: (id) => get().deck.slides.findIndex((s) => s.id === id),
     }),
