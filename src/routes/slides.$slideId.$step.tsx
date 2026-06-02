@@ -93,7 +93,7 @@ function SlideStepPage() {
           slides={slides}
           index={index}
           step={stepNum}
-          totalSteps={slide.steps.length}
+          totalSteps={totalSteps}
           onOpenSettings={() => setSettingsOpen(true)}
           onPresent={toggleFs}
           isPresenting={isFs}
@@ -120,7 +120,7 @@ function SlideStepPage() {
         slides={slides}
         index={index}
         step={stepNum}
-        totalSteps={slide.steps.length}
+        totalSteps={totalSteps}
         onOpenSettings={() => setSettingsOpen(true)}
         onPresent={toggleFs}
         isPresenting={isFs}
