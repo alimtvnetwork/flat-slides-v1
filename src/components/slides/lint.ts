@@ -310,6 +310,15 @@ export function lintDeck(deck: Deck): LintIssue[] {
         "Two quote slides in a row — break the rhythm with a different slide type.",
         "warn");
     }
+
+    // 3+ consecutive image slides — pacing smell, becomes a slideshow lull.
+    if (s.type === "image" && i >= 2
+        && deck.slides[i - 1].type === "image"
+        && deck.slides[i - 2].type === "image") {
+      push(s, i, "consecutive-images",
+        "Three image slides in a row — interleave with text or quote slides to keep narrative momentum.",
+        "warn");
+    }
   }
   return out;
 }
