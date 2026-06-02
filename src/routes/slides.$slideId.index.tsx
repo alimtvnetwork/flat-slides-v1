@@ -266,7 +266,13 @@ function SlidePage() {
       {controller}
       <CameraBubble />
       <PresenterToast />
-      <SettingsDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} currentSlideId={slide.id} />
+      {settingsOpen && (
+        <Suspense fallback={null}>
+          <SettingsDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} currentSlideId={slide.id} />
+        </Suspense>
+      )}
+      <SlideAriaAnnouncer current={current} total={total} title={slide.title} />
+      <PresenterNotesPeek notes={slide.notes} />
       <CommandPalette
         open={paletteOpen}
         onClose={() => setPaletteOpen(false)}
