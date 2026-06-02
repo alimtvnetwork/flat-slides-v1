@@ -66,7 +66,17 @@ export const StepsSlideSchema = z.object({
   ...BaseSlideShape,
   type: z.literal("steps"),
   heading: z.string().min(1).max(200),
-  steps: z.array(RichTextSchema).min(1).max(8),
+  steps: z.array(z.union([
+    RichTextSchema.transform((detail, index) => ({
+      label: `Step ${index + 1}`,
+      detail,
+    })),
+    z.object({
+      label: z.string().min(1).max(80),
+      title: z.string().max(120).optional(),
+      detail: RichTextSchema,
+    }),
+  ])).min(1).max(8),
 });
 
 export const TimelineItemSchema = z.object({
