@@ -10,9 +10,9 @@ B19A — repair settings/fullscreen/camera based on RCA:
 1. ✅ unify slide background rendering pipeline (ThemeWrap owns bg; SlideLayout no longer paints)
 2. ✅ wire darken + blur controls (bg layer + dark overlay in ThemeWrap)
 3. ✅ separate transition zoom from camera/focus zoom (allowZoom gated by `focus?.length === 0`)
-4. fix 1-based step focus indexing (CameraStage step mismatch in routes)
-5. harden fullscreen stage clipping
-6. add proposal example with right-side image
+4. ✅ fix 1-based step focus indexing (CameraStage now gets `stepNum + 1`)
+5. ✅ harden fullscreen stage clipping (`.slide-wrapper` overflow:hidden + isolation + contain)
+6. ✅ add proposal example with right-side image (`sajida-visual` seed slide)
 7. add camera/focus-region example
 8. update RCA memory after implementation + validation
 
