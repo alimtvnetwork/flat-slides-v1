@@ -132,6 +132,13 @@ function SlidePage() {
         );
         return;
       }
+      if (e.key === "f" || e.key === "F") { useChrome.getState().toggleFocusEditor(); return; }
+      if ((e.metaKey || e.ctrlKey) && (e.key === "e" || e.key === "E")) {
+        e.preventDefault();
+        if (e.shiftKey) { void import("@/components/slides/exportAnnotations").then((m) => m.downloadAnnotations()); }
+        else { void import("@/components/slides/exportRehearsal").then((m) => m.downloadRehearsalReport(deck.title)); }
+        return;
+      }
       if (e.key === "g" || e.key === "G") { navigate({ to: "/slides" }); return; }
       if (e.key === "ArrowRight" || e.key === " " || e.key === "Enter") {
         if (slideStepCount(slide) > 1) { goTo(current, "forward", 2); return; }
