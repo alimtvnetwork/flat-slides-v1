@@ -13,7 +13,7 @@ import { RenderSlide } from "@/components/slides/RenderSlide";
 import { ScaledSlide } from "@/components/slides/ScaledSlide";
 import { SettingsDrawer } from "@/components/slides/SettingsDrawer";
 import { SlideTransition } from "@/components/slides/SlideTransition";
-import { slideStepCount } from "@/components/slides/types";
+import { getDisplayNumber, slideStepCount } from "@/components/slides/types";
 import { useFullscreen } from "@/components/slides/useFullscreen";
 import { useSlideNavigation } from "@/components/slides/useSlideNavigation";
 
@@ -103,7 +103,7 @@ function SlideStepPage() {
     <>
       <PresenterTopBar current={current} total={total} onPrev={() => prev(current)} onNext={() => next(current)} />
       <DotPagination current={current} total={total} slides={linearSlides} onJump={jump} />
-      <SlideNumberBadge current={current} total={total} />
+      <SlideNumberBadge current={current} total={total} display={slide ? getDisplayNumber(slide, current) : undefined} />
     </>
   );
 

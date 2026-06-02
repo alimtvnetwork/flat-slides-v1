@@ -3,7 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { RenderSlide } from "@/components/slides/RenderSlide";
 import { ScaledSlide } from "@/components/slides/ScaledSlide";
 import { useDeck } from "@/components/slides/store";
-import { slideStepCount } from "@/components/slides/types";
+import { getDisplayNumber, slideStepCount } from "@/components/slides/types";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/slides/")({
@@ -39,7 +39,17 @@ function SlidesOverview() {
                 <RenderSlide slide={s} step={Math.max(0, stepCount - 1)} />
               </ScaledSlide>
               <div className="absolute left-3 top-3 flex items-center gap-1.5 rounded bg-black/75 px-2 py-0.5 text-xs text-white">
-                <span className="tabular-nums">{disabled ? "—" : String(linearIndex + 1).padStart(2, "0")}</span>
+                <span className="tabular-nums">
+                  {disabled ? "—" : String(getDisplayNumber(s, linearIndex + 1)).padStart(2, "0")}
+                </span>
+                {!disabled && typeof s.number === "number" && s.number !== linearIndex + 1 && (
+                  <span
+                    title={`Authored number (linear position ${linearIndex + 1})`}
+                    className="rounded bg-yellow-400/20 px-1 text-[9px] uppercase tracking-wide text-yellow-200"
+                  >
+                    auth
+                  </span>
+                )}
                 <span className="opacity-70">·</span>
                 <span className="line-clamp-1 max-w-[14rem]">{s.title}</span>
               </div>

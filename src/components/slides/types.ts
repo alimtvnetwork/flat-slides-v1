@@ -29,6 +29,12 @@ export interface BaseSlide {
   padding?: number;
   /** When false, the slide is skipped from linear navigation, jump, dot pagination, and the badge total. Defaults to true. */
   enabled?: boolean;
+  /**
+   * Optional authored display number shown in the badge & grid (e.g. "07").
+   * When omitted, the linear position is used. Authored numbers do not affect
+   * URLs (those remain 1-based linear positions).
+   */
+  number?: number;
 }
 
 export interface LeftSlideProps extends BaseSlide {
@@ -136,6 +142,17 @@ export function slideStepCount(slide: Slide): number {
   if (slide.type === "steps") return slide.steps.length;
   if (slide.type === "timeline") return slide.items.length;
   return 0;
+}
+
+/**
+ * Display number for the badge / grid.
+ *
+ * Returns the authored `slide.number` when set, otherwise the 1-based linear
+ * position. URLs always use linear positions — this helper only affects what
+ * humans see (badge text, grid chips, recent-jumps).
+ */
+export function getDisplayNumber(slide: Slide, linearPosition: number): number {
+  return typeof slide.number === "number" ? slide.number : linearPosition;
 }
 
 export type TransitionKind = "camera-zoom" | "morph" | "fade" | "eaten";

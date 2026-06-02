@@ -13,11 +13,24 @@ export interface LintIssue {
 const richLen = (r?: RichText) =>
   !r ? 0 : r.reduce((n, p) => n + (typeof p === "string" ? p.length : p.text.length), 0);
 
-/** Pure deck linter — flags overcrowding, missing alt text, empty headings. */
+/** Pure deck linter — flags overcrowding, missing alt text, empty headings, number collisions. */
 export function lintDeck(deck: Deck): LintIssue[] {
   const out: LintIssue[] = [];
   const push = (s: Slide, i: number, rule: string, message: string, severity: LintSeverity = "warn") =>
     out.push({ slideId: s.id, slideIndex: i, slideTitle: s.title, rule, message, severity });
+
+  // Collision detection on authored slide.number
+  const seen = new Map<number, string>();
+  for (let i = 0; i < deck.slides.length; i++) {
+    const s = deck.slides[i];
+    if (typeof s.number !== "number") continue;
+    const prior = seen.get(s.number);
+    if (prior) {
+      push(s, i, "number-collision", `Authored number ${s.number} duplicates slide "${prior}"`, "warn");
+    } else {
+      seen.set(s.number, s.title || s.id);
+    }
+  }
 
   for (let i = 0; i < deck.slides.length; i++) {
     const s = deck.slides[i];

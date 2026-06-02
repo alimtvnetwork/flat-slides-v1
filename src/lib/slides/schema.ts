@@ -42,6 +42,8 @@ const BaseSlideShape = {
   align: TextPositionSchema.optional(),
   padding: z.number().min(0).max(400).optional(),
   enabled: z.boolean().optional(),
+  /** Optional authored display number; defaults to linear position when omitted. */
+  number: z.number().int().min(0).max(9999).optional(),
 };
 
 export const LeftSlideSchema = z.object({

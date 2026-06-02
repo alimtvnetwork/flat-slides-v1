@@ -7,18 +7,24 @@ function pad2(n: number): string {
 }
 
 interface Props {
+  /** 1-based linear position used for the denominator and fallback display. */
   current: number;
   total: number;
+  /** Optional authored display number (overrides `current` for the numerator). */
+  display?: number;
   className?: string;
 }
 
 /**
  * Bottom-right read-only slide number badge.
  * Surface 2 of the slide-number system (see spec/old-slides/27-slides-number).
+ * When the active slide has an authored `number`, it shows the authored
+ * value in the numerator while the denominator stays the linear total.
  */
-export function SlideNumberBadge({ current, total, className }: Props) {
+export function SlideNumberBadge({ current, total, display, className }: Props) {
   const visible = useChrome((s) => s.slideNumberBadgeVisible);
   if (!visible || total === 0) return null;
+  const shown = typeof display === "number" ? display : current;
   return (
     <div
       data-print-hide="true"
@@ -30,7 +36,7 @@ export function SlideNumberBadge({ current, total, className }: Props) {
         className,
       )}
     >
-      <span className="text-yellow-300">{pad2(current)}</span>
+      <span className="text-yellow-300">{pad2(shown)}</span>
       <span className="mx-1 text-white/40">/</span>
       <span>{pad2(total)}</span>
     </div>
