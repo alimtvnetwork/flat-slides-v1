@@ -1,7 +1,8 @@
 import { motion } from "motion/react";
-import { useEffect, useState, type ReactNode } from "react";
+import { type ReactNode } from "react";
 
 import { getActiveFocusRegion, type Slide } from "./types";
+import { useReducedMotion } from "./useReducedMotion";
 
 interface Props {
   slide: Slide;
