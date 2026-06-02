@@ -36,6 +36,9 @@ export function CommandPalette({ open, onClose, slides, onOpenSettings, onPresen
       ...(onPresent ? [{ id: "act-present", label: "Present (fullscreen)", hint: "F5", run: onPresent }] : []),
       ...(onOpenSettings ? [{ id: "act-settings", label: "Open settings", hint: "S", run: onOpenSettings }] : []),
       ...(onOpenLint ? [{ id: "act-lint", label: "Run deck linter", hint: "L", run: onOpenLint }] : []),
+      { id: "act-focus", label: "Edit focus regions", hint: "F", run: toggleFocusEditor },
+      { id: "act-export-rehearsal", label: "Export rehearsal report", hint: "⌘E", run: () => downloadRehearsalReport(deckTitle) },
+      { id: "act-export-annotations", label: "Export annotations (JSON)", hint: "⌘⇧E", run: downloadAnnotations },
     ];
     const slideActs: Action[] = slides.map((s, i) => ({
       id: `slide-${s.id}`,
