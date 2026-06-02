@@ -56,6 +56,7 @@ function SlideStepPage() {
   const toggleTopJumper = useChrome((s) => s.toggleTopJumper);
   const toggleCamera = useChrome((s) => s.toggleCamera);
   const scene = useChrome((s) => s.scene);
+  const focusEditorOpen = useChrome((s) => s.focusEditorOpen);
   const cycleCameraSize = useChrome((s) => s.cycleCameraSize);
   const toggleMusic = useChrome((s) => s.toggleMusic);
   const cycleScene = useChrome((s) => s.cycleScene);
