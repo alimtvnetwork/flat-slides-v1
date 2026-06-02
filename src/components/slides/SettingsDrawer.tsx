@@ -222,49 +222,49 @@ export function SettingsDrawer({
 
         {/* Import / Export */}
         <section className="space-y-2 border-t border-neutral-800 pt-4">
-          <label className="text-xs uppercase tracking-wider text-neutral-400">
-            Import / Export
+          <label className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wider text-neutral-400">
+            <Upload size={12} /> Import / Export
           </label>
           <div className="grid grid-cols-2 gap-2">
             <button
               onClick={handleImportDeck}
-              className="rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700"
+              className="inline-flex items-center justify-center gap-1.5 rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700"
             >
-              ⬆ Import deck
+              <Upload size={13} /> Import deck
             </button>
             <button
               onClick={() => exportDeck(deck)}
-              className="rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700"
+              className="inline-flex items-center justify-center gap-1.5 rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700"
             >
-              ⬇ Export deck
+              <Download size={13} /> Export deck
             </button>
             <button
               onClick={handleImportSlide}
-              className="rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700"
+              className="inline-flex items-center justify-center gap-1.5 rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700"
             >
-              ⬆ Import slide
+              <Upload size={13} /> Import slide
             </button>
             <button
               onClick={handleExportSlide}
-              className="rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700"
+              className="inline-flex items-center justify-center gap-1.5 rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700"
             >
-              ⬇ Export slide
+              <Download size={13} /> Export slide
             </button>
             <button
               onClick={handleLoadSpecSample}
-              className="col-span-2 rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700"
+              className="col-span-2 inline-flex items-center justify-center gap-1.5 rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700"
               title="Load docs/slides/spec/sample-deck.json"
             >
-              ✨ Try spec sample deck
+              <Sparkles size={13} /> Try spec sample deck
             </button>
             <button
               onClick={() => {
                 resetDeck();
                 toast.success("Reset to sample deck");
               }}
-              className="col-span-2 rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700"
+              className="col-span-2 inline-flex items-center justify-center gap-1.5 rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700"
             >
-              ↺ Reset sample deck
+              <RotateCcw size={13} /> Reset sample deck
             </button>
           </div>
           <p className="text-xs text-neutral-500">
@@ -279,13 +279,15 @@ export function SettingsDrawer({
 
         {/* Presenter tools */}
         <section className="mb-6 space-y-2">
-          <label className="text-xs uppercase tracking-wider text-neutral-400">Presenter tools</label>
+          <label className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wider text-neutral-400">
+            <PenLine size={12} /> Presenter tools
+          </label>
           <button
             type="button"
             onClick={() => { useChrome.getState().toggleFocusEditor(); onClose(); }}
-            className="w-full rounded bg-neutral-800 px-3 py-2 text-left text-sm hover:bg-neutral-700"
+            className="inline-flex w-full items-center gap-2 rounded bg-neutral-800 px-3 py-2 text-left text-sm hover:bg-neutral-700"
           >
-            Edit focus regions <span className="ml-1 text-neutral-500">(F)</span>
+            <Focus size={13} /> Edit focus regions <span className="ml-auto text-neutral-500">(F)</span>
           </button>
           <label className="mt-2 flex items-center justify-between gap-3 rounded bg-neutral-900 px-3 py-2 text-sm">
             <span>
