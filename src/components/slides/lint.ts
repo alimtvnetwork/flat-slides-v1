@@ -218,7 +218,9 @@ export function lintDeck(deck: Deck): LintIssue[] {
         break;
       }
       case "embed": {
-        if (s.url && !/^https:\/\//i.test(s.url)) {
+        if (!s.url?.trim()) {
+          push(s, i, "embed-missing-url", "Embed slide has no URL — iframe will be blank.", "error");
+        } else if (!/^https:\/\//i.test(s.url)) {
           push(s, i, "embed-not-https",
             `Embed URL must use https:// (got "${s.url.slice(0, 40)}…") — mixed content blocks the iframe on published sites.`,
             "error");
