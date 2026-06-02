@@ -23,9 +23,43 @@ export function ControlBar({ slides, index, step, totalSteps, onOpenSettings, on
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
 
-  const prev = slides[index - 1];
-  const next = slides[index + 1];
   const current = slides[index];
+  const prevSlide = slides[index - 1];
+  const nextSlide = slides[index + 1];
+  const lastStep = typeof totalSteps === "number" ? totalSteps - 1 : 0;
+  const curStep = typeof step === "number" ? step : 0;
+
+  const hasNext = (typeof step === "number" && curStep < lastStep) || Boolean(nextSlide);
+  const hasPrev = (typeof step === "number" && curStep > 0) || Boolean(prevSlide);
+
+  const goNext = () => {
+    if (!current) return;
+    if (typeof step === "number" && curStep < lastStep) {
+      navigate({
+        to: "/slides/$slideId/$step",
+        params: { slideId: current.id, step: String(curStep + 1) },
+      });
+    } else if (nextSlide) {
+      navigate({ to: "/slides/$slideId", params: { slideId: nextSlide.id } });
+    }
+  };
+
+  const goPrev = () => {
+    if (!current) return;
+    if (typeof step === "number" && curStep > 0) {
+      const target = curStep - 1;
+      if (target === 0) {
+        navigate({ to: "/slides/$slideId", params: { slideId: current.id } });
+      } else {
+        navigate({
+          to: "/slides/$slideId/$step",
+          params: { slideId: current.id, step: String(target) },
+        });
+      }
+    } else if (prevSlide) {
+      navigate({ to: "/slides/$slideId", params: { slideId: prevSlide.id } });
+    }
+  };
 
   const jumpTo = (n: number) => {
     const target = slides[Math.max(0, Math.min(slides.length - 1, n - 1))];
@@ -58,8 +92,8 @@ export function ControlBar({ slides, index, step, totalSteps, onOpenSettings, on
       <Link to="/slides" className="opacity-70 hover:opacity-100">← Overview</Link>
 
       <div className="flex items-center gap-4">
-        {prev ? (
-          <Link to="/slides/$slideId" params={{ slideId: prev.id }}>◀ Prev</Link>
+        {hasPrev ? (
+          <button onClick={goPrev} className="hover:opacity-100">◀ Prev</button>
         ) : (
           <span className="opacity-30">◀ Prev</span>
         )}
@@ -98,8 +132,8 @@ export function ControlBar({ slides, index, step, totalSteps, onOpenSettings, on
           </span>
         )}
 
-        {next ? (
-          <Link to="/slides/$slideId" params={{ slideId: next.id }}>Next ▶</Link>
+        {hasNext ? (
+          <button onClick={goNext} className="hover:opacity-100">Next ▶</button>
         ) : (
           <span className="opacity-30">Next ▶</span>
         )}
