@@ -79,7 +79,7 @@ export function SlideTransition({ transitionKey, allowZoom = false, children }: 
           initial="initial"
           animate="animate"
           exit="exit"
-          transition={transition}
+          transition={tx}
           className="absolute inset-0"
           style={{ transformStyle: "preserve-3d" }}
         >
