@@ -7,6 +7,7 @@ import { CameraBubble } from "@/components/slides/controls/CameraBubble";
 import { ControllerPill } from "@/components/slides/controls/ControllerPill";
 import { DotPagination } from "@/components/slides/controls/DotPagination";
 import { KeyboardShortcutsDialog } from "@/components/slides/controls/KeyboardShortcutsDialog";
+import { PresenterToast } from "@/components/slides/controls/PresenterToast";
 import { PresenterTopBar } from "@/components/slides/controls/PresenterTopBar";
 import { SlideNumberBadge } from "@/components/slides/controls/SlideNumberBadge";
 import { LintPanel } from "@/components/slides/LintPanel";
@@ -122,15 +123,21 @@ function SlidePage() {
     return (
       <div className="fixed inset-0 z-[100] flex flex-col overflow-hidden bg-black">
         <div className="relative min-h-0 flex-1">
-          <ScaledSlide fitPadding={36}>
-            <SlideTransition transitionKey={slide.id} allowZoom={slide.type === "center" && slide.display === true}>
-              <RenderSlide slide={slide} step={0} />
-            </SlideTransition>
-          </ScaledSlide>
+          <div
+            style={{ opacity: scene === "cam-only" ? 0.05 : scene === "split" ? 0.75 : 1, transition: "opacity 300ms ease" }}
+            className="absolute inset-0"
+          >
+            <ScaledSlide fitPadding={36}>
+              <SlideTransition transitionKey={slide.id} allowZoom={slide.type === "center" && slide.display === true}>
+                <RenderSlide slide={slide} step={0} />
+              </SlideTransition>
+            </ScaledSlide>
+          </div>
           {surfaces}
         </div>
         {controller}
         <CameraBubble />
+        <PresenterToast />
         <KeyboardShortcutsDialog open={helpOpen} onClose={() => setHelpOpen(false)} />
         <SettingsDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} currentSlideId={slide.id} />
       </div>
@@ -140,15 +147,21 @@ function SlidePage() {
   return (
     <div className="flex h-screen overflow-hidden flex-col bg-black">
       <div className="relative min-h-0 flex-1">
-        <ScaledSlide fitPadding={36}>
-          <SlideTransition transitionKey={slide.id} allowZoom={slide.type === "center" && slide.display === true}>
-            <RenderSlide slide={slide} step={0} />
-          </SlideTransition>
-        </ScaledSlide>
+        <div
+          style={{ opacity: scene === "cam-only" ? 0.05 : scene === "split" ? 0.75 : 1, transition: "opacity 300ms ease" }}
+          className="absolute inset-0"
+        >
+          <ScaledSlide fitPadding={36}>
+            <SlideTransition transitionKey={slide.id} allowZoom={slide.type === "center" && slide.display === true}>
+              <RenderSlide slide={slide} step={0} />
+            </SlideTransition>
+          </ScaledSlide>
+        </div>
         {surfaces}
       </div>
       {controller}
       <CameraBubble />
+      <PresenterToast />
       <SettingsDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} currentSlideId={slide.id} />
       <CommandPalette
         open={paletteOpen}
