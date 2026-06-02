@@ -64,8 +64,11 @@ export function SlideTransition({ transitionKey, allowZoom = false, children }: 
   const tx: Transition = reduced ? { duration: 0.05, ease: "linear" } : transition;
 
   useEffect(() => {
-    if (effectiveKind === "camera-zoom") triggerWhoosh();
-  }, [transitionKey, effectiveKind]);
+    // Whoosh fires on every slide change — `transitionKey` only changes between
+    // slides (steps reuse the same key). `triggerWhoosh` itself respects the
+    // Settings → Sound mute and the OS reduced-motion flag.
+    triggerWhoosh();
+  }, [transitionKey]);
 
   return (
     <div
