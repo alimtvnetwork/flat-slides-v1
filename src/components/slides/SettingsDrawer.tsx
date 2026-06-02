@@ -55,6 +55,12 @@ export function SettingsDrawer({
   const settings = deck.settings;
   const fileRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
   if (!open) return null;
 
   const handleImportDeck = async () => {
