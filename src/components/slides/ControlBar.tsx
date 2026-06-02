@@ -132,8 +132,8 @@ export function ControlBar({ slides, index, step, totalSteps, onOpenSettings, on
           </span>
         )}
 
-        {next ? (
-          <Link to="/slides/$slideId" params={{ slideId: next.id }}>Next ▶</Link>
+        {hasNext ? (
+          <button onClick={goNext} className="hover:opacity-100">Next ▶</button>
         ) : (
           <span className="opacity-30">Next ▶</span>
         )}
