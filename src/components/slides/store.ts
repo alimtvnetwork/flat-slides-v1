@@ -103,7 +103,7 @@ const defaultDeck: Deck = {
   themeId: DEFAULT_THEME_ID,
   slides: seedSlides,
   settings: defaultSettings,
-  version: 1,
+  version: DECK_VERSION,
 };
 
 function getUsablePersistedDeck(value: unknown): Pick<DeckStore, "deck" | "themeId"> | null {
