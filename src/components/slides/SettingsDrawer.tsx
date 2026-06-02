@@ -95,13 +95,19 @@ export function SettingsDrawer({
       <div className="flex-1 bg-black/50" onClick={onClose} />
       <aside className="w-[400px] bg-neutral-950 p-6 text-neutral-200 overflow-y-auto">
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Settings</h2>
-          <button onClick={onClose} className="text-neutral-400 hover:text-white">✕</button>
+          <h2 className="inline-flex items-center gap-2 text-lg font-semibold">
+            <SettingsIcon size={16} className="text-neutral-400" /> Settings
+          </h2>
+          <button onClick={onClose} aria-label="Close settings" className="inline-flex h-7 w-7 items-center justify-center rounded text-neutral-400 hover:bg-neutral-800 hover:text-white">
+            <X size={14} />
+          </button>
         </div>
 
         {/* Theme */}
         <section className="mb-6 space-y-2">
-          <label className="text-xs uppercase tracking-wider text-neutral-400">Theme</label>
+          <label className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wider text-neutral-400">
+            <Palette size={12} /> Theme
+          </label>
           <div className="grid grid-cols-3 gap-2">
             {THEMES.map((t) => (
               <button
