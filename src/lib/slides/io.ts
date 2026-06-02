@@ -3,9 +3,7 @@ import { toast } from "sonner";
 import type { Deck, Slide } from "@/components/slides/types";
 
 import { DeckSchema, SlideSchema } from "./schema";
-
-/** Current JSON schema version (bump on breaking change → write a migration). */
-export const DECK_SCHEMA_VERSION = 1;
+import { DECK_SCHEMA_VERSION } from "./version";
 
 /* ────────────────────────── EXPORT ────────────────────────── */
 
