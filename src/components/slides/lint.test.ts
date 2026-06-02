@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { lintDeck } from "./lint";
+import { LINT_RULES, countIssues, lintDeck } from "./lint";
 import type { Deck, Slide } from "./types";
 
 const baseSettings: Deck["settings"] = {
