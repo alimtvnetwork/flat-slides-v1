@@ -1,8 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
+import { useChrome } from "@/components/slides/chrome-store";
 import { CommandPalette } from "@/components/slides/CommandPalette";
 import { ControlBar } from "@/components/slides/ControlBar";
+import { DotPagination } from "@/components/slides/controls/DotPagination";
+import { PresenterTopBar } from "@/components/slides/controls/PresenterTopBar";
+import { SlideNumberBadge } from "@/components/slides/controls/SlideNumberBadge";
 import { LintPanel } from "@/components/slides/LintPanel";
 import { PresenterTools } from "@/components/slides/PresenterTools";
 import { RenderSlide } from "@/components/slides/RenderSlide";
@@ -12,6 +16,7 @@ import { SlideTransition } from "@/components/slides/SlideTransition";
 import { useDeck } from "@/components/slides/store";
 import { slideStepCount } from "@/components/slides/types";
 import { useFullscreen } from "@/components/slides/useFullscreen";
+import { useSlideNavigation } from "@/components/slides/useSlideNavigation";
 
 export const Route = createFileRoute("/slides/$slideId/")({
   head: ({ params }) => ({
@@ -24,48 +29,53 @@ function SlidePage() {
   const { slideId } = Route.useParams();
   const navigate = useNavigate();
   const deck = useDeck((s) => s.deck);
-  const slides = deck.slides;
+  const allSlides = deck.slides;
+  const { linearSlides, total, next, prev, jump, goTo } = useSlideNavigation();
   const index = Math.max(0, (parseInt(slideId, 10) || 0) - 1);
-  const slide = index >= 0 && index < slides.length ? slides[index] : undefined;
+  const slide = index >= 0 && index < linearSlides.length ? linearSlides[index] : undefined;
+  const current = index + 1;
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [lintOpen, setLintOpen] = useState(false);
   const { isFs, toggle: toggleFs, exit: exitFs } = useFullscreen();
+  const toggleTopJumper = useChrome((s) => s.toggleTopJumper);
+
+  // Maintain ControlBar compatibility: pass the original `slides` and the
+  // index of the current slide within that array.
+  const indexInAll = useMemo(
+    () => (slide ? allSlides.findIndex((s) => s.id === slide.id) : -1),
+    [allSlides, slide],
+  );
 
   useEffect(() => {
     if (!slide) return;
-    document.title = `${index + 1}/${slides.length} — ${slide.title}`;
-  }, [slide, index, slides.length]);
+    document.title = `${current}/${total} — ${slide.title}`;
+  }, [slide, current, total]);
 
   useEffect(() => {
     if (!slide) return;
     const onKey = (e: KeyboardEvent) => {
-      if ((e.target as HTMLElement)?.tagName === "INPUT") return;
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || (e.target as HTMLElement)?.isContentEditable) return;
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault(); setPaletteOpen((o) => !o); return;
       }
       if (e.key === "F5") { e.preventDefault(); toggleFs(); return; }
       if (e.key === "Escape" && isFs) { exitFs(); return; }
+      if (e.key === "j" || e.key === "J") { toggleTopJumper(); return; }
       if (e.key === "ArrowRight" || e.key === " " || e.key === "Enter") {
         if (slideStepCount(slide) > 1) {
-          navigate({
-            to: "/slides/$slideId/$step",
-            params: { slideId: String(index + 1), step: "2" },
-          });
+          goTo(current, "forward", 2);
           return;
         }
-        if (index + 1 < slides.length) {
-          navigate({ to: "/slides/$slideId", params: { slideId: String(index + 2) } });
-        }
+        next(current);
       } else if (e.key === "ArrowLeft") {
-        if (index > 0) {
-          navigate({ to: "/slides/$slideId", params: { slideId: String(index) } });
-        }
+        prev(current);
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [slide, index, slides, navigate, isFs, toggleFs, exitFs]);
+  }, [slide, current, next, prev, goTo, isFs, toggleFs, exitFs, toggleTopJumper]);
 
   if (!slide) {
     return (
@@ -78,6 +88,14 @@ function SlidePage() {
     );
   }
 
+  const overlays = (
+    <>
+      <PresenterTopBar current={current} total={total} onPrev={() => prev(current)} onNext={() => next(current)} />
+      <DotPagination current={current} total={total} slides={linearSlides} onJump={jump} />
+      <SlideNumberBadge current={current} total={total} />
+    </>
+  );
+
   if (isFs) {
     return (
       <div className="fixed inset-0 z-[100] flex flex-col overflow-hidden bg-black">
@@ -87,10 +105,11 @@ function SlidePage() {
               <RenderSlide slide={slide} step={0} />
             </SlideTransition>
           </ScaledSlide>
+          {overlays}
         </div>
         <ControlBar
-          slides={slides}
-          index={index}
+          slides={allSlides}
+          index={indexInAll >= 0 ? indexInAll : 0}
           step={slideStepCount(slide) > 0 ? 0 : undefined}
           totalSteps={slideStepCount(slide) || undefined}
           onOpenSettings={() => setSettingsOpen(true)}
@@ -114,10 +133,11 @@ function SlidePage() {
             <RenderSlide slide={slide} step={0} />
           </SlideTransition>
         </ScaledSlide>
+        {overlays}
       </div>
       <ControlBar
-        slides={slides}
-        index={index}
+        slides={allSlides}
+        index={indexInAll >= 0 ? indexInAll : 0}
         step={slideStepCount(slide) > 0 ? 0 : undefined}
         totalSteps={slideStepCount(slide) || undefined}
         onOpenSettings={() => setSettingsOpen(true)}
@@ -132,13 +152,13 @@ function SlidePage() {
       <CommandPalette
         open={paletteOpen}
         onClose={() => setPaletteOpen(false)}
-        slides={slides}
+        slides={allSlides}
         onOpenSettings={() => setSettingsOpen(true)}
         onPresent={toggleFs}
         onOpenLint={() => setLintOpen(true)}
       />
       <LintPanel open={lintOpen} onClose={() => setLintOpen(false)} deck={deck} />
-      <PresenterTools index={index} total={slides.length} deck={deck} />
+      <PresenterTools index={indexInAll >= 0 ? indexInAll : 0} total={allSlides.length} deck={deck} />
     </div>
   );
 }
