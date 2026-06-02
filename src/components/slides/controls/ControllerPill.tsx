@@ -155,6 +155,9 @@ export function ControllerPill(props: Props) {
             <PillButton onClick={onToggleFullscreen} ariaLabel={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}>
               {isFullscreen ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
             </PillButton>
+            <PillButton onClick={onOpenSettings} ariaLabel="Settings">
+              <Settings size={15} />
+            </PillButton>
             <PillButton onClick={onOpenHelp} ariaLabel="Keyboard shortcuts">
               <HelpCircle size={15} />
             </PillButton>
