@@ -7,19 +7,20 @@ import { ScaledSlide } from "@/components/slides/ScaledSlide";
 import { SettingsDrawer } from "@/components/slides/SettingsDrawer";
 import { useDeck } from "@/components/slides/store";
 
-export const Route = createFileRoute("/slides/$slideId")({
+export const Route = createFileRoute("/slides/$slideId/$step")({
   head: ({ params }) => ({
-    meta: [{ title: `Slide — ${params.slideId}` }],
+    meta: [{ title: `Slide — ${params.slideId} · step ${params.step}` }],
   }),
-  component: SlidePage,
+  component: SlideStepPage,
 });
 
-function SlidePage() {
-  const { slideId } = Route.useParams();
+function SlideStepPage() {
+  const { slideId, step } = Route.useParams();
   const navigate = useNavigate();
   const slides = useDeck((s) => s.deck.slides);
   const index = slides.findIndex((s) => s.id === slideId);
   const slide = index >= 0 ? slides[index] : undefined;
+  const stepNum = Math.max(0, parseInt(step, 10) || 0);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   useEffect(() => {
@@ -28,35 +29,45 @@ function SlidePage() {
   }, [slide, index, slides.length]);
 
   useEffect(() => {
-    if (!slide) return;
+    if (!slide || slide.type !== "steps") return;
+    const last = slide.steps.length - 1;
     const onKey = (e: KeyboardEvent) => {
       if ((e.target as HTMLElement)?.tagName === "INPUT") return;
       if (e.key === "ArrowRight" || e.key === " " || e.key === "Enter") {
-        if (slide.type === "steps" && slide.steps.length > 1) {
+        if (stepNum < last) {
           navigate({
             to: "/slides/$slideId/$step",
-            params: { slideId: slide.id, step: "1" },
+            params: { slideId: slide.id, step: String(stepNum + 1) },
           });
-          return;
+        } else {
+          const next = slides[index + 1];
+          if (next) navigate({ to: "/slides/$slideId", params: { slideId: next.id } });
         }
-        const next = slides[index + 1];
-        if (next) navigate({ to: "/slides/$slideId", params: { slideId: next.id } });
       } else if (e.key === "ArrowLeft") {
-        const prev = slides[index - 1];
-        if (prev) navigate({ to: "/slides/$slideId", params: { slideId: prev.id } });
+        if (stepNum > 0) {
+          const target = stepNum - 1;
+          if (target === 0) {
+            navigate({ to: "/slides/$slideId", params: { slideId: slide.id } });
+          } else {
+            navigate({
+              to: "/slides/$slideId/$step",
+              params: { slideId: slide.id, step: String(target) },
+            });
+          }
+        } else {
+          const prev = slides[index - 1];
+          if (prev) navigate({ to: "/slides/$slideId", params: { slideId: prev.id } });
+        }
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [slide, index, slides, navigate]);
+  }, [slide, index, slides, navigate, stepNum]);
 
-  if (!slide) {
+  if (!slide || slide.type !== "steps") {
     return (
       <div className="flex min-h-screen items-center justify-center bg-black text-white">
-        <div className="text-center">
-          <p className="mb-4">Slide not found.</p>
-          <Link to="/slides" className="underline">Back to deck</Link>
-        </div>
+        <Link to="/slides" className="underline">Back to deck</Link>
       </div>
     );
   }
@@ -65,14 +76,14 @@ function SlidePage() {
     <div className="flex min-h-screen flex-col bg-black">
       <div className="flex-1 relative">
         <ScaledSlide>
-          <RenderSlide slide={slide} step={0} />
+          <RenderSlide slide={slide} step={stepNum} />
         </ScaledSlide>
       </div>
       <ControlBar
         slides={slides}
         index={index}
-        step={slide.type === "steps" ? 0 : undefined}
-        totalSteps={slide.type === "steps" ? slide.steps.length : undefined}
+        step={stepNum}
+        totalSteps={slide.steps.length}
         onOpenSettings={() => setSettingsOpen(true)}
       />
       <SettingsDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} />
