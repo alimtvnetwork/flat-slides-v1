@@ -107,8 +107,36 @@ export function lintDeck(deck: Deck): LintIssue[] {
             `Focus region targets step ${r.step}, but slide has ${steps || "no"} step${steps === 1 ? "" : "s"}.`,
             "warn");
         }
+        if (r.w <= 0 || r.h <= 0 || r.x < 0 || r.y < 0) {
+          push(s, i, "focus-rect-invalid",
+            `Focus rect has invalid dimensions (x=${r.x}, y=${r.y}, w=${r.w}, h=${r.h}) — w/h must be > 0, x/y >= 0.`,
+            "error");
+        } else if (r.x + r.w > 1920 || r.y + r.h > 1080) {
+          push(s, i, "focus-rect-out-of-bounds",
+            `Focus rect extends past the 1920×1080 canvas (ends at ${r.x + r.w},${r.y + r.h}).`,
+            "warn");
+        }
       }
     }
+
+    // Padding & budget sanity.
+    if (typeof s.padding === "number" && (s.padding < 0 || s.padding > 400)) {
+      push(s, i, "padding-out-of-range",
+        `padding=${s.padding} is outside [0, 400] — text will clip or float oddly.`, "warn");
+    }
+    if (typeof s.budget === "number" && s.budget <= 0) {
+      push(s, i, "budget-invalid",
+        `budget=${s.budget}s must be > 0 — pacing badge will divide by zero.`, "warn");
+    }
+
+    // Background URL must be https:// when remote.
+    if (typeof s.background === "string" && /^http:\/\//i.test(s.background)) {
+      push(s, i, "background-not-https",
+        "Slide background uses http:// — mixed-content blocks the image on published https sites.",
+        "warn");
+    }
+
+
 
     switch (s.type) {
       case "bullets":
