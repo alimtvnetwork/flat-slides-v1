@@ -214,7 +214,7 @@ function TimelineSlide({ slide, step }: { slide: TimelineSlideProps; step: numbe
 
       <div
         className="absolute left-1/2 -translate-x-1/2 text-center"
-        style={{ top: 220, width: 1400 }}
+        style={{ top: 205, width: 1320 }}
       >
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
@@ -223,9 +223,16 @@ function TimelineSlide({ slide, step }: { slide: TimelineSlideProps; step: numbe
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+            style={{ overflowWrap: "break-word" }}
           >
-            <div className="slide-title slide-heading" style={{ color: "var(--slide-fg)" }}>
-              {focused?.title ? `${focused.label} · ${focused.title}` : focused?.label ?? ""}
+            <div className="slide-kicker slide-heading mb-[22px]" style={{ color: "var(--slide-hl)" }}>
+              {focused?.label ?? ""}
+            </div>
+            <div
+              className="slide-heading"
+              style={{ color: "var(--slide-fg)", fontSize: 104, lineHeight: 1.05, letterSpacing: 0 }}
+            >
+              {focused?.title ?? ""}
             </div>
             {focused?.detail ? (
               <div
