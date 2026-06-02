@@ -1,17 +1,30 @@
 import type { ReactNode } from "react";
 
-export type SlideType = "left" | "center" | "steps" | "quote";
+export type SlideType = "left" | "center" | "steps" | "quote" | "bullets" | "image";
 
 export type Highlight = { text: string; pill?: boolean };
 /** Inline text can be a string or a Highlight chip. */
 export type RichText = (string | Highlight)[];
+
+/** 9-cell positioning grid for the slide body block. */
+export type TextPosition =
+  | "top-left"   | "top-center"    | "top-right"
+  | "center-left"| "center"        | "center-right"
+  | "bottom-left"| "bottom-center" | "bottom-right";
 
 export interface BaseSlide {
   id: string;
   type: SlideType;
   title: string;
   notes?: string;
-  background?: string; // overrides deck default
+  /** Per-slide background override (CSS color OR image URL). */
+  background?: string;
+  /** Per-slide theme override (theme.id). */
+  themeId?: string;
+  /** Text block alignment within the slide. Defaults vary by type. */
+  align?: TextPosition;
+  /** Optional padding in 1920x1080 pixels — default 120. */
+  padding?: number;
 }
 
 export interface LeftSlideProps extends BaseSlide {
@@ -26,13 +39,13 @@ export interface CenterSlideProps extends BaseSlide {
   type: "center";
   heading: RichText;
   subhead?: RichText;
-  display?: boolean; // use serif display font
+  display?: boolean;
 }
 
 export interface StepsSlideProps extends BaseSlide {
   type: "steps";
   heading: string;
-  steps: RichText[]; // up to 5
+  steps: RichText[];
 }
 
 export interface QuoteSlideProps extends BaseSlide {
@@ -41,7 +54,30 @@ export interface QuoteSlideProps extends BaseSlide {
   attribution?: string;
 }
 
-export type Slide = LeftSlideProps | CenterSlideProps | StepsSlideProps | QuoteSlideProps;
+export interface BulletsSlideProps extends BaseSlide {
+  type: "bullets";
+  heading: RichText;
+  kicker?: string;
+  bullets: RichText[];
+}
+
+export interface ImageSlideProps extends BaseSlide {
+  type: "image";
+  src: string;
+  alt?: string;
+  caption?: RichText;
+  /** "cover" fills slide, "contain" letterboxes, "split" puts text beside. */
+  fit?: "cover" | "contain" | "split";
+  heading?: RichText;
+}
+
+export type Slide =
+  | LeftSlideProps
+  | CenterSlideProps
+  | StepsSlideProps
+  | QuoteSlideProps
+  | BulletsSlideProps
+  | ImageSlideProps;
 
 export type TransitionKind = "camera-zoom" | "morph" | "fade" | "eaten";
 
@@ -59,6 +95,10 @@ export interface DeckSettings {
 export interface Deck {
   id: string;
   title: string;
+  /** Active theme id (see themes.ts). Per-slide themeId overrides this. */
+  themeId?: string;
   slides: Slide[];
   settings: DeckSettings;
+  /** Schema version for migration. */
+  version?: number;
 }
