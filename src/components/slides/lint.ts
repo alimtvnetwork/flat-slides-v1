@@ -48,6 +48,14 @@ export function lintDeck(deck: Deck): LintIssue[] {
     const s = deck.slides[i];
     if (!s.title?.trim()) push(s, i, "title-missing", "Slide has no title", "error");
 
+    // Spec rule: lists/quotes/timelines must never zoom.
+    if ((s.type === "bullets" || s.type === "quote" || s.type === "timeline")
+        && Array.isArray(s.focus) && s.focus.length > 0) {
+      push(s, i, "focus-on-list",
+        `${s.type} slide has focus regions — lists/quotes/timelines must never zoom (move focus to a companion image slide).`,
+        "warn");
+    }
+
     switch (s.type) {
       case "bullets":
         if (s.bullets.length > 6) push(s, i, "too-many-bullets", `${s.bullets.length} bullets (max 6 recommended)`);
@@ -77,9 +85,17 @@ export function lintDeck(deck: Deck): LintIssue[] {
         if (richLen(s.quote) > 220) push(s, i, "quote-too-long", "Quote is long — trim for impact");
         if (!s.attribution) push(s, i, "quote-no-attribution", "Quote has no attribution");
         break;
-      case "image":
+      case "image": {
         if (!s.alt?.trim()) push(s, i, "image-alt-missing", "Image is missing alt text (a11y)", "error");
+        // Inline base64 size budget — spec recommends ≤200 KB binary (~270 KB base64).
+        if (s.src.startsWith("data:") && s.src.length > 270_000) {
+          const kb = Math.round(s.src.length / 1024);
+          push(s, i, "base64-image-large",
+            `Inline base64 image is ${kb} KB — spec recommends hosting and using a URL when >200 KB.`,
+            "warn");
+        }
         break;
+      }
     }
   }
   return out;
