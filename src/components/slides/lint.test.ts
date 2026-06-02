@@ -89,3 +89,46 @@ describe("lintDeck — new spec rules", () => {
     expect(issues.some((i) => i.rule === "base64-image-large")).toBe(false);
   });
 });
+
+describe("lintDeck — B14 rules", () => {
+  it("flags filename-looking alt text", () => {
+    const img: Slide = { id: "i", type: "image", title: "I", src: "https://x/y.png", alt: "hero.png" };
+    expect(lintDeck(deckOf([img])).some((i) => i.rule === "image-alt-filename")).toBe(true);
+  });
+
+  it("does NOT flag descriptive alt text", () => {
+    const img: Slide = { id: "i", type: "image", title: "I", src: "https://x/y.png", alt: "Team standing on a rooftop" };
+    expect(lintDeck(deckOf([img])).some((i) => i.rule === "image-alt-filename")).toBe(false);
+  });
+
+  it("flags steps slide with SVG background but no focus regions", () => {
+    const s: Slide = {
+      id: "s", type: "steps", title: "S",
+      heading: "H", steps: [{ label: "1", detail: ["x"] }],
+      background: "data:image/svg+xml;utf8,<svg/>",
+    } as Slide;
+    expect(lintDeck(deckOf([s])).some((i) => i.rule === "steps-svg-no-focus")).toBe(true);
+  });
+
+  it("does NOT flag steps slide with SVG background AND focus regions", () => {
+    const s: Slide = {
+      id: "s", type: "steps", title: "S",
+      heading: "H", steps: [{ label: "1", detail: ["x"] }],
+      background: "data:image/svg+xml;utf8,<svg/>",
+      focus: [{ x: 0, y: 0, w: 100, h: 100, step: 1 }],
+    } as Slide;
+    expect(lintDeck(deckOf([s])).some((i) => i.rule === "steps-svg-no-focus")).toBe(false);
+  });
+
+  it("flags non-https embed URLs as errors", () => {
+    const e: Slide = { id: "e", type: "embed", title: "E", url: "http://example.com/frame" };
+    const issues = lintDeck(deckOf([e]));
+    const hit = issues.find((i) => i.rule === "embed-not-https");
+    expect(hit?.severity).toBe("error");
+  });
+
+  it("does NOT flag https embed URLs", () => {
+    const e: Slide = { id: "e", type: "embed", title: "E", url: "https://example.com/frame" };
+    expect(lintDeck(deckOf([e])).some((i) => i.rule === "embed-not-https")).toBe(false);
+  });
+});
