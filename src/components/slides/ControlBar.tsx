@@ -1,4 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
+import { ChevronLeft, ChevronRight, LayoutGrid, Maximize2, Minimize2, Play, Settings as SettingsIcon, Share2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
