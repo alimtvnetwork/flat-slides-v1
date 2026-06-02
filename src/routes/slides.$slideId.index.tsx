@@ -121,6 +121,17 @@ function SlidePage() {
       }
       if (e.key === " " && e.shiftKey) { e.preventDefault(); useTimer.getState().toggle(); return; }
       if (e.key === "?" || e.key === "/") { e.preventDefault(); setHelpOpen((o) => !o); return; }
+      if (e.key === "q" || e.key === "Q") { useAudience.getState().toggleQr(); return; }
+      if (e.key === "v" || e.key === "V") { useAudience.getState().toggleResults(); return; }
+      if (e.key === "y" || e.key === "Y") {
+        const sid = useAudience.getState().sessionId;
+        const url = `${window.location.origin}/slides/${current}?session=${sid}`;
+        navigator.clipboard?.writeText(url).then(
+          () => useChrome.getState().flashToast("Share link copied"),
+          () => useChrome.getState().flashToast("Copy failed"),
+        );
+        return;
+      }
       if (e.key === "g" || e.key === "G") { navigate({ to: "/slides" }); return; }
       if (e.key === "ArrowRight" || e.key === " " || e.key === "Enter") {
         if (slideStepCount(slide) > 1) { goTo(current, "forward", 2); return; }
@@ -152,6 +163,9 @@ function SlidePage() {
       <AnnotationLayer slideId={slide.id} />
       <AnnotationToolbar slideId={slide.id} />
       <TimerOverlay slide={slide} />
+      <PollResultsOverlay slide={slide} />
+      <SharePill current={current} />
+      <QrOverlay />
     </>
   );
 
