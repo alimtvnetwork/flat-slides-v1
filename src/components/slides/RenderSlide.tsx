@@ -239,7 +239,7 @@ function TimelineSlide({ slide, step }: { slide: TimelineSlideProps; step: numbe
               className="slide-heading"
               style={{
                 color: "var(--slide-fg)",
-                fontSize: 96,
+                fontSize: 72,
                 lineHeight: 1.05,
                 letterSpacing: 0,
                 textWrap: "balance",
@@ -250,7 +250,7 @@ function TimelineSlide({ slide, step }: { slide: TimelineSlideProps; step: numbe
             </div>
             {focused?.detail ? (
               <div
-                className="slide-body-lg slide-body-font mx-auto mt-[28px]"
+                className="slide-body slide-body-font mx-auto mt-[28px]"
                 style={{ color: "var(--slide-muted)", maxWidth: 1100 }}
               >
                 <Rich value={focused.detail} />
