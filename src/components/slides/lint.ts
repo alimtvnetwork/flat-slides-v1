@@ -70,6 +70,22 @@ export function lintDeck(deck: Deck): LintIssue[] {
     }
   }
 
+  // Duplicate title detection — warn (not error), since identical titles are
+  // sometimes intentional (e.g. "Demo" / "Demo (cont.)") but usually a copy mistake.
+  const titleSeen = new Map<string, number>();
+  for (let i = 0; i < deck.slides.length; i++) {
+    const s = deck.slides[i];
+    const t = s.title?.trim();
+    if (!t) continue;
+    const prior = titleSeen.get(t);
+    if (prior !== undefined) {
+      push(s, i, "duplicate-title", `Title "${t}" duplicates slide #${prior + 1} — confusing for navigation.`, "warn");
+    } else {
+      titleSeen.set(t, i);
+    }
+  }
+
+
   for (let i = 0; i < deck.slides.length; i++) {
     const s = deck.slides[i];
     if (!s.title?.trim()) push(s, i, "title-missing", "Slide has no title", "error");
