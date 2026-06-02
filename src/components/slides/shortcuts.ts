@@ -47,6 +47,7 @@ export const SHORTCUTS: ShortcutDef[] = [
   { display: "F",       keys: ["f"],                       label: "Edit focus regions",     group: "Presenter" },
   { display: "⌘E",      keys: [],                          label: "Export rehearsal report", group: "Timer" },
   { display: "⌘⇧E",     keys: [],                          label: "Export annotations",     group: "Annotate" },
+  { display: "⌘⇧L",     keys: [],                          label: "Toggle lint panel",      group: "Presenter" },
 ];
 
 export function matchesShortcut(event: KeyboardEvent, def: ShortcutDef): boolean {
