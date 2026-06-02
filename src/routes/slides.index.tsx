@@ -29,6 +29,23 @@ function SlidesOverview() {
         <h1 className="text-2xl font-semibold text-neutral-100">Deck Overview</h1>
         <p className="text-xs text-neutral-500">{enabled.length} active · {slides.length} total</p>
       </div>
+      {slides.length === 0 ? (
+        <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 rounded-2xl border border-dashed border-neutral-800 bg-neutral-950 text-center">
+          <div className="grid h-20 w-20 place-items-center rounded-full bg-neutral-900 text-neutral-500 ring-1 ring-neutral-800">
+            <FileQuestion size={32} />
+          </div>
+          <div className="space-y-1">
+            <p className="text-lg font-semibold text-neutral-200">No slides yet</p>
+            <p className="max-w-sm text-sm text-neutral-500">Import a deck JSON or try the spec sample to get started in seconds.</p>
+          </div>
+          <Link
+            to="/slides/spec"
+            className="inline-flex items-center gap-1.5 rounded-full bg-amber-400 px-4 py-2 text-sm font-semibold text-neutral-900 hover:bg-amber-300"
+          >
+            <Sparkles size={14} /> View JSON spec
+          </Link>
+        </div>
+      ) : (
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {slides.map((s) => {
           const linearIndex = enabled.indexOf(s);
