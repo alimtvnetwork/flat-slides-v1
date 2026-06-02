@@ -18,6 +18,24 @@ export function PresenterNotesPeek({ notes }: { notes?: string }) {
     if (!notes) setOpen(false);
   }, [notes]);
 
+  // "N" toggles the peek (skip while typing).
+  useEffect(() => {
+    if (!notes) return;
+    const onKey = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || (e.target as HTMLElement)?.isContentEditable) return;
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+      if (e.key === "n" || e.key === "N") {
+        e.preventDefault();
+        setOpen((v) => !v);
+      } else if (e.key === "Escape" && open) {
+        setOpen(false);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [notes, open]);
+
   if (!notes) return null;
 
   return (
