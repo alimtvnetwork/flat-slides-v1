@@ -112,12 +112,20 @@ export type Slide =
   | LeftSlideProps
   | CenterSlideProps
   | StepsSlideProps
+  | TimelineSlideProps
   | QuoteSlideProps
   | BulletsSlideProps
   | ImageSlideProps
   | PollSlideProps
   | QaSlideProps
   | EmbedSlideProps;
+
+/** Number of advance-able sub-steps for keyboard / URL step navigation. */
+export function slideStepCount(slide: Slide): number {
+  if (slide.type === "steps") return slide.steps.length;
+  if (slide.type === "timeline") return slide.items.length;
+  return 0;
+}
 
 export type TransitionKind = "camera-zoom" | "morph" | "fade" | "eaten";
 
