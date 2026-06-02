@@ -19,6 +19,18 @@ export interface Theme {
 
 export const THEMES: Theme[] = [
   {
+    id: "snow",
+    name: "Snow (pure white)",
+    bg: "#000000",
+    fg: "#ffffff",
+    muted: "#b8b8b8",
+    hl: "#ffffff",
+    hlInk: "#000000",
+    fontHeading: '"Ubuntu", system-ui, sans-serif',
+    fontBody: '"Poppins", system-ui, sans-serif',
+    fontDisplay: '"Instrument Serif", "Ubuntu", serif',
+  },
+  {
     id: "midnight",
     name: "Midnight",
     bg: "#101010",
