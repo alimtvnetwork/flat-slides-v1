@@ -102,6 +102,8 @@ export const useChrome = create<ChromeStore>()(
       setTopJumperHidden: (v) => set({ topJumperHidden: v }),
       setDotPaginationVisible: (v) => set({ dotPaginationVisible: v }),
       setSlideNumberBadgeVisible: (v) => set({ slideNumberBadgeVisible: v }),
+      setTimerVisible: (v) => set({ timerVisible: v }),
+      toggleTimerVisible: () => set((s) => ({ timerVisible: !s.timerVisible })),
       pushRecentJump: (n) =>
         set((s) => {
           const next = [n, ...s.recentJumps.filter((x) => x !== n)].slice(0, 8);
