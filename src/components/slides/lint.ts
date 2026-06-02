@@ -1,3 +1,4 @@
+import { slideStepCount } from "./types";
 import type { RichText, Slide, Deck } from "./types";
 
 export type LintSeverity = "warn" | "error";
@@ -30,7 +31,6 @@ export function lintDeck(deck: Deck): LintIssue[] {
     }
   }
 
-
   // Collision detection on authored slide.number
   const seen = new Map<number, string>();
   for (let i = 0; i < deck.slides.length; i++) {
@@ -44,6 +44,19 @@ export function lintDeck(deck: Deck): LintIssue[] {
     }
   }
 
+  // Duplicate slide.id check — IDs are the persistence key, collisions break navigation.
+  const idSeen = new Map<string, number>();
+  for (let i = 0; i < deck.slides.length; i++) {
+    const s = deck.slides[i];
+    if (!s.id) continue;
+    const prior = idSeen.get(s.id);
+    if (prior !== undefined) {
+      push(s, i, "duplicate-id", `Slide id "${s.id}" duplicates slide #${prior + 1}`, "error");
+    } else {
+      idSeen.set(s.id, i);
+    }
+  }
+
   for (let i = 0; i < deck.slides.length; i++) {
     const s = deck.slides[i];
     if (!s.title?.trim()) push(s, i, "title-missing", "Slide has no title", "error");
@@ -54,6 +67,18 @@ export function lintDeck(deck: Deck): LintIssue[] {
       push(s, i, "focus-on-list",
         `${s.type} slide has focus regions — lists/quotes/timelines must never zoom (move focus to a companion image slide).`,
         "warn");
+    }
+
+    // Focus region step bound check — `step` must be 1..slideStepCount(slide).
+    const steps = slideStepCount(s);
+    if (Array.isArray(s.focus)) {
+      for (const r of s.focus) {
+        if (typeof r.step === "number" && (r.step < 1 || (steps > 0 && r.step > steps))) {
+          push(s, i, "focus-step-out-of-range",
+            `Focus region targets step ${r.step}, but slide has ${steps || "no"} step${steps === 1 ? "" : "s"}.`,
+            "warn");
+        }
+      }
     }
 
     switch (s.type) {
@@ -88,10 +113,23 @@ export function lintDeck(deck: Deck): LintIssue[] {
         break;
       case "left":
         if (richLen(s.body) > 320) push(s, i, "body-too-long", "Body copy is dense (>320 chars) — consider splitting");
+        if (richLen(s.body) === 0) push(s, i, "body-empty", "Left slide is missing body text", "error");
+        if (richLen(s.heading) === 0) push(s, i, "heading-empty", "Left slide is missing a heading", "error");
         break;
       case "quote":
         if (richLen(s.quote) > 220) push(s, i, "quote-too-long", "Quote is long — trim for impact");
         if (!s.attribution) push(s, i, "quote-no-attribution", "Quote has no attribution");
+        break;
+      case "poll":
+        if (!s.question?.trim()) push(s, i, "poll-no-question", "Poll slide is missing its question", "error");
+        if (!Array.isArray(s.options) || s.options.length < 2)
+          push(s, i, "poll-too-few-options", "Poll needs at least 2 options", "error");
+        else if (s.options.length > 6)
+          push(s, i, "poll-too-many-options", `Poll has ${s.options.length} options (max 6 recommended)`);
+        break;
+      case "qa":
+        if (!s.prompt?.trim())
+          push(s, i, "qa-no-prompt", "Q&A slide has no prompt — audience won't know what to ask");
         break;
       case "image": {
         if (!s.alt?.trim()) push(s, i, "image-alt-missing", "Image is missing alt text (a11y)", "error");
@@ -127,3 +165,38 @@ function looksLikeFilename(s: string): boolean {
   const trimmed = s.trim();
   return FILENAME_RE.test(trimmed) || /^[a-z0-9_\-./]+$/i.test(trimmed) && trimmed.includes("/");
 }
+
+/** Documented list of every rule the linter can emit. Kept in sync by hand
+ *  with the rules above so the LLM guideline / docs can reference it. */
+export const LINT_RULES: ReadonlyArray<{ id: string; severity: LintSeverity; summary: string }> = [
+  { id: "deck-camera-zoom", severity: "warn", summary: 'Deck-level "camera-zoom" transition (use "fade" by default).' },
+  { id: "number-collision", severity: "warn", summary: "Two slides share an authored slide.number." },
+  { id: "duplicate-id", severity: "error", summary: "Two slides share the same id." },
+  { id: "title-missing", severity: "error", summary: "Slide has no title." },
+  { id: "focus-on-list", severity: "warn", summary: "bullets / quote / timeline must not zoom." },
+  { id: "focus-step-out-of-range", severity: "warn", summary: "Focus region targets a non-existent step." },
+  { id: "too-many-bullets", severity: "warn", summary: ">6 bullets on one slide." },
+  { id: "bullet-too-long", severity: "warn", summary: "A bullet exceeds 90 chars." },
+  { id: "heading-empty", severity: "error", summary: "bullets / center / left slide missing heading." },
+  { id: "too-many-steps", severity: "warn", summary: ">7 steps on one slide." },
+  { id: "step-label-missing", severity: "error", summary: "A step has no label." },
+  { id: "step-detail-missing", severity: "error", summary: "A step has no detail text." },
+  { id: "steps-svg-no-focus", severity: "warn", summary: "Steps slide with SVG bg but no focus regions." },
+  { id: "timeline-too-many", severity: "warn", summary: ">6 timeline milestones." },
+  { id: "timeline-empty-item", severity: "error", summary: "Timeline item missing label." },
+  { id: "timeline-no-detail", severity: "warn", summary: "No timeline item has detail text." },
+  { id: "heading-too-long", severity: "warn", summary: "Center heading >80 chars." },
+  { id: "body-empty", severity: "error", summary: "Left slide missing body text." },
+  { id: "body-too-long", severity: "warn", summary: "Body copy >320 chars." },
+  { id: "quote-too-long", severity: "warn", summary: "Quote >220 chars." },
+  { id: "quote-no-attribution", severity: "warn", summary: "Quote has no attribution." },
+  { id: "poll-no-question", severity: "error", summary: "Poll missing question." },
+  { id: "poll-too-few-options", severity: "error", summary: "Poll has <2 options." },
+  { id: "poll-too-many-options", severity: "warn", summary: "Poll has >6 options." },
+  { id: "qa-no-prompt", severity: "warn", summary: "Q&A slide missing prompt." },
+  { id: "image-alt-missing", severity: "error", summary: "Image missing alt text." },
+  { id: "image-alt-filename", severity: "warn", summary: "Image alt text looks like a filename." },
+  { id: "base64-image-large", severity: "warn", summary: "Inline base64 image >200 KB." },
+  { id: "embed-not-https", severity: "error", summary: "Embed URL not https://." },
+];
+
