@@ -82,7 +82,11 @@ function SlidePage() {
         totalSteps={slide.type === "steps" ? slide.steps.length : undefined}
         onOpenSettings={() => setSettingsOpen(true)}
       />
-      <SettingsDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+      <SettingsDrawer
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        currentSlideId={slide.id}
+      />
     </div>
   );
 }
