@@ -54,6 +54,7 @@ interface Props {
   onOpenGrid: () => void;
   onToggleFullscreen: () => void;
   onOpenHelp: () => void;
+  onOpenSettings: () => void;
   isFullscreen: boolean;
 }
 
