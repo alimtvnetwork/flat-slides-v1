@@ -11,6 +11,7 @@ import { PollResultsOverlay } from "@/components/slides/controls/PollResultsOver
 import { QrOverlay } from "@/components/slides/controls/QrOverlay";
 import { SharePill } from "@/components/slides/controls/SharePill";
 import { TimerOverlay } from "@/components/slides/controls/TimerOverlay";
+import { useDeck } from "@/components/slides/store";
 import { useTimer } from "@/components/slides/timer-store";
 import { usePresentationTimer } from "@/components/slides/usePresentationTimer";
 import { CameraBubble } from "@/components/slides/controls/CameraBubble";
