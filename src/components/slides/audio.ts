@@ -13,8 +13,12 @@ function getCtx(): AudioContext | undefined {
 }
 
 /**
- * Synthesize a short downward "whoosh" using filtered noise — avoids
- * shipping a binary asset and works offline.
+ * V4 "faded" whoosh — soft downward swoosh, low-pass-shaped tail so it
+ * doesn't compete with the speaker's voice. Engineered to ride under the
+ * slide transition (~0.5 s) and decay to silence in ~0.9 s total.
+ *
+ * Voice 1: bandpass-swept white noise (the "movement").
+ * Voice 2: parallel low-pass shelf that bleeds in late for the faded tail.
  */
 export function playWhoosh(volume: number) {
   if (typeof window === "undefined") return;
@@ -23,7 +27,8 @@ export function playWhoosh(volume: number) {
   if (!ac) return;
   if (ac.state === "suspended") void ac.resume();
 
-  const duration = 0.55;
+  const t0 = ac.currentTime;
+  const duration = 0.9;
   const bufferSize = Math.floor(ac.sampleRate * duration);
   const noiseBuf = ac.createBuffer(1, bufferSize, ac.sampleRate);
   const data = noiseBuf.getChannelData(0);
@@ -32,21 +37,33 @@ export function playWhoosh(volume: number) {
   const src = ac.createBufferSource();
   src.buffer = noiseBuf;
 
-  const filter = ac.createBiquadFilter();
-  filter.type = "bandpass";
-  filter.Q.value = 0.9;
-  filter.frequency.setValueAtTime(2200, ac.currentTime);
-  filter.frequency.exponentialRampToValueAtTime(280, ac.currentTime + duration);
+  // Voice 1 — bandpass sweep (the "swoosh" body).
+  const bp = ac.createBiquadFilter();
+  bp.type = "bandpass";
+  bp.Q.value = 0.7;
+  bp.frequency.setValueAtTime(2400, t0);
+  bp.frequency.exponentialRampToValueAtTime(220, t0 + 0.55);
 
-  const gain = ac.createGain();
-  const peak = Math.max(0, Math.min(1, volume));
-  gain.gain.setValueAtTime(0.0001, ac.currentTime);
-  gain.gain.exponentialRampToValueAtTime(peak, ac.currentTime + 0.05);
-  gain.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + duration);
+  // Voice 2 — low-pass tail (the "faded" air).
+  const lp = ac.createBiquadFilter();
+  lp.type = "lowpass";
+  lp.Q.value = 0.4;
+  lp.frequency.setValueAtTime(900, t0);
+  lp.frequency.exponentialRampToValueAtTime(180, t0 + duration);
 
-  src.connect(filter).connect(gain).connect(ac.destination);
-  src.start();
-  src.stop(ac.currentTime + duration);
+  // Master gain — soft attack (40 ms), long exponential release.
+  const master = ac.createGain();
+  const peak = Math.max(0, Math.min(1, volume)) * 0.55; // V4: -5 dB vs V3
+  master.gain.setValueAtTime(0.0001, t0);
+  master.gain.exponentialRampToValueAtTime(peak, t0 + 0.04);
+  master.gain.exponentialRampToValueAtTime(peak * 0.25, t0 + 0.45);
+  master.gain.exponentialRampToValueAtTime(0.0001, t0 + duration);
+
+  src.connect(bp).connect(master);
+  src.connect(lp).connect(master);
+  master.connect(ac.destination);
+  src.start(t0);
+  src.stop(t0 + duration);
 }
 
 /** Throttled whoosh that reads current deck settings. */
