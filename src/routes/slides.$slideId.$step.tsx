@@ -33,8 +33,9 @@ function SlideStepPage() {
   }, [slide, index, slides.length]);
 
   useEffect(() => {
-    if (!slide || slide.type !== "steps") return;
-    const last = slide.steps.length - 1;
+    const stepCount = slide ? slideStepCount(slide) : 0;
+    if (!slide || stepCount === 0) return;
+    const last = stepCount - 1;
     const slideParam = String(index + 1);
     const onKey = (e: KeyboardEvent) => {
       if ((e.target as HTMLElement)?.tagName === "INPUT") return;
