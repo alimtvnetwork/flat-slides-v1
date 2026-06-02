@@ -53,3 +53,11 @@
 - Any animated slide surface must keep using `useReducedMotion()`.
 - Settings must be rendered from one source of truth so controls visibly affect the slide canvas.
 - Persist this RCA and task list before implementation so future sessions do not repeat the same partial fix.
+
+## Resolution (B19A)
+- RC1 (split background mechanisms) → ✅ ThemeWrap is now the single source of truth: `resolveBackground(slide, settings)` returns color|image; SlideLayout no longer paints `slide.background`.
+- RC2 (darken/blur not rendered) → ✅ ThemeWrap renders a dedicated bg layer (`filter: blur(Npx)`) and a `rgba(0,0,0,darken/100)` overlay above it but behind content.
+- RC3 (nested scale/3D transforms escaping in fullscreen) → ✅ `.slide-wrapper` now has `overflow:hidden`, `isolation:isolate`, `contain: layout paint` so transition/camera transforms are clipped to the 1920×1080 frame.
+- RC4 (transition zoom + focus camera layering) → ✅ Both routes gate `allowZoom` by `(slide.focus?.length ?? 0) === 0`; camera-zoom transition and per-step CameraStage never stack.
+- RC5 (off-by-one step focus indexing) → ✅ Step route now passes `stepNum + 1` to CameraStage; `getActiveFocusRegion` receives 1-based step as documented.
+- RC6 (no right-side image proposal example) → ✅ Seed deck adds `sajida-visual` (left + media on right) and `focus-demo` (steps slide with per-step focus regions) to prove the camera path.
