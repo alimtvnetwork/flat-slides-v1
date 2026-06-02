@@ -146,7 +146,11 @@ function StepsSlide({ slide, step }: { slide: StepsSlideProps; step: number }) {
             return (
               <li
                 key={i}
-                className="slide-body slide-body-font flex items-start gap-[24px]"
+                role="button"
+                tabIndex={0}
+                onClick={() => jumpToStep(i)}
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); jumpToStep(i); } }}
+                className="slide-body slide-body-font flex items-start gap-[24px] cursor-pointer rounded-[14px] px-[12px] py-[8px] -mx-[12px] -my-[8px] outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--slide-hl)]"
                 style={{
                   opacity: isFocus ? 1 : 0.68,
                   transform: isFocus ? "translateX(12px)" : "translateX(0)",
