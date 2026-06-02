@@ -10,6 +10,8 @@ type Props = {
   step?: number;
   totalSteps?: number;
   onOpenSettings?: () => void;
+  onPresent?: () => void;
+  isPresenting?: boolean;
 };
 
 /**
