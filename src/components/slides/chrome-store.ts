@@ -63,6 +63,9 @@ export interface ChromeStore {
   /** Presenter notes peek panel open (toggled by `N`). Persisted so the
    *  presenter doesn't have to reopen it on every slide. */
   notesPeekOpen: boolean;
+  /** Last theme id the user picked, independent of the active deck.
+   *  Used to default new decks / scratch decks to the user's preference. */
+  lastUsedThemeId: string | null;
   /** Recent jump history (linear positions), most-recent-first, max 8. */
   recentJumps: number[];
   /** Presenter webcam bubble (presenter-local, never exported). */
@@ -83,6 +86,7 @@ export interface ChromeStore {
   toggleFocusEditor: () => void;
   setNotesPeekOpen: (v: boolean) => void;
   toggleNotesPeek: () => void;
+  setLastUsedThemeId: (id: string) => void;
   pushRecentJump: (n: number) => void;
   clearRecentJumps: () => void;
   setCamera: (patch: Partial<CameraState>) => void;
@@ -107,6 +111,7 @@ export const useChrome = create<ChromeStore>()(
       timerVisible: true,
       focusEditorOpen: false,
       notesPeekOpen: false,
+      lastUsedThemeId: null,
       recentJumps: [],
       camera: {
         visible: false,
@@ -134,6 +139,7 @@ export const useChrome = create<ChromeStore>()(
       toggleFocusEditor: () => set((s) => ({ focusEditorOpen: !s.focusEditorOpen })),
       setNotesPeekOpen: (v) => set({ notesPeekOpen: v }),
       toggleNotesPeek: () => set((s) => ({ notesPeekOpen: !s.notesPeekOpen })),
+      setLastUsedThemeId: (id) => set({ lastUsedThemeId: id }),
       pushRecentJump: (n) =>
         set((s) => {
           const next = [n, ...s.recentJumps.filter((x) => x !== n)].slice(0, 8);
@@ -165,6 +171,7 @@ export const useChrome = create<ChromeStore>()(
         slideNumberBadgeVisible: s.slideNumberBadgeVisible,
         timerVisible: s.timerVisible,
         notesPeekOpen: s.notesPeekOpen,
+        lastUsedThemeId: s.lastUsedThemeId,
         camera: { ...s.camera, visible: false },
         music: { ...s.music, playing: false },
         scene: s.scene,

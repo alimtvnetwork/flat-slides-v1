@@ -348,3 +348,29 @@ describe("lintDeck — consecutive-images rule", () => {
     expect(LINT_RULES.some((r) => r.id === "consecutive-images")).toBe(true);
   });
 });
+
+describe("lintDeck — embed pacing rules", () => {
+  const embed = (id: string): Slide => ({ id, type: "embed", title: id, url: "https://example.com" });
+
+  it("flags two consecutive embed slides", () => {
+    const issues = lintDeck(deckOf([embed("a"), embed("b")]));
+    expect(issues.some((i) => i.rule === "consecutive-embeds")).toBe(true);
+  });
+
+  it("flags decks with more than 3 embeds total", () => {
+    const issues = lintDeck(deckOf([embed("a"), center, embed("b"), center, embed("c"), center, embed("d")]));
+    expect(issues.some((i) => i.rule === "embed-too-many-deck")).toBe(true);
+  });
+
+  it("does NOT flag a deck with exactly 3 spaced embeds", () => {
+    const issues = lintDeck(deckOf([embed("a"), center, embed("b"), center, embed("c")]));
+    expect(issues.some((i) => i.rule === "embed-too-many-deck")).toBe(false);
+    expect(issues.some((i) => i.rule === "consecutive-embeds")).toBe(false);
+  });
+
+  it("documents both new rules in LINT_RULES", () => {
+    const ids = LINT_RULES.map((r) => r.id);
+    expect(ids).toContain("consecutive-embeds");
+    expect(ids).toContain("embed-too-many-deck");
+  });
+});

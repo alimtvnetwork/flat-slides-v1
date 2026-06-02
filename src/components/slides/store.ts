@@ -190,6 +190,12 @@ export const useDeck = create<DeckStore>()(
       setDeck: (deck) =>
         set(() => {
           const safeDeck = forceFadeTransition(deck);
+          emitSlidesEvent({
+            type: "deck-load",
+            slideCount: safeDeck.slides.length,
+            deckId: safeDeck.id,
+            title: safeDeck.title,
+          });
           return { deck: safeDeck, themeId: safeDeck.themeId ?? DEFAULT_THEME_ID };
         }),
       addSlide: (slide, index) =>
