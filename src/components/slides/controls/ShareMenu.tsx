@@ -105,6 +105,7 @@ export function ShareMenu({ current, step }: Props) {
             )}
           >
             <MenuItem onClick={copyLink} icon={<Link2 size={13} />} label="Copy deep link" />
+            <MenuItem onClick={copyCleanLink} icon={<Link2 size={13} />} label="Copy slide link (no session)" />
             <MenuItem
               onClick={() => { toggleQr(); setOpen(false); }}
               icon={<QrCode size={13} />}
