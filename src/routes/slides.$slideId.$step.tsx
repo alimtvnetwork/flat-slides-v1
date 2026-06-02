@@ -6,6 +6,7 @@ import { CameraBubble } from "@/components/slides/controls/CameraBubble";
 import { ControllerPill } from "@/components/slides/controls/ControllerPill";
 import { DotPagination } from "@/components/slides/controls/DotPagination";
 import { KeyboardShortcutsDialog } from "@/components/slides/controls/KeyboardShortcutsDialog";
+import { PresenterToast } from "@/components/slides/controls/PresenterToast";
 import { PresenterTopBar } from "@/components/slides/controls/PresenterTopBar";
 import { SlideNumberBadge } from "@/components/slides/controls/SlideNumberBadge";
 import { RenderSlide } from "@/components/slides/RenderSlide";
@@ -40,6 +41,7 @@ function SlideStepPage() {
   const { isFs, toggle: toggleFs, exit: exitFs } = useFullscreen();
   const toggleTopJumper = useChrome((s) => s.toggleTopJumper);
   const toggleCamera = useChrome((s) => s.toggleCamera);
+  const scene = useChrome((s) => s.scene);
   const cycleCameraSize = useChrome((s) => s.cycleCameraSize);
   const toggleMusic = useChrome((s) => s.toggleMusic);
   const cycleScene = useChrome((s) => s.cycleScene);
@@ -120,19 +122,27 @@ function SlideStepPage() {
     />
   );
 
+  const slideOpacity = scene === "cam-only" ? 0.05 : scene === "split" ? 0.75 : 1;
+  const slideStage = (
+    <div style={{ opacity: slideOpacity, transition: "opacity 300ms ease" }} className="absolute inset-0">
+      <ScaledSlide fitPadding={36}>
+        <SlideTransition transitionKey={slide.id} allowZoom={slide.type === "center" && slide.display === true}>
+          <RenderSlide slide={slide} step={stepNum} />
+        </SlideTransition>
+      </ScaledSlide>
+    </div>
+  );
+
   if (isFs) {
     return (
       <div className="fixed inset-0 z-[100] flex flex-col overflow-hidden bg-black">
         <div className="relative min-h-0 flex-1">
-          <ScaledSlide fitPadding={36}>
-            <SlideTransition transitionKey={slide.id} allowZoom={slide.type === "center" && slide.display === true}>
-              <RenderSlide slide={slide} step={stepNum} />
-            </SlideTransition>
-          </ScaledSlide>
+          {slideStage}
           {surfaces}
         </div>
         {controller}
         <CameraBubble />
+        <PresenterToast />
         <KeyboardShortcutsDialog open={helpOpen} onClose={() => setHelpOpen(false)} />
         <SettingsDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} currentSlideId={slide.id} />
       </div>
@@ -142,15 +152,12 @@ function SlideStepPage() {
   return (
     <div className="flex h-screen overflow-hidden flex-col bg-black">
       <div className="relative min-h-0 flex-1">
-        <ScaledSlide fitPadding={36}>
-          <SlideTransition transitionKey={slide.id} allowZoom={slide.type === "center" && slide.display === true}>
-            <RenderSlide slide={slide} step={stepNum} />
-          </SlideTransition>
-        </ScaledSlide>
+        {slideStage}
         {surfaces}
       </div>
       {controller}
       <CameraBubble />
+      <PresenterToast />
       <KeyboardShortcutsDialog open={helpOpen} onClose={() => setHelpOpen(false)} />
       <SettingsDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} currentSlideId={slide.id} />
     </div>
