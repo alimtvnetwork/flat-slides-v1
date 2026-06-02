@@ -81,6 +81,8 @@ function SlidePage() {
         step={slide.type === "steps" ? 0 : undefined}
         totalSteps={slide.type === "steps" ? slide.steps.length : undefined}
         onOpenSettings={() => setSettingsOpen(true)}
+        onPresent={toggleFs}
+        isPresenting={isFs}
       />
       <SettingsDrawer
         open={settingsOpen}
