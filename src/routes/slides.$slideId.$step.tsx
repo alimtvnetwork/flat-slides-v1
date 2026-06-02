@@ -59,6 +59,13 @@ function SlideStepPage() {
   const cycleScene = useChrome((s) => s.cycleScene);
 
   usePresentationTimer();
+  useAudienceSync({
+    slideIndex: current,
+    slideId: slide?.id ?? "",
+    stepNum: stepNum + 1,
+    total,
+    title: slide?.title,
+  });
   useEffect(() => {
     if (!slide) return;
     document.title = `${current}/${total} — ${slide.title}`;
