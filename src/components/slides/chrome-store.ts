@@ -164,6 +164,7 @@ export const useChrome = create<ChromeStore>()(
         dotPaginationVisible: s.dotPaginationVisible,
         slideNumberBadgeVisible: s.slideNumberBadgeVisible,
         timerVisible: s.timerVisible,
+        notesPeekOpen: s.notesPeekOpen,
         camera: { ...s.camera, visible: false },
         music: { ...s.music, playing: false },
         scene: s.scene,
