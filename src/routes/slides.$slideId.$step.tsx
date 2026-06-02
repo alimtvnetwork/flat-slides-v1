@@ -138,6 +138,7 @@ function SlideStepPage() {
       <SlideNumberBadge current={current} total={total} display={slide ? getDisplayNumber(slide, current) : undefined} />
       <AnnotationLayer slideId={slide.id} />
       <AnnotationToolbar slideId={slide.id} />
+      <TimerOverlay slide={slide} />
     </>
   );
 
