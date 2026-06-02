@@ -941,3 +941,16 @@ If all 10 boxes are checked, the deck will import cleanly and present well.
 
 
 
+
+## Linter reference
+
+The deck linter ships **31 rules** (see `LINT_RULES` in
+`src/components/slides/lint.ts`). Errors block a clean import; warnings
+flag pacing/density/a11y smells. Run from CLI with:
+
+```
+bun scripts/lint-deck.ts path/to/deck.json
+```
+
+Press `⌘⇧L` in the editor to toggle the lint panel; click "Rules" inside
+the panel to browse the full rule list with severities.
