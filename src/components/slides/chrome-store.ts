@@ -63,6 +63,9 @@ export interface ChromeStore {
   /** Presenter notes peek panel open (toggled by `N`). Persisted so the
    *  presenter doesn't have to reopen it on every slide. */
   notesPeekOpen: boolean;
+  /** Last theme id the user picked, independent of the active deck.
+   *  Used to default new decks / scratch decks to the user's preference. */
+  lastUsedThemeId: string | null;
   /** Recent jump history (linear positions), most-recent-first, max 8. */
   recentJumps: number[];
   /** Presenter webcam bubble (presenter-local, never exported). */
