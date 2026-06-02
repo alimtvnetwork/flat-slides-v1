@@ -1,5 +1,5 @@
 import { AlertCircle, AlertTriangle, CheckCircle2, ClipboardCopy, Filter, ListTree, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 
 import { LINT_RULES, countIssues, lintDeck } from "./lint";
