@@ -7,6 +7,7 @@ import { CodeJourneyDecor, shouldAutoEnableCodeDecor } from "./decor/CodeJourney
 import { getRegisteredSlideType } from "./registry";
 import { getTheme, themeStyle } from "./themes";
 import { useDeck } from "./store";
+import { useSlideNavigation } from "./useSlideNavigation";
 import { EmbedSlide } from "./widgets/EmbedSlide";
 import { PollSlide } from "./widgets/PollSlide";
 import { QaSlide } from "./widgets/QaSlide";
