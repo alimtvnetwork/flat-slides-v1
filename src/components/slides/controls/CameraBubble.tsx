@@ -297,6 +297,23 @@ export function CameraBubble() {
           <X size={12} />
         </button>
       </div>
+
+      <div
+        data-resize-handle
+        role="slider"
+        aria-label="Resize camera"
+        aria-valuemin={MIN_SIZE}
+        aria-valuemax={MAX_SIZE}
+        aria-valuenow={size}
+        title="Drag to resize · double-click to reset"
+        onPointerDown={onResizeDown}
+        onPointerMove={onResizeMove}
+        onPointerUp={onResizeUp}
+        onPointerCancel={onResizeUp}
+        onDoubleClick={(e) => { e.stopPropagation(); setCameraCustomSize(null); }}
+        style={resizeStyle}
+        className="rounded-sm bg-white/40 hover:bg-white/80 ring-1 ring-black/30"
+      />
     </motion.div>
   );
 
