@@ -90,13 +90,13 @@ export function ControlBar({ slides, index, step, totalSteps, onOpenSettings, on
       className="flex items-center justify-between gap-4 bg-neutral-950 px-6 py-3 text-sm text-neutral-300"
       data-app-chrome
     >
-      <Link to="/slides" className="opacity-70 hover:opacity-100">← Overview</Link>
+      <Link to="/slides" className="inline-flex items-center gap-1 opacity-70 hover:opacity-100"><LayoutGrid size={14} /> Overview</Link>
 
       <div className="flex items-center gap-4">
         {hasPrev ? (
-          <button onClick={goPrev} className="hover:opacity-100">◀ Prev</button>
+          <button onClick={goPrev} aria-label="Previous" className="inline-flex items-center gap-1 hover:opacity-100"><ChevronLeft size={16} /> Prev</button>
         ) : (
-          <span className="opacity-30">◀ Prev</span>
+          <span className="inline-flex items-center gap-1 opacity-30"><ChevronLeft size={16} /> Prev</span>
         )}
 
         {editing ? (
