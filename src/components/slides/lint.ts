@@ -291,5 +291,14 @@ export const LINT_RULES: ReadonlyArray<{ id: string; severity: LintSeverity; sum
   { id: "base64-image-large", severity: "warn", summary: "Inline base64 image >200 KB." },
   { id: "embed-not-https", severity: "error", summary: "Embed URL not https://." },
   { id: "consecutive-quotes", severity: "warn", summary: "Two quote slides back-to-back." },
+  { id: "volume-out-of-range", severity: "warn", summary: "Deck volume outside [0, 1]." },
+  { id: "duplicate-title", severity: "warn", summary: "Two slides share the same title." },
+  { id: "focus-rect-invalid", severity: "error", summary: "Focus rect has w<=0, h<=0, or negative x/y." },
+  { id: "focus-rect-out-of-bounds", severity: "warn", summary: "Focus rect extends past 1920×1080." },
+  { id: "padding-out-of-range", severity: "warn", summary: "Slide padding outside [0, 400]." },
+  { id: "budget-invalid", severity: "warn", summary: "Slide budget <= 0." },
+  { id: "background-not-https", severity: "warn", summary: "Slide background URL uses http://." },
+  { id: "embed-missing-url", severity: "error", summary: "Embed slide has no URL." },
+  { id: "left-media-alt-missing", severity: "warn", summary: "Left-slide media missing alt text." },
 ];
 
