@@ -107,8 +107,8 @@ function SlidePage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-black">
-      <div className="flex-1 relative">
+    <div className="flex h-screen overflow-hidden flex-col bg-black">
+      <div className="relative min-h-0 flex-1">
         <ScaledSlide fitPadding={36}>
           <SlideTransition transitionKey={slide.id} allowZoom={slide.type === "center" && slide.display === true}>
             <RenderSlide slide={slide} step={0} />
