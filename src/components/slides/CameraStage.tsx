@@ -22,15 +22,8 @@ interface Props {
  */
 export function CameraStage({ slide, step, children }: Props) {
   const region = getActiveFocusRegion(slide, step);
-  const [reducedMotion, setReducedMotion] = useState(false);
+  const reducedMotion = useReducedMotion();
 
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReducedMotion(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
-    mq.addEventListener?.("change", handler);
-    return () => mq.removeEventListener?.("change", handler);
-  }, []);
 
   // Default = identity (no zoom).
   let scale = 1;
