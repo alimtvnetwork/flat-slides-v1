@@ -1612,18 +1612,252 @@ Stack: TanStack Start v1 (file routes under `src/routes/`), React 19, Tailwind v
   - Whoosh fires `onAnimationStart` (not on prop change) so React StrictMode double-renders don't double-play (motion fires this once per real animation).
   - Component is **transition-agnostic**: the parent `SlideTransition` (Step 78) decides whether to instantiate this or another transition based on resolved transition name; this component ALWAYS performs the camera-zoom variant.
 - **Acceptance:** Navigating between two slides with `transition: 'camera-zoom'` shows incoming slide flying forward from depth with blur clearing; whoosh plays once; reduced-motion fallback collapses to a 150 ms fade with no sound.
-71. Transient `filter: blur(...)` ramp on incoming slide.
-72. Depth-of-field crossfade on outgoing layer.
-73. Trigger whoosh on transition start when sound on + not reduced-motion.
-74. `<MorphTransition>` — `layoutId` matched elements.
-75. `<FadeTransition>` — 12 px Y translate + opacity.
-76. `<EatenTextTransition>` — per-character mask wipe + scale + blur.
-77. Wire StepsSlide step reveal to chosen transition.
-78. Deck-level default transition applied to slide-to-slide changes.
-79. Reduced-motion fallback (150 ms fade, no audio).
-80. "Preview transition" button in Settings.
-81. Throttle audio (120 ms) to prevent overlap on key spam.
-82. Smoke-test on 60 Hz + 120 Hz.
+
+## Steps 71–80 — Transition Polish, Morph, Fade, Eaten, Step Reveal, Dispatcher, Reduced-Motion, Preview
+
+### Step 71 — Transient blur ramp on incoming slide
+- **Goal:** The camera-zoom feel comes from depth-blur clearing as the slide settles. This step formalizes the ramp curve so all callers stay consistent.
+- **Files:** `src/components/slides/transitions/CameraZoomTransition.tsx` (refine Step 70).
+- **Contract:**
+  - Replace plain `initial.filter: blur(14px) → animate.filter: blur(0px)` with a **2-keyframe** ramp so blur clears sharply in the final 35% of the timeline (sharpening illusion):
+    ```ts
+    animate={{
+      opacity: 1, z: 0, rotateX: 0,
+      filter: ['blur(14px)', 'blur(6px)', 'blur(0px)'],
+    }}
+    transition={{
+      duration: durationMs / 1000, ease: [0.22, 1, 0.36, 1],
+      filter: { times: [0, 0.65, 1], ease: 'easeOut' },   // sharp in last third
+    }}
+    ```
+  - `will-change: filter, transform` set inline (NOT in CSS) for the duration of the animation only — motion adds + removes this automatically when using `style` prop.
+  - Cap blur at `14px` for perf; values above cause Safari to fall off-GPU.
+  - Reduced-motion path: skip the ramp entirely (`filter: 'blur(0px)'` static).
+- **Acceptance:** Filming the transition at 60 fps shows blur visibly clearing in the last ~250 ms of a 720 ms transition; no jank on integrated GPUs.
+
+### Step 72 — Depth-of-field crossfade on outgoing layer
+- **Goal:** Outgoing slide softens + drifts away while incoming pushes in, reinforcing the depth effect (instead of a hard cut).
+- **Files:** `CameraZoomTransition.tsx` — extend `exit` variant.
+- **Contract:**
+  ```ts
+  exit={{
+    opacity: 0, z: 220, rotateX: -2,
+    filter: ['blur(0px)', 'blur(8px)'],
+    scale: 1.03,                              // very subtle push toward camera as it fades
+  }}
+  transition={{ duration: (durationMs * 0.7) / 1000, ease: [0.4, 0, 1, 1] /* easeInQuad */ }}
+  ```
+  - Outgoing transition is shorter (70% of incoming) so the new slide gets the dominant timeline.
+  - `mode="wait"` (Step 70) still applies: outgoing fully completes before incoming starts → no Z-fighting.
+  - On reduced-motion: outgoing collapses to `opacity: 0` over 150 ms with no transforms.
+  - Z-index discipline: outgoing layer gets `zIndex: 1`, incoming `zIndex: 2` (inline) so during the brief overlap window the new slide is on top.
+- **Acceptance:** Slow-mo capture shows outgoing dimming + softening + lifting forward; incoming arrives sharp on top; no flicker between them.
+
+### Step 73 — Whoosh trigger on transition start
+- **Goal:** Sound cue plays exactly once per camera-zoom transition; respects deck sound setting AND reduced-motion.
+- **Files:** `src/components/slides/audio.ts` (already exists from prior batch) + `CameraZoomTransition.tsx`.
+- **Contract:**
+  ```ts
+  // audio.ts public surface
+  export function playWhoosh(opts?: { force?: boolean }): void;   // honors throttle unless force
+  export function triggerWhoosh(): void;                          // alias for `playWhoosh()` (no force)
+  ```
+  - `triggerWhoosh()` reads `useDeck.getState().deck.settings.{isSoundEnabled, volume}` at call time. If `!isSoundEnabled` → return early. If `useReducedMotionMatchMedia()` → return early.
+  - Source: attempt `new Audio('/assets/audio/whoosh.mp3')` first; on `error` fall back to synthesized whoosh (filtered noise, ~280 ms envelope). Synthesized path documented in Step 5.
+  - `GainNode.gain.value = volume / 100`.
+  - Throttle implemented in Step 81 (120 ms) — calls within the window are dropped silently (no error).
+  - ONLY `CameraZoomTransition` calls `triggerWhoosh()`. Morph/Fade/Eaten transitions do NOT play sound (visual is enough).
+  - StepsSlide row reveal also calls `triggerWhoosh()` BUT only when deck transition is `camera-zoom` (Step 39).
+- **Acceptance:** Sound enabled + `transition: 'camera-zoom'` → whoosh plays per nav; switching to `fade` → silent; toggle OS reduce-motion → silent.
+
+### Step 74 — `<MorphTransition>` — shared layoutId
+- **Goal:** When consecutive slides share a labeled element (e.g., the title text or a number badge), morph between their positions instead of fade.
+- **Files:** `src/components/slides/transitions/MorphTransition.tsx`.
+- **Contract:**
+  ```tsx
+  export function MorphTransition({ transitionKey, children }: Props) {
+    const reduce = useReducedMotion();
+    return (
+      <AnimatePresence mode="popLayout" initial={false}>
+        <motion.div
+          key={transitionKey}
+          style={{ position: 'absolute', inset: 0 }}
+          initial={{ opacity: 0, scale: 0.96, y: 12 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit   ={{ opacity: 0, scale: 1.04, y: -12 }}
+          transition={{ duration: (reduce ? 150 : 450) / 1000, ease: [0.22, 1, 0.36, 1] }}
+        >
+          {children}
+        </motion.div>
+      </AnimatePresence>
+    );
+  }
+  ```
+  - `mode="popLayout"` (not `wait`) so motion can match `layoutId`s across the boundary — the morph magic.
+  - Slide authors opt-in by tagging shared elements:
+    ```tsx
+    <motion.h1 layoutId={`title-${someStableKey}`} className="slide-title">…</motion.h1>
+    ```
+    where `someStableKey` is consistent across slides that should morph (e.g., section name).
+  - When no `layoutId` matches, behavior degrades to the scale+fade above — never broken.
+  - Documented in `spec/README.md` § Animations: "Add `layoutId` to elements you want to morph; otherwise Morph behaves like enhanced Fade."
+- **Acceptance:** Two consecutive `center` slides with same `layoutId="hero-title"` on their `<h1>` show the title gliding from old position/size to new; no flash.
+
+### Step 75 — `<FadeTransition>` — opacity + 12 px Y lift
+- **Goal:** Default safe fallback transition; cheapest to render; the reduced-motion target for all other transitions.
+- **Files:** `src/components/slides/transitions/FadeTransition.tsx`.
+- **Contract:**
+  ```tsx
+  export function FadeTransition({ transitionKey, children }: Props) {
+    const reduce = useReducedMotion();
+    const dur = reduce ? 150 : 300;
+    return (
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.div
+          key={transitionKey}
+          style={{ position: 'absolute', inset: 0 }}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit   ={{ opacity: 0, y: -12 }}
+          transition={{ duration: dur / 1000, ease: 'easeOut' }}
+        >
+          {children}
+        </motion.div>
+      </AnimatePresence>
+    );
+  }
+  ```
+  - No depth, no blur, no audio — strictly visual.
+  - `mode="wait"` keeps semantics consistent with CameraZoom (no overlap weirdness).
+  - Y-lift is decorative: incoming rises 12 px, outgoing exits 12 px upward.
+  - At reduce-motion, Y still applies (12 px is below the perceptible threshold for most reduce-motion users) BUT duration drops to 150 ms — no sustained motion.
+- **Acceptance:** Setting deck transition to `fade` produces a soft, fast 300 ms crossfade with subtle lift; reduce-motion halves duration.
+
+### Step 76 — `<EatenTextTransition>` — per-character dissolve
+- **Goal:** Editorial transition where outgoing text "gets eaten" left-to-right, then incoming pops in. Suits quote slides and big-headline center slides.
+- **Files:** `src/components/slides/transitions/EatenTextTransition.tsx`.
+- **Contract:**
+  ```tsx
+  export function EatenTextTransition({ transitionKey, children }: Props) {
+    const reduce = useReducedMotion();
+    if (reduce) return <FadeTransition transitionKey={transitionKey}>{children}</FadeTransition>;
+    return (
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.div
+          key={transitionKey}
+          style={{ position: 'absolute', inset: 0 }}
+          initial={{ opacity: 0, scale: 1.06, x: 80, filter: 'blur(6px)' }}
+          animate={{ opacity: 1, scale: 1.00, x: 0,  filter: 'blur(0px)' }}
+          exit   ={{ opacity: 0, scale: 0.60, x: -200, filter: 'blur(14px)',
+                     clipPath: 'inset(0 0 0 100%)' }}
+          transition={{ duration: 0.55, ease: [0.7, 0, 0.2, 1] }}
+        >
+          {children}
+        </motion.div>
+      </AnimatePresence>
+    );
+  }
+  ```
+  - The "eaten" illusion comes from `clipPath: inset(0 0 0 100%)` on exit — clips from the LEFT edge inward, animated. Combined with x-shift left + scale-down + blur it reads as the words being chewed away.
+  - Reduce-motion falls back to `<FadeTransition>` (no clip-path, no scale, no shake).
+  - `cubic-bezier(0.7, 0, 0.2, 1)` (smoother in-out) avoids the "snap" feeling.
+- **Acceptance:** Eaten transition on quote slide → outgoing text dissolves leftward; incoming pops in from the right side with brief blur clearing.
+
+### Step 77 — Wire StepsSlide step reveal to chosen transition
+- **Goal:** Step reveal (Step 39) uses the SAME 4 transition variants the deck does — single source of truth for animation feel.
+- **Files:** `src/components/slides/types/StepsSlide.tsx` (refine).
+- **Contract:**
+  - Add `stepVariants` map keyed by `TransitionName`:
+    ```ts
+    const STEP_VARIANTS: Record<TransitionName, { hidden: any; revealed: any; transition: any }> = {
+      'camera-zoom': {
+        hidden:   { opacity: 0, z: -180, filter: 'blur(8px)' },
+        revealed: { opacity: 1, z: 0,    filter: 'blur(0px)' },
+        transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] },
+      },
+      morph: {
+        hidden:   { opacity: 0, scale: 0.96, y: 12 },
+        revealed: { opacity: 1, scale: 1,    y: 0 },
+        transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
+      },
+      fade: {
+        hidden:   { opacity: 0, y: 12 },
+        revealed: { opacity: 1, y: 0 },
+        transition: { duration: 0.25, ease: 'easeOut' },
+      },
+      eaten: {
+        hidden:   { opacity: 0, x: -60, filter: 'blur(6px)' },
+        revealed: { opacity: 1, x: 0,   filter: 'blur(0px)' },
+        transition: { duration: 0.4, ease: [0.7, 0, 0.2, 1] },
+      },
+    };
+    ```
+  - Resolve at render: `const v = STEP_VARIANTS[slide.transitionIn ?? deck.settings.transition]`.
+  - "Unrevealed" (steps > current) stay at 35% opacity with NO movement — keeps reading order obvious without distraction.
+  - Whoosh on step reveal: only when `transition === 'camera-zoom'` AND `!reduce` AND `index === currentStep` (new step only).
+- **Acceptance:** Switching deck transition while on a steps slide and pressing `→` uses the corresponding variant; reveals don't re-animate already-revealed rows.
+
+### Step 78 — Deck-level `<SlideTransition>` dispatcher
+- **Goal:** Single component picks the right transition component based on resolved transition name + reduced-motion.
+- **Files:** `src/components/slides/SlideTransition.tsx` (existing — finalize).
+- **Contract:**
+  ```tsx
+  type Props = { transitionKey: string; transitionIn?: TransitionName; children: ReactNode };
+  export function SlideTransition({ transitionKey, transitionIn, children }: Props) {
+    const reduce = useReducedMotion();
+    const deckTransition = useDeck(s => s.deck.settings.transition);
+    const name: TransitionName = reduce ? 'fade' : (transitionIn ?? deckTransition);
+    switch (name) {
+      case 'camera-zoom': return <CameraZoomTransition transitionKey={transitionKey}>{children}</CameraZoomTransition>;
+      case 'morph':       return <MorphTransition       transitionKey={transitionKey}>{children}</MorphTransition>;
+      case 'eaten':       return <EatenTextTransition   transitionKey={transitionKey}>{children}</EatenTextTransition>;
+      case 'fade':
+      default:            return <FadeTransition        transitionKey={transitionKey}>{children}</FadeTransition>;
+    }
+  }
+  ```
+  - Reduced-motion takes priority over per-slide and deck overrides — accessibility is non-negotiable.
+  - `transitionKey` discipline (Step 51): `slideId` for whole slide; `${slideId}:${stepNum}` for step changes. This drives `AnimatePresence` mount/unmount diff.
+  - Dispatcher is the ONLY place transition selection happens — slide/step routes never instantiate transition components directly.
+  - Treeshake-safe: each transition is a separate file (Steps 70–76); only the active one is in the React tree at runtime.
+- **Acceptance:** Changing `deck.settings.transition` in DevTools immediately flips which transition variant the next nav uses; reduced-motion always forces fade.
+
+### Step 79 — Reduced-motion fallback path (consolidated)
+- **Goal:** Single audit point that confirms every transition + step reveal + audio path respects `prefers-reduced-motion`.
+- **Files:** Audit checklist documented in `spec/README.md` § Reduced motion.
+- **Contract — checklist (each MUST be true):**
+  1. `SlideTransition` (Step 78) forces `'fade'` regardless of override.
+  2. `FadeTransition` duration drops to 150 ms.
+  3. `CameraZoomTransition` is never instantiated under reduce-motion (skipped by dispatcher).
+  4. `EatenTextTransition` early-returns to `FadeTransition`.
+  5. `MorphTransition` reduces duration to 150 ms.
+  6. `StepsSlide` row reveals use the `fade` variant at 150 ms.
+  7. `audio.ts.triggerWhoosh()` early-returns when `matchMedia('(prefers-reduced-motion: reduce)').matches`.
+  8. CSS layer (Step 14) zeroes `.slide-anim-*` classes.
+  9. `useFullscreen` cursor-hide still applies (not a motion concern).
+  10. ControlBar fade-on-idle keeps its 200 ms opacity transition (under perceptible-motion threshold).
+- **Manual test:** macOS System Settings → Accessibility → Display → Reduce motion → reload `/slides/intro` → arrow through whole deck → no 3D, no blur, no audio, all transitions are 150 ms fades.
+- **Acceptance:** All 10 items verified by running the manual test; record outcome in `spec/README.md`.
+
+### Step 80 — "Preview transition" button in Settings
+- **Goal:** Let users feel a transition without leaving the drawer or navigating slides.
+- **Files:** `src/components/slides/settingsUiStore.ts` (extend) + `src/components/slides/SlideTransition.tsx` (extend) + `TransitionSection.tsx` (Step 66).
+- **Contract:**
+  - Add `previewTick: number; bumpPreview(): void` to a Zustand store (can live in settingsUiStore or a new `previewStore`):
+    ```ts
+    export const usePreview = create<{ tick: number; bump: () => void }>()(set => ({
+      tick: 0, bump: () => set(s => ({ tick: s.tick + 1 })),
+    }));
+    ```
+  - `SlideTransition` composes `transitionKey` with preview tick:
+    ```ts
+    const tick = usePreview(s => s.tick);
+    const finalKey = `${transitionKey}#${tick}`;
+    ```
+  - Clicking "Preview transition" calls `usePreview.getState().bump()` → key changes → `AnimatePresence` replays current transition on current slide without nav.
+  - Throttled to once per 600 ms (button disabled during) to avoid stacked replays.
+  - Works on grid view too: bump still runs, but only mounted `SlideTransition` instances replay (i.e., none on grid → silent no-op + toast.info).
+- **Acceptance:** Open Settings, change transition to `eaten`, click Preview → current slide replays the eaten transition; click again within 600 ms → disabled.
 
 ### I. Export Pipeline (83–92)
 83. `?print` layout — all slides stacked vertically 1920×1080.
