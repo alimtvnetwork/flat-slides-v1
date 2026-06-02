@@ -43,7 +43,10 @@ function SlidePage() {
   const { isFs, toggle: toggleFs, exit: exitFs } = useFullscreen();
   const toggleTopJumper = useChrome((s) => s.toggleTopJumper);
   const toggleCamera = useChrome((s) => s.toggleCamera);
+  const cycleCameraSize = useChrome((s) => s.cycleCameraSize);
   const toggleMusic = useChrome((s) => s.toggleMusic);
+  const cycleScene = useChrome((s) => s.cycleScene);
+  const scene = useChrome((s) => s.scene);
 
   useEffect(() => {
     if (!slide) return;
@@ -61,9 +64,13 @@ function SlidePage() {
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (e.key === "F5") { e.preventDefault(); toggleFs(); return; }
       if (e.key === "Escape" && isFs) { exitFs(); return; }
+      if (e.shiftKey && (e.key === "ArrowLeft" || e.key === "ArrowRight" || e.key === "ArrowUp" || e.key === "ArrowDown")) return;
+      if (e.shiftKey && (e.key === "c" || e.key === "C")) { cycleCameraSize(); return; }
       if (e.key === "j" || e.key === "J") { toggleTopJumper(); return; }
       if (e.key === "c" || e.key === "C") { toggleCamera(); return; }
       if (e.key === "m" || e.key === "M") { toggleMusic(); return; }
+      if (e.key === "s" || e.key === "S") { cycleScene(); return; }
+      if (e.key === "p" || e.key === "P") { window.dispatchEvent(new CustomEvent("slides:camera-pip")); return; }
       if (e.key === "?" || e.key === "/") { e.preventDefault(); setHelpOpen((o) => !o); return; }
       if (e.key === "g" || e.key === "G") { navigate({ to: "/slides" }); return; }
       if (e.key === "ArrowRight" || e.key === " " || e.key === "Enter") {
@@ -75,7 +82,7 @@ function SlidePage() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [slide, current, next, prev, goTo, isFs, toggleFs, exitFs, toggleTopJumper, toggleCamera, toggleMusic, navigate]);
+  }, [slide, current, next, prev, goTo, isFs, toggleFs, exitFs, toggleTopJumper, toggleCamera, cycleCameraSize, toggleMusic, cycleScene, navigate]);
 
   if (!slide) {
     return (
