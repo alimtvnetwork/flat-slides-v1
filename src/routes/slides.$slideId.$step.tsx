@@ -84,7 +84,7 @@ function SlideStepPage() {
       <div className="fixed inset-0 z-[100] flex flex-col bg-black">
         <div className="relative flex-1">
           <ScaledSlide>
-            <SlideTransition transitionKey={`${slide.id}:${stepNum}`}>
+            <SlideTransition transitionKey={slide.id}>
               <RenderSlide slide={slide} step={stepNum} />
             </SlideTransition>
           </ScaledSlide>
@@ -111,7 +111,7 @@ function SlideStepPage() {
     <div className="flex min-h-screen flex-col bg-black">
       <div className="flex-1 relative">
         <ScaledSlide>
-          <SlideTransition transitionKey={`${slide.id}:${stepNum}`}>
+          <SlideTransition transitionKey={slide.id}>
             <RenderSlide slide={slide} step={stepNum} />
           </SlideTransition>
         </ScaledSlide>
