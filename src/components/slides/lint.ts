@@ -467,3 +467,20 @@ export const LINT_RULES: ReadonlyArray<{ id: string; severity: LintSeverity; sum
   { id: "slide-sound-volume-out-of-range", severity: "warn", summary: "Per-slide sound.volume outside [0, 1]." },
 ];
 
+/** Pure deck stats — counts by slide type plus totals. Used by overview UIs and analytics. */
+export function deckStats(deck: Deck): {
+  total: number;
+  byType: Record<string, number>;
+  withFocus: number;
+  withBackground: number;
+} {
+  const byType: Record<string, number> = {};
+  let withFocus = 0;
+  let withBackground = 0;
+  for (const s of deck.slides) {
+    byType[s.type] = (byType[s.type] ?? 0) + 1;
+    if (Array.isArray(s.focus) && s.focus.length > 0) withFocus++;
+    if (typeof s.background === "string" && s.background.length > 0) withBackground++;
+  }
+  return { total: deck.slides.length, byType, withFocus, withBackground };
+}

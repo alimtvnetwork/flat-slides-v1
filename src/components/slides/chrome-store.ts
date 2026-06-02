@@ -89,6 +89,7 @@ export interface ChromeStore {
   setLastUsedThemeId: (id: string) => void;
   pushRecentJump: (n: number) => void;
   clearRecentJumps: () => void;
+  setRecentJumps: (jumps: number[]) => void;
   setCamera: (patch: Partial<CameraState>) => void;
   toggleCamera: () => void;
   cycleCameraSize: () => void;
