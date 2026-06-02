@@ -389,5 +389,8 @@ export const LINT_RULES: ReadonlyArray<{ id: string; severity: LintSeverity; sum
   { id: "left-media-alt-missing", severity: "warn", summary: "Left-slide media missing alt text." },
   { id: "music-url-not-https", severity: "warn", summary: "Deck music URL must be https:// or absolute path." },
   { id: "music-volume-out-of-range", severity: "warn", summary: "Deck music volume outside [0, 1]." },
+  { id: "slide-sound-url-invalid", severity: "error", summary: "Per-slide sound.url is empty or not a string." },
+  { id: "slide-sound-url-not-https", severity: "warn", summary: "Per-slide sound.url must be https:// or absolute path." },
+  { id: "slide-sound-volume-out-of-range", severity: "warn", summary: "Per-slide sound.volume outside [0, 1]." },
 ];
 
