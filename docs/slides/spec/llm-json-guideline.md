@@ -112,7 +112,11 @@ Every slide object (regardless of `type`) supports this base shape. **`id`,
   "enabled": true,                  // false ⇒ skipped from nav & totals
   "number": 7,                      // optional authored badge number 0..9999
   "budget": 45,                     // target dwell time in seconds (1..3600)
-  "focus": [ /* FocusRegion[] — see §7 */ ]
+  "focus": [ /* FocusRegion[] — see §7 */ ],
+  "sound": {                        // optional per-slide cue, plays on enter
+    "url": "/sounds/ding.mp3",      // https:// OR absolute path under /public
+    "volume": 0.5                   // 0..1, gated by deck `soundEnabled`
+  }
 }
 ```
 
