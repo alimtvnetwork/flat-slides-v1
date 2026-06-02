@@ -4,6 +4,7 @@ import { persist } from "zustand/middleware";
 import { DeckSchema } from "@/lib/slides/schema";
 import { DECK_SCHEMA_VERSION } from "@/lib/slides/version";
 
+import { useChrome } from "./chrome-store";
 import { emitSlidesEvent } from "./telemetry";
 import { DEFAULT_THEME_ID } from "./themes";
 import type { Deck, DeckSettings, Slide } from "./types";
