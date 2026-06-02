@@ -217,6 +217,10 @@ export function CameraBubble() {
         )}
       />
 
+      {(scene === "cam-only" || stageFill) && (
+        <CameraPlate variant={stageFill ? "stage" : "squircle"} />
+      )}
+
       {status !== "active" && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-black/70 px-2 text-center text-[11px] text-white">
           {status === "requesting" && (
