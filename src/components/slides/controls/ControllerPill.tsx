@@ -9,6 +9,7 @@ import { useChrome } from "@/components/slides/chrome-store";
 import { cn } from "@/lib/utils";
 
 import { MusicToggle } from "./MusicToggle";
+import { ShareMenu } from "./ShareMenu";
 import { SlideIndicator } from "./SlideIndicator";
 import { ThemeChip } from "./ThemeChip";
 
