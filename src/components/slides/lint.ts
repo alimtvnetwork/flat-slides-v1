@@ -68,6 +68,18 @@ export function lintDeck(deck: Deck): LintIssue[] {
         "warn");
     }
 
+    // Focus region step bound check — `step` must be 1..slideStepCount(slide).
+    const steps = slideStepCount(s);
+    if (Array.isArray(s.focus)) {
+      for (const r of s.focus) {
+        if (typeof r.step === "number" && (r.step < 1 || (steps > 0 && r.step > steps))) {
+          push(s, i, "focus-step-out-of-range",
+            `Focus region targets step ${r.step}, but slide has ${steps || "no"} step${steps === 1 ? "" : "s"}.`,
+            "warn");
+        }
+      }
+    }
+
     switch (s.type) {
       case "bullets":
         if (s.bullets.length > 6) push(s, i, "too-many-bullets", `${s.bullets.length} bullets (max 6 recommended)`);
