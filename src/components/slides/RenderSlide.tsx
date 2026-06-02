@@ -295,18 +295,31 @@ function TimelineSlide({ slide, step }: { slide: TimelineSlideProps; step: numbe
               }}
             />
             <div
-              className="slide-caption slide-body-font absolute text-center"
+              className="slide-body-font absolute text-center"
               style={{
-                left: cx - 120,
+                left: cx - 140,
                 top: railY + 28,
-                width: 240,
+                width: 280,
                 color: isFocus ? "var(--slide-fg)" : "color-mix(in oklab, var(--slide-fg) 58%, var(--slide-muted))",
-                opacity: isFocus ? 1 : 0.66,
-                fontWeight: isFocus ? 600 : 400,
+                opacity: isFocus ? 1 : 0.55,
                 transition: "opacity 350ms ease, color 350ms ease",
               }}
             >
-              {it.label}
+              <div className="slide-caption" style={{ fontWeight: isFocus ? 700 : 500 }}>
+                {it.label}
+              </div>
+              {it.title ? (
+                <div
+                  className="slide-caption mt-[6px]"
+                  style={{
+                    fontSize: 20,
+                    opacity: isFocus ? 0.9 : 0.7,
+                    color: "color-mix(in oklab, var(--slide-fg) 70%, var(--slide-muted))",
+                  }}
+                >
+                  {it.title}
+                </div>
+              ) : null}
             </div>
           </div>
         );
