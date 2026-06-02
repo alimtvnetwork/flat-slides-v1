@@ -374,6 +374,20 @@ function TimelineSlide({ slide, step }: { slide: TimelineSlideProps; step: numbe
                 </div>
               ) : null}
             </div>
+            <button
+              type="button"
+              aria-label={`Jump to ${it.label}`}
+              onClick={() => jumpToStep(i)}
+              className="absolute cursor-pointer rounded-[14px] outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--slide-hl)]"
+              style={{
+                left: cx - 140,
+                top: railY - 40,
+                width: 280,
+                height: 180,
+                background: "transparent",
+                border: "none",
+              }}
+            />
           </div>
         );
       })}
