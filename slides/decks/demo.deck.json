@@ -2,7 +2,7 @@
   "id": "demo",
   "title": "Glasswing Demo",
   "themeId": "midnight",
-  "version": 1,
+  "version": 2,
   "settings": {
     "backgroundMode": "color",
     "backgroundColor": "#101010",

@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 import { DeckSchema } from "@/lib/slides/schema";
+import { DECK_SCHEMA_VERSION } from "@/lib/slides/version";
 
 import { DEFAULT_THEME_ID } from "./themes";
 import type { Deck, DeckSettings, Slide } from "./types";
@@ -15,8 +16,6 @@ const defaultSettings: DeckSettings = {
   soundEnabled: true,
   volume: 0.6,
 };
-
-const DECK_VERSION = 2;
 
 const seedSlides: Slide[] = [
   {
@@ -103,7 +102,7 @@ const defaultDeck: Deck = {
   themeId: DEFAULT_THEME_ID,
   slides: seedSlides,
   settings: defaultSettings,
-  version: DECK_VERSION,
+  version: DECK_SCHEMA_VERSION,
 };
 
 function getUsablePersistedDeck(value: unknown): Pick<DeckStore, "deck" | "themeId"> | null {
@@ -112,7 +111,7 @@ function getUsablePersistedDeck(value: unknown): Pick<DeckStore, "deck" | "theme
 
   const parsed = DeckSchema.safeParse(state.deck);
   if (!parsed.success) return null;
-  if ((parsed.data.version ?? 1) !== DECK_VERSION) return null;
+  if ((parsed.data.version ?? 1) !== DECK_SCHEMA_VERSION) return null;
 
   return {
     deck: parsed.data as Deck,

@@ -26,7 +26,7 @@ A deck file looks like:
   "id": "my-deck",
   "title": "My Deck",
   "themeId": "midnight",
-  "version": 1,
+  "version": 2,
   "settings": { /* see §4 */ },
   "slides":   [ /* see §5 */ ]
 }
@@ -248,7 +248,7 @@ Generated decks **must** respect:
   "id": "demo",
   "title": "Demo Deck",
   "themeId": "midnight",
-  "version": 1,
+  "version": 2,
   "settings": {
     "backgroundMode":  "color",
     "backgroundColor": "#101010",
