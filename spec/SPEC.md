@@ -482,15 +482,224 @@ Stack: TanStack Start v1 (file routes under `src/routes/`), React 19, Tailwind v
   - Errors surface as `toast.error(err.message)` at call site, not inside helpers.
 - **Acceptance:** Export → import round-trip yields a deep-equal `Deck` (modulo `updatedAt` being refreshed on import).
 
-### E. Slide Type Components (33–48)
-33. `LeftSlide.tsx` — 45/55 split, media slot right.
-34. Vertical centering, optional kicker above heading, configurable left padding.
-35. `CenterTextSlide.tsx` — centered headline + optional subtitle + inline Highlight.
-36. Auto-detect `<Highlight pill>` children and render pill variant.
-37. `StepsSlide.tsx` — accepts `steps: string[]` (max 5).
-38. Read `step` URL param; render steps `[0..step]` visible.
-39. Animate newly revealed step per deck transition setting.
-40. `QuoteSlide.tsx` — large quote glyph, attribution, optional avatar squircle.
+## Steps 31–40 — Seed Deck, Reducer Tests, Slide Type Components A–D
+
+### Step 31 — Seed example deck reproducing the three sample thumbnails
+- **Goal:** First-run users see a populated deck that visually matches `/spec/01..03-sample.*` so the engine is testable end-to-end without authoring.
+- **Files:** `src/components/slides/seed.ts`.
+- **Contract:**
+  ```ts
+  import type { Deck } from './types';
+  import { DEFAULT_SETTINGS } from './types';
+
+  export const SEED_DECK: Deck = {
+    id: 'sample-deck',
+    title: 'Sample Deck',
+    version: 1,
+    createdAt: 0, updatedAt: 0,
+    settings: { ...DEFAULT_SETTINGS, transition: 'camera-zoom' },
+    slides: [
+      { id: 'intro', type: 'left',
+        props: { kicker: 'Riseup Asia', title: 'Build like you mean it.',
+                 subtitle: 'A field guide for founders shipping under pressure.',
+                 media: { kind: 'image', src: '/assets/samples/01-sample.webp', alt: 'cover' } },
+        notes: 'Opens the workshop. 60s.' },
+      { id: 'principles', type: 'center',
+        props: { title: 'Move fast — finish faster.',
+                 highlight: { text: 'finish faster', pill: true } },
+        notes: 'Land the core idea before anything else.' },
+      { id: 'process', type: 'steps',
+        props: { title: 'How we ship',
+                 steps: ['Draft in public', 'Cut scope twice', 'Ship to one user', 'Measure, then learn', 'Repeat weekly'] },
+        notes: 'Walk each step; pause after step 3.' },
+      { id: 'quote', type: 'quote',
+        props: { quote: 'Done is the engine of more.',
+                 author: 'Bre Pettis & Kio Stark', role: 'The Cult of Done Manifesto' } },
+    ],
+  };
+  ```
+  - `createdAt` / `updatedAt` filled by store on first hydrate (so seeded decks don't ship hard-coded timestamps).
+  - Seed deck is **read-only template**: when store hydrates from empty storage, it clones via `structuredClone(SEED_DECK)` and assigns timestamps.
+- **Acceptance:** Cold load of `/slides/intro` shows the cover; `/slides/principles` shows the yellow pill behind "finish faster"; `/slides/process` shows 5 steps; `/slides/quote` shows the quote slide.
+
+### Step 32 — Vitest reducer tests for store
+- **Goal:** Lock the contract of `add / delete / reorder / duplicate / updateSlide` against regressions.
+- **Files:** `src/components/slides/store.test.ts`.
+- **Contract — minimum cases:**
+  ```ts
+  describe('useDeck reducers', () => {
+    test('addSlide appends by default and bumps updatedAt', …);
+    test('addSlide(atIndex) inserts at the given position', …);
+    test('addSlide rejects duplicate id by auto-suffixing -2', …);
+    test('deleteSlide removes by id; leaves order stable', …);
+    test('deleteSlide on last remaining slide is a no-op + warns', …);
+    test('reorder(from,to) preserves length and other items', …);
+    test('reorder out-of-range clamps without throwing', …);
+    test('duplicate(id) inserts copy directly after source with new id', …);
+    test('updateSlide(id, patch) deep-merges props', …);
+    test('replaceDeck swaps entire deck and bumps updatedAt', …);
+  });
+  ```
+  - Each test resets store via `useDeck.setState({ deck: structuredClone(SEED_DECK) })`.
+  - Use `vi.useFakeTimers()` to assert `updatedAt` advances exactly once per action.
+  - Last-slide deletion: assert `console.warn` called via `vi.spyOn(console, 'warn')`.
+- **Acceptance:** `bunx vitest run src/components/slides/store.test.ts` → 10 passing.
+
+### Step 33 — `LeftSlide.tsx` — Type A
+- **Goal:** Match `01-sample.webp`: large heading on the left ~45% column, media in the right ~55% column.
+- **Files:** `src/components/slides/types/LeftSlide.tsx`.
+- **Contract:**
+  ```tsx
+  type Props = LeftProps & { theme?: 'light'|'dark'; chrome?: { topLeft?: ReactNode; topRight?: ReactNode; bottomLeft?: ReactNode; bottomRight?: ReactNode } };
+  export function LeftSlide({ kicker, title, subtitle, media, theme, chrome }: Props) {
+    return (
+      <SlideLayout theme={theme} {...chrome}>
+        <div className="grid h-full" style={{ gridTemplateColumns: '45fr 55fr', gap: 64 }}>
+          <div className="flex flex-col justify-center">
+            {kicker && <div className="slide-kicker mb-6 text-slide-muted">{kicker}</div>}
+            <h1 className="slide-title-lg">{title}</h1>
+            {subtitle && <p className="slide-body-lg mt-10 max-w-[920px] text-slide-muted">{subtitle}</p>}
+          </div>
+          <MediaSlot media={media} />
+        </div>
+      </SlideLayout>
+    );
+  }
+  ```
+  - `MediaSlot`: if `media.kind === 'image'` → `<img>` covering column with `object-fit: cover`, `border-radius: 32px`; `video` → autoplay muted loop; `none` → render an `.slide-decor` placeholder gradient.
+  - Title max-width 850 px (≈ 50–60 chars at 104 px).
+  - Grid gap 64 px slide-space.
+- **Acceptance:** Rendering with the seed `intro` slide produces a layout visually matching `01-sample.webp` within 8 px tolerance.
+
+### Step 34 — LeftSlide refinements: vertical centering, kicker, padding
+- **Goal:** Make LeftSlide flexible without forking — explicit knobs for the three most common tweaks.
+- **Files:** Extend `LeftSlide.tsx` (same file as Step 33).
+- **Contract — additional props:**
+  ```ts
+  type LeftSlideExtras = {
+    align?: 'top' | 'center' | 'bottom';        // default 'center'
+    leftPadding?: number;                         // px, default 0 (SlideLayout already insets 96)
+    kickerColor?: string;                         // CSS color, default var(--slide-muted)
+    titleClassName?: string;                      // escape hatch for one-off sizing
+  };
+  ```
+  - `align` → wrap left column with `justify-start | justify-center | justify-end`.
+  - `leftPadding` → additional `paddingLeft: ${leftPadding}px` on the left column (cumulative with SlideLayout inset).
+  - When `kicker` absent, do NOT reserve vertical space (no empty `<div>`).
+  - When `subtitle` absent, title remains visually centered (no offset).
+- **Acceptance:** Switching `align` between top/center/bottom moves the column without resizing it; removing kicker shifts title up by ~28 px (its prior margin).
+
+### Step 35 — `CenterTextSlide.tsx` — Type B
+- **Goal:** Match `02-sample.webp`: huge centered headline, optional one-line subtitle, optional inline highlight phrase.
+- **Files:** `src/components/slides/types/CenterTextSlide.tsx`.
+- **Contract:**
+  ```tsx
+  export function CenterTextSlide({ title, subtitle, highlight, theme, chrome }: Props) {
+    const titleNode = highlight
+      ? renderWithHighlight(title, highlight.text, highlight.pill ?? false)
+      : title;
+    return (
+      <SlideLayout theme={theme} {...chrome}>
+        <div className="flex h-full flex-col items-center justify-center text-center" style={{ paddingInline: 160 }}>
+          <h1 className="slide-title-lg" style={{ maxWidth: 1500 }}>{titleNode}</h1>
+          {subtitle && <p className="slide-body-lg mt-12 max-w-[1100px] text-slide-muted">{subtitle}</p>}
+        </div>
+      </SlideLayout>
+    );
+  }
+  ```
+  - `renderWithHighlight(full, phrase, pill)`: case-insensitive search for `phrase` in `full`; split into `[before, match, after]`; wrap match in `<Highlight pill={pill}>{match}</Highlight>`; if not found, render full string unchanged (no error, no warn — defensive).
+  - Center alignment via flex, not text-align — keeps `.hl-pill` baseline correct (text-align cuts pill shadow).
+- **Acceptance:** Seed `principles` slide renders "Move fast — **finish faster**." with a yellow pill behind "finish faster".
+
+### Step 36 — Auto-detect `<Highlight pill>` children in CenterTextSlide
+- **Goal:** Let authors write JSX directly when `props.title` is a ReactNode instead of a string (advanced usage).
+- **Files:** `CenterTextSlide.tsx` (same file).
+- **Contract — extend `CenterProps`:**
+  ```ts
+  export type CenterProps =
+    | { title: string;     subtitle?: string; highlight?: { text: string; pill?: boolean } }
+    | { title: ReactNode;  subtitle?: string };   // when title is JSX, ignore `highlight`
+  ```
+  - In component: if `typeof title === 'string'` AND `highlight` present → use `renderWithHighlight`; else render `title` as-is.
+  - When a child of `title` is `<Highlight pill>` and the parent uses `text-align: center` — DON'T. Always use flex centering (see Step 35) so the pill's `box-shadow` is not clipped by line-box.
+  - Provide a dev-only warning if a `<Highlight>` is detected inside a `text-center` ancestor (use `useEffect` + DOM query on the title ref).
+- **Acceptance:** Passing `title={<>Move fast — <Highlight pill>finish faster</Highlight></>}` renders identically to the string + highlight variant.
+
+### Step 37 — `StepsSlide.tsx` — Type C (structure only)
+- **Goal:** Match `03-sample.jpg`: numbered list of up to 5 steps stacked vertically; step reveal controlled by URL `$step` param.
+- **Files:** `src/components/slides/types/StepsSlide.tsx`.
+- **Contract:**
+  ```tsx
+  type Props = StepsProps & { step: number; theme?: 'light'|'dark'; chrome?: ChromeSlots };
+  // step is 0-indexed; valid range [0, steps.length - 1]; values outside are clamped.
+  ```
+  - Layout: `SlideLayout` with `topLeft={title}` slot when `title` present; main area = vertical flex with `gap: 36px`.
+  - Each step rendered as a row:
+    - Number badge: 88×88 px circle, `.slide-title` size, `bg-slide-hl text-slide-hl-ink` for **active** step; `bg-slide-muted/15 text-slide-muted` for inactive/future steps.
+    - Step text: `.slide-body-lg`, max-width 1400 px, color `--slide-fg` for revealed, `--slide-muted` at 40% opacity for unrevealed.
+  - `steps.length` guard: render first 5; if more, slice and `console.warn('StepsSlide: max 5 steps; extras ignored')`.
+  - Container reserves top 120 / bottom 90 (default `SlideLayout` reserves); 5 steps × ~120 px row ≈ 600 px → fits in 870 px content area with headroom.
+- **Acceptance:** With `steps: [a,b,c,d,e]` and `step=2`, badges 1–3 are yellow; 4–5 are muted; row heights identical regardless of revealed state (no layout shift).
+
+### Step 38 — Read `$step` URL param + clamping
+- **Goal:** The URL is the source of truth for which step is active. Refresh keeps you on the same step.
+- **Files:** `src/routes/slides.$slideId.$step.tsx` (route shell; full route in Step 51).
+- **Contract:**
+  - Param is string in the URL (`$step`); parsed once with `Number.parseInt(raw, 10)`.
+  - Validation: integer ≥ 1 (URL is **1-indexed** for humans), ≤ `slide.props.steps.length`.
+  - Out-of-range → `redirect({ to: '/slides/$slideId/$step', params: { slideId, step: String(clamped) } })` in `beforeLoad`.
+  - Non-numeric (`/slides/process/abc`) → redirect to step 1.
+  - Pass `step={parsed - 1}` (0-indexed) into `<StepsSlide>`.
+  - Only valid for slides where `slide.type === 'steps'`; for other types redirect to `/slides/$slideId` (drop the step segment).
+- **Acceptance:** Visiting `/slides/process/3` shows steps 1–3 revealed; `/slides/process/99` redirects to `/slides/process/5`; `/slides/intro/2` redirects to `/slides/intro`.
+
+### Step 39 — Animate newly revealed step using deck transition
+- **Goal:** When `$step` increments, only the new step animates in — not the whole slide.
+- **Files:** `StepsSlide.tsx` (same file as Step 37).
+- **Contract:**
+  - Each row keyed by index. Wrap each row in `<motion.div>` with:
+    - `initial`: chosen per `deck.settings.transition`:
+      - `camera-zoom` → `{ opacity: 0, z: -180, filter: 'blur(8px)' }` (in a `transform-style: preserve-3d` parent)
+      - `morph`       → `{ opacity: 0, scale: 0.96, y: 12 }`
+      - `fade`        → `{ opacity: 0, y: 12 }`
+      - `eaten`       → `{ opacity: 0, x: -60, filter: 'blur(6px)' }`
+    - `animate`: revealed → `{ opacity: 1, z: 0, scale: 1, x: 0, y: 0, filter: 'blur(0px)' }`; unrevealed → `{ opacity: 0.35, filter: 'blur(0px)' }` (muted, no movement).
+    - `transition`: duration = `useReducedMotion() ? 0.15 : 0.45`; ease `[0.22, 1, 0.36, 1]` (cubic-out).
+  - Use `layoutId={`step-${slideId}-${i}`}` so reordering or step-jumping doesn't flicker.
+  - On reveal increment: `triggerWhoosh()` ONLY if `deck.settings.transition === 'camera-zoom'` AND not reduced-motion (re-uses `src/components/slides/audio.ts`).
+  - Previously-revealed steps DO NOT re-animate when a later step is revealed (motion's `AnimatePresence` not needed here; rely on `animate` prop diff).
+- **Acceptance:** Pressing `→` from `/slides/process/2` to `/3` animates only the third row; rows 1–2 stay still; whoosh plays once.
+
+### Step 40 — `QuoteSlide.tsx` — Type D
+- **Goal:** Editorial quote layout: oversized open-quote glyph, big quote text, attribution row.
+- **Files:** `src/components/slides/types/QuoteSlide.tsx`.
+- **Contract:**
+  ```tsx
+  type Props = QuoteProps & { theme?: 'light'|'dark'; chrome?: ChromeSlots };
+  export function QuoteSlide({ quote, author, role, avatar, theme, chrome }: Props) {
+    return (
+      <SlideLayout theme={theme} {...chrome}>
+        <div className="flex h-full flex-col justify-center" style={{ paddingInline: 160 }}>
+          <div aria-hidden className="font-display leading-none text-slide-hl" style={{ fontSize: 320, height: 200, marginBottom: 24 }}>“</div>
+          <blockquote className="slide-title" style={{ maxWidth: 1500 }}>{quote}</blockquote>
+          <figcaption className="mt-12 flex items-center gap-6">
+            {avatar && <img src={avatar} alt="" className="rounded-[28%]" style={{ width: 96, height: 96, objectFit: 'cover' }} />}
+            <div>
+              <div className="slide-body-lg">{author}</div>
+              {role && <div className="slide-caption text-slide-muted">{role}</div>}
+            </div>
+          </figcaption>
+        </div>
+      </SlideLayout>
+    );
+  }
+  ```
+  - Open-quote glyph: `aria-hidden`, decorative only; pulled from display font so curl matches headings.
+  - Avatar uses **squircle** via `border-radius: 28%` (rounded but not pure circle) to match modern editorial style.
+  - When `avatar` absent, attribution starts at left margin (no empty placeholder).
+  - Quote wraps at ~50 ch; if quote is shorter than one line, the layout still vertically centers.
+- **Acceptance:** Seed `quote` slide renders with large open-quote, the quote in `.slide-title`, and "Bre Pettis & Kio Stark / The Cult of Done Manifesto" in the attribution.
 41. `MediaFullSlide.tsx` — stub component returning `null` with TODO comment.
 42. Per-slide `notes` rendered in Presenter view bottom panel.
 43. Per-slide `background` override beats deck default.
