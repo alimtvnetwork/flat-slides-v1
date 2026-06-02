@@ -96,6 +96,41 @@ spec/
 - [`spec/SPEC.md`](./spec/SPEC.md) — product spec (100 steps)
 - [`spec/IMPLEMENTATION_PLAN.md`](./spec/IMPLEMENTATION_PLAN.md) — build map
 - [`slides/README-LLM.md`](./slides/README-LLM.md) — JSON schema for LLM authors
+- [`.lovable/what-to-read.md`](./.lovable/what-to-read.md) — **AI onboarding map (read first)**
+- [`.lovable/todo-tasks.md`](./.lovable/todo-tasks.md) — active roadmap / step status
+
+---
+
+## For AI agents (Lovable / Claude / etc.)
+
+Before touching this codebase, read these in order:
+
+1. **`.lovable/what-to-read.md`** — full onboarding map: folder structure, which files to load, how to add features, tests, specs, and styling rules.
+2. **`README.md`** (this file) — product overview and stack.
+3. **`spec/SPEC.md`** + **`spec/IMPLEMENTATION_PLAN.md`** — what we are building and how.
+4. **`.lovable/todo-tasks.md`** — current step batch and remaining work.
+5. **`src/routes/README.md`** — TanStack Start routing conventions.
+
+### Working on the project
+
+| Task                  | Where it lives                                  |
+| --------------------- | ----------------------------------------------- |
+| Add a route           | `src/routes/*.tsx` (filename ↔ URL; never edit `routeTree.gen.ts`) |
+| Add a UI component    | `src/components/` — small, reusable, token-driven |
+| Add server logic      | `src/lib/*.functions.ts` via `createServerFn`   |
+| Add a hook            | `src/hooks/`                                    |
+| Add styling tokens    | `src/styles.css` (oklch, semantic names)        |
+| Add a unit test       | `*.test.ts(x)` next to the unit; `bunx vitest run` |
+| Add a spec            | `spec/XX-topic.md`, link from `spec/README.md`  |
+| Add a slide deck      | `slides/decks/*.deck.json` (validated by Zod)   |
+| Track new tasks       | Append to `.lovable/todo-tasks.md`              |
+
+### Hard rules
+
+- Never edit `src/routeTree.gen.ts` — auto-generated.
+- Never hardcode colors — use tokens in `src/styles.css`.
+- Never delete history from `.lovable/todo-tasks.md`; mark items done.
+- Never store project notes in `mem://` — use `.lovable/` or `spec/`.
 
 ---
 
@@ -106,3 +141,4 @@ TanStack Start (React 19, Vite 7), Tailwind v4, Zustand, Zod, Motion, Sonner.
 ---
 
 **Version 1.0.0** — first stable cut.
+
