@@ -163,7 +163,7 @@ function SlideStepPage() {
 
   if (!slide || slideStepCount(slide) === 0) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-black text-white">
+      <div className="flex min-h-dvh items-center justify-center bg-black text-white">
         <Link to="/slides" className="underline">Back to deck</Link>
       </div>
     );
@@ -241,7 +241,7 @@ function SlideStepPage() {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden flex-col bg-black">
+    <div className="flex h-dvh overflow-hidden flex-col bg-black">
       <div className="relative min-h-0 flex-1">
         {slideStage}
         {surfaces}

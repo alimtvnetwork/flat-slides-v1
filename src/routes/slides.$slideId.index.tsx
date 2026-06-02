@@ -168,7 +168,7 @@ function SlidePage() {
 
   if (!slide) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-black text-white">
+      <div className="flex min-h-dvh items-center justify-center bg-black text-white">
         <div className="text-center">
           <p className="mb-4">Slide not found.</p>
           <Link to="/slides" className="underline">Back to deck</Link>
@@ -253,7 +253,7 @@ function SlidePage() {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden flex-col bg-black">
+    <div className="flex h-dvh overflow-hidden flex-col bg-black">
       <div className="relative min-h-0 flex-1">
         <div
           style={{ opacity: scene === "cam-only" ? 0.05 : scene === "split" ? 0.75 : 1, transition: "opacity 300ms ease" }}
