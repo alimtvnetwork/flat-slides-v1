@@ -21,6 +21,8 @@ interface Props {
 /** ⌘K / Ctrl+K command palette: jump to slide or run an action. */
 export function CommandPalette({ open, onClose, slides, onOpenSettings, onPresent, onOpenLint }: Props) {
   const navigate = useNavigate();
+  const deckTitle = useDeck((s) => s.deck.title);
+  const toggleFocusEditor = useChrome((s) => s.toggleFocusEditor);
   const [q, setQ] = useState("");
   const [active, setActive] = useState(0);
 
