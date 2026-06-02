@@ -68,7 +68,7 @@ const reduceMotion = () =>
  * grace-delay collapse so the user doesn't lose it on quick mouse-out.
  */
 export function ControllerPill(props: Props) {
-  const { current, total, onPrev, onNext, onJump, onOpenGrid, onToggleFullscreen, onOpenHelp, isFullscreen } = props;
+  const { current, total, onPrev, onNext, onJump, onOpenGrid, onToggleFullscreen, onOpenHelp, onOpenSettings, isFullscreen } = props;
   const anchor = usePositionStore((s) => s.anchor);
   const setAnchor = usePositionStore((s) => s.setAnchor);
   const [expanded, setExpanded] = useState(false);
