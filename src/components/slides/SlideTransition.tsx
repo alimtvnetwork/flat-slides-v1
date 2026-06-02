@@ -56,7 +56,7 @@ type Props = { transitionKey: string; allowZoom?: boolean; children: ReactNode }
  */
 export function SlideTransition({ transitionKey, allowZoom = false, children }: Props) {
   const kind = useDeck((s) => s.deck.settings.transition);
-  const effectiveKind = kind === "camera-zoom" && !allowZoom ? "fade" : kind;
+  const effectiveKind = allowZoom ? kind : "fade";
   const { variants, transition } = variantsFor(effectiveKind);
 
   useEffect(() => {
