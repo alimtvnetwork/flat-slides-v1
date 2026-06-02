@@ -139,7 +139,6 @@ function SlidePage() {
       <AnnotationLayer slideId={slide.id} />
       <AnnotationToolbar slideId={slide.id} />
       <TimerOverlay slide={slide} />
-      <AnnotationToolbar slideId={slide.id} />
     </>
   );
 
