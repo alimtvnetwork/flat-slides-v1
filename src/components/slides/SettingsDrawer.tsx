@@ -33,6 +33,7 @@ export function SettingsDrawer({
   const setThemeId = useDeck((s) => s.setThemeId);
   const setDeck = useDeck((s) => s.setDeck);
   const upsertSlide = useDeck((s) => s.upsertSlide);
+  const resetDeck = useDeck((s) => s.resetDeck);
   const settings = deck.settings;
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -213,6 +214,15 @@ export function SettingsDrawer({
               className="rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700"
             >
               ⬇ Export slide
+            </button>
+            <button
+              onClick={() => {
+                resetDeck();
+                toast.success("Reset to sample deck");
+              }}
+              className="col-span-2 rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700"
+            >
+              ↺ Reset sample deck
             </button>
           </div>
           <p className="text-xs text-neutral-500">
