@@ -4,6 +4,7 @@ import { useEffect, type ReactNode } from "react";
 import { triggerWhoosh } from "./audio";
 import { useDeck } from "./store";
 import type { TransitionKind } from "./types";
+import { useReducedMotion } from "./useReducedMotion";
 
 function variantsFor(kind: TransitionKind): { variants: Variants; transition: Transition } {
   switch (kind) {
