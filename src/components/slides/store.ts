@@ -1,5 +1,7 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
+import { DEFAULT_THEME_ID } from "./themes";
 import type { Deck, DeckSettings, Slide } from "./types";
 
 const defaultSettings: DeckSettings = {
@@ -19,7 +21,7 @@ const seedSlides: Slide[] = [
     title: "Project Glasswing",
     display: true,
     heading: ["Project\nGlasswing"],
-    background: "#101010",
+    align: "center",
   },
   {
     id: "think",
@@ -27,15 +29,15 @@ const seedSlides: Slide[] = [
     title: "Don't make me Think",
     heading: ["Don\u2019t make me"],
     subhead: [{ text: "Think", pill: true }],
-    background: "#000000",
+    align: "center",
   },
   {
     id: "sajida",
     type: "left",
     title: "Sajida Proposal",
-    background: "#1d1d1d",
     kicker: "Proposal",
     heading: ["Sajida\nProposal"],
+    align: "center-left",
     body: [
       "A short summary of the ",
       { text: "Sajida" },
@@ -58,6 +60,19 @@ const seedSlides: Slide[] = [
     ],
   },
   {
+    id: "bullets-demo",
+    type: "bullets",
+    title: "Why JSON-first?",
+    kicker: "Why",
+    heading: ["Why ", { text: "JSON", pill: true }, "-first?"],
+    align: "top-left",
+    bullets: [
+      ["Any ", { text: "LLM" }, " can author a deck"],
+      ["Version-control the deck like code"],
+      ["Import or export ", { text: "single slides" }],
+    ],
+  },
+  {
     id: "quote",
     type: "quote",
     title: "Quote",
@@ -66,20 +81,64 @@ const seedSlides: Slide[] = [
   },
 ];
 
-interface DeckStore {
+export interface DeckStore {
   deck: Deck;
+  themeId: string;
+  lastVisitedSlideId?: string;
   setSettings: (patch: Partial<DeckSettings>) => void;
+  setThemeId: (id: string) => void;
+  setDeck: (deck: Deck) => void;
+  /** Insert a single slide at `index` (defaults to end). */
+  addSlide: (slide: Slide, index?: number) => void;
+  /** Replace a slide by id; if missing, append. */
+  upsertSlide: (slide: Slide) => void;
+  removeSlide: (id: string) => void;
+  setLastVisited: (id: string) => void;
   getSlideIndex: (id: string) => number;
 }
 
-export const useDeck = create<DeckStore>((set, get) => ({
-  deck: {
-    id: "default",
-    title: "Sample Deck",
-    slides: seedSlides,
-    settings: defaultSettings,
-  },
-  setSettings: (patch) =>
-    set((s) => ({ deck: { ...s.deck, settings: { ...s.deck.settings, ...patch } } })),
-  getSlideIndex: (id) => get().deck.slides.findIndex((s) => s.id === id),
-}));
+export const useDeck = create<DeckStore>()(
+  persist(
+    (set, get) => ({
+      deck: {
+        id: "default",
+        title: "Sample Deck",
+        themeId: DEFAULT_THEME_ID,
+        slides: seedSlides,
+        settings: defaultSettings,
+        version: 1,
+      },
+      themeId: DEFAULT_THEME_ID,
+      setSettings: (patch) =>
+        set((s) => ({ deck: { ...s.deck, settings: { ...s.deck.settings, ...patch } } })),
+      setThemeId: (id) =>
+        set((s) => ({ themeId: id, deck: { ...s.deck, themeId: id } })),
+      setDeck: (deck) =>
+        set(() => ({ deck, themeId: deck.themeId ?? DEFAULT_THEME_ID })),
+      addSlide: (slide, index) =>
+        set((s) => {
+          const slides = [...s.deck.slides];
+          const i = index ?? slides.length;
+          slides.splice(i, 0, slide);
+          return { deck: { ...s.deck, slides } };
+        }),
+      upsertSlide: (slide) =>
+        set((s) => {
+          const i = s.deck.slides.findIndex((x) => x.id === slide.id);
+          const slides = [...s.deck.slides];
+          if (i >= 0) slides[i] = slide;
+          else slides.push(slide);
+          return { deck: { ...s.deck, slides } };
+        }),
+      removeSlide: (id) =>
+        set((s) => ({ deck: { ...s.deck, slides: s.deck.slides.filter((x) => x.id !== id) } })),
+      setLastVisited: (id) => set({ lastVisitedSlideId: id }),
+      getSlideIndex: (id) => get().deck.slides.findIndex((s) => s.id === id),
+    }),
+    {
+      name: "slides-deck-v1",
+      // Persist only mutable user data — not transient UI state.
+      partialize: (s) => ({ deck: s.deck, themeId: s.themeId }),
+    },
+  ),
+);
