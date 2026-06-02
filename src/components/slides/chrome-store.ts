@@ -109,6 +109,8 @@ export const useChrome = create<ChromeStore>()(
       setSlideNumberBadgeVisible: (v) => set({ slideNumberBadgeVisible: v }),
       setTimerVisible: (v) => set({ timerVisible: v }),
       toggleTimerVisible: () => set((s) => ({ timerVisible: !s.timerVisible })),
+      setFocusEditorOpen: (v) => set({ focusEditorOpen: v }),
+      toggleFocusEditor: () => set((s) => ({ focusEditorOpen: !s.focusEditorOpen })),
       pushRecentJump: (n) =>
         set((s) => {
           const next = [n, ...s.recentJumps.filter((x) => x !== n)].slice(0, 8);
