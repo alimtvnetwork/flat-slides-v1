@@ -134,6 +134,26 @@ a heavy zoom. Defaults now:
   ≤16px translate.
 - `camera-zoom` remains available as an opt-in for hero/title moments only.
 
+## Named Step Slides
+
+The regular `type: "steps"` slide is not a hide/reveal bullet list. It uses
+named focus states, just like the timeline:
+
+```ts
+interface StepItem {
+  label: string;      // always visible in the step list
+  title?: string;     // focused title
+  detail: RichText;   // focused detail that fades in/out
+}
+```
+
+- All step labels remain visible at all times.
+- Only the active step is fully emphasized; other steps are muted/grey.
+- Arrow navigation changes the active step; the title/detail block cross-fades
+  and translates by ≤16px.
+- Import stays backward-compatible: legacy `steps: RichText[]` JSON is
+  normalized to `{ label: "Step N", detail }`.
+
 ## Lint Rules
 
 Add to `lintDeck`:
