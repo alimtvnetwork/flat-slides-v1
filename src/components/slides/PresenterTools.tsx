@@ -1,5 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 
+import { downloadDigest } from "@/lib/slides/digest";
+
+import { PresenterCoach } from "./PresenterCoach";
+import type { Deck } from "./types";
+
 const EMOJIS = ["👏", "❤️", "🔥", "😂", "🎯"];
 
 /** Floating reaction emojis (local overlay, no backend). */
@@ -45,16 +50,22 @@ interface Props {
   /** Current slide index for pacing math. */
   index: number;
   total: number;
+  deck: Deck;
 }
 
-/** Presenter tools: rehearsal timer + emoji reactions overlay. */
-export function PresenterTools({ targetMinutes = 10, index, total }: Props) {
+/** Presenter tools: rehearsal timer + reactions + AI coach + session digest. */
+export function PresenterTools({ targetMinutes = 10, index, total, deck }: Props) {
   const [open, setOpen] = useState(false);
+  const [coachOpen, setCoachOpen] = useState(false);
   const [running, setRunning] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [target, setTarget] = useState(targetMinutes);
   const [reactionTrigger, setReactionTrigger] = useState(-1);
   const reactCountRef = useRef(0);
+  const startedAtRef = useRef<number | null>(null);
+  const viewedRef = useRef<Set<number>>(new Set());
+
+  useEffect(() => { viewedRef.current.add(index); }, [index]);
 
   useEffect(() => {
     if (!running) return;
