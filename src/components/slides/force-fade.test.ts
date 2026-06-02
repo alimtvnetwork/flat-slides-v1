@@ -24,14 +24,14 @@ describe("forceFadeTransition", () => {
   });
 
   it("rewrites a legacy transition to fade", () => {
-    const legacy = { ...baseDeck, settings: { ...baseDeck.settings, transition: "morph" as const } };
-    const out = forceFadeTransition(legacy as Deck);
+    const legacy = { ...baseDeck, settings: { ...baseDeck.settings, transition: "morph" } } as unknown as Deck;
+    const out = forceFadeTransition(legacy);
     expect(out.settings.transition).toBe("fade");
   });
 
   it("does not mutate the input deck", () => {
-    const legacy = { ...baseDeck, settings: { ...baseDeck.settings, transition: "camera-zoom" as const } };
-    forceFadeTransition(legacy as Deck);
-    expect(legacy.settings.transition).toBe("camera-zoom");
+    const legacy = { ...baseDeck, settings: { ...baseDeck.settings, transition: "camera-zoom" } } as unknown as Deck;
+    forceFadeTransition(legacy);
+    expect((legacy.settings as unknown as { transition: string }).transition).toBe("camera-zoom");
   });
 });
