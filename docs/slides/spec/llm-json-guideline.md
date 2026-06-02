@@ -244,11 +244,213 @@ The smallest valid deck — paste this into File → Import and it imports clean
 
 ---
 
+## 9. Text-bearing slide types
+
+All examples below are **complete slide objects** — drop them into `slides: [...]`.
+Required fields are marked ✱.
+
+### 9.1 `center` — title / hero
+
+Use for opening slides, section dividers, single-statement reveals. The
+`display: true` flag bumps the heading to `slide-title-lg` (104px) — reserve
+it for the deck cover.
+
+| Field      | Type        | Required | Notes |
+|------------|-------------|----------|-------|
+| `type`     | `"center"`  | ✱        | discriminator |
+| `heading`  | RichText    | ✱        | the headline (88–104px) |
+| `subhead`  | RichText    |          | one short supporting line (52px) |
+| `display`  | boolean     |          | `true` ⇒ use the largest title size |
+| `align`    | TextPosition|          | defaults to `"center"` |
+
+```jsonc
+{
+  "id": "cover",
+  "type": "center",
+  "title": "Cover",
+  "display": true,
+  "heading": ["The ", { "text": "Quiet", "pill": true }, " Revolution"],
+  "subhead": ["How small teams shipped large software in 2025."]
+}
+```
+
+### 9.2 `left` — text + media (50/50 split)
+
+Headline + supporting copy on the left; image (or React node) on the right.
+
+| Field     | Type                                              | Required | Notes |
+|-----------|---------------------------------------------------|----------|-------|
+| `type`    | `"left"`                                          | ✱        ||
+| `kicker`  | string ≤80                                        |          | small UPPERCASE eyebrow |
+| `heading` | RichText                                          | ✱        | 88px |
+| `body`    | RichText                                          |          | one paragraph, 2–4 lines |
+| `media`   | `{ src: url-or-data:, alt?: string }`             |          | URL or `data:` URI |
+
+```jsonc
+{
+  "id": "product",
+  "type": "left",
+  "title": "Product",
+  "kicker": "Why now",
+  "heading": ["Speed is the ", { "text": "feature" }],
+  "body": [
+    "Every team we shipped to in Q4 told us the same thing: ",
+    "the app feels alive. We doubled down on perceived latency."
+  ],
+  "media": {
+    "src": "https://images.example.com/product-hero.jpg",
+    "alt": "Product dashboard"
+  }
+}
+```
+
+### 9.3 `bullets` — headline + 1..8 bullets
+
+| Field     | Type        | Required | Notes |
+|-----------|-------------|----------|-------|
+| `type`    | `"bullets"` | ✱        ||
+| `kicker`  | string ≤80  |          | optional eyebrow |
+| `heading` | RichText    | ✱        ||
+| `bullets` | RichText[]  | ✱        | 1..8 items; each is its own RichText array |
+
+```jsonc
+{
+  "id": "highlights",
+  "type": "bullets",
+  "title": "Q4 highlights",
+  "kicker": "Q4 2025",
+  "heading": ["Four numbers that ", { "text": "mattered" }],
+  "bullets": [
+    ["Revenue ", { "text": "+34%", "pill": true }, " YoY"],
+    ["Active teams crossed ", { "text": "10,000" }],
+    ["p99 latency ", { "text": "<180ms", "pill": true }],
+    ["Net retention ", { "text": "127%" }]
+  ]
+}
+```
+
+Density: keep each bullet ≤ ~60 chars. If you have 6+ bullets, split the slide.
+
+### 9.4 `quote` — pull-quote
+
+| Field         | Type     | Required | Notes |
+|---------------|----------|----------|-------|
+| `type`        | `"quote"`| ✱        ||
+| `quote`       | RichText | ✱        ||
+| `attribution` | string ≤200 |       | "— Name, Role" |
+
+```jsonc
+{
+  "id": "voice",
+  "type": "quote",
+  "title": "Customer quote",
+  "quote": [
+    "It is the first tool our designers ",
+    { "text": "asked to keep" },
+    " after the trial ended."
+  ],
+  "attribution": "— Priya N., Head of Design, Northwind"
+}
+```
+
+### 9.5 `steps` — step-by-step with sub-step navigation
+
+Step-aware: each entry in `steps` consumes one sub-step in the
+`/slides/N/S` URL. → on the last step advances to the next slide.
+
+A step is either:
+- a `RichText` array (shorthand — the label becomes `Step N`), or
+- a full object: `{ label, title?, detail }`.
+
+| Field      | Type    | Required | Notes |
+|------------|---------|----------|-------|
+| `type`     | `"steps"`| ✱       ||
+| `heading`  | string 1..200 | ✱  | plain string, NOT RichText |
+| `steps`    | StepItem[]    | ✱  | 1..8 |
+
+StepItem fields:
+
+| Field    | Type     | Required | Notes |
+|----------|----------|----------|-------|
+| `label`  | string 1..80 | ✱    | short tag in the persistent list |
+| `title`  | string ≤120 |       | focus heading shown when active |
+| `detail` | RichText  | ✱       | fades in when this step activates |
+
+```jsonc
+{
+  "id": "process",
+  "type": "steps",
+  "title": "How we ship",
+  "heading": "Three phases, one week each",
+  "steps": [
+    {
+      "label": "Discover",
+      "title": "Talk to 5 users",
+      "detail": ["Interview five real users. Write findings within ", { "text": "24h" }, "."]
+    },
+    {
+      "label": "Design",
+      "title": "Prototype the riskiest screen first",
+      "detail": ["Build the one screen that could kill the project. Skip the rest."]
+    },
+    {
+      "label": "Deliver",
+      "title": "Ship behind a flag on Friday",
+      "detail": ["Default-off flag. Internal users only. Watch logs for 48h."]
+    }
+  ]
+}
+```
+
+Pair with per-step `focus` regions (§7) when you want the camera to land
+on a corresponding diagram chunk per step.
+
+### 9.6 `timeline` — chronological rail with 2..8 pinpoints
+
+Step-aware like `steps`. Renders as a horizontal rail with pinpoints; the
+centred detail block fades between items. **Lists/timelines must never
+zoom** — keep `transition` at `fade` and use focus regions only on the
+companion image slide, not on the timeline itself.
+
+| Field     | Type        | Required | Notes |
+|-----------|-------------|----------|-------|
+| `type`    | `"timeline"`| ✱        ||
+| `heading` | string ≤200 |          | optional rail title |
+| `items`   | TimelineItem[] | ✱     | 2..8 |
+
+TimelineItem:
+
+| Field    | Type    | Required | Notes |
+|----------|---------|----------|-------|
+| `label`  | string 1..80 | ✱   | small tag under the pinpoint (Q1, 2024…) |
+| `title`  | string ≤120  |     | bold focus heading |
+| `detail` | RichText     |     | centred paragraph when focused |
+
+```jsonc
+{
+  "id": "roadmap",
+  "type": "timeline",
+  "title": "2026 roadmap",
+  "heading": "What ships, when",
+  "items": [
+    { "label": "Q1", "title": "Public API",      "detail": ["Read endpoints, OAuth, SDKs in TS + Python."] },
+    { "label": "Q2", "title": "Workspaces",      "detail": ["Multi-team isolation with shared billing."] },
+    { "label": "Q3", "title": "Audit log",       "detail": ["SOC2-friendly export to S3 / GCS."] },
+    { "label": "Q4", "title": "Mobile",          "detail": ["iPad presenter app + iOS audience view."] }
+  ]
+}
+```
+
+For the full timeline rendering contract see
+[`docs/slides/timeline-slide.spec.md`](../timeline-slide.spec.md).
+
+---
+
 ## Continued in batches
 
-- **B2 (steps 11–20):** All text-bearing slide types — every field, every example.
 - **B3 (steps 21–30):** Media slides (`image`, `embed`, `poll`, `qa`) including
   URL / base64 / inline-SVG image patterns and multi-step SVG reveals.
 - **B4 (steps 31–40):** Authoring patterns and density rules.
 - **B5 (steps 41–50):** Full `sample-deck.json`, validation, common mistakes,
   versioning.
+
