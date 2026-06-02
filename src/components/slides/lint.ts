@@ -224,7 +224,10 @@ export const LINT_RULES: ReadonlyArray<{ id: string; severity: LintSeverity; sum
   { id: "qa-no-prompt", severity: "warn", summary: "Q&A slide missing prompt." },
   { id: "image-alt-missing", severity: "error", summary: "Image missing alt text." },
   { id: "image-alt-filename", severity: "warn", summary: "Image alt text looks like a filename." },
+  { id: "image-split-no-heading", severity: "warn", summary: 'fit:"split" image slide missing heading.' },
+  { id: "caption-markdown", severity: "warn", summary: "Caption/alt has ** or __ markers (use RichText)." },
   { id: "base64-image-large", severity: "warn", summary: "Inline base64 image >200 KB." },
   { id: "embed-not-https", severity: "error", summary: "Embed URL not https://." },
+  { id: "consecutive-quotes", severity: "warn", summary: "Two quote slides back-to-back." },
 ];
 
