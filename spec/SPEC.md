@@ -1328,19 +1328,290 @@ Stack: TanStack Start v1 (file routes under `src/routes/`), React 19, Tailwind v
   - On `fullscreenchange` exit: restore cursor, restore ControlBar opacity, refocus the document body so keyboard scope still receives keys.
 - **Acceptance:** `F5` enters fullscreen and slide fills screen; after 2 s idle cursor + ControlBar both disappear; any mouse move shows them; `Esc` exits cleanly and restores cursor.
 
-### G. Settings Drawer (61–68)
-61. Right-side `<SettingsDrawer>` triggered by gear icon.
-62. Background mode toggle: `color | image`.
-63. Color picker bound to `settings.backgroundColor`.
-64. Image picker showing `/assets/samples/*` thumbnails + upload (data-URL).
-65. Sliders — darken (0–100%), blur (0–20 px).
-66. Transition selector — `camera-zoom | morph | fade | eaten`.
-67. Sound toggle + volume slider (0–100).
-68. Persist settings to localStorage via store autosave.
+## Steps 61–70 — Settings Drawer, Persistence, motion install, CameraZoom transition
 
-### H. Animations (69–82)
-69. Install `motion`; lock to ^11.
-70. `<CameraZoomTransition>` — 3D perspective + `translateZ` + tiny rotateX.
+### Step 61 — `<SettingsDrawer>` shell
+- **Goal:** A persistent right-side drawer mounted in the slides layout that exposes every deck-level preset (background, transition, sound). Opened by gear icon (Step 56) or `S` keyboard shortcut (Step 55).
+- **Files:** `src/components/slides/SettingsDrawer.tsx` + `src/components/slides/settingsUiStore.ts`.
+- **Contract:**
+  ```tsx
+  // settingsUiStore.ts — UI-only state, NOT persisted
+  type UiState = { isOpen: boolean; open(): void; close(): void; toggle(): void };
+  export const useSettingsUi = create<UiState>()(set => ({
+    isOpen: false,
+    open:   () => set({ isOpen: true }),
+    close:  () => set({ isOpen: false }),
+    toggle: () => set(s => ({ isOpen: !s.isOpen })),
+  }));
+
+  // SettingsDrawer.tsx
+  export function SettingsDrawer() {
+    const { isOpen, close } = useSettingsUi();
+    const settings = useDeck(s => s.deck.settings);
+    const setSettings = useDeck(s => s.setSettings);
+    return (
+      <Sheet open={isOpen} onOpenChange={v => v ? null : close()}>
+        <SheetContent data-app-chrome side="right" className="w-[420px] sm:max-w-[420px] overflow-y-auto">
+          <SheetHeader><SheetTitle>Deck settings</SheetTitle></SheetHeader>
+          <div className="space-y-8 py-6">
+            <BackgroundSection settings={settings} setSettings={setSettings} />   {/* Steps 62–65 */}
+            <TransitionSection settings={settings} setSettings={setSettings} />   {/* Step 66 */}
+            <SoundSection settings={settings} setSettings={setSettings} />        {/* Step 67 */}
+            <ResetButton />
+          </div>
+        </SheetContent>
+      </Sheet>
+    );
+  }
+  ```
+  - Uses shadcn `Sheet` component (already in template) — guarantees ESC-to-close, focus trap, and aria.
+  - `S` keyboard shortcut → `useSettingsUi.getState().toggle()` (wire in slide routes).
+  - `data-app-chrome` so print CSS hides it.
+  - `ResetButton` calls `setSettings(DEFAULT_SETTINGS)` after a `confirm()` prompt; logs to console (no toast — sheet is the feedback surface).
+  - All sections receive `settings` + `setSettings` via props (no nested store reads → easier testing).
+- **Acceptance:** Clicking gear icon or pressing `S` opens drawer from right; ESC closes; clicking outside closes; controls are organized in three labeled groups + reset.
+
+### Step 62 — Background mode toggle (`color | image`)
+- **Goal:** Single radio control that swaps which background controls are shown below it.
+- **Files:** `src/components/slides/settings/BackgroundSection.tsx`.
+- **Contract:**
+  ```tsx
+  <ToggleGroup type="single" value={settings.backgroundMode}
+               onValueChange={(v) => v && setSettings({ backgroundMode: v as 'color'|'image' })}>
+    <ToggleGroupItem value="color">Color</ToggleGroupItem>
+    <ToggleGroupItem value="image">Image</ToggleGroupItem>
+  </ToggleGroup>
+  ```
+  - Below the toggle: conditional render of `ColorPicker` (Step 63) when `color`, `ImagePicker` (Step 64) when `image`.
+  - Darken + Blur sliders (Step 65) are ALWAYS visible — they're cheap visual modifiers that work for both modes (CSS overlay on color, real filter on image).
+  - Switching modes does NOT reset the inactive field's value (user can flip back without losing their color/image choice).
+  - Uses shadcn `ToggleGroup`.
+- **Acceptance:** Toggling between Color/Image swaps the controls below without flicker; switching back restores prior values.
+
+### Step 63 — Color picker bound to `settings.backgroundColor`
+- **Goal:** Pick any CSS color; preview swatch updates live; canvas background updates within one frame.
+- **Files:** `src/components/slides/settings/ColorPicker.tsx`.
+- **Contract:**
+  ```tsx
+  type Props = { value: string; onChange: (v: string) => void };
+  export function ColorPicker({ value, onChange }: Props) {
+    // Native <input type="color"> accepts #RRGGBB only.
+    // Store may contain CSS string (oklch, rgb()) — coerce to hex for native input via toHex().
+    const hex = toHex(value) ?? '#101010';
+    return (
+      <div className="flex items-center gap-3">
+        <label className="relative h-12 w-12 rounded-lg overflow-hidden border cursor-pointer">
+          <input type="color" value={hex} onChange={e => onChange(e.target.value)}
+                 className="absolute inset-0 h-full w-full opacity-0 cursor-pointer" />
+          <span aria-hidden className="block h-full w-full" style={{ background: value }} />
+        </label>
+        <Input value={value} onChange={e => onChange(e.target.value)}
+               placeholder="#101010" className="font-mono text-sm" />
+        <PresetRow onPick={onChange} />
+      </div>
+    );
+  }
+  ```
+  - `PresetRow`: 4 swatches matching Step 7 sampled tokens (`#101010`, `#F4EFE4`, `#FFD83A`, `#0A0A0A`).
+  - Text input accepts any CSS color; invalid value → keep typing without forcing reset; canvas falls back to last valid color (CSS handles invalid gracefully).
+  - `toHex(value)` returns `null` for non-RGB inputs; native picker shows `#101010` in that case but typed input still saves.
+  - Debounce `onChange` 50 ms to avoid flooding store + autosave.
+- **Acceptance:** Picking a new color updates the slide background instantly; preset row swaps to canonical values in one click; oklch values survive a reload.
+
+### Step 64 — Image picker with sample thumbnails + upload
+- **Goal:** Pick from `/assets/samples/*` or upload a custom image; result stored as URL or data: URL.
+- **Files:** `src/components/slides/settings/ImagePicker.tsx`.
+- **Contract:**
+  ```tsx
+  const SAMPLES = [
+    { src: '/assets/samples/01-sample.webp', label: 'Charcoal hero' },
+    { src: '/assets/samples/02-sample.webp', label: 'Yellow pill' },
+    { src: '/assets/samples/03-sample.jpg',  label: 'App chrome' },
+  ];
+  function ImagePicker({ value, onChange }: { value?: string; onChange: (v?: string) => void }) {
+    const fileInput = useRef<HTMLInputElement>(null);
+    const onUpload = async (file: File) => {
+      if (!file.type.startsWith('image/')) return toast.error('Must be an image');
+      if (file.size > 5_000_000) return toast.error('Image must be < 5 MB');
+      const dataUrl = await new Promise<string>((res, rej) => {
+        const r = new FileReader();
+        r.onerror = () => rej(new Error('Read failed'));
+        r.onload = () => res(r.result as string);
+        r.readAsDataURL(file);
+      });
+      onChange(dataUrl);
+    };
+    return (
+      <div className="space-y-3">
+        <div className="grid grid-cols-3 gap-2">
+          {SAMPLES.map(s => (
+            <button key={s.src} onClick={() => onChange(s.src)}
+                    className={cn('aspect-video rounded-md overflow-hidden border-2',
+                                  value === s.src ? 'border-yellow-400' : 'border-transparent')}>
+              <img src={s.src} alt={s.label} className="h-full w-full object-cover" />
+            </button>
+          ))}
+        </div>
+        <Button variant="outline" size="sm" onClick={() => fileInput.current?.click()}>Upload…</Button>
+        <input ref={fileInput} type="file" accept="image/*" className="hidden"
+               onChange={e => e.target.files?.[0] && onUpload(e.target.files[0])} />
+        {value?.startsWith('data:') && (
+          <Button variant="ghost" size="sm" onClick={() => onChange(undefined)}>Clear uploaded image</Button>
+        )}
+      </div>
+    );
+  }
+  ```
+  - **5 MB cap** is the hard limit — data: URLs above that bloat localStorage past quota.
+  - Uploaded images live as base64 data: URL inside the deck (so export/import is self-contained).
+  - Selected sample shows yellow ring; uploaded image preview shows a "Clear" button.
+  - Errors are toast.error; never throw to UI.
+- **Acceptance:** Clicking a sample sets background; uploading a 1 MB png shows it within ~200 ms; 10 MB image → toast error, no state change.
+
+### Step 65 — Sliders: darken (0–100%), blur (0–20 px)
+- **Goal:** Tame busy background images without authoring extra layers.
+- **Files:** `src/components/slides/settings/BackgroundSection.tsx` (same file as Step 62).
+- **Contract:**
+  ```tsx
+  <Label>Darken <span className="tabular-nums text-muted-foreground">{settings.darken}%</span></Label>
+  <Slider min={0} max={100} step={1} value={[settings.darken]}
+          onValueChange={([v]) => setSettings({ darken: v })} />
+
+  <Label>Blur <span className="tabular-nums text-muted-foreground">{settings.blur}px</span></Label>
+  <Slider min={0} max={20} step={1} value={[settings.blur]}
+          onValueChange={([v]) => setSettings({ blur: v })} />
+  ```
+  - `SlideLayout` background layer reads these:
+    ```tsx
+    <div className="absolute inset-0 -z-10"
+         style={{ background, filter: blur ? `blur(${blur}px)` : undefined, transform: blur ? 'scale(1.05)' : undefined }} />
+    <div className="absolute inset-0 -z-10 pointer-events-none"
+         style={{ background: `rgba(0,0,0,${darken / 100})` }} />
+    ```
+  - `scale(1.05)` masks blur edge bleed (blur expands beyond container).
+  - Sliders use shadcn `<Slider>` (already in template).
+  - Both sliders share the same store mutation path — debounce 50 ms inside `setSettings` is unnecessary because Zustand re-render is cheap.
+- **Acceptance:** Pulling darken to 100% turns the image fully black; pulling blur to 20 still has crisp edges (no bleed).
+
+### Step 66 — Transition selector
+- **Goal:** Pick the deck-level default transition; per-slide override remains untouched (Step 44).
+- **Files:** `src/components/slides/settings/TransitionSection.tsx`.
+- **Contract:**
+  ```tsx
+  const OPTIONS: { value: TransitionName; label: string; hint: string }[] = [
+    { value: 'camera-zoom', label: 'Camera Zoom', hint: '3D push-in + blur ramp + whoosh' },
+    { value: 'morph',       label: 'Morph',       hint: 'Shared-element scale + crossfade' },
+    { value: 'fade',        label: 'Fade',        hint: 'Soft opacity + small lift' },
+    { value: 'eaten',       label: 'Eaten Text',  hint: 'Outgoing text dissolves left' },
+  ];
+  <RadioGroup value={settings.transition}
+              onValueChange={(v) => setSettings({ transition: v as TransitionName })}>
+    {OPTIONS.map(opt => (
+      <Label key={opt.value} className="flex items-start gap-3 rounded-md border p-3 cursor-pointer
+                                       has-[input:checked]:border-yellow-400 has-[input:checked]:bg-yellow-50/5">
+        <RadioGroupItem value={opt.value} />
+        <div className="flex-1">
+          <div className="font-medium">{opt.label}</div>
+          <div className="text-xs text-muted-foreground">{opt.hint}</div>
+        </div>
+      </Label>
+    ))}
+  </RadioGroup>
+  <Button variant="outline" size="sm" onClick={previewTransition}>Preview transition</Button>
+  ```
+  - `previewTransition()` triggers a fake slide change: increments a Zustand `previewTick` counter that `SlideTransition` watches and replays the active transition without changing the URL. (Implementation in Step 80.)
+  - Selecting a transition writes immediately; no Save button.
+- **Acceptance:** Changing transition then pressing `→` uses the new transition; Preview button replays on current slide without nav.
+
+### Step 67 — Sound toggle + volume slider
+- **Goal:** Master switch + volume for the whoosh + any future SFX.
+- **Files:** `src/components/slides/settings/SoundSection.tsx`.
+- **Contract:**
+  ```tsx
+  <div className="flex items-center justify-between">
+    <Label htmlFor="sound-enabled">Transition sound</Label>
+    <Switch id="sound-enabled" checked={settings.isSoundEnabled}
+            onCheckedChange={(v) => setSettings({ isSoundEnabled: v })} />
+  </div>
+  <Label>Volume <span className="tabular-nums text-muted-foreground">{settings.volume}%</span></Label>
+  <Slider min={0} max={100} step={1} disabled={!settings.isSoundEnabled}
+          value={[settings.volume]} onValueChange={([v]) => setSettings({ volume: v })} />
+  <Button variant="ghost" size="sm" disabled={!settings.isSoundEnabled}
+          onClick={() => playWhoosh()}>Test sound</Button>
+  ```
+  - `audio.ts` reads `useDeck.getState().deck.settings.{isSoundEnabled, volume}` on each playback.
+  - `volume` is 0–100; `audio.ts` divides by 100 for `GainNode.gain.value`.
+  - "Test sound" button bypasses the throttle (Step 81) so rapid clicks each play.
+  - `useReducedMotion()` also suppresses audio regardless of `isSoundEnabled`.
+- **Acceptance:** Toggling off mutes whoosh on next slide change; volume slider disabled when off; Test plays once per click.
+
+### Step 68 — Persist settings to localStorage via store autosave
+- **Goal:** Deck settings (background, transition, sound) survive reloads — handled by the same Step 29 autosave because settings live on `deck.settings`.
+- **Files:** Verify in `src/components/slides/persist.ts` (Step 29) and `store.ts`.
+- **Contract:**
+  - `setSettings(patch)` bumps `deck.updatedAt`, triggering the 500 ms debounced `localStorage.setItem('slides:deck:${deck.id}', JSON.stringify(deck))`.
+  - Hydrate path runs `validateSettings(deck.settings)` (Step 27) on read → clamps darken/blur/volume; falls back to `DEFAULT_SETTINGS` field-wise if any field is invalid.
+  - **UI state from Step 61** (`useSettingsUi.isOpen`) is NOT persisted (drawer always boots closed).
+  - Migration plan: if `deck.version !== 1`, run `migrate(deck)` — placeholder `(d) => ({ ...d, version: 1 })` for v1 since there's no older schema. Comment with TODO for v2.
+  - Cross-tab sync (optional, opt-in): listen to `storage` event on `slides:deck:${deck.id}`; on change, call `useDeck.getState().replaceDeck(parsed)` if `parsed.updatedAt > current.updatedAt`. Document as opt-in via env flag; OFF by default in v1 (avoid surprise overwrites during editing).
+- **Acceptance:** Change transition to `morph`, change volume to 30%, reload → both values persist; opening drawer always shows it as closed initially.
+
+### Step 69 — Install `motion` (Framer Motion successor)
+- **Goal:** Lock the animation runtime so subsequent transition steps share a single API.
+- **Files:** `package.json`.
+- **Contract:**
+  - Run `bun add motion@^11` (Framer Motion v11 republished under `motion` package).
+  - All slide transition code imports from `motion/react` (not `framer-motion`):
+    ```ts
+    import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
+    ```
+  - Do NOT also install `framer-motion` (avoid two runtimes).
+  - SSR: `motion/react` is SSR-safe (no `window` reads on import). No `'use client'` directive needed in TanStack Start (whole project is React client by default).
+  - Bundle budget: ~50 KB gzipped accepted as cost of having real transitions; lazy-load heavier exports only if Lighthouse Step 99 flags it.
+  - Project's existing `useReducedMotion` hook (Step 24) is named identically — disambiguate by importing motion's as `useReducedMotionMotion` ONLY inside transition components; consumers keep using the project hook for non-motion code paths.
+- **Acceptance:** `bun add` completes; `import { motion } from 'motion/react'` resolves; `package.json` shows `"motion": "^11.x"`.
+
+### Step 70 — `<CameraZoomTransition>` — 3D perspective + translateZ + rotateX
+- **Goal:** Signature transition matching the spec's "camera dollying in" feel. Incoming slide starts pushed back in Z space with blur + slight rotateX, then snaps to plane.
+- **Files:** `src/components/slides/transitions/CameraZoomTransition.tsx`.
+- **Contract:**
+  ```tsx
+  type Props = { transitionKey: string; children: ReactNode };
+  export function CameraZoomTransition({ transitionKey, children }: Props) {
+    const reduce = useReducedMotion();   // project hook
+    const durationMs = reduce ? 150 : Number(getComputedStyle(document.documentElement)
+                              .getPropertyValue('--slide-camera-dur').trim().replace('ms', '')) || 720;
+    const z          = reduce ? 0   : Number(getComputedStyle(document.documentElement)
+                              .getPropertyValue('--slide-camera-z').trim().replace('px',''))  || -600;
+    const blur       = reduce ? 0   : Number(getComputedStyle(document.documentElement)
+                              .getPropertyValue('--slide-camera-blur').trim().replace('px','')) || 14;
+
+    return (
+      <TransitionStage>
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={transitionKey}
+            style={{ position: 'absolute', inset: 0, transformStyle: 'preserve-3d' }}
+            initial={{ opacity: 0, z, rotateX: 4, filter: `blur(${blur}px)` }}
+            animate={{ opacity: 1, z: 0, rotateX: 0, filter: 'blur(0px)' }}
+            exit   ={{ opacity: 0, z: 220, rotateX: -2, filter: `blur(${Math.max(blur / 2, 6)}px)` }}
+            transition={{ duration: durationMs / 1000, ease: [0.22, 1, 0.36, 1] }}
+            onAnimationStart={() => { if (!reduce) triggerWhoosh(); }}
+          >
+            {children}
+          </motion.div>
+        </AnimatePresence>
+      </TransitionStage>
+    );
+  }
+  ```
+  - `AnimatePresence mode="wait"` ensures the outgoing finishes its `exit` before incoming starts → keeps the "push through" depth illusion.
+  - `transformStyle: preserve-3d` is essential — without it, `z` is ignored.
+  - `rotateX: 4 → 0` adds a subtle "camera tilt settles" cue; tuning between 2–6 degrees.
+  - CSS-var reads at render time (cheap) so live tweaking via DevTools works without recompile.
+  - Whoosh fires `onAnimationStart` (not on prop change) so React StrictMode double-renders don't double-play (motion fires this once per real animation).
+  - Component is **transition-agnostic**: the parent `SlideTransition` (Step 78) decides whether to instantiate this or another transition based on resolved transition name; this component ALWAYS performs the camera-zoom variant.
+- **Acceptance:** Navigating between two slides with `transition: 'camera-zoom'` shows incoming slide flying forward from depth with blur clearing; whoosh plays once; reduced-motion fallback collapses to a 150 ms fade with no sound.
 71. Transient `filter: blur(...)` ramp on incoming slide.
 72. Depth-of-field crossfade on outgoing layer.
 73. Trigger whoosh on transition start when sound on + not reduced-motion.
