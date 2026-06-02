@@ -19,6 +19,18 @@ export function lintDeck(deck: Deck): LintIssue[] {
   const push = (s: Slide, i: number, rule: string, message: string, severity: LintSeverity = "warn") =>
     out.push({ slideId: s.id, slideIndex: i, slideTitle: s.title, rule, message, severity });
 
+  // Deck-level: default transition camera-zoom is a known sore spot — the spec
+  // says reserve it for hero/title moments, not as the deck default.
+  if (deck.settings.transition === "camera-zoom") {
+    const first = deck.slides[0];
+    if (first) {
+      push(first, 0, "deck-camera-zoom",
+        'Deck transition is "camera-zoom" — spec recommends "fade" by default; use per-slide focus regions for hero zooms.',
+        "warn");
+    }
+  }
+
+
   // Collision detection on authored slide.number
   const seen = new Map<number, string>();
   for (let i = 0; i < deck.slides.length; i++) {
