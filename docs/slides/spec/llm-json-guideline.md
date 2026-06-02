@@ -829,10 +829,115 @@ contract — share links must be predictable.
 
 ---
 
-## Continued in batches
+## 12. Full sample deck
 
-- **B5 (steps 41–50):** Full `sample-deck.json`, validation, common mistakes,
-  versioning.
+A complete, importable deck that exercises every slide type and every
+pattern in this guideline lives at
+[`docs/slides/spec/sample-deck.json`](./sample-deck.json).
+
+It includes:
+
+- `center` cover with `display: true` and a pill highlight
+- `left` text + URL image
+- `bullets` with kicker + four pill highlights
+- `quote` with attribution
+- `steps` with three sub-step builds (no focus, plain process)
+- `timeline` with four pinpoints
+- `image` — full-bleed URL photo (`fit: "cover"`)
+- `image` — base64 PNG (`data:image/png;base64,…`)
+- `image` — inline SVG (`data:image/svg+xml;utf8,…`)
+- `steps` slide with an SVG background + **per-step `focus` regions**
+  (the recommended multi-step SVG reveal pattern)
+- `embed` with `allow` flags
+- `poll` with four options
+- `bullets` with `enabled: false` (backup-only slide)
+- `qa` closing slide
+
+To try it: File → Import → paste the JSON. Every slide should validate
+cleanly under `DeckSchema`.
+
+---
+
+## 13. Validation & import
+
+The importer at `src/lib/slides/io.ts` runs `DeckSchema.parse(...)` and
+rejects the file wholesale on any failure. There is no partial import.
+
+The Zod schema enforces these rules; trust the schema over this doc:
+
+- `id` patterns: `^[a-zA-Z0-9_-]+$`, 1–64 chars (deck id and every slide id).
+- Slide-id uniqueness: enforced at import (duplicates rejected).
+- `RichText` arrays must contain ≥ 1 segment, and at least one segment must
+  be non-blank.
+- `image.src` and `left.media.src` must match `^https?://…` OR start with
+  `data:`. No relative paths, no bare filenames.
+- `embed.url` must start with `https://` (no `http://`).
+- `slides.length` between 1 and 200.
+- `steps.length` between 1 and 8.
+- `timeline.items.length` between 2 and 8.
+- `bullets.length` between 1 and 8.
+- `poll.options.length` between 2 and 8.
+- `focus.length` ≤ 16 per slide.
+
+If a parse fails, the importer surfaces the Zod issue path
+(`slides[3].steps[2].detail`) — fix that node and re-import.
+
+---
+
+## 14. Common LLM mistakes (and the fix)
+
+| Mistake                                                | Fix                                                                                       |
+|--------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| `"heading": "Hello"` on a RichText field                | Wrap it in an array: `"heading": ["Hello"]`                                               |
+| Highlight written as `{ "highlight": "..." }`           | The key is `text`, not `highlight`: `{ "text": "...", "pill": true }`                     |
+| `"src": "/images/foo.png"` or bare filename             | Use a full `https://` URL or a `data:` URI                                                |
+| `"src": "http://..."`                                   | Schema requires https for `embed.url`; image src also rejects bare http URLs              |
+| Inline `<svg>` markup in `image.src`                    | Wrap as `data:image/svg+xml;utf8,<URL-encoded>` or `data:image/svg+xml;base64,<b64>`     |
+| Duplicate slide `id`s                                   | Make every `id` unique within the deck                                                    |
+| `slide.id` like `"1. Cover"` or `"Slide 1"` with space  | Must match `^[a-zA-Z0-9_-]+$` — use `cover-1` / `slide_1`                                |
+| `transition: "zoom"`                                    | Allowed values: `"fade" \| "morph" \| "camera-zoom" \| "eaten"`                          |
+| `steps` slide with `heading` as RichText                | `steps.heading` is a plain string. RichText is in `steps[i].detail`                       |
+| `timeline` slide with only 1 item                       | Minimum 2 items                                                                           |
+| Pill highlight on every bullet                          | Use 1–2 pills per slide; over-use kills the emphasis                                      |
+| Forgetting `settings` block                             | `DeckSettings` is required — never optional                                               |
+| `notes` as an array                                     | `notes` is a plain string (≤4000 chars)                                                   |
+| `focus` on a `bullets` / `timeline` slide               | Lists/timelines must never zoom — move the `focus` to the companion image slide           |
+| Embedding a multi-MB base64 image inline                | Host it and use a URL. Inline base64 should stay under ~200 KB                            |
+
+---
+
+## 15. Versioning & migration
+
+- `deck.version` is an optional integer. Set `1` for any new deck.
+- When the schema gains a breaking change, the importer in
+  `src/lib/slides/io.ts` runs a migration keyed on `version` and rewrites
+  the deck to the latest shape.
+- Adding a new optional field is **not** a breaking change — old decks
+  stay valid; you don't need to bump `version`.
+- Adding a new required field, removing a field, or changing a field's
+  type **is** breaking — bump `version` and add a migration.
+- LLMs generating decks should always emit `"version": 1` until told
+  otherwise. The current schema version is `1`.
+
+---
+
+## 16. Final checklist before exporting a deck
+
+- [ ] `id`, `title`, `settings`, and at least one slide present at the deck root.
+- [ ] Every slide has a unique URL-safe `id`.
+- [ ] Every `RichText` field is an array with non-blank content.
+- [ ] Every `image.src` / `media.src` is `https://` or `data:`.
+- [ ] Every `embed.url` is `https://`.
+- [ ] No `focus` on `bullets`, `quote`, or `timeline` slides.
+- [ ] `settings.transition` is `"fade"` unless this deck is deliberately
+      hero-only.
+- [ ] Each slide passes the density budget
+      (header ~100 + body + footer ~80 ≤ 1080 px).
+- [ ] Real `budget` values on every slide that will be rehearsed.
+- [ ] `version: 1` set explicitly.
+
+If all 10 boxes are checked, the deck will import cleanly and present well.
+
 
 
 
