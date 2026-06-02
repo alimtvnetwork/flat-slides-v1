@@ -41,6 +41,9 @@ export function LintPanel({ open, onClose, deck }: Props) {
   return (
     <div className="fixed inset-0 z-[55] flex justify-end bg-black/50" data-app-chrome onClick={onClose}>
       <aside
+        role="dialog"
+        aria-modal="true"
+        aria-label="Deck linter"
         onClick={(e) => e.stopPropagation()}
         className="h-full w-[min(420px,92vw)] overflow-y-auto bg-neutral-950 p-5 text-neutral-200 ring-1 ring-neutral-800"
       >
