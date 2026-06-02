@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-import { useChrome } from "./chrome-store";
+import { useChrome } from "../chrome-store";
 
 function pad2(n: number): string {
   return n < 10 ? `0${n}` : String(n);
