@@ -60,6 +60,9 @@ export interface ChromeStore {
   timerVisible: boolean;
   /** On-canvas focus-region editor open (toggled by `F`). */
   focusEditorOpen: boolean;
+  /** Presenter notes peek panel open (toggled by `N`). Persisted so the
+   *  presenter doesn't have to reopen it on every slide. */
+  notesPeekOpen: boolean;
   /** Recent jump history (linear positions), most-recent-first, max 8. */
   recentJumps: number[];
   /** Presenter webcam bubble (presenter-local, never exported). */
@@ -78,6 +81,8 @@ export interface ChromeStore {
   toggleTimerVisible: () => void;
   setFocusEditorOpen: (v: boolean) => void;
   toggleFocusEditor: () => void;
+  setNotesPeekOpen: (v: boolean) => void;
+  toggleNotesPeek: () => void;
   pushRecentJump: (n: number) => void;
   clearRecentJumps: () => void;
   setCamera: (patch: Partial<CameraState>) => void;
@@ -101,6 +106,7 @@ export const useChrome = create<ChromeStore>()(
       slideNumberBadgeVisible: true,
       timerVisible: true,
       focusEditorOpen: false,
+      notesPeekOpen: false,
       recentJumps: [],
       camera: {
         visible: false,
@@ -126,6 +132,8 @@ export const useChrome = create<ChromeStore>()(
       toggleTimerVisible: () => set((s) => ({ timerVisible: !s.timerVisible })),
       setFocusEditorOpen: (v) => set({ focusEditorOpen: v }),
       toggleFocusEditor: () => set((s) => ({ focusEditorOpen: !s.focusEditorOpen })),
+      setNotesPeekOpen: (v) => set({ notesPeekOpen: v }),
+      toggleNotesPeek: () => set((s) => ({ notesPeekOpen: !s.notesPeekOpen })),
       pushRecentJump: (n) =>
         set((s) => {
           const next = [n, ...s.recentJumps.filter((x) => x !== n)].slice(0, 8);
@@ -156,6 +164,7 @@ export const useChrome = create<ChromeStore>()(
         dotPaginationVisible: s.dotPaginationVisible,
         slideNumberBadgeVisible: s.slideNumberBadgeVisible,
         timerVisible: s.timerVisible,
+        notesPeekOpen: s.notesPeekOpen,
         camera: { ...s.camera, visible: false },
         music: { ...s.music, playing: false },
         scene: s.scene,

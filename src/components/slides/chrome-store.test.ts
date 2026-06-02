@@ -85,3 +85,20 @@ describe("chrome-store camera reducers", () => {
     throw new Error("stage-fill not reached");
   });
 });
+
+describe("chrome-store notes peek", () => {
+  it("toggleNotesPeek flips notesPeekOpen", () => {
+    expect(useChrome.getState().notesPeekOpen).toBe(false);
+    useChrome.getState().toggleNotesPeek();
+    expect(useChrome.getState().notesPeekOpen).toBe(true);
+    useChrome.getState().toggleNotesPeek();
+    expect(useChrome.getState().notesPeekOpen).toBe(false);
+  });
+
+  it("setNotesPeekOpen sets the value directly", () => {
+    useChrome.getState().setNotesPeekOpen(true);
+    expect(useChrome.getState().notesPeekOpen).toBe(true);
+    useChrome.getState().setNotesPeekOpen(false);
+    expect(useChrome.getState().notesPeekOpen).toBe(false);
+  });
+});

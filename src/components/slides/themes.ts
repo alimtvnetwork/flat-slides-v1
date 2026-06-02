@@ -92,6 +92,11 @@ export function getTheme(id: string | undefined): Theme {
   return THEME_INDEX.get(id) ?? THEMES[0];
 }
 
+/** Lightweight `{id, name}` list — for pickers/UI that doesn't need full colors. */
+export function listThemes(): Array<{ id: string; name: string }> {
+  return THEMES.map((t) => ({ id: t.id, name: t.name }));
+}
+
 /** Relative perceived brightness 0..1 from a #rrggbb / #rgb hex. */
 function hexLuma(hex: string): number {
   const h = hex.replace("#", "");
