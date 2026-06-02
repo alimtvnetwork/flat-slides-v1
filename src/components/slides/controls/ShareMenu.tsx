@@ -23,6 +23,7 @@ export function ShareMenu({ current, step }: Props) {
   const flash = useChrome((s) => s.flashToast);
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
+  const reduced = useReducedMotion();
 
   useEffect(() => {
     if (!open) return;
