@@ -3,12 +3,15 @@
 > Master index of `.lovable/memory/`. Every file under this tree must be listed here.
 
 ## Workflow
-- [01-current-batch.md](workflow/01-current-batch.md) — active batch status (B16–B18 shipped, B19 queued)
+- [01-current-batch.md](workflow/01-current-batch.md) — active batch status (B16–B18 shipped, B19A settings/fullscreen/camera repair queued before B19 lint polish)
+
+## Diagnostics
+- [01-slide-settings-fullscreen-camera-rca.md](diagnostics/01-slide-settings-fullscreen-camera-rca.md) — RCA for settings not applying, darken/blur no-op, fullscreen zoom escape, camera focus indexing, and proposal example gaps
 
 ## Decisions
 - [01-audio-system.md](decisions/01-audio-system.md) — HTMLAudioElement stop-before-play; whoosh/zoom/click mapping
 - [02-highlight-text-shadow.md](decisions/02-highlight-text-shadow.md) — `.hl` uses crisp `rgb(0 0 0) 1px 0.7px 0px` ink-stamp; no glow
-- [03-settings-background-color.md](decisions/03-settings-background-color.md) — `ThemeWrap` overrides `--slide-bg` when `backgroundMode === "color"`
+- [03-settings-background-color.md](decisions/03-settings-background-color.md) — initial `ThemeWrap` override was incomplete; see diagnostics RCA before changing settings/background behavior
 - [04-slide-step-clicks.md](decisions/04-slide-step-clicks.md) — StepsSlide rows + TimelineSlide milestones are click-targets via `useStepJump`
 
 ## Specs
