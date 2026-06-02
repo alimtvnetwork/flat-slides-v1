@@ -182,8 +182,10 @@ export const useDeck = create<DeckStore>()(
       themeId: DEFAULT_THEME_ID,
       setSettings: (patch) =>
         set((s) => ({ deck: forceFadeTransition({ ...s.deck, settings: { ...s.deck.settings, ...patch } }) })),
-      setThemeId: (id) =>
-        set((s) => ({ themeId: id, deck: { ...s.deck, themeId: id } })),
+      setThemeId: (id) => {
+        set((s) => ({ themeId: id, deck: { ...s.deck, themeId: id } }));
+        emitSlidesEvent({ type: "theme-change", themeId: id });
+      },
       setDeck: (deck) =>
         set(() => {
           const safeDeck = forceFadeTransition(deck);
