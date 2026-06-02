@@ -144,6 +144,17 @@ export function slideStepCount(slide: Slide): number {
   return 0;
 }
 
+/**
+ * Display number for the badge / grid.
+ *
+ * Returns the authored `slide.number` when set, otherwise the 1-based linear
+ * position. URLs always use linear positions — this helper only affects what
+ * humans see (badge text, grid chips, recent-jumps).
+ */
+export function getDisplayNumber(slide: Slide, linearPosition: number): number {
+  return typeof slide.number === "number" ? slide.number : linearPosition;
+}
+
 export type TransitionKind = "camera-zoom" | "morph" | "fade" | "eaten";
 
 export interface DeckSettings {
