@@ -232,3 +232,87 @@ describe("lintDeck — B16 rules", () => {
     expect(ids).toContain("caption-markdown");
   });
 });
+
+describe("lintDeck — B17 rules", () => {
+  it("flags deck volume outside [0, 1]", () => {
+    const deck = deckOf([center], {
+      settings: { ...baseSettings, volume: 1.5 },
+    });
+    expect(lintDeck(deck).some((i) => i.rule === "volume-out-of-range")).toBe(true);
+  });
+
+  it("flags duplicate slide titles", () => {
+    const a: Slide = { id: "a", type: "center", title: "Same", heading: ["H"] };
+    const b: Slide = { id: "b", type: "center", title: "Same", heading: ["H"] };
+    expect(lintDeck(deckOf([a, b])).some((i) => i.rule === "duplicate-title")).toBe(true);
+  });
+
+  it("flags invalid focus rect (w<=0) as error", () => {
+    const s: Slide = {
+      id: "s", type: "image", title: "I", src: "https://x/y.png", alt: "ok",
+      focus: [{ x: 0, y: 0, w: 0, h: 100 }],
+    };
+    const hit = lintDeck(deckOf([s])).find((i) => i.rule === "focus-rect-invalid");
+    expect(hit?.severity).toBe("error");
+  });
+
+  it("flags focus rect extending past 1920×1080", () => {
+    const s: Slide = {
+      id: "s", type: "image", title: "I", src: "https://x/y.png", alt: "ok",
+      focus: [{ x: 1500, y: 500, w: 600, h: 700 }],
+    };
+    expect(lintDeck(deckOf([s])).some((i) => i.rule === "focus-rect-out-of-bounds")).toBe(true);
+  });
+
+  it("flags padding out of range and invalid budget", () => {
+    const s: Slide = { id: "s", type: "center", title: "X", heading: ["H"], padding: 999, budget: 0 };
+    const issues = lintDeck(deckOf([s]));
+    expect(issues.some((i) => i.rule === "padding-out-of-range")).toBe(true);
+    expect(issues.some((i) => i.rule === "budget-invalid")).toBe(true);
+  });
+
+  it("flags http:// slide backgrounds", () => {
+    const s: Slide = { id: "s", type: "center", title: "X", heading: ["H"], background: "http://example.com/bg.jpg" };
+    expect(lintDeck(deckOf([s])).some((i) => i.rule === "background-not-https")).toBe(true);
+  });
+
+  it("does NOT flag https or data: backgrounds", () => {
+    const s: Slide = { id: "s", type: "center", title: "X", heading: ["H"], background: "https://example.com/bg.jpg" };
+    expect(lintDeck(deckOf([s])).some((i) => i.rule === "background-not-https")).toBe(false);
+  });
+
+  it("flags embed slide missing url as error", () => {
+    const s: Slide = { id: "e", type: "embed", title: "E", url: "" };
+    const hit = lintDeck(deckOf([s])).find((i) => i.rule === "embed-missing-url");
+    expect(hit?.severity).toBe("error");
+  });
+
+  it("flags left-slide media object without alt", () => {
+    const s: Slide = {
+      id: "l", type: "left", title: "L",
+      heading: ["H"], body: ["b"],
+      media: { src: "https://x/y.png" },
+    };
+    expect(lintDeck(deckOf([s])).some((i) => i.rule === "left-media-alt-missing")).toBe(true);
+  });
+
+  it("does NOT flag left-slide media object with alt", () => {
+    const s: Slide = {
+      id: "l", type: "left", title: "L",
+      heading: ["H"], body: ["b"],
+      media: { src: "https://x/y.png", alt: "team photo" },
+    };
+    expect(lintDeck(deckOf([s])).some((i) => i.rule === "left-media-alt-missing")).toBe(false);
+  });
+
+  it("LINT_RULES registry contains every B17 rule", () => {
+    const ids = LINT_RULES.map((r) => r.id);
+    for (const id of [
+      "volume-out-of-range", "duplicate-title", "focus-rect-invalid",
+      "focus-rect-out-of-bounds", "padding-out-of-range", "budget-invalid",
+      "background-not-https", "embed-missing-url", "left-media-alt-missing",
+    ]) {
+      expect(ids).toContain(id);
+    }
+  });
+});
