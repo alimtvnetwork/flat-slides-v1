@@ -129,6 +129,7 @@ function useStepJump(slide: Slide) {
 function StepsSlide({ slide, step }: { slide: StepsSlideProps; step: number }) {
   const focus = Math.max(0, Math.min(step, slide.steps.length - 1));
   const focused = slide.steps[focus];
+  const jumpToStep = useStepJump(slide);
   return (
     <SlideLayout background={slide.background}>
       <div className="absolute inset-0 grid grid-cols-[520px_minmax(0,1fr)] gap-[70px] pl-[380px] pr-[260px] pt-[110px] pb-[110px]">
