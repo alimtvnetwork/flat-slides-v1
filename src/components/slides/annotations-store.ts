@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 export type AnnotationMode = "off" | "pointer" | "ink";
 
