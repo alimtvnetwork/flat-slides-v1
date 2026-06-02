@@ -111,7 +111,7 @@ function StepsSlide({ slide, step }: { slide: StepsSlideProps; step: number }) {
   const focused = slide.steps[focus];
   return (
     <SlideLayout background={slide.background}>
-      <div className="absolute inset-0 grid grid-cols-[640px_minmax(0,1fr)] gap-[60px] px-[150px] pt-[110px] pb-[110px]">
+      <div className="absolute inset-0 grid grid-cols-[560px_minmax(0,1fr)] gap-[80px] px-[260px] pt-[110px] pb-[110px]">
         <div className="min-w-0">
         <h2
           className="slide-heading slide-subtitle mb-[52px]"
@@ -156,7 +156,7 @@ function StepsSlide({ slide, step }: { slide: StepsSlideProps; step: number }) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -12 }}
               transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-              style={{ width: "100%", maxWidth: 940, overflowWrap: "break-word" }}
+              style={{ width: "100%", maxWidth: 760, overflowWrap: "break-word" }}
             >
               <div className="slide-kicker slide-heading mb-[22px]" style={{ color: "var(--slide-hl)" }}>
                 {focused?.label ?? ""}
@@ -165,7 +165,7 @@ function StepsSlide({ slide, step }: { slide: StepsSlideProps; step: number }) {
                 className="slide-heading"
                 style={{
                   color: "var(--slide-fg)",
-                  fontSize: 96,
+                  fontSize: 72,
                   lineHeight: 1.05,
                   letterSpacing: 0,
                   textWrap: "balance",
@@ -175,7 +175,7 @@ function StepsSlide({ slide, step }: { slide: StepsSlideProps; step: number }) {
                 {focused?.title ?? ""}
               </div>
               {focused?.detail ? (
-                <div className="slide-body-lg slide-body-font mx-auto mt-[30px]" style={{ color: "var(--slide-muted)", maxWidth: 900 }}>
+                <div className="slide-body slide-body-font mx-auto mt-[30px]" style={{ color: "var(--slide-muted)", maxWidth: 760 }}>
                   <Rich value={focused.detail} />
                 </div>
               ) : null}
