@@ -14,6 +14,27 @@ export type TextPosition =
   | "center-left"| "center"        | "center-right"
   | "bottom-left"| "bottom-center" | "bottom-right";
 
+/**
+ * A focus region targets a rectangle inside the 1920×1080 slide canvas.
+ * The camera "zooms" so this rect fills the viewport (preserving aspect).
+ */
+export interface FocusRegion {
+  /** Top-left x in 1920-px slide space. */
+  x: number;
+  /** Top-left y in 1080-px slide space. */
+  y: number;
+  /** Width in 1920-px slide space (must be > 0). */
+  w: number;
+  /** Height in 1080-px slide space (must be > 0). */
+  h: number;
+  /** Optional 1-based step the region binds to. Omit ⇒ all steps. */
+  step?: number;
+  /** Animation duration ms (default 700). */
+  duration?: number;
+  /** Optional label used in the editor/inspector. */
+  label?: string;
+}
+
 export interface BaseSlide {
   id: string;
   type: SlideType;
