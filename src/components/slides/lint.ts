@@ -30,7 +30,6 @@ export function lintDeck(deck: Deck): LintIssue[] {
     }
   }
 
-
   // Collision detection on authored slide.number
   const seen = new Map<number, string>();
   for (let i = 0; i < deck.slides.length; i++) {
@@ -41,6 +40,19 @@ export function lintDeck(deck: Deck): LintIssue[] {
       push(s, i, "number-collision", `Authored number ${s.number} duplicates slide "${prior}"`, "warn");
     } else {
       seen.set(s.number, s.title || s.id);
+    }
+  }
+
+  // Duplicate slide.id check — IDs are the persistence key, collisions break navigation.
+  const idSeen = new Map<string, number>();
+  for (let i = 0; i < deck.slides.length; i++) {
+    const s = deck.slides[i];
+    if (!s.id) continue;
+    const prior = idSeen.get(s.id);
+    if (prior !== undefined) {
+      push(s, i, "duplicate-id", `Slide id "${s.id}" duplicates slide #${prior + 1}`, "error");
+    } else {
+      idSeen.set(s.id, i);
     }
   }
 
