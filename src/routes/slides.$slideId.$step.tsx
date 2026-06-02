@@ -11,7 +11,7 @@ import { useFullscreen } from "@/components/slides/useFullscreen";
 
 export const Route = createFileRoute("/slides/$slideId/$step")({
   head: ({ params }) => ({
-    meta: [{ title: `Slide — ${params.slideId} · step ${params.step}` }],
+    meta: [{ title: `Slide ${params.slideId} · step ${params.step}` }],
   }),
   component: SlideStepPage,
 });
@@ -20,8 +20,8 @@ function SlideStepPage() {
   const { slideId, step } = Route.useParams();
   const navigate = useNavigate();
   const slides = useDeck((s) => s.deck.slides);
-  const index = slides.findIndex((s) => s.id === slideId);
-  const slide = index >= 0 ? slides[index] : undefined;
+  const index = Math.max(0, (parseInt(slideId, 10) || 0) - 1);
+  const slide = index >= 0 && index < slides.length ? slides[index] : undefined;
   const stepNum = Math.max(0, parseInt(step, 10) || 0);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const { isFs, toggle: toggleFs, exit: exitFs } = useFullscreen();
@@ -34,6 +34,7 @@ function SlideStepPage() {
   useEffect(() => {
     if (!slide || slide.type !== "steps") return;
     const last = slide.steps.length - 1;
+    const slideParam = String(index + 1);
     const onKey = (e: KeyboardEvent) => {
       if ((e.target as HTMLElement)?.tagName === "INPUT") return;
       if (e.key === "F5") { e.preventDefault(); toggleFs(); return; }
@@ -42,26 +43,24 @@ function SlideStepPage() {
         if (stepNum < last) {
           navigate({
             to: "/slides/$slideId/$step",
-            params: { slideId: slide.id, step: String(stepNum + 1) },
+            params: { slideId: slideParam, step: String(stepNum + 1) },
           });
-        } else {
-          const next = slides[index + 1];
-          if (next) navigate({ to: "/slides/$slideId", params: { slideId: next.id } });
+        } else if (index + 1 < slides.length) {
+          navigate({ to: "/slides/$slideId", params: { slideId: String(index + 2) } });
         }
       } else if (e.key === "ArrowLeft") {
         if (stepNum > 0) {
           const target = stepNum - 1;
           if (target === 0) {
-            navigate({ to: "/slides/$slideId", params: { slideId: slide.id } });
+            navigate({ to: "/slides/$slideId", params: { slideId: slideParam } });
           } else {
             navigate({
               to: "/slides/$slideId/$step",
-              params: { slideId: slide.id, step: String(target) },
+              params: { slideId: slideParam, step: String(target) },
             });
           }
-        } else {
-          const prev = slides[index - 1];
-          if (prev) navigate({ to: "/slides/$slideId", params: { slideId: prev.id } });
+        } else if (index > 0) {
+          navigate({ to: "/slides/$slideId", params: { slideId: String(index) } });
         }
       }
     };
