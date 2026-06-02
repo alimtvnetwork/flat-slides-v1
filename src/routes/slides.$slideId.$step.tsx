@@ -10,6 +10,7 @@ import { PresenterToast } from "@/components/slides/controls/PresenterToast";
 import { PresenterTopBar } from "@/components/slides/controls/PresenterTopBar";
 import { SlideNumberBadge } from "@/components/slides/controls/SlideNumberBadge";
 import { RenderSlide } from "@/components/slides/RenderSlide";
+import { CameraStage } from "@/components/slides/CameraStage";
 import { ScaledSlide } from "@/components/slides/ScaledSlide";
 import { SettingsDrawer } from "@/components/slides/SettingsDrawer";
 import { SlideTransition } from "@/components/slides/SlideTransition";
@@ -127,7 +128,7 @@ function SlideStepPage() {
     <div style={{ opacity: slideOpacity, transition: "opacity 300ms ease" }} className="absolute inset-0">
       <ScaledSlide fitPadding={36}>
         <SlideTransition transitionKey={slide.id} allowZoom={slide.type === "center" && slide.display === true}>
-          <RenderSlide slide={slide} step={stepNum} />
+          <CameraStage slide={slide} step={stepNum}><RenderSlide slide={slide} step={stepNum} /></CameraStage>
         </SlideTransition>
       </ScaledSlide>
     </div>

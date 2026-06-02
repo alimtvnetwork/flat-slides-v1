@@ -14,6 +14,27 @@ export type TextPosition =
   | "center-left"| "center"        | "center-right"
   | "bottom-left"| "bottom-center" | "bottom-right";
 
+/**
+ * A focus region targets a rectangle inside the 1920×1080 slide canvas.
+ * The camera "zooms" so this rect fills the viewport (preserving aspect).
+ */
+export interface FocusRegion {
+  /** Top-left x in 1920-px slide space. */
+  x: number;
+  /** Top-left y in 1080-px slide space. */
+  y: number;
+  /** Width in 1920-px slide space (must be > 0). */
+  w: number;
+  /** Height in 1080-px slide space (must be > 0). */
+  h: number;
+  /** Optional 1-based step the region binds to. Omit ⇒ all steps. */
+  step?: number;
+  /** Animation duration ms (default 700). */
+  duration?: number;
+  /** Optional label used in the editor/inspector. */
+  label?: string;
+}
+
 export interface BaseSlide {
   id: string;
   type: SlideType;
@@ -35,6 +56,13 @@ export interface BaseSlide {
    * URLs (those remain 1-based linear positions).
    */
   number?: number;
+  /**
+   * Optional per-slide focus regions (Ken-Burns / "camera-zoom" into a rect).
+   * Coordinates are in the 1920×1080 slide space. When `step` is set the
+   * region activates on that 1-based step; otherwise it activates on every
+   * step. The first matching region wins. Empty/undefined ⇒ full frame.
+   */
+  focus?: FocusRegion[];
 }
 
 export interface LeftSlideProps extends BaseSlide {
@@ -153,6 +181,20 @@ export function slideStepCount(slide: Slide): number {
  */
 export function getDisplayNumber(slide: Slide, linearPosition: number): number {
   return typeof slide.number === "number" ? slide.number : linearPosition;
+}
+
+/**
+ * Resolve the focus region active for `step` (1-based). A region with no
+ * `step` matches every step. Step-bound regions take priority over
+ * unbound ones. Returns `null` for full-frame.
+ */
+export function getActiveFocusRegion(slide: Slide, step: number): FocusRegion | null {
+  const regions = slide.focus;
+  if (!regions || regions.length === 0) return null;
+  const stepBound = regions.find((r) => r.step === step);
+  if (stepBound) return stepBound;
+  const unbound = regions.find((r) => r.step === undefined);
+  return unbound ?? null;
 }
 
 export type TransitionKind = "camera-zoom" | "morph" | "fade" | "eaten";
