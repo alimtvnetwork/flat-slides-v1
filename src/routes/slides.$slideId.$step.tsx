@@ -241,6 +241,7 @@ function SlideStepPage() {
       <PresenterToast />
       <KeyboardShortcutsDialog open={helpOpen} onClose={() => setHelpOpen(false)} />
       <SettingsDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} currentSlideId={slide.id} />
+      <OnboardingCoachmark />
     </div>
   );
 }
