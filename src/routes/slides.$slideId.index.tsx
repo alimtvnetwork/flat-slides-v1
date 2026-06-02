@@ -75,6 +75,18 @@ function SlidePage() {
     );
   }
 
+  if (isFs) {
+    return (
+      <div className="fixed inset-0 z-[100] bg-black">
+        <ScaledSlide>
+          <SlideTransition transitionKey={slide.id}>
+            <RenderSlide slide={slide} step={0} />
+          </SlideTransition>
+        </ScaledSlide>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen flex-col bg-black">
       <div className="flex-1 relative">
