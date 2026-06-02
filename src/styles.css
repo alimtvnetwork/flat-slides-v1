@@ -252,3 +252,10 @@
   .slide-anim { animation: none !important; transition: opacity 150ms ease !important; }
 }
 
+
+
+/* Print mode: hide presenter chrome but keep slide content + ink. */
+@media print {
+  [data-print-hide] { display: none !important; }
+}
+
