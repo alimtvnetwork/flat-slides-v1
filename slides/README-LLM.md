@@ -132,8 +132,9 @@ Every slide has these **common fields** (in addition to type-specific ones):
 }
 ```
 
-All step labels remain visible. Arrow navigation changes the focused step and
-cross-fades the focused title/detail; non-focused steps stay muted, not hidden.
+All step labels and titles remain visible. Arrow navigation changes the focused
+step and cross-fades only the centered title/detail; non-focused steps stay
+readable but muted/grey, never hidden.
 Legacy rich-text arrays are still accepted on import and become `{ "label":
 "Step N", "detail": [...] }` automatically.
 
@@ -151,7 +152,8 @@ Legacy rich-text arrays are still accepted on import and become `{ "label":
 ```
 
 Timeline items render as pinpoints on a rail. The focused item is highlighted,
-other labels stay muted/grey, and the centered title/detail fades between items.
+completed/other pinpoints stay visible in muted/grey states, and the centered
+title/detail fades between items without zooming the slide.
 
 ### 5.5 `type: "quote"` — pull quote with attribution
 ```json
@@ -289,7 +291,7 @@ Paste this prompt to generate a deck:
 
 > You are a deck author. Output **only** a single JSON object matching the
 > Glasswing deck schema below. No markdown, no commentary. Constraints:
-> 6–12 slides, mix of `center`, `bullets`, `steps`, `quote`. Use the
+> 6–12 slides, mix of `center`, `bullets`, `steps`, `timeline`, `quote`. Use the
 > `midnight` theme. Highlight one keyword per slide with `{"text":"…"}`.
 > Topic: **<YOUR TOPIC>**.
 >

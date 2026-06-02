@@ -46,6 +46,18 @@
       ]
     },
     {
+      "id": "timeline",
+      "type": "timeline",
+      "title": "Timeline",
+      "heading": "Launch timeline",
+      "items": [
+        { "label": "Step 1", "title": "Define", "detail": ["Name the ", { "text": "outcome" }, " and success signal."] },
+        { "label": "Step 2", "title": "Build", "detail": ["Move the active pinpoint while the rail stays visible."] },
+        { "label": "Step 3", "title": "Review", "detail": ["Fade the centered detail into ", { "text": "focus" }, "."] },
+        { "label": "Step 4", "title": "Ship", "detail": ["Keep the other steps readable but muted."] }
+      ]
+    },
+    {
       "id": "outro",
       "type": "quote",
       "title": "Outro",
