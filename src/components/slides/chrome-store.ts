@@ -66,6 +66,8 @@ export interface ChromeStore {
   setSlideNumberBadgeVisible: (v: boolean) => void;
   setTimerVisible: (v: boolean) => void;
   toggleTimerVisible: () => void;
+  setFocusEditorOpen: (v: boolean) => void;
+  toggleFocusEditor: () => void;
   pushRecentJump: (n: number) => void;
   clearRecentJumps: () => void;
   setCamera: (patch: Partial<CameraState>) => void;
