@@ -63,6 +63,14 @@ function SlidePage() {
 
   // Drive the presentation timer; record dwell into the active slide bucket.
   usePresentationTimer();
+  // Broadcast presenter state so audience tabs stay in sync.
+  useAudienceSync({
+    slideIndex: current,
+    slideId: slide?.id ?? "",
+    stepNum: 1,
+    total,
+    title: slide?.title,
+  });
   useEffect(() => {
     if (!slide) return;
     document.title = `${current}/${total} — ${slide.title}`;
