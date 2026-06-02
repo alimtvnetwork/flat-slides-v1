@@ -23,6 +23,7 @@ function SlidePage() {
   const index = slides.findIndex((s) => s.id === slideId);
   const slide = index >= 0 ? slides[index] : undefined;
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const { isFs, toggle: toggleFs, exit: exitFs } = useFullscreen();
 
   useEffect(() => {
     if (!slide) return;
@@ -33,6 +34,8 @@ function SlidePage() {
     if (!slide) return;
     const onKey = (e: KeyboardEvent) => {
       if ((e.target as HTMLElement)?.tagName === "INPUT") return;
+      if (e.key === "F5") { e.preventDefault(); toggleFs(); return; }
+      if (e.key === "Escape" && isFs) { exitFs(); return; }
       if (e.key === "ArrowRight" || e.key === " " || e.key === "Enter") {
         if (slide.type === "steps" && slide.steps.length > 1) {
           navigate({
@@ -50,7 +53,7 @@ function SlidePage() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [slide, index, slides, navigate]);
+  }, [slide, index, slides, navigate, isFs, toggleFs, exitFs]);
 
   if (!slide) {
     return (
@@ -67,7 +70,9 @@ function SlidePage() {
     <div className="flex min-h-screen flex-col bg-black">
       <div className="flex-1 relative">
         <ScaledSlide>
-          <RenderSlide slide={slide} step={0} />
+          <SlideTransition transitionKey={slide.id}>
+            <RenderSlide slide={slide} step={0} />
+          </SlideTransition>
         </ScaledSlide>
       </div>
       <ControlBar
