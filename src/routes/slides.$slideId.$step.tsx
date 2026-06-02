@@ -86,7 +86,7 @@ function SlideStepPage() {
     return (
       <div className="fixed inset-0 z-[100] flex flex-col bg-black">
         <div className="relative flex-1">
-          <ScaledSlide>
+          <ScaledSlide fitPadding={36}>
             <SlideTransition transitionKey={slide.id} allowZoom={slide.type === "center" && slide.display === true}>
               <RenderSlide slide={slide} step={stepNum} />
             </SlideTransition>
@@ -113,7 +113,7 @@ function SlideStepPage() {
   return (
     <div className="flex min-h-screen flex-col bg-black">
       <div className="flex-1 relative">
-        <ScaledSlide>
+        <ScaledSlide fitPadding={36}>
           <SlideTransition transitionKey={slide.id} allowZoom={slide.type === "center" && slide.display === true}>
             <RenderSlide slide={slide} step={stepNum} />
           </SlideTransition>
