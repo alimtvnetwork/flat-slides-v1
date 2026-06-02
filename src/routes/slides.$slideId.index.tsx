@@ -14,7 +14,7 @@ import { useFullscreen } from "@/components/slides/useFullscreen";
 
 export const Route = createFileRoute("/slides/$slideId/")({
   head: ({ params }) => ({
-    meta: [{ title: `Slide — ${params.slideId}` }],
+    meta: [{ title: `Slide ${params.slideId}` }],
   }),
   component: SlidePage,
 });
@@ -24,8 +24,8 @@ function SlidePage() {
   const navigate = useNavigate();
   const deck = useDeck((s) => s.deck);
   const slides = deck.slides;
-  const index = slides.findIndex((s) => s.id === slideId);
-  const slide = index >= 0 ? slides[index] : undefined;
+  const index = Math.max(0, (parseInt(slideId, 10) || 0) - 1);
+  const slide = index >= 0 && index < slides.length ? slides[index] : undefined;
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [lintOpen, setLintOpen] = useState(false);
@@ -49,15 +49,17 @@ function SlidePage() {
         if (slide.type === "steps" && slide.steps.length > 1) {
           navigate({
             to: "/slides/$slideId/$step",
-            params: { slideId: slide.id, step: "1" },
+            params: { slideId: String(index + 1), step: "1" },
           });
           return;
         }
-        const next = slides[index + 1];
-        if (next) navigate({ to: "/slides/$slideId", params: { slideId: next.id } });
+        if (index + 1 < slides.length) {
+          navigate({ to: "/slides/$slideId", params: { slideId: String(index + 2) } });
+        }
       } else if (e.key === "ArrowLeft") {
-        const prev = slides[index - 1];
-        if (prev) navigate({ to: "/slides/$slideId", params: { slideId: prev.id } });
+        if (index > 0) {
+          navigate({ to: "/slides/$slideId", params: { slideId: String(index) } });
+        }
       }
     };
     window.addEventListener("keydown", onKey);

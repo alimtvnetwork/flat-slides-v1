@@ -35,7 +35,7 @@ export function CommandPalette({ open, onClose, slides, onOpenSettings, onPresen
       id: `slide-${s.id}`,
       label: `${i + 1}. ${s.title}`,
       hint: s.type,
-      run: () => navigate({ to: "/slides/$slideId", params: { slideId: s.id } }),
+      run: () => navigate({ to: "/slides/$slideId", params: { slideId: String(i + 1) } }),
     }));
     const all = [...acts, ...slideActs];
     if (!q.trim()) return all;

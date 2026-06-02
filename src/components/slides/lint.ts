@@ -3,6 +3,7 @@ import type { RichText, Slide, Deck } from "./types";
 export type LintSeverity = "warn" | "error";
 export interface LintIssue {
   slideId: string;
+  slideIndex: number;
   slideTitle: string;
   rule: string;
   message: string;
@@ -15,35 +16,36 @@ const richLen = (r?: RichText) =>
 /** Pure deck linter — flags overcrowding, missing alt text, empty headings. */
 export function lintDeck(deck: Deck): LintIssue[] {
   const out: LintIssue[] = [];
-  const push = (s: Slide, rule: string, message: string, severity: LintSeverity = "warn") =>
-    out.push({ slideId: s.id, slideTitle: s.title, rule, message, severity });
+  const push = (s: Slide, i: number, rule: string, message: string, severity: LintSeverity = "warn") =>
+    out.push({ slideId: s.id, slideIndex: i, slideTitle: s.title, rule, message, severity });
 
-  for (const s of deck.slides) {
-    if (!s.title?.trim()) push(s, "title-missing", "Slide has no title", "error");
+  for (let i = 0; i < deck.slides.length; i++) {
+    const s = deck.slides[i];
+    if (!s.title?.trim()) push(s, i, "title-missing", "Slide has no title", "error");
 
     switch (s.type) {
       case "bullets":
-        if (s.bullets.length > 6) push(s, "too-many-bullets", `${s.bullets.length} bullets (max 6 recommended)`);
+        if (s.bullets.length > 6) push(s, i, "too-many-bullets", `${s.bullets.length} bullets (max 6 recommended)`);
         if (s.bullets.some((b) => richLen(b) > 90))
-          push(s, "bullet-too-long", "A bullet exceeds 90 characters — split or trim");
-        if (richLen(s.heading) === 0) push(s, "heading-empty", "Bullets slide is missing a heading", "error");
+          push(s, i, "bullet-too-long", "A bullet exceeds 90 characters — split or trim");
+        if (richLen(s.heading) === 0) push(s, i, "heading-empty", "Bullets slide is missing a heading", "error");
         break;
       case "steps":
-        if (s.steps.length > 7) push(s, "too-many-steps", `${s.steps.length} steps (max 7 recommended)`);
+        if (s.steps.length > 7) push(s, i, "too-many-steps", `${s.steps.length} steps (max 7 recommended)`);
         break;
       case "center":
-        if (richLen(s.heading) === 0) push(s, "heading-empty", "Center slide is missing a heading", "error");
-        if (richLen(s.heading) > 80) push(s, "heading-too-long", "Center heading is very long for a hero slide");
+        if (richLen(s.heading) === 0) push(s, i, "heading-empty", "Center slide is missing a heading", "error");
+        if (richLen(s.heading) > 80) push(s, i, "heading-too-long", "Center heading is very long for a hero slide");
         break;
       case "left":
-        if (richLen(s.body) > 320) push(s, "body-too-long", "Body copy is dense (>320 chars) — consider splitting");
+        if (richLen(s.body) > 320) push(s, i, "body-too-long", "Body copy is dense (>320 chars) — consider splitting");
         break;
       case "quote":
-        if (richLen(s.quote) > 220) push(s, "quote-too-long", "Quote is long — trim for impact");
-        if (!s.attribution) push(s, "quote-no-attribution", "Quote has no attribution");
+        if (richLen(s.quote) > 220) push(s, i, "quote-too-long", "Quote is long — trim for impact");
+        if (!s.attribution) push(s, i, "quote-no-attribution", "Quote has no attribution");
         break;
       case "image":
-        if (!s.alt?.trim()) push(s, "image-alt-missing", "Image is missing alt text (a11y)", "error");
+        if (!s.alt?.trim()) push(s, i, "image-alt-missing", "Image is missing alt text (a11y)", "error");
         break;
     }
   }

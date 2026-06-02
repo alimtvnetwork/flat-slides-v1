@@ -37,10 +37,10 @@ export function ControlBar({ slides, index, step, totalSteps, onOpenSettings, on
     if (typeof step === "number" && curStep < lastStep) {
       navigate({
         to: "/slides/$slideId/$step",
-        params: { slideId: current.id, step: String(curStep + 1) },
+        params: { slideId: String(index + 1), step: String(curStep + 1) },
       });
     } else if (nextSlide) {
-      navigate({ to: "/slides/$slideId", params: { slideId: nextSlide.id } });
+      navigate({ to: "/slides/$slideId", params: { slideId: String(index + 2) } });
     }
   };
 
@@ -49,21 +49,21 @@ export function ControlBar({ slides, index, step, totalSteps, onOpenSettings, on
     if (typeof step === "number" && curStep > 0) {
       const target = curStep - 1;
       if (target === 0) {
-        navigate({ to: "/slides/$slideId", params: { slideId: current.id } });
+        navigate({ to: "/slides/$slideId", params: { slideId: String(index + 1) } });
       } else {
         navigate({
           to: "/slides/$slideId/$step",
-          params: { slideId: current.id, step: String(target) },
+          params: { slideId: String(index + 1), step: String(target) },
         });
       }
     } else if (prevSlide) {
-      navigate({ to: "/slides/$slideId", params: { slideId: prevSlide.id } });
+      navigate({ to: "/slides/$slideId", params: { slideId: String(index) } });
     }
   };
 
   const jumpTo = (n: number) => {
-    const target = slides[Math.max(0, Math.min(slides.length - 1, n - 1))];
-    if (target) navigate({ to: "/slides/$slideId", params: { slideId: target.id } });
+    const clamped = Math.max(1, Math.min(slides.length, n));
+    navigate({ to: "/slides/$slideId", params: { slideId: String(clamped) } });
   };
 
   const share = async () => {
