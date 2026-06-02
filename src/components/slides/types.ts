@@ -50,6 +50,21 @@ export interface StepsSlideProps extends BaseSlide {
   steps: RichText[];
 }
 
+export interface TimelineItem {
+  /** Short tag rendered under the pinpoint (e.g. "Q1", "Step 1"). */
+  label: string;
+  /** Bold heading shown in the centre when this item is focused. */
+  title?: string;
+  /** Detail paragraph shown centred when this item is focused. */
+  detail?: RichText;
+}
+
+export interface TimelineSlideProps extends BaseSlide {
+  type: "timeline";
+  heading?: string;
+  items: TimelineItem[];
+}
+
 export interface QuoteSlideProps extends BaseSlide {
   type: "quote";
   quote: RichText;
