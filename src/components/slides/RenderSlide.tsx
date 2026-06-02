@@ -43,8 +43,16 @@ function positionStyle(pos: TextPosition | undefined, padding = 120): CSSPropert
 
 function ThemeWrap({ slide, children }: { slide: Slide; children: React.ReactNode }) {
   const deckThemeId = useDeck((s) => s.deck.themeId);
+  const settings = useDeck((s) => s.deck.settings);
   const theme = getTheme(slide.themeId ?? deckThemeId);
-  return <div style={themeStyle(theme)}>{children}</div>;
+  const style: React.CSSProperties = { ...themeStyle(theme) };
+  // Deck-level Background color override (Settings → Background color).
+  // Only applies when the slide has no per-slide background and the user
+  // picked the "color" mode — otherwise the theme bg (or slide.background) wins.
+  if (settings.backgroundMode === "color" && settings.backgroundColor && !slide.background) {
+    (style as Record<string, string>)["--slide-bg"] = settings.backgroundColor;
+  }
+  return <div style={style}>{children}</div>;
 }
 
 function LeftSlide({ slide }: { slide: LeftSlideProps }) {
