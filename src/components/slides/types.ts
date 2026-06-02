@@ -27,6 +27,8 @@ export interface BaseSlide {
   align?: TextPosition;
   /** Optional padding in 1920x1080 pixels — default 120. */
   padding?: number;
+  /** When false, the slide is skipped from linear navigation, jump, dot pagination, and the badge total. Defaults to true. */
+  enabled?: boolean;
 }
 
 export interface LeftSlideProps extends BaseSlide {
