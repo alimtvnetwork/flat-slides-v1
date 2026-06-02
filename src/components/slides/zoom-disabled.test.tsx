@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 
 import { CameraStage } from "./CameraStage";
 import { useDeck } from "./store";
@@ -15,6 +15,10 @@ const focusedSlide = {
 };
 
 describe("disabled zoom effects", () => {
+  afterEach(() => {
+    useDeck.getState().resetDeck();
+  });
+
   it("CameraStage does not scale slides even when focus regions exist", () => {
     render(
       <CameraStage slide={focusedSlide} step={1}>
