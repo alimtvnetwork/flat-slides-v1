@@ -2,25 +2,17 @@ import { AnimatePresence, motion, type Transition, type Variants } from "motion/
 import { useEffect, type ReactNode } from "react";
 
 import { triggerWhoosh } from "./audio";
-import type { TransitionKind } from "./types";
 import { useReducedMotion } from "./useReducedMotion";
 
-function variantsFor(kind: TransitionKind): { variants: Variants; transition: Transition } {
-  switch (kind) {
-    case "camera-zoom":
-    case "morph":
-    case "eaten":
-    case "fade":
-    default:
-      return {
-        variants: {
-          initial: { opacity: 0, y: 12 },
-          animate: { opacity: 1, y: 0 },
-          exit:    { opacity: 0, y: -12 },
-        },
-        transition: { duration: 0.3, ease: "easeOut" },
-      };
-  }
+function fadeTransition(): { variants: Variants; transition: Transition } {
+  return {
+    variants: {
+      initial: { opacity: 0, y: 12 },
+      animate: { opacity: 1, y: 0 },
+      exit:    { opacity: 0, y: -12 },
+    },
+    transition: { duration: 0.3, ease: "easeOut" },
+  };
 }
 
 type Props = { transitionKey: string; children: ReactNode };
@@ -32,9 +24,8 @@ type Props = { transitionKey: string; children: ReactNode };
  */
 export function SlideTransition({ transitionKey, children }: Props) {
   const reduced = useReducedMotion();
-  // Zoom-style transitions are disabled globally: every authored transition now resolves to fade.
-  const effectiveKind: TransitionKind = "fade";
-  const { variants, transition } = variantsFor(effectiveKind);
+  // Zoom-style transitions are disabled globally: every authored transition resolves to fade.
+  const { variants, transition } = fadeTransition();
   const tx: Transition = reduced ? { duration: 0.05, ease: "linear" } : transition;
 
   useEffect(() => {
