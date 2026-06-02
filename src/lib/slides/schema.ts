@@ -44,6 +44,18 @@ const BaseSlideShape = {
   enabled: z.boolean().optional(),
   /** Optional authored display number; defaults to linear position when omitted. */
   number: z.number().int().min(0).max(9999).optional(),
+  focus: z
+    .array(z.object({
+      x: z.number().min(-1920).max(1920),
+      y: z.number().min(-1080).max(1080),
+      w: z.number().min(1).max(3840),
+      h: z.number().min(1).max(2160),
+      step: z.number().int().min(1).max(32).optional(),
+      duration: z.number().int().min(0).max(5000).optional(),
+      label: z.string().max(80).optional(),
+    }))
+    .max(16)
+    .optional(),
 };
 
 export const LeftSlideSchema = z.object({
