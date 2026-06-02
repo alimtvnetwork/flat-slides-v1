@@ -1,5 +1,35 @@
+import { THEMES } from "./themes";
 import { slideStepCount } from "./types";
 import type { RichText, Slide, Deck } from "./types";
+
+/** Parse `#rgb` / `#rrggbb` to [r,g,b] in 0..255, or null. */
+function parseHex(c: string): [number, number, number] | null {
+  if (typeof c !== "string") return null;
+  const m = c.trim().match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
+  if (!m) return null;
+  const h = m[1].length === 3 ? m[1].split("").map((x) => x + x).join("") : m[1];
+  return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+}
+
+function relLuminance([r, g, b]: [number, number, number]): number {
+  const f = (v: number) => {
+    const s = v / 255;
+    return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+  };
+  return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+}
+
+/** WCAG 2.x contrast ratio (1..21). Returns null if either color isn't hex. */
+export function contrastRatio(a: string, b: string): number | null {
+  const ra = parseHex(a);
+  const rb = parseHex(b);
+  if (!ra || !rb) return null;
+  const la = relLuminance(ra);
+  const lb = relLuminance(rb);
+  const [hi, lo] = la > lb ? [la, lb] : [lb, la];
+  return (hi + 0.05) / (lo + 0.05);
+}
+
 
 export type LintSeverity = "warn" | "error";
 export interface LintIssue {
@@ -56,6 +86,31 @@ export function lintDeck(deck: Deck): LintIssue[] {
     if (anchor) push(anchor, 0, "music-volume-out-of-range",
       `Deck music volume ${deck.music.volume} is outside [0, 1].`, "warn");
   }
+
+  // Theme token contrast (WCAG AA): fg/bg must reach 4.5:1 for body text;
+  // .hl-pill ink-on-highlight must reach 3:1 (large-text threshold — pills
+  // are display-sized). Only checks hex tokens; non-hex (oklch/var) is skipped.
+  const themeIds = new Set<string>();
+  if (deck.themeId) themeIds.add(deck.themeId);
+  for (const s of deck.slides) if (s.themeId) themeIds.add(s.themeId);
+  for (const tid of themeIds) {
+    const theme = THEMES.find((t) => t.id === tid);
+    if (!theme) continue;
+    const anchor = deck.slides.find((s) => s.themeId === tid) ?? deck.slides[0];
+    if (!anchor) continue;
+    const i = deck.slides.indexOf(anchor);
+    const fgBg = contrastRatio(theme.fg, theme.bg);
+    if (fgBg !== null && fgBg < 4.5) {
+      push(anchor, i, "theme-contrast-low",
+        `Theme "${theme.id}" fg/bg contrast ${fgBg.toFixed(2)}:1 below WCAG AA 4.5:1.`, "warn");
+    }
+    const hlInk = contrastRatio(theme.hlInk, theme.hl);
+    if (hlInk !== null && hlInk < 3) {
+      push(anchor, i, "theme-contrast-low",
+        `Theme "${theme.id}" hl-pill ink/hl contrast ${hlInk.toFixed(2)}:1 below 3:1.`, "warn");
+    }
+  }
+
 
   // Collision detection on authored slide.number
   const seen = new Map<number, string>();
@@ -273,6 +328,7 @@ function looksLikeFilename(s: string): boolean {
  *  with the rules above so the LLM guideline / docs can reference it. */
 export const LINT_RULES: ReadonlyArray<{ id: string; severity: LintSeverity; summary: string }> = [
   { id: "deck-camera-zoom", severity: "warn", summary: 'Deck-level "camera-zoom" transition (use "fade" by default).' },
+  { id: "theme-contrast-low", severity: "warn", summary: "Theme fg/bg (<4.5:1) or hl-pill ink/hl (<3:1) below WCAG threshold." },
   { id: "number-collision", severity: "warn", summary: "Two slides share an authored slide.number." },
   { id: "duplicate-id", severity: "error", summary: "Two slides share the same id." },
   { id: "title-missing", severity: "error", summary: "Slide has no title." },

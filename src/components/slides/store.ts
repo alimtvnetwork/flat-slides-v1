@@ -113,6 +113,21 @@ const seedSlides: Slide[] = [
     quote: ["Animation is the ", { text: "priority" }, "."],
     attribution: "— Project brief",
   },
+  {
+    id: "focus-demo",
+    type: "steps",
+    title: "Focus Regions Demo",
+    heading: "Camera focus regions",
+    steps: [
+      { label: "Step 1", title: "Overview", detail: ["Start with the ", { text: "full canvas" }, " — no zoom."] },
+      { label: "Step 2", title: "Zoom top-left", detail: ["Camera frames the ", { text: "label column" }, "."] },
+      { label: "Step 3", title: "Zoom focus card", detail: ["Camera frames the ", { text: "focus content" }, " on the right."] },
+    ],
+    focus: [
+      { step: 2, x: 80, y: 80, w: 760, h: 920, duration: 700, label: "Label column" },
+      { step: 3, x: 880, y: 200, w: 960, h: 680, duration: 700, label: "Focus card" },
+    ],
+  },
 ];
 
 const defaultDeck: Deck = {
