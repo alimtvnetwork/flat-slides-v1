@@ -315,4 +315,25 @@ describe("lintDeck — B17 rules", () => {
       expect(ids).toContain(id);
     }
   });
+
+  it("flags per-slide sound.url that is not https or absolute", () => {
+    const s: Slide = { id: "c", type: "center", title: "C", heading: ["Hi"],
+      sound: { url: "sounds/ding.mp3" } };
+    expect(lintDeck(deckOf([s])).some((i) => i.rule === "slide-sound-url-not-https")).toBe(true);
+  });
+
+  it("flags per-slide sound.volume outside [0,1]", () => {
+    const s: Slide = { id: "c", type: "center", title: "C", heading: ["Hi"],
+      sound: { url: "/sounds/ding.mp3", volume: 1.5 } };
+    expect(lintDeck(deckOf([s])).some((i) => i.rule === "slide-sound-volume-out-of-range")).toBe(true);
+  });
+
+  it("does NOT flag a valid per-slide sound", () => {
+    const s: Slide = { id: "c", type: "center", title: "C", heading: ["Hi"],
+      sound: { url: "/sounds/ding.mp3", volume: 0.5 } };
+    const rules = lintDeck(deckOf([s])).map((i) => i.rule);
+    expect(rules).not.toContain("slide-sound-url-not-https");
+    expect(rules).not.toContain("slide-sound-volume-out-of-range");
+  });
 });
+
