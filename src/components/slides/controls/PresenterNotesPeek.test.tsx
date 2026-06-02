@@ -1,9 +1,13 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
+import { useChrome } from "../chrome-store";
 import { PresenterNotesPeek } from "./PresenterNotesPeek";
 
 describe("PresenterNotesPeek", () => {
+  beforeEach(() => {
+    useChrome.getState().setNotesPeekOpen(false);
+  });
   it("renders nothing when there are no notes", () => {
     const { container } = render(<PresenterNotesPeek />);
     expect(container.firstChild).toBeNull();
