@@ -8,9 +8,9 @@ import { useCamera } from "@/components/slides/useCamera";
 import { useFullscreen } from "@/components/slides/useFullscreen";
 import { cn } from "@/lib/utils";
 
-// "split" scene blows the bubble up to a 16:9 hero card next to the slide.
+// "split" blows the bubble up next to the slide; "stage-fill" takes over the entire viewport.
 const SIZES = { sm: 144, md: 200, lg: 280 } as const;
-const SCENE_SCALE = { normal: 1, split: 1.6, "cam-only": 2.4 } as const;
+const SCENE_SCALE: Record<string, number> = { normal: 1, split: 1.6, "cam-only": 2.4, "stage-fill": 1 };
 const MIN_SIZE = 96;
 const MAX_SIZE = 720;
 // CSS squircle approximation via border-radius (superellipse-ish).
