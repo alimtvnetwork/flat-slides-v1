@@ -237,7 +237,14 @@ function TimelineSlide({ slide, step }: { slide: TimelineSlideProps; step: numbe
             </div>
             <div
               className="slide-heading"
-              style={{ color: "var(--slide-fg)", fontSize: 104, lineHeight: 1.05, letterSpacing: 0 }}
+              style={{
+                color: "var(--slide-fg)",
+                fontSize: 96,
+                lineHeight: 1.05,
+                letterSpacing: 0,
+                textWrap: "balance",
+                overflowWrap: "anywhere",
+              }}
             >
               {focused?.title ?? ""}
             </div>
