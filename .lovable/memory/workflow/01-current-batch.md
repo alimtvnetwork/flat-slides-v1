@@ -7,14 +7,15 @@
 
 ## 🔥 Current priority before B19
 B19A — repair settings/fullscreen/camera based on RCA:
-1. unify slide background rendering pipeline
-2. wire darken + blur controls
-3. separate transition zoom from camera/focus zoom
-4. fix 1-based step focus indexing
+1. ✅ unify slide background rendering pipeline (ThemeWrap owns bg; SlideLayout no longer paints)
+2. ✅ wire darken + blur controls (bg layer + dark overlay in ThemeWrap)
+3. ✅ separate transition zoom from camera/focus zoom (allowZoom gated by `focus?.length === 0`)
+4. fix 1-based step focus indexing (CameraStage step mismatch in routes)
 5. harden fullscreen stage clipping
 6. add proposal example with right-side image
 7. add camera/focus-region example
 8. update RCA memory after implementation + validation
+
 
 ## ⏳ Pending (B19 lint/CI candidates after B19A)
 1. theme-token contrast rule (low-contrast `themeId` overrides)
