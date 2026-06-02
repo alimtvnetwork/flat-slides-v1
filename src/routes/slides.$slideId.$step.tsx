@@ -81,7 +81,16 @@ function SlideStepPage() {
     if (!useTimer.getState().running && useTimer.getState().elapsed === 0) {
       useTimer.getState().start();
     }
+    emitSlidesEvent({ type: "slide-change", current, total, slideId: slide.id, title: slide.title });
   }, [slide, current, total]);
+
+  useEffect(() => {
+    if (stepCount > 1) emitSlidesEvent({ type: "step-change", current, step: stepNum + 1, stepCount });
+  }, [current, stepNum, stepCount]);
+
+  useEffect(() => {
+    emitSlidesEvent({ type: "scene-change", scene });
+  }, [scene]);
 
   useEffect(() => {
     if (!slide || stepCount === 0) return;
