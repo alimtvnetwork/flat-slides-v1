@@ -66,27 +66,27 @@ export function LintPanel({ open, onClose, deck }: Props) {
         <div className="mb-3 flex flex-wrap gap-2 text-xs">
           <button
             onClick={() => setFilter("all")}
-            className={`rounded px-2 py-0.5 ${filter === "all" ? "bg-neutral-700 text-white" : "bg-neutral-900 text-neutral-400 hover:bg-neutral-800"}`}
+            className={`inline-flex items-center gap-1 rounded px-2 py-0.5 ${filter === "all" ? "bg-neutral-700 text-white" : "bg-neutral-900 text-neutral-400 hover:bg-neutral-800"}`}
           >
-            All ({all.length})
+            <Filter size={10} /> All ({all.length})
           </button>
           <button
             onClick={() => setFilter("error")}
-            className={`rounded px-2 py-0.5 ${filter === "error" ? "bg-red-500/30 text-red-200" : "bg-red-500/10 text-red-300 hover:bg-red-500/20"}`}
+            className={`inline-flex items-center gap-1 rounded px-2 py-0.5 ${filter === "error" ? "bg-red-500/30 text-red-200" : "bg-red-500/10 text-red-300 hover:bg-red-500/20"}`}
           >
-            {errors} errors
+            <AlertCircle size={11} /> {errors} errors
           </button>
           <button
             onClick={() => setFilter("warn")}
-            className={`rounded px-2 py-0.5 ${filter === "warn" ? "bg-amber-500/30 text-amber-200" : "bg-amber-500/10 text-amber-300 hover:bg-amber-500/20"}`}
+            className={`inline-flex items-center gap-1 rounded px-2 py-0.5 ${filter === "warn" ? "bg-amber-500/30 text-amber-200" : "bg-amber-500/10 text-amber-300 hover:bg-amber-500/20"}`}
           >
-            {warns} warnings
+            <AlertTriangle size={11} /> {warns} warnings
           </button>
           <button
             onClick={() => setGroupBySlide((v) => !v)}
-            className={`ml-auto rounded px-2 py-0.5 ${groupBySlide ? "bg-neutral-700 text-white" : "bg-neutral-900 text-neutral-400 hover:bg-neutral-800"}`}
+            className={`ml-auto inline-flex items-center gap-1 rounded px-2 py-0.5 ${groupBySlide ? "bg-neutral-700 text-white" : "bg-neutral-900 text-neutral-400 hover:bg-neutral-800"}`}
           >
-            {groupBySlide ? "Flat" : "Group"}
+            <ListTree size={11} /> {groupBySlide ? "Flat" : "Group"}
           </button>
           <button
             onClick={() => setShowRules((v) => !v)}
