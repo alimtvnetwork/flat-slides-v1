@@ -18,7 +18,7 @@ type Props = {
  * Bottom control bar used by the single-slide route.
  * Prev / editable N/Total / Next / Share / Settings.
  */
-export function ControlBar({ slides, index, step, totalSteps, onOpenSettings }: Props) {
+export function ControlBar({ slides, index, step, totalSteps, onOpenSettings, onPresent, isPresenting }: Props) {
   const navigate = useNavigate();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
