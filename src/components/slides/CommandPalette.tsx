@@ -50,7 +50,7 @@ export function CommandPalette({ open, onClose, slides, onOpenSettings, onPresen
     if (!q.trim()) return all;
     const needle = q.toLowerCase();
     return all.filter((a) => a.label.toLowerCase().includes(needle));
-  }, [q, slides, navigate, onOpenSettings, onPresent, onOpenLint]);
+  }, [q, slides, navigate, onOpenSettings, onPresent, onOpenLint, deckTitle, toggleFocusEditor]);
 
   useEffect(() => setActive(0), [q]);
 
