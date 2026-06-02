@@ -40,7 +40,7 @@ export function PollSlide({ slide }: { slide: PollSlideProps }) {
         <div className="slide-kicker mb-[20px]" style={{ color: "var(--slide-muted)" }}>Live poll</div>
         <h1 className="slide-heading slide-title mb-[60px]" style={{ fontWeight: 700 }}>{slide.question}</h1>
         <div className="flex flex-col gap-[24px]" style={{ maxWidth: 1400 }}>
-          {slide.options.map((opt, i) => {
+          {slide.options.map((opt: string, i: number) => {
             const count = votes[i] ?? 0;
             const pct = Math.round((count / total) * 100);
             const isMine = picked === i;

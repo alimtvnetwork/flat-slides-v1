@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 
-export type SlideType = "left" | "center" | "steps" | "quote" | "bullets" | "image";
+export type SlideType =
+  | "left" | "center" | "steps" | "quote" | "bullets" | "image"
+  | "poll" | "qa" | "embed";
 
 export type Highlight = { text: string; pill?: boolean };
 /** Inline text can be a string or a Highlight chip. */
@@ -71,13 +73,36 @@ export interface ImageSlideProps extends BaseSlide {
   heading?: RichText;
 }
 
+export interface PollSlideProps extends BaseSlide {
+  type: "poll";
+  question: string;
+  options: string[];
+}
+
+export interface QaSlideProps extends BaseSlide {
+  type: "qa";
+  prompt?: string;
+}
+
+export interface EmbedSlideProps extends BaseSlide {
+  type: "embed";
+  url: string;
+  heading?: string;
+  caption?: string;
+  /** iframe `allow` attribute (defaults to "fullscreen"). */
+  allow?: string;
+}
+
 export type Slide =
   | LeftSlideProps
   | CenterSlideProps
   | StepsSlideProps
   | QuoteSlideProps
   | BulletsSlideProps
-  | ImageSlideProps;
+  | ImageSlideProps
+  | PollSlideProps
+  | QaSlideProps
+  | EmbedSlideProps;
 
 export type TransitionKind = "camera-zoom" | "morph" | "fade" | "eaten";
 
