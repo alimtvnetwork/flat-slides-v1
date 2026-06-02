@@ -157,6 +157,15 @@
   --slide-font-heading: "Ubuntu", system-ui, sans-serif;
   --slide-font-body: "Poppins", system-ui, sans-serif;
   --slide-font-display: "Instrument Serif", "Ubuntu", serif;
+
+  /* Controller pill (see spec/old-slides/controller-2026) */
+  --ctrl-bg: oklch(0.18 0 0 / 0.78);
+  --ctrl-fg: oklch(0.96 0.01 80);
+  --ctrl-muted: oklch(0.7 0.01 80);
+  --ctrl-border: oklch(1 0 0 / 0.12);
+  --ctrl-accent: oklch(0.88 0.18 95);
+  --ctrl-accent-ink: oklch(0.18 0 0);
+  --z-controller: 60;
 }
 
 .slide-content {
