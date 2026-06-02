@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 
 import { useAnnotations } from "@/components/slides/annotations-store";
 import { useAudience } from "@/components/slides/audience-store";
