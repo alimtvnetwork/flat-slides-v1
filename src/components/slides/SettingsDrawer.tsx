@@ -203,7 +203,8 @@ export function SettingsDrawer({
         </section>
 
         <section className="mb-6 space-y-2">
-          <label className="flex items-center gap-2 text-sm">
+          <label className="inline-flex items-center gap-2 text-sm">
+            <Volume2 size={13} className="text-neutral-400" />
             <input
               type="checkbox"
               checked={settings.soundEnabled}
