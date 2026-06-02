@@ -76,7 +76,10 @@ export function CameraBubble() {
   if (camera.fullscreenOnly && !isFs) return null;
 
   const scale = SCENE_SCALE[scene];
-  const size = Math.round(SIZES[camera.size] * scale);
+  const baseSize = camera.customSize ?? SIZES[camera.size];
+  const size = Math.max(MIN_SIZE, Math.min(MAX_SIZE, Math.round(baseSize * scale)));
+  const radius =
+    scene === "cam-only" ? "32px" : SHAPE_RADIUS[camera.shape];
   const anchorStyle: React.CSSProperties = (() => {
     const margin = 20;
     switch (camera.anchor) {
@@ -90,6 +93,7 @@ export function CameraBubble() {
 
   function onPointerDown(e: React.PointerEvent) {
     if ((e.target as HTMLElement).closest("[data-camera-control]")) return;
+    if ((e.target as HTMLElement).closest("[data-resize-handle]")) return;
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     dragState.current = { x: e.clientX, y: e.clientY, ox: camera.offsetX, oy: camera.offsetY };
   }
@@ -103,6 +107,48 @@ export function CameraBubble() {
   function onPointerUp(e: React.PointerEvent) {
     (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
     dragState.current = null;
+  }
+
+  // Resize via opposite-corner handle (relative to anchor) — same-side feels weird.
+  const resizeCorner =
+    camera.anchor === "top-left" ? "br"
+    : camera.anchor === "top-right" ? "bl"
+    : camera.anchor === "bottom-left" ? "tr"
+    : "tl";
+  const resizeStyle: React.CSSProperties = {
+    position: "absolute",
+    width: 18,
+    height: 18,
+    cursor: "nwse-resize",
+    ...(resizeCorner === "br" ? { right: 4, bottom: 4 } : {}),
+    ...(resizeCorner === "bl" ? { left: 4, bottom: 4, cursor: "nesw-resize" } : {}),
+    ...(resizeCorner === "tr" ? { right: 4, top: 4, cursor: "nesw-resize" } : {}),
+    ...(resizeCorner === "tl" ? { left: 4, top: 4 } : {}),
+  };
+  function onResizeDown(e: React.PointerEvent) {
+    e.stopPropagation();
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    resizeState.current = { x: e.clientX, y: e.clientY, size };
+  }
+  function onResizeMove(e: React.PointerEvent) {
+    const r = resizeState.current;
+    if (!r) return;
+    // Distance from start, signed so the handle "pulls" outward away from the anchor.
+    const dx = e.clientX - r.x;
+    const dy = e.clientY - r.y;
+    const sign =
+      resizeCorner === "br" ? 1
+      : resizeCorner === "tl" ? -1
+      : resizeCorner === "bl" ? Math.sign(-dx + dy) || 1
+      : Math.sign(dx + -dy) || 1;
+    const delta = sign * Math.max(Math.abs(dx), Math.abs(dy));
+    const nextRaw = Math.round((r.size + delta) / scale);
+    const next = Math.max(MIN_SIZE, Math.min(MAX_SIZE, nextRaw));
+    setCameraCustomSize(next);
+  }
+  function onResizeUp(e: React.PointerEvent) {
+    (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+    resizeState.current = null;
   }
 
   const node = (
