@@ -185,6 +185,14 @@ export const useDeck = create<DeckStore>()(
         set((s) => ({ deck: forceFadeTransition({ ...s.deck, settings: { ...s.deck.settings, ...patch } }) })),
       setThemeId: (id) => {
         set((s) => ({ themeId: id, deck: { ...s.deck, themeId: id } }));
+        // Remember the user's most-recent theme choice so future scratch decks
+        // / resetDeck start with it. Imported via dynamic require to avoid a
+        // top-level circular import (chrome-store has no dep on store).
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-require-imports
+          const { useChrome } = require("./chrome-store") as typeof import("./chrome-store");
+          useChrome.getState().setLastUsedThemeId(id);
+        } catch { /* test envs may not have chrome-store wired */ }
         emitSlidesEvent({ type: "theme-change", themeId: id });
       },
       setDeck: (deck) =>
