@@ -53,9 +53,14 @@ function SlideStepPage() {
   const toggleMusic = useChrome((s) => s.toggleMusic);
   const cycleScene = useChrome((s) => s.cycleScene);
 
+  usePresentationTimer();
   useEffect(() => {
     if (!slide) return;
     document.title = `${current}/${total} — ${slide.title}`;
+    useTimer.getState().setActiveSlide(slide.id);
+    if (!useTimer.getState().running && useTimer.getState().elapsed === 0) {
+      useTimer.getState().start();
+    }
   }, [slide, current, total]);
 
   useEffect(() => {
