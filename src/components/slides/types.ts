@@ -183,6 +183,20 @@ export function getDisplayNumber(slide: Slide, linearPosition: number): number {
   return typeof slide.number === "number" ? slide.number : linearPosition;
 }
 
+/**
+ * Resolve the focus region active for `step` (1-based). A region with no
+ * `step` matches every step. Step-bound regions take priority over
+ * unbound ones. Returns `null` for full-frame.
+ */
+export function getActiveFocusRegion(slide: Slide, step: number): FocusRegion | null {
+  const regions = slide.focus;
+  if (!regions || regions.length === 0) return null;
+  const stepBound = regions.find((r) => r.step === step);
+  if (stepBound) return stepBound;
+  const unbound = regions.find((r) => r.step === undefined);
+  return unbound ?? null;
+}
+
 export type TransitionKind = "camera-zoom" | "morph" | "fade" | "eaten";
 
 export interface DeckSettings {
