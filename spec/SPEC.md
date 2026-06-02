@@ -700,18 +700,288 @@ Stack: TanStack Start v1 (file routes under `src/routes/`), React 19, Tailwind v
   - When `avatar` absent, attribution starts at left margin (no empty placeholder).
   - Quote wraps at ~50 ch; if quote is shorter than one line, the layout still vertically centers.
 - **Acceptance:** Seed `quote` slide renders with large open-quote, the quote in `.slide-title`, and "Bre Pettis & Kio Stark / The Cult of Done Manifesto" in the attribution.
-41. `MediaFullSlide.tsx` — stub component returning `null` with TODO comment.
-42. Per-slide `notes` rendered in Presenter view bottom panel.
-43. Per-slide `background` override beats deck default.
-44. Per-slide `transitionIn` override beats deck default.
-45. `AppChromeDecorator` matching `03-sample.jpg` (window controls + URL bar).
-46. `BrandBar` component (RiseupAsia / RiseupPro lockups) usable in any footer slot.
-47. `/slides/demo` route rendering one of each slide type.
-48. Vitest snapshot tests at 1920×1080 for every slide component.
 
-### F. Routing & Navigation (49–60)
-49. `src/routes/slides.tsx` — layout `<Outlet/>` + KeyboardScope.
-50. `src/routes/slides.$slideId.tsx` — single slide.
+## Steps 41–50 — Media stub, Notes, Overrides, Chrome, BrandBar, Demo, Snapshots, Slides layout, $slideId route
+
+### Step 41 — `MediaFullSlide.tsx` (stub for v1)
+- **Goal:** Reserve the `'media'` slide type slot so the discriminated union compiles, but defer full implementation to v2.
+- **Files:** `src/components/slides/types/MediaFullSlide.tsx`.
+- **Contract:**
+  ```tsx
+  // TODO(v2): full-bleed image/video slide with Ken-Burns + caption overlay.
+  export function MediaFullSlide({ src, kind, caption }: MediaProps) {
+    return (
+      <SlideLayout>
+        <div className="flex h-full items-center justify-center bg-black">
+          {kind === 'image'
+            ? <img src={src} alt={caption ?? ''} className="h-full w-full object-cover" />
+            : <video src={src} autoPlay muted loop playsInline className="h-full w-full object-cover" />}
+          {caption && (
+            <div className="absolute bottom-24 left-24 slide-caption text-white/90 max-w-[900px]
+                            bg-black/40 px-6 py-3 rounded-lg backdrop-blur-sm">{caption}</div>
+          )}
+        </div>
+      </SlideLayout>
+    );
+  }
+  ```
+  - Marked stub by single `TODO(v2):` comment at top. No Ken-Burns, no advanced controls.
+  - Renders only when registry hits it; not used by seed deck (so v1 visual QA isn't blocked on it).
+- **Acceptance:** TS compile passes; manually pushing `{ type: 'media', props: { kind: 'image', src: '/assets/samples/01-sample.webp' } }` into a deck renders full-bleed image.
+
+### Step 42 — Per-slide `notes` rendered in Presenter view
+- **Goal:** Speaker notes accessible during presentation without leaking to audience screen.
+- **Files:** `src/components/slides/PresenterNotes.tsx` + integration in `src/routes/slides.$slideId.tsx`.
+- **Contract:**
+  ```tsx
+  // PresenterNotes.tsx
+  type Props = { notes?: string; isVisible: boolean };
+  export function PresenterNotes({ notes, isVisible }: Props) {
+    if (!isVisible) return null;
+    return (
+      <aside className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50
+                        max-w-[820px] max-h-[35vh] overflow-y-auto
+                        rounded-2xl bg-background/95 backdrop-blur px-6 py-5 shadow-2xl border">
+        <h2 className="text-sm font-semibold text-muted-foreground mb-2">Notes</h2>
+        <p className="text-base leading-relaxed whitespace-pre-wrap">
+          {notes?.trim() || <em className="text-muted-foreground">No notes for this slide.</em>}
+        </p>
+      </aside>
+    );
+  }
+  ```
+  - Visibility toggled by `N` keyboard shortcut → `useSlideKeyboard({ onNotes: () => setShow(v => !v) })`.
+  - State **local to route component** (not in store) — notes panel preference does NOT autosave.
+  - In Fullscreen Present mode: notes are HIDDEN on the projected screen by default; visible only when explicitly toggled with `N` (presenter use only, no audience leak unless toggled).
+  - Notes element is `<aside>` and uses `app-chrome` text (not `.slide-*` semantic), since it's outside the 1920×1080 stage.
+- **Acceptance:** Press `N` → notes overlay appears/disappears; reload preserves nothing (intentional).
+
+### Step 43 — Per-slide `background` override
+- **Goal:** Let a single slide break from deck background (e.g., a dark hero in a light deck).
+- **Files:** Wire-up in `src/components/slides/RenderSlide.tsx` (the dispatcher).
+- **Contract:**
+  - `BackgroundOverride` (defined Step 25) partially overrides deck settings.
+  - Resolution order (later wins): `DEFAULT_SETTINGS` → `deck.settings.{backgroundMode,backgroundColor,backgroundImage,darken,blur}` → `slide.background?.*`.
+  - Implement once via:
+    ```ts
+    function resolveBackground(deck: DeckSettings, slide?: BackgroundOverride) {
+      return {
+        backgroundMode:  slide?.backgroundMode  ?? deck.backgroundMode,
+        backgroundColor: slide?.backgroundColor ?? deck.backgroundColor,
+        backgroundImage: slide?.backgroundImage ?? deck.backgroundImage,
+        darken:          slide?.darken          ?? deck.darken,
+        blur:            slide?.blur            ?? deck.blur,
+      };
+    }
+    ```
+  - Pass the resolved object to `<SlideLayout background={…}>`.
+  - Override applies only to background; theme stays deck-controlled (use a separate slide-level `theme` field if needed in v2).
+- **Acceptance:** Adding `background: { backgroundMode: 'image', backgroundImage: '/assets/samples/03-sample.jpg', darken: 60 }` to one slide changes only that slide.
+
+### Step 44 — Per-slide `transitionIn` override
+- **Goal:** Author can pin one transition per slide (e.g., quote slide always fades regardless of deck setting).
+- **Files:** `src/components/slides/SlideTransition.tsx` (extend existing).
+- **Contract:**
+  - `SlideTransition` reads `transitionIn` prop FROM THE NEW (incoming) slide, NOT the outgoing one (a transition belongs to the slide you're entering).
+  - Resolution: `slide.transitionIn ?? deck.settings.transition ?? 'camera-zoom'`.
+  - If `useReducedMotion()` → force `'fade'` regardless of override.
+  - Override applies to BOTH slide-to-slide change AND step-to-step (for StepsSlide).
+  - The `<motion.div>` key remains `${slideId}` (slide) or `${slideId}:${step}` (step) — only the variant changes.
+- **Acceptance:** Setting `transitionIn: 'eaten'` on the quote slide produces the eaten-text effect when navigating to it; other slides still use the deck default.
+
+### Step 45 — `AppChromeDecorator` matching `03-sample.jpg`
+- **Goal:** Optional decorative "browser window" frame that wraps slide content, matching the fake app-chrome look in the third sample image.
+- **Files:** `src/components/slides/AppChromeDecorator.tsx`.
+- **Contract:**
+  ```tsx
+  type Props = { children: ReactNode; url?: string; title?: string; tone?: 'light'|'dark' };
+  export function AppChromeDecorator({ children, url = 'riseup.asia', title, tone = 'light' }: Props) {
+    return (
+      <div className={cn('h-full w-full p-12', tone === 'light' ? 'bg-[#F4EFE4]' : 'bg-[#101010]')}>
+        <div className="h-full w-full rounded-[32px] overflow-hidden shadow-[0_60px_120px_-30px_rgba(0,0,0,0.45)] border border-black/10 bg-white flex flex-col">
+          {/* title bar */}
+          <div className="flex items-center gap-3 px-6 py-4 border-b bg-[#FAF7F0]">
+            <span className="h-4 w-4 rounded-full bg-[#FF5F57]" />
+            <span className="h-4 w-4 rounded-full bg-[#FEBC2E]" />
+            <span className="h-4 w-4 rounded-full bg-[#28C840]" />
+            <div className="ml-6 flex-1 rounded-full bg-white border px-5 py-1.5 text-sm text-zinc-500 text-center">
+              {url}
+            </div>
+            {title && <div className="text-sm text-zinc-500 ml-4">{title}</div>}
+          </div>
+          <div className="flex-1 min-h-0">{children}</div>
+        </div>
+      </div>
+    );
+  }
+  ```
+  - Outer padding 48 px slide-space so the chrome floats with a bone-colored margin.
+  - Traffic-light dots scale visually because the parent is inside `.slide-content` (already scaled).
+  - Slides opt in by setting `chromeDecorator: 'app'` on the slide (registered handling in `RenderSlide`); v1 only `'app' | 'none'` supported.
+- **Acceptance:** Rendering the `process` slide with `chromeDecorator: 'app'` produces the bone-margin app-window look matching `03-sample.jpg`.
+
+### Step 46 — `BrandBar` (RiseupAsia / RiseupPro lockups)
+- **Goal:** Standard footer lockup usable as any chrome slot.
+- **Files:** `src/components/slides/BrandBar.tsx` + word-mark SVGs at `src/assets/brand/riseup-asia.svg`, `src/assets/brand/riseup-pro.svg`.
+- **Contract:**
+  ```tsx
+  type Props = { variant?: 'asia'|'pro'; tone?: 'on-light'|'on-dark'; size?: number /* px height, default 28 */ };
+  export function BrandBar({ variant = 'asia', tone = 'on-dark', size = 28 }: Props) {
+    const src = variant === 'pro' ? RiseupProLogo : RiseupAsiaLogo;
+    return (
+      <div className="flex items-center gap-3 slide-chrome">
+        <img src={src} alt={variant === 'pro' ? 'Riseup Pro' : 'Riseup Asia'} style={{ height: size }}
+             className={tone === 'on-dark' ? 'invert-0' : 'invert'} />
+      </div>
+    );
+  }
+  ```
+  - SVG word-marks ship monochrome; `tone` flips via CSS `invert()` (avoids shipping two color variants).
+  - Used in chrome slots like `bottomLeft={<BrandBar variant="pro" />}`.
+  - SVGs are placeholder lockups in v1 (simple Ubuntu-set text rendered as `<text>`), replaceable later without touching `BrandBar`.
+- **Acceptance:** Brand bar renders 28 px tall in any slot; switching `tone` flips color correctly on a dark slide.
+
+### Step 47 — `/slides/demo` route — one of each slide type
+- **Goal:** Single page that exercises every slide component for visual regression review.
+- **Files:** `src/routes/slides.demo.tsx`.
+- **Contract:**
+  ```tsx
+  export const Route = createFileRoute('/slides/demo')({ component: DemoPage });
+  function DemoPage() {
+    return (
+      <div className="min-h-screen bg-background p-8 space-y-12">
+        {DEMO_SLIDES.map((s, i) => (
+          <section key={s.id} className="space-y-3">
+            <h2 className="text-sm uppercase tracking-wider text-muted-foreground">{i + 1}. {s.type} — {s.title}</h2>
+            <div className="aspect-video rounded-xl overflow-hidden border bg-black">
+              <ScaledSlide><RenderSlide slide={s} /></ScaledSlide>
+            </div>
+          </section>
+        ))}
+      </div>
+    );
+  }
+  ```
+  - `DEMO_SLIDES` includes one of each: `left`, `center` (with both inline and pill highlight), `steps` (at step 3 of 5), `quote`, `media` (stub), and one slide using `AppChromeDecorator`.
+  - Demo route is NOT included in published presentations (excluded from grid view, not in `useDeck`).
+  - Reading head meta: `title: 'Slides — Demo'`, `robots: 'noindex'`.
+- **Acceptance:** Visiting `/slides/demo` shows ~6 scaled previews stacked vertically; no console errors; each thumbnail matches its corresponding spec sample.
+
+### Step 48 — Vitest snapshot tests at 1920×1080 for every slide component
+- **Goal:** Lock visual structure; regressions surface in CI before visual review.
+- **Files:** `src/components/slides/types/__snapshots__/` (auto-generated) + `src/components/slides/types/slides.snap.test.tsx`.
+- **Contract:**
+  ```tsx
+  import { render } from '@testing-library/react';
+  import { describe, test, expect } from 'vitest';
+
+  describe.each([
+    ['LeftSlide',       <LeftSlide {...sampleLeft} />],
+    ['CenterTextSlide', <CenterTextSlide {...sampleCenter} />],
+    ['StepsSlide',      <StepsSlide {...sampleSteps} step={2} />],
+    ['QuoteSlide',      <QuoteSlide {...sampleQuote} />],
+    ['MediaFullSlide',  <MediaFullSlide {...sampleMedia} />],
+  ])('%s renders at 1920×1080', (name, el) => {
+    test('matches snapshot', () => {
+      const { container } = render(el);
+      // outer .slide-content must be 1920×1080 (verify via inline style)
+      const content = container.querySelector('.slide-content') as HTMLElement;
+      expect(content).toBeTruthy();
+      expect(content.style.width).toBe('1920px');
+      expect(content.style.height).toBe('1080px');
+      expect(container.innerHTML).toMatchSnapshot();
+    });
+  });
+  ```
+  - jsdom does not compute layout; tests assert **structure + inline dimensions**, not pixel positions.
+  - Snapshot diffs in PRs require human review (standard Vitest behavior).
+  - Update snapshots intentionally with `bunx vitest -u`.
+- **Acceptance:** First run creates 5 snapshot files; subsequent runs pass without changes.
+
+### Step 49 — `src/routes/slides.tsx` — layout route + KeyboardScope
+- **Goal:** Shared shell for every slide route — provides keyboard scope, ControlBar, SettingsDrawer, PresenterNotes.
+- **Files:** `src/routes/slides.tsx`.
+- **Contract:**
+  ```tsx
+  export const Route = createFileRoute('/slides')({
+    head: () => ({ meta: [{ title: 'Slides' }, { name: 'robots', content: 'noindex' }] }),
+    component: SlidesLayout,
+  });
+
+  function SlidesLayout() {
+    return (
+      <div className="fixed inset-0 bg-black overflow-hidden">
+        <Outlet />
+        <ControlBar />
+        <SettingsDrawer />
+        {/* PresenterNotes mounted by child routes to access slide-specific notes */}
+      </div>
+    );
+  }
+  ```
+  - Outer is `fixed inset-0` so slides always fill the viewport regardless of app chrome.
+  - `bg-black` provides letterbox color when slide aspect doesn't match viewport.
+  - ControlBar and SettingsDrawer are mounted ONCE here so they persist across slide navigation (avoid remount/animation reset).
+  - Index route `/slides` (no `$slideId`): show grid overview (Step 52).
+  - Keyboard scope: child route attaches `useSlideKeyboard` (NOT here) so handlers can reference the active slide.
+- **Acceptance:** Visiting any `/slides/*` route shows black background, slides fill viewport, ControlBar visible at bottom.
+
+### Step 50 — `src/routes/slides.$slideId.tsx` — single slide route
+- **Goal:** Render one slide by id; redirect on bad id; sync URL ↔ deck index.
+- **Files:** `src/routes/slides.$slideId.tsx`.
+- **Contract:**
+  ```tsx
+  export const Route = createFileRoute('/slides/$slideId')({
+    beforeLoad: ({ params }) => {
+      const deck = useDeck.getState().deck;
+      const slide = deck.slides.find(s => s.id === params.slideId);
+      if (!slide) {
+        const first = deck.slides[0];
+        throw redirect({ to: '/slides/$slideId', params: { slideId: first.id }, replace: true });
+      }
+      // If a 'steps' slide is hit without $step, redirect to step 1 for explicit URL.
+      if (slide.type === 'steps') {
+        throw redirect({ to: '/slides/$slideId/$step', params: { slideId: slide.id, step: '1' }, replace: true });
+      }
+    },
+    component: SlidePage,
+  });
+
+  function SlidePage() {
+    const { slideId } = Route.useParams();
+    const navigate = useNavigate();
+    const { deck } = useDeck();
+    const idx = deck.slides.findIndex(s => s.id === slideId);
+    const slide = deck.slides[idx];
+
+    // Title sync
+    useEffect(() => {
+      document.title = `${idx + 1}/${deck.slides.length} — ${deckSlideTitle(slide)}`;
+    }, [slideId, idx, deck.slides.length, slide]);
+
+    // Keyboard
+    useSlideKeyboard({
+      onPrev: () => idx > 0 && navigate({ to: '/slides/$slideId', params: { slideId: deck.slides[idx - 1].id } }),
+      onNext: () => idx < deck.slides.length - 1 && navigate({ to: '/slides/$slideId', params: { slideId: deck.slides[idx + 1].id } }),
+      onGrid: () => navigate({ to: '/slides' }),
+      onPresent: () => document.documentElement.requestFullscreen?.(),
+      onEscape: () => document.exitFullscreen?.(),
+      onJump: (n) => { const t = deck.slides[n - 1]; if (t) navigate({ to: '/slides/$slideId', params: { slideId: t.id } }); },
+    });
+
+    return (
+      <ScaledSlide>
+        <SlideTransition transitionKey={slide.id} transitionIn={slide.transitionIn ?? deck.settings.transition}>
+          <RenderSlide slide={slide} />
+        </SlideTransition>
+      </ScaledSlide>
+    );
+  }
+  ```
+  - `deckSlideTitle(slide)` helper extracts a human title from each slide type (e.g., `slide.props.title ?? slide.props.quote ?? slide.id`).
+  - Replace `history.replaceState` style: TanStack navigate with `replace: false` (default) so back/forward step through deck — standard presentation expectation.
+  - `idx === -1` impossible at runtime (beforeLoad guards), but `slide` access still nullish-guards in render (returns `null` and logs once).
+- **Acceptance:** `/slides/intro` shows seed cover; `→` advances to `/slides/principles`; `←` returns; `/slides/bogus` redirects to `/slides/intro`; tab title shows `1/4 — Build like you mean it.`
 51. `src/routes/slides.$slideId.$step.tsx` — Type C step coordinate.
 52. `src/routes/slides.index.tsx` — grid overview.
 53. `src/routes/slides.print.tsx` — all slides stacked for PDF.
