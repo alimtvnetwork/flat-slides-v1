@@ -91,7 +91,14 @@ function SlidePage() {
     if (!useTimer.getState().running && useTimer.getState().elapsed === 0) {
       useTimer.getState().start();
     }
+    // Telemetry: external listeners (analytics, audience devtools) hook here.
+    emitSlidesEvent({ type: "slide-change", current, total, slideId: slide.id, title: slide.title });
   }, [slide, current, total]);
+
+  // Emit scene-change distinctly so dashboards can graph scene usage.
+  useEffect(() => {
+    emitSlidesEvent({ type: "scene-change", scene });
+  }, [scene]);
 
   useEffect(() => {
     if (!slide) return;
