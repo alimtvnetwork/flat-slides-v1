@@ -319,9 +319,24 @@ export function lintDeck(deck: Deck): LintIssue[] {
         "Three image slides in a row — interleave with text or quote slides to keep narrative momentum.",
         "warn");
     }
+    // Consecutive embed slides — iframe load stalls + nothing to fall back to.
+    if (s.type === "embed" && i > 0 && deck.slides[i - 1].type === "embed") {
+      push(s, i, "consecutive-embeds",
+        "Two embed slides in a row — iframe load latency compounds; insert a text slide between.",
+        "warn");
+    }
+  }
+
+  // Deck-level: too many embeds total — each iframe is expensive.
+  const embedCount = deck.slides.filter((s) => s.type === "embed").length;
+  if (embedCount > 3 && deck.slides[0]) {
+    push(deck.slides[0], 0, "embed-too-many-deck",
+      `Deck has ${embedCount} embed slides — each iframe ships its own runtime. Keep ≤3 for smooth navigation.`,
+      "warn");
   }
   return out;
 }
+
 
 function hasMarkdownMarkers(rt?: RichText): boolean {
   if (!rt) return false;
