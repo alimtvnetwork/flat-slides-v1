@@ -8,9 +8,9 @@ import { useCamera } from "@/components/slides/useCamera";
 import { useFullscreen } from "@/components/slides/useFullscreen";
 import { cn } from "@/lib/utils";
 
-// "split" scene blows the bubble up to a 16:9 hero card next to the slide.
+// "split" blows the bubble up next to the slide; "stage-fill" takes over the entire viewport.
 const SIZES = { sm: 144, md: 200, lg: 280 } as const;
-const SCENE_SCALE = { normal: 1, split: 1.6, "cam-only": 2.4 } as const;
+const SCENE_SCALE: Record<string, number> = { normal: 1, split: 1.6, "cam-only": 2.4, "stage-fill": 1 };
 const MIN_SIZE = 96;
 const MAX_SIZE = 720;
 // CSS squircle approximation via border-radius (superellipse-ish).
@@ -96,21 +96,24 @@ export function CameraBubble() {
   if (!camera.visible) return null;
   if (camera.fullscreenOnly && !isFs) return null;
 
-  const scale = SCENE_SCALE[scene];
+  const stageFill = scene === "stage-fill";
+  const scale = SCENE_SCALE[scene] ?? 1;
   const baseSize = camera.customSize ?? SIZES[camera.size];
   const size = Math.max(MIN_SIZE, Math.min(MAX_SIZE, Math.round(baseSize * scale)));
   const radius =
-    scene === "cam-only" ? "32px" : SHAPE_RADIUS[camera.shape];
-  const anchorStyle: React.CSSProperties = (() => {
-    const margin = 20;
-    switch (camera.anchor) {
-      case "top-left":     return { top: margin + camera.offsetY, left: margin + camera.offsetX };
-      case "top-right":    return { top: margin + camera.offsetY, right: margin - camera.offsetX };
-      case "bottom-left":  return { bottom: margin - camera.offsetY, left: margin + camera.offsetX };
-      case "bottom-right":
-      default:             return { bottom: margin - camera.offsetY, right: margin - camera.offsetX };
-    }
-  })();
+    stageFill ? "0px" : scene === "cam-only" ? "32px" : SHAPE_RADIUS[camera.shape];
+  const anchorStyle: React.CSSProperties = stageFill
+    ? { top: 0, left: 0, right: 0, bottom: 0 }
+    : (() => {
+        const margin = 20;
+        switch (camera.anchor) {
+          case "top-left":     return { top: margin + camera.offsetY, left: margin + camera.offsetX };
+          case "top-right":    return { top: margin + camera.offsetY, right: margin - camera.offsetX };
+          case "bottom-left":  return { bottom: margin - camera.offsetY, left: margin + camera.offsetX };
+          case "bottom-right":
+          default:             return { bottom: margin - camera.offsetY, right: margin - camera.offsetX };
+        }
+      })();
 
   function onPointerDown(e: React.PointerEvent) {
     if ((e.target as HTMLElement).closest("[data-camera-control]")) return;
@@ -180,8 +183,9 @@ export function CameraBubble() {
       style={{
         position: "fixed",
         zIndex: 60,
-        width: size,
-        height: size,
+        ...(stageFill
+          ? {}
+          : { width: size, height: size }),
         borderRadius: radius,
         ...anchorStyle,
       }}
@@ -319,22 +323,24 @@ export function CameraBubble() {
         </button>
       </div>
 
-      <div
-        data-resize-handle
-        role="slider"
-        aria-label="Resize camera"
-        aria-valuemin={MIN_SIZE}
-        aria-valuemax={MAX_SIZE}
-        aria-valuenow={size}
-        title="Drag to resize · double-click to reset"
-        onPointerDown={onResizeDown}
-        onPointerMove={onResizeMove}
-        onPointerUp={onResizeUp}
-        onPointerCancel={onResizeUp}
-        onDoubleClick={(e) => { e.stopPropagation(); setCameraCustomSize(null); }}
-        style={resizeStyle}
-        className="rounded-sm bg-white/40 hover:bg-white/80 ring-1 ring-black/30"
-      />
+      {!stageFill && (
+        <div
+          data-resize-handle
+          role="slider"
+          aria-label="Resize camera"
+          aria-valuemin={MIN_SIZE}
+          aria-valuemax={MAX_SIZE}
+          aria-valuenow={size}
+          title="Drag to resize · double-click to reset"
+          onPointerDown={onResizeDown}
+          onPointerMove={onResizeMove}
+          onPointerUp={onResizeUp}
+          onPointerCancel={onResizeUp}
+          onDoubleClick={(e) => { e.stopPropagation(); setCameraCustomSize(null); }}
+          style={resizeStyle}
+          className="rounded-sm bg-white/40 hover:bg-white/80 ring-1 ring-black/30"
+        />
+      )}
     </motion.div>
   );
 
