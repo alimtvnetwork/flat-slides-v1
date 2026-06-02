@@ -56,9 +56,16 @@ function SlidePage() {
   const cycleScene = useChrome((s) => s.cycleScene);
   const scene = useChrome((s) => s.scene);
 
+  // Drive the presentation timer; record dwell into the active slide bucket.
+  usePresentationTimer();
   useEffect(() => {
     if (!slide) return;
     document.title = `${current}/${total} — ${slide.title}`;
+    useTimer.getState().setActiveSlide(slide.id);
+    // Auto-start the timer on first slide visit so presenters never forget.
+    if (!useTimer.getState().running && useTimer.getState().elapsed === 0) {
+      useTimer.getState().start();
+    }
   }, [slide, current, total]);
 
   useEffect(() => {
