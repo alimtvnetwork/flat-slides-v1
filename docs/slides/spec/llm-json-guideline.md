@@ -654,10 +654,185 @@ audience can submit questions while you talk.
 
 ---
 
+## 11. Authoring patterns
+
+These are the patterns the editor and presenter view are tuned for. Following
+them produces decks that look composed; breaking them produces decks that
+look like dumped notes.
+
+### 11.1 Highlights — `{ "text": "...", "pill": false|true }`
+
+- **Underline highlight** (`pill` omitted or `false`): inline emphasis in
+  accent color, no chip. Use for numbers, product names, and the one word
+  per slide that should land hardest.
+- **Pill highlight** (`pill: true`): rounded accent chip with padding.
+  Reads as a tag/metric chip. Use 1–2 per slide max; 6+ on one slide
+  flattens the emphasis.
+
+```jsonc
+"heading": [
+  "Shipped ",
+  { "text": "42 features" },              // underline
+  " across ",
+  { "text": "3 quarters", "pill": true }  // pill
+]
+```
+
+Anti-patterns:
+- Don't wrap an entire heading in one highlight — that defeats the contrast.
+- Don't put a highlight inside another highlight (not supported by the schema).
+- Don't use pill highlights inside `quote` slides — the chip fights the quote rhythm.
+
+### 11.2 Kickers vs subtitles vs headings
+
+| Element     | Field                       | Size    | Use for                                              |
+|-------------|-----------------------------|---------|------------------------------------------------------|
+| Kicker      | `kicker` (`left`, `bullets`)| 22px UC | Section tag above the headline — "Q4 2025", "PART 3"|
+| Heading     | `heading`                   | 88px    | The slide's one idea                                 |
+| Subhead     | `subhead` (`center` only)   | 52px    | One short supporting line under the headline         |
+| Body        | `body` (`left` only)        | 32px    | 1 short paragraph (2–4 lines, ≤ ~60 chars/line)     |
+
+A `center` slide gets `heading` + optional `subhead`. A `left` slide gets
+optional `kicker` + `heading` + optional `body`. Don't try to stuff a
+"subhead" into `body` on a `left` slide; if you need a subtitle, switch to
+`center`.
+
+### 11.3 When to use which slide type
+
+| You want to…                                       | Use         |
+|----------------------------------------------------|-------------|
+| Open the deck, end a section, land one statement   | `center`    |
+| Pair text with a photo or screenshot               | `left`      |
+| Show 3–5 short ideas under one headline            | `bullets`   |
+| Make the audience feel something a user said       | `quote`     |
+| Walk through a process (1..8 steps, → advances)    | `steps`     |
+| Show events along a horizontal rail (2..8)         | `timeline`  |
+| Let an image carry the slide                       | `image`     |
+| Embed a live demo or external page                 | `embed`     |
+| Ask the audience to vote                           | `poll`      |
+| Hold the floor for questions                       | `qa`        |
+
+### 11.4 Multi-step SVG reveal — authoring tips
+
+Whichever pattern from §10.1.4 you pick:
+
+- **Author at 1920×1080.** SVGs whose `viewBox` matches the slide canvas
+  line up cleanly with `focus` regions. If your SVG is smaller, scale or
+  pad it; otherwise the per-step `focus` coordinates won't map.
+- **Group the reveal layers** (`<g id="step-1">…</g>`) even in Pattern A so
+  Pattern B is one search-and-replace away if you change your mind.
+- **Keep each step ≤ ~30% of the canvas** for Pattern A. The camera lands
+  more cleanly on a small rect than on something that almost fills the
+  frame.
+- **Add a `label` to every `focus` region** — it shows up in the focus
+  editor (`F`) and makes the rehearsal export readable.
+- **Don't pair a multi-step SVG with `transition: "camera-zoom"`** at the
+  deck level. The per-step focus animation already moves the camera; layering
+  a deck-wide zoom on top reads as motion sickness. Keep `transition: "fade"`.
+
+### 11.5 Focus regions — per-step rules
+
+- `focus: []` or omitted ⇒ full frame, no zoom. This is the default.
+- A region with no `step` applies to every step on the slide.
+- A region with `step: N` overrides the unbound region on that step.
+- Up to 16 regions per slide.
+- **Never put `focus` on `bullets`, `quote`, or `timeline` slides.** The
+  core memory: lists/timelines must never scale or zoom. The renderer
+  honors `focus` on these types but the result feels wrong — author it on
+  the companion image slide instead.
+
+### 11.6 Theme & background overrides
+
+Two levels:
+
+- **Deck level** — `deck.themeId` + `deck.settings.backgroundMode/Color/Image/darken/blur`.
+  Applies to every slide that doesn't override.
+- **Slide level** — `slide.themeId` swaps the theme for one slide;
+  `slide.background` is a CSS color **or** an image URL / `data:` URI.
+
+```jsonc
+// One darker section divider inside an otherwise light deck:
+{
+  "id": "section-2",
+  "type": "center",
+  "title": "Part 2",
+  "themeId": "noir",
+  "background": "#0b0b12",
+  "heading": ["Part 2 — ", { "text": "What we learned" }]
+}
+```
+
+Use sparingly. A deck with a different theme on every slide reads as
+inconsistent; one or two per-section overrides reads as intentional rhythm.
+
+### 11.7 Density budget — sanity check before exporting
+
+Mentally verify each slide:
+
+```
+header (~100px) + body content + footer (~80px) ≤ 1080px
+```
+
+Defaults (override only if the user explicitly asks for denser slides):
+
+| Slide type | Hard cap                                                |
+|------------|---------------------------------------------------------|
+| `center`   | 1 headline + 1 short subhead                            |
+| `left`     | 1 headline + 1 paragraph (2–4 lines) + 1 image          |
+| `bullets`  | ≤4 bullets (≤60 chars each). 5–6 only if all very short |
+| `quote`    | ≤2 sentences in the quote                               |
+| `steps`    | ≤6 steps; each `detail` 1–2 short sentences             |
+| `timeline` | ≤6 items; each `detail` 1 sentence                      |
+| `image`    | 1 image + (optional) 1-line caption                     |
+
+If a slide overflows, the first move is **split into another slide or cut
+detail**, NOT shrink fonts. Use `text-[Npx]` overrides only when the user
+explicitly asks for dense slides.
+
+### 11.8 `enabled: false` — skipping slides
+
+Set `enabled: false` to keep a slide in the deck JSON while removing it
+from linear navigation, jump-to-slide, dot pagination, and the badge total.
+
+Use for:
+- Backup slides you may or may not show ("if asked: detailed pricing")
+- Draft slides not yet ready to present
+- Alternate variants of the same slide (keep both, ship one)
+
+URLs still resolve directly to a disabled slide's index (deep links keep
+working); → and ← skip over it.
+
+### 11.9 Authored slide numbers (`number`)
+
+By default the badge shows the 1-based linear position. Set `slide.number`
+when the deck's "human" numbering differs:
+
+- Two slides labelled `7` and `7a` for an alternate variant (`{ number: 7 }`
+  on both, distinguish via `title` only — the audience sees the badge, the
+  presenter sees the title)
+- A workshop where slides are grouped (`1, 2, 3, 100, 101, 200, 201…`)
+- A teaser deck where the first slide is intentionally `0`
+
+**Authored numbers never change URLs.** `/slides/3` always means "the third
+linear slide", regardless of what its badge says. This is a deliberate
+contract — share links must be predictable.
+
+### 11.10 Notes, budget, and the rehearsal export
+
+- `notes` (≤4000 chars) appears only on the presenter view. Use Markdown-y
+  plain text; no rendering is applied beyond `white-space: pre-wrap`.
+- `budget` is the target dwell time in seconds. The pacing ring and the
+  rehearsal report (`Cmd+E`) read it.
+- Set `budget` on every slide once the deck is real — even rough numbers
+  (`30`, `45`, `90`) make the rehearsal export useful. Without it, the
+  pacing ring shows ∞ and the rehearsal export has no benchmark.
+
+---
+
 ## Continued in batches
 
-- **B4 (steps 31–40):** Authoring patterns and density rules.
 - **B5 (steps 41–50):** Full `sample-deck.json`, validation, common mistakes,
   versioning.
+
 
 
