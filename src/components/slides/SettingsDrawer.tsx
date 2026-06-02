@@ -228,6 +228,13 @@ export function SettingsDrawer({
               ⬇ Export slide
             </button>
             <button
+              onClick={handleLoadSpecSample}
+              className="col-span-2 rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700"
+              title="Load docs/slides/spec/sample-deck.json"
+            >
+              ✨ Try spec sample deck
+            </button>
+            <button
               onClick={() => {
                 resetDeck();
                 toast.success("Reset to sample deck");
