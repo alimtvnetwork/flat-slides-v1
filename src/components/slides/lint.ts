@@ -204,6 +204,24 @@ export function lintDeck(deck: Deck): LintIssue[] {
         "warn");
     }
 
+    // Per-slide sound cue schema.
+    if (s.sound) {
+      const { url, volume } = s.sound;
+      if (url !== undefined) {
+        if (typeof url !== "string" || !url.trim()) {
+          push(s, i, "slide-sound-url-invalid", "Slide sound.url must be a non-empty string.", "error");
+        } else if (!/^https:\/\//i.test(url) && !url.startsWith("/")) {
+          push(s, i, "slide-sound-url-not-https",
+            `Slide sound.url "${url}" must be https:// or an absolute path under /public.`, "warn");
+        }
+      }
+      if (typeof volume === "number" && (volume < 0 || volume > 1)) {
+        push(s, i, "slide-sound-volume-out-of-range",
+          `Slide sound.volume ${volume} is outside [0, 1].`, "warn");
+      }
+    }
+
+
 
 
     switch (s.type) {
