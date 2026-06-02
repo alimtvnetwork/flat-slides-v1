@@ -168,6 +168,15 @@ function SlidePage() {
       <DotPagination current={current} total={total} slides={linearSlides} onJump={jump} />
       <SlideNumberBadge current={current} total={total} display={slide ? getDisplayNumber(slide, current) : undefined} />
       <AnnotationLayer slideId={slide.id} />
+      <FocusEditor
+        slide={slide}
+        active={focusEditorOpen}
+        onRect={(rect) => {
+          useDeck.getState().upsertSlide({ ...slide, focus: [...(slide.focus ?? []), rect] });
+          useChrome.getState().flashToast("Focus region added");
+        }}
+        onClose={() => useChrome.getState().setFocusEditorOpen(false)}
+      />
       <AnnotationToolbar slideId={slide.id} />
       <TimerOverlay slide={slide} />
       <PollResultsOverlay slide={slide} />
