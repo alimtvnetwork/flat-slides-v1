@@ -982,16 +982,351 @@ Stack: TanStack Start v1 (file routes under `src/routes/`), React 19, Tailwind v
   - Replace `history.replaceState` style: TanStack navigate with `replace: false` (default) so back/forward step through deck — standard presentation expectation.
   - `idx === -1` impossible at runtime (beforeLoad guards), but `slide` access still nullish-guards in render (returns `null` and logs once).
 - **Acceptance:** `/slides/intro` shows seed cover; `→` advances to `/slides/principles`; `←` returns; `/slides/bogus` redirects to `/slides/intro`; tab title shows `1/4 — Build like you mean it.`
-51. `src/routes/slides.$slideId.$step.tsx` — Type C step coordinate.
-52. `src/routes/slides.index.tsx` — grid overview.
-53. `src/routes/slides.print.tsx` — all slides stacked for PDF.
-54. Sync `document.title` to `${i+1}/${total} — ${slide.title}` on change.
-55. Keyboard scope on slides layout (←, →, Space, Enter, G, F5, Esc).
-56. `<ControlBar>` — prev / `N/Total` / next / share / export / settings.
-57. Double-click `N` → editable input → Enter jumps (clamped), Esc cancels.
-58. Share button — `navigator.share` when available, clipboard + toast fallback.
-59. Grid mode (`G`) using slide thumbnails.
-60. Fullscreen Present mode (`F5`) via Fullscreen API + cursor-hide after 2 s.
+
+## Steps 51–60 — Step route, Grid, Print, Title sync, Keyboard scope, ControlBar, Jump input, Share, Grid mode, Fullscreen
+
+### Step 51 — `src/routes/slides.$slideId.$step.tsx` — Type C step coordinate
+- **Goal:** Per-step URL for `StepsSlide` reveal so a deep link can land on `/slides/process/3` and resume mid-build.
+- **Files:** `src/routes/slides.$slideId.$step.tsx`.
+- **Contract:**
+  ```tsx
+  export const Route = createFileRoute('/slides/$slideId/$step')({
+    beforeLoad: ({ params }) => {
+      const deck = useDeck.getState().deck;
+      const slide = deck.slides.find(s => s.id === params.slideId);
+      if (!slide) throw redirect({ to: '/slides/$slideId', params: { slideId: deck.slides[0].id }, replace: true });
+      if (slide.type !== 'steps') {
+        throw redirect({ to: '/slides/$slideId', params: { slideId: slide.id }, replace: true });
+      }
+      const parsed = Number.parseInt(params.step, 10);
+      const max = slide.props.steps.length;
+      const clamped = Math.min(Math.max(Number.isFinite(parsed) ? parsed : 1, 1), max);
+      if (String(clamped) !== params.step) {
+        throw redirect({ to: '/slides/$slideId/$step', params: { slideId: slide.id, step: String(clamped) }, replace: true });
+      }
+    },
+    component: StepPage,
+  });
+
+  function StepPage() {
+    const { slideId, step } = Route.useParams();
+    const stepNum = Number.parseInt(step, 10);
+    const navigate = useNavigate();
+    const { deck } = useDeck();
+    const idx = deck.slides.findIndex(s => s.id === slideId);
+    const slide = deck.slides[idx] as Extract<Slide, { type: 'steps' }>;
+    const max = slide.props.steps.length;
+
+    useEffect(() => { document.title = `${idx + 1}.${stepNum} — ${slide.props.title ?? slide.id}`; },
+      [idx, stepNum, slide]);
+
+    useSlideKeyboard({
+      onPrev: () => {
+        if (stepNum > 1) navigate({ to: '/slides/$slideId/$step', params: { slideId, step: String(stepNum - 1) } });
+        else if (idx > 0) navigate({ to: '/slides/$slideId', params: { slideId: deck.slides[idx - 1].id } });
+      },
+      onNext: () => {
+        if (stepNum < max) navigate({ to: '/slides/$slideId/$step', params: { slideId, step: String(stepNum + 1) } });
+        else if (idx < deck.slides.length - 1) navigate({ to: '/slides/$slideId', params: { slideId: deck.slides[idx + 1].id } });
+      },
+      onGrid: () => navigate({ to: '/slides' }),
+      onPresent: () => document.documentElement.requestFullscreen?.(),
+      onEscape: () => document.exitFullscreen?.(),
+    });
+
+    return (
+      <ScaledSlide>
+        <SlideTransition transitionKey={`${slide.id}:${stepNum}`} transitionIn={slide.transitionIn ?? deck.settings.transition}>
+          <StepsSlide {...slide.props} step={stepNum - 1} />
+        </SlideTransition>
+      </ScaledSlide>
+    );
+  }
+  ```
+  - URL `$step` is 1-indexed for humans; component uses 0-indexed `step` prop.
+  - `→` past last step advances to next slide; `←` before step 1 returns to previous slide. Mirrors PowerPoint/Keynote behavior.
+- **Acceptance:** `/slides/process/3` reveals first 3 steps; `→` reveals 4th; `→` past 5 → `/slides/quote`; `←` from `/slides/process/1` → `/slides/principles`.
+
+### Step 52 — `src/routes/slides.index.tsx` — grid overview
+- **Goal:** `/slides` (no id) renders the full deck as a clickable thumbnail grid; also the destination of `G` shortcut.
+- **Files:** `src/routes/slides.index.tsx`.
+- **Contract:**
+  ```tsx
+  export const Route = createFileRoute('/slides/')({
+    head: () => ({ meta: [{ title: 'Slides — Overview' }] }),
+    component: GridPage,
+  });
+  function GridPage() {
+    const navigate = useNavigate();
+    const { deck } = useDeck();
+    return (
+      <div className="absolute inset-0 overflow-y-auto bg-zinc-950 p-10">
+        <h1 className="text-white text-2xl font-semibold mb-8">{deck.title}</h1>
+        <div className="grid gap-6" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))' }}>
+          {deck.slides.map((s, i) => (
+            <button
+              key={s.id}
+              onClick={() => navigate({ to: '/slides/$slideId', params: { slideId: s.id } })}
+              className="group text-left"
+            >
+              <div className="aspect-video rounded-xl overflow-hidden bg-black border border-white/10
+                              transition-transform group-hover:scale-[1.02] group-focus-visible:ring-2 ring-yellow-400">
+                <ScaledSlide><RenderSlide slide={s} /></ScaledSlide>
+              </div>
+              <div className="mt-2 flex items-center justify-between text-sm text-white/70">
+                <span className="tabular-nums">{String(i + 1).padStart(2, '0')}</span>
+                <span className="truncate ml-3">{deckSlideTitle(s)}</span>
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  ```
+  - Each cell uses `ScaledSlide` so thumbnails render the live slide component (no separate "thumbnail" code path).
+  - Min cell width 360 px → 3–5 columns on a 1280–1920 viewport.
+  - Cells are `<button>` for keyboard/screen-reader navigation; arrow-key navigation within grid deferred to v2.
+- **Acceptance:** Visiting `/slides` shows all seed slides as thumbnails; clicking one navigates to `/slides/<id>`; `G` from any slide returns here.
+
+### Step 53 — `src/routes/slides.print.tsx` — print/PDF route
+- **Goal:** Single page that stacks every slide vertically at 1920×1080 for `Cmd+P → Save as PDF` output.
+- **Files:** `src/routes/slides.print.tsx`.
+- **Contract:**
+  ```tsx
+  export const Route = createFileRoute('/slides/print')({
+    head: () => ({ meta: [{ title: 'Slides — Print' }, { name: 'robots', content: 'noindex' }] }),
+    component: PrintPage,
+  });
+  function PrintPage() {
+    const { deck } = useDeck();
+    useEffect(() => {
+      toast.info('Press Cmd/Ctrl+P to save as PDF. Set destination to "Save as PDF" and paper to Custom 1920×1080.');
+    }, []);
+    return (
+      <div className="print-deck bg-zinc-100">
+        {deck.slides.map(s => (
+          <div key={s.id} className="slide-print-page">
+            {/* For 'steps' slides, render at final step so PDF shows full content. */}
+            {s.type === 'steps'
+              ? <StepsSlide {...s.props} step={s.props.steps.length - 1} />
+              : <RenderSlide slide={s} />}
+          </div>
+        ))}
+      </div>
+    );
+  }
+  ```
+  - CSS additions to `src/styles.css`:
+    ```css
+    .slide-print-page { width: 1920px; height: 1080px; page-break-after: always; break-after: page; }
+    @media print {
+      @page { size: 1920px 1080px landscape; margin: 0; }
+      body, html { margin: 0; padding: 0; background: white; }
+      .print-deck { background: white !important; }
+      /* Hide app chrome (ControlBar/SettingsDrawer) on print. */
+      [data-app-chrome] { display: none !important; }
+    }
+    ```
+  - ControlBar + SettingsDrawer tagged `data-app-chrome` so they hide on print.
+  - Print route MUST NOT use `<ScaledSlide>` — the page is exactly 1920×1080, no scaling needed.
+- **Acceptance:** `/slides/print` shows N pages stacked; Cmd+P → Save as PDF produces N-page PDF where each page matches the on-screen slide.
+
+### Step 54 — `document.title` sync helper
+- **Goal:** Centralize the title-sync logic so the format stays consistent across `$slideId` and `$step` routes.
+- **Files:** `src/components/slides/useDocumentTitle.ts` + helper `deckSlideTitle(slide)`.
+- **Contract:**
+  ```ts
+  export function deckSlideTitle(slide: Slide): string {
+    switch (slide.type) {
+      case 'left':   return slide.props.title;
+      case 'center': return slide.props.title;
+      case 'steps':  return slide.props.title ?? slide.id;
+      case 'quote':  return `"${slide.props.quote.slice(0, 48)}${slide.props.quote.length > 48 ? '…' : ''}"`;
+      case 'media':  return slide.props.caption ?? slide.id;
+    }
+  }
+  export function useDocumentTitle(text: string) {
+    useEffect(() => { const prev = document.title; document.title = text; return () => { document.title = prev; }; }, [text]);
+  }
+  ```
+  - Format for single slide: `${i+1}/${total} — ${deckSlideTitle(slide)}`.
+  - Format for step: `${i+1}.${stepNum}/${total} — ${deckSlideTitle(slide)}`.
+  - Restore previous title on unmount so leaving `/slides` returns the app title.
+- **Acceptance:** Switching from `/slides/intro` → `/slides/process/3` updates tab to `3.3/4 — How we ship`; navigating back to `/` restores root title.
+
+### Step 55 — Keyboard scope on slides layout
+- **Goal:** Single, canonical key map referenced by every slide route via `useSlideKeyboard` (already authored Step 22). This step is the **wire-up + documentation contract**.
+- **Files:** `src/routes/slides.$slideId.tsx`, `src/routes/slides.$slideId.$step.tsx` (consumers).
+- **Contract — bindings:**
+  | Key | Action |
+  |---|---|
+  | `←` / `PageUp`               | Prev step → prev slide |
+  | `→` / `PageDown` / `Space` / `Enter` | Next step → next slide |
+  | `Shift+Space`                | Prev (presenter remote compat) |
+  | `Home`                       | First slide |
+  | `End`                        | Last slide |
+  | `G`                          | Open grid (`/slides`) |
+  | `F5`                         | Enter fullscreen present mode |
+  | `Esc`                        | Exit fullscreen; close grid; cancel jump input |
+  | `N`                          | Toggle PresenterNotes overlay |
+  | `S`                          | Open Settings drawer |
+  | `1–9` then `Enter`           | Jump to slide N (digit buffer, 500 ms timeout) |
+  | `?`                          | Open keyboard cheatsheet modal (v2 placeholder, logs for now) |
+- **Behavior:** Handlers ignored when focus is in `INPUT/TEXTAREA/[contenteditable]` (already in hook). Modifier-held keys (except Shift+Space) ignored.
+- **Acceptance:** Every binding works on `/slides/intro` and `/slides/process/3`; typing into the jump-input does NOT trigger global handlers.
+
+### Step 56 — `<ControlBar>` (prev / N/Total / next / share / export / settings)
+- **Goal:** Persistent bottom toolbar visible on every `/slides/*` route except `/slides/print` and inside Fullscreen.
+- **Files:** `src/components/slides/ControlBar.tsx`.
+- **Contract:**
+  ```tsx
+  export function ControlBar() {
+    const navigate = useNavigate();
+    const { deck } = useDeck();
+    const params = useParams({ strict: false }) as { slideId?: string; step?: string };
+    const idx = deck.slides.findIndex(s => s.id === params.slideId);
+    const total = deck.slides.length;
+    if (idx === -1) return null;  // hide on grid/print
+
+    return (
+      <div data-app-chrome
+           className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40
+                      flex items-center gap-2 rounded-full bg-black/60 backdrop-blur-md
+                      px-3 py-2 border border-white/10 text-white opacity-30 hover:opacity-100
+                      transition-opacity">
+        <IconButton aria-label="Previous" onClick={prev}><ChevronLeft className="h-4 w-4" /></IconButton>
+        <SlideJumpInput idx={idx} total={total} />          {/* Step 57 */}
+        <IconButton aria-label="Next" onClick={next}><ChevronRight className="h-4 w-4" /></IconButton>
+        <div className="mx-1 h-5 w-px bg-white/15" />
+        <IconButton aria-label="Share" onClick={shareCurrent}><Share2 className="h-4 w-4" /></IconButton>
+        <IconButton aria-label="Export" onClick={() => navigate({ to: '/slides/print' })}><Printer className="h-4 w-4" /></IconButton>
+        <IconButton aria-label="Grid" onClick={() => navigate({ to: '/slides' })}><LayoutGrid className="h-4 w-4" /></IconButton>
+        <IconButton aria-label="Settings" onClick={openSettings}><Settings className="h-4 w-4" /></IconButton>
+      </div>
+    );
+  }
+  ```
+  - Auto-fade: opacity 0.3 idle, 1.0 on hover; additionally, hide entirely when `document.fullscreenElement` is set AND mouse idle > 2 s (Step 60).
+  - Bar uses **app chrome** typography (not `.slide-*` semantic) — it lives outside the scaled stage.
+  - `IconButton` = compact 36×36 button with focus ring (`focus-visible:ring-2 ring-yellow-400`).
+  - `data-app-chrome` attribute ensures `@media print` hides it (Step 53).
+- **Acceptance:** Bar appears centered on bottom, fades on hover, all 7 controls work; hidden during print.
+
+### Step 57 — Double-click `N` → editable input → Enter jumps; Esc cancels
+- **Goal:** Quick slide jump without grid or digit-buffer.
+- **Files:** `src/components/slides/SlideJumpInput.tsx`.
+- **Contract:**
+  ```tsx
+  type Props = { idx: number; total: number };
+  export function SlideJumpInput({ idx, total }: Props) {
+    const [isEditing, setEditing] = useState(false);
+    const [value, setValue] = useState(String(idx + 1));
+    const navigate = useNavigate();
+    const { deck } = useDeck();
+
+    // Reset displayed value when navigation changes idx externally.
+    useEffect(() => { if (!isEditing) setValue(String(idx + 1)); }, [idx, isEditing]);
+
+    const commit = () => {
+      const n = Math.min(Math.max(Number.parseInt(value, 10) || 1, 1), total);
+      if (n !== idx + 1) navigate({ to: '/slides/$slideId', params: { slideId: deck.slides[n - 1].id } });
+      else toast.info(`Already on slide ${n}`);
+      setEditing(false);
+    };
+    const cancel = () => { setValue(String(idx + 1)); setEditing(false); };
+
+    if (!isEditing) {
+      return (
+        <button onDoubleClick={() => setEditing(true)}
+                className="px-3 text-sm tabular-nums text-white/85 hover:text-white">
+          {idx + 1} <span className="text-white/40">/ {total}</span>
+        </button>
+      );
+    }
+    return (
+      <div className="flex items-center gap-1 text-sm tabular-nums">
+        <input
+          autoFocus type="number" min={1} max={total} value={value}
+          onChange={e => setValue(e.target.value)}
+          onBlur={cancel}
+          onKeyDown={e => { if (e.key === 'Enter') commit(); else if (e.key === 'Escape') cancel(); e.stopPropagation(); }}
+          className="w-14 bg-white/10 rounded px-2 py-1 text-center outline-none focus:bg-white/20"
+        />
+        <span className="text-white/40">/ {total}</span>
+      </div>
+    );
+  }
+  ```
+  - `e.stopPropagation()` on key events prevents global keyboard scope from also acting.
+  - Out-of-range clamped silently (no error toast); equal to current → friendly info toast.
+  - Blur cancels (no surprise commit).
+- **Acceptance:** Double-click `3/4` → input appears focused with `3` selected; type `2` Enter → navigates to slide 2; Esc cancels without nav.
+
+### Step 58 — Share button (`navigator.share` + clipboard fallback)
+- **Goal:** Share the exact URL (slide + step) the presenter is currently on.
+- **Files:** `src/components/slides/share.ts` + wire in `ControlBar`.
+- **Contract:**
+  ```ts
+  export async function shareCurrent() {
+    const url = window.location.href;
+    const title = document.title;
+    if (navigator.share) {
+      try { await navigator.share({ title, url }); return; }
+      catch (err) {
+        if ((err as Error).name === 'AbortError') return;   // user dismissed picker
+        // fall through to clipboard
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success('Link copied');
+    } catch {
+      toast.error('Could not copy link');
+    }
+  }
+  ```
+  - Uses current `window.location.href` so the URL ALWAYS includes the active step (because step is in the URL by design — Steps 38 + 51).
+  - `navigator.share` is the preferred path on iOS/Android/macOS Safari; clipboard for desktop browsers without share.
+  - User-dismissed share picker (`AbortError`) is treated as a no-op (no error toast).
+- **Acceptance:** On Chrome desktop → URL copied + toast; on iOS Safari → native share sheet opens.
+
+### Step 59 — Grid mode `G` (thumbnails)
+- **Goal:** The existing `/slides` index route IS Grid mode (Step 52); this step wires the shortcut + back-to-current-slide return.
+- **Files:** `src/routes/slides.$slideId.tsx`, `src/routes/slides.$slideId.$step.tsx`, `src/routes/slides.index.tsx`.
+- **Contract:**
+  - From a slide route, `G` → `navigate({ to: '/slides' })`. (Already in keyboard handler.)
+  - From `/slides` (grid), `G` or `Esc` → return to the LAST visited slide. Store `lastVisitedSlideId` in Zustand store (not localStorage; ephemeral):
+    ```ts
+    interface DeckState { lastVisitedSlideId?: string; setLastVisited(id: string): void; }
+    ```
+  - In grid `useEffect`: `useSlideKeyboard({ onGrid: returnToLast, onEscape: returnToLast })` where `returnToLast` navigates to `lastVisitedSlideId` or `slides[0].id`.
+  - Single-slide route updates `lastVisitedSlideId` on mount/param change.
+- **Acceptance:** From `/slides/process/3`, press `G` → grid; press `G` again → returns to `/slides/process/3` (NOT `/slides/process/1`); refresh wipes (intentional).
+
+### Step 60 — Fullscreen Present mode `F5` + cursor-hide after 2 s
+- **Goal:** Edge-to-edge slide rendering using the Fullscreen API with auto-hidden cursor and chrome for distraction-free presenting.
+- **Files:** `src/components/slides/useFullscreen.ts` (existing, extend) + `src/routes/slides.tsx`.
+- **Contract:**
+  - `requestFullscreen` on `document.documentElement` (so root html element fills the screen, not just the slide div).
+  - `F5` → enter; `Esc` → exit (Fullscreen API auto-handles Esc; explicit handler is a fallback).
+  - Track `document.fullscreenElement` in state via `fullscreenchange` listener.
+  - Cursor-hide hook on fullscreen ONLY:
+    ```ts
+    function useIdleCursor(active: boolean, timeoutMs = 2000) {
+      useEffect(() => {
+        if (!active) { document.body.style.cursor = ''; return; }
+        let t: number; const show = () => { document.body.style.cursor = ''; clearTimeout(t); t = window.setTimeout(() => { document.body.style.cursor = 'none'; }, timeoutMs); };
+        show();
+        window.addEventListener('mousemove', show);
+        return () => { window.removeEventListener('mousemove', show); clearTimeout(t); document.body.style.cursor = ''; };
+      }, [active, timeoutMs]);
+    }
+    ```
+  - ControlBar also hides while fullscreen + idle: same `active && idle` flag drives `opacity: 0; pointer-events: none`.
+  - Cross-browser: include `webkitRequestFullscreen` / `msRequestFullscreen` fallbacks via the existing hook.
+  - On `fullscreenchange` exit: restore cursor, restore ControlBar opacity, refocus the document body so keyboard scope still receives keys.
+- **Acceptance:** `F5` enters fullscreen and slide fills screen; after 2 s idle cursor + ControlBar both disappear; any mouse move shows them; `Esc` exits cleanly and restores cursor.
 
 ### G. Settings Drawer (61–68)
 61. Right-side `<SettingsDrawer>` triggered by gear icon.
