@@ -29,7 +29,7 @@ describe("disabled zoom effects", () => {
     expect(screen.getByTestId("slide-body").parentElement?.style.transform).toBe("");
   });
 
-  it("normalizes imported camera-zoom decks back to fade", () => {
+  it("normalizes imported non-fade deck transitions back to fade", () => {
     const deck: Deck = {
       id: "zoom-deck",
       title: "Zoom Deck",
@@ -46,7 +46,9 @@ describe("disabled zoom effects", () => {
     };
 
     useDeck.getState().setDeck(deck);
+    expect(useDeck.getState().deck.settings.transition).toBe("fade");
 
+    useDeck.getState().setSettings({ transition: "morph" });
     expect(useDeck.getState().deck.settings.transition).toBe("fade");
   });
 });
