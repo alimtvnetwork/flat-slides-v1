@@ -9,6 +9,8 @@ import {
   parseSlideJson,
   pickJsonFile,
 } from "@/lib/slides/io";
+// Inline-loaded LLM spec sample deck (see docs/slides/spec/llm-json-guideline.md).
+import sampleDeckJson from "../../../docs/slides/spec/sample-deck.json?raw";
 
 import { useAnnotations } from "./annotations-store";
 import { useChrome } from "./chrome-store";
@@ -58,6 +60,14 @@ export function SettingsDrawer({
     upsertSlide(r.value);
     toast.success(`Imported slide "${r.value.id}"`);
   };
+
+  const handleLoadSpecSample = () => {
+    const r = parseDeckJson(sampleDeckJson);
+    if (!r.ok) return toast.error(`Spec sample failed to parse:\n${r.error}`, { duration: 8000 });
+    setDeck(r.value);
+    toast.success(`Loaded spec sample deck (${r.value.slides.length} slides)`);
+  };
+
 
   const handleExportSlide = () => {
     const target = deck.slides.find((s) => s.id === currentSlideId) ?? deck.slides[0];
@@ -216,6 +226,13 @@ export function SettingsDrawer({
               className="rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700"
             >
               ⬇ Export slide
+            </button>
+            <button
+              onClick={handleLoadSpecSample}
+              className="col-span-2 rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700"
+              title="Load docs/slides/spec/sample-deck.json"
+            >
+              ✨ Try spec sample deck
             </button>
             <button
               onClick={() => {
