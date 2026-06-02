@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SlidesRouteImport } from './routes/slides'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SlidesIndexRouteImport } from './routes/slides.index'
+import { Route as SlidesSpecRouteImport } from './routes/slides.spec'
 import { Route as SlidesSlideIdRouteImport } from './routes/slides.$slideId'
 import { Route as SlidesSlideIdIndexRouteImport } from './routes/slides.$slideId.index'
 import { Route as SlidesSlideIdStepRouteImport } from './routes/slides.$slideId.$step'
@@ -29,6 +30,11 @@ const IndexRoute = IndexRouteImport.update({
 const SlidesIndexRoute = SlidesIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => SlidesRoute,
+} as any)
+const SlidesSpecRoute = SlidesSpecRouteImport.update({
+  id: '/spec',
+  path: '/spec',
   getParentRoute: () => SlidesRoute,
 } as any)
 const SlidesSlideIdRoute = SlidesSlideIdRouteImport.update({
@@ -51,12 +57,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/slides': typeof SlidesRouteWithChildren
   '/slides/$slideId': typeof SlidesSlideIdRouteWithChildren
+  '/slides/spec': typeof SlidesSpecRoute
   '/slides/': typeof SlidesIndexRoute
   '/slides/$slideId/$step': typeof SlidesSlideIdStepRoute
   '/slides/$slideId/': typeof SlidesSlideIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/slides/spec': typeof SlidesSpecRoute
   '/slides': typeof SlidesIndexRoute
   '/slides/$slideId/$step': typeof SlidesSlideIdStepRoute
   '/slides/$slideId': typeof SlidesSlideIdIndexRoute
@@ -66,6 +74,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/slides': typeof SlidesRouteWithChildren
   '/slides/$slideId': typeof SlidesSlideIdRouteWithChildren
+  '/slides/spec': typeof SlidesSpecRoute
   '/slides/': typeof SlidesIndexRoute
   '/slides/$slideId/$step': typeof SlidesSlideIdStepRoute
   '/slides/$slideId/': typeof SlidesSlideIdIndexRoute
@@ -76,16 +85,23 @@ export interface FileRouteTypes {
     | '/'
     | '/slides'
     | '/slides/$slideId'
+    | '/slides/spec'
     | '/slides/'
     | '/slides/$slideId/$step'
     | '/slides/$slideId/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/slides' | '/slides/$slideId/$step' | '/slides/$slideId'
+  to:
+    | '/'
+    | '/slides/spec'
+    | '/slides'
+    | '/slides/$slideId/$step'
+    | '/slides/$slideId'
   id:
     | '__root__'
     | '/'
     | '/slides'
     | '/slides/$slideId'
+    | '/slides/spec'
     | '/slides/'
     | '/slides/$slideId/$step'
     | '/slides/$slideId/'
@@ -117,6 +133,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/slides/'
       preLoaderRoute: typeof SlidesIndexRouteImport
+      parentRoute: typeof SlidesRoute
+    }
+    '/slides/spec': {
+      id: '/slides/spec'
+      path: '/spec'
+      fullPath: '/slides/spec'
+      preLoaderRoute: typeof SlidesSpecRouteImport
       parentRoute: typeof SlidesRoute
     }
     '/slides/$slideId': {
@@ -159,11 +182,13 @@ const SlidesSlideIdRouteWithChildren = SlidesSlideIdRoute._addFileChildren(
 
 interface SlidesRouteChildren {
   SlidesSlideIdRoute: typeof SlidesSlideIdRouteWithChildren
+  SlidesSpecRoute: typeof SlidesSpecRoute
   SlidesIndexRoute: typeof SlidesIndexRoute
 }
 
 const SlidesRouteChildren: SlidesRouteChildren = {
   SlidesSlideIdRoute: SlidesSlideIdRouteWithChildren,
+  SlidesSpecRoute: SlidesSpecRoute,
   SlidesIndexRoute: SlidesIndexRoute,
 }
 
@@ -177,3 +202,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
