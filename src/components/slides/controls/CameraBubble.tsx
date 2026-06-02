@@ -183,8 +183,9 @@ export function CameraBubble() {
       style={{
         position: "fixed",
         zIndex: 60,
-        width: size,
-        height: size,
+        ...(stageFill
+          ? {}
+          : { width: size, height: size }),
         borderRadius: radius,
         ...anchorStyle,
       }}
