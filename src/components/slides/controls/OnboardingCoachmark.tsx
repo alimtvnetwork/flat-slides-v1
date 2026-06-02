@@ -14,6 +14,7 @@ import { useReducedMotion } from "@/components/slides/useReducedMotion";
 export function OnboardingCoachmark() {
   const { seen, markSeen } = useOnboardingFlag();
   const [mounted, setMounted] = useState(false);
+  const reduced = useReducedMotion();
 
   useEffect(() => setMounted(true), []);
 
