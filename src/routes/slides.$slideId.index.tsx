@@ -17,7 +17,7 @@ import { ScaledSlide } from "@/components/slides/ScaledSlide";
 import { SettingsDrawer } from "@/components/slides/SettingsDrawer";
 import { SlideTransition } from "@/components/slides/SlideTransition";
 import { useDeck } from "@/components/slides/store";
-import { slideStepCount } from "@/components/slides/types";
+import { getDisplayNumber, slideStepCount } from "@/components/slides/types";
 import { useFullscreen } from "@/components/slides/useFullscreen";
 import { useSlideNavigation } from "@/components/slides/useSlideNavigation";
 
