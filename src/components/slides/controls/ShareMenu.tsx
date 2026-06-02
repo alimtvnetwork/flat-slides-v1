@@ -80,10 +80,10 @@ export function ShareMenu({ current, step }: Props) {
         {open && (
           <motion.div
             role="menu"
-            initial={{ opacity: 0, y: 6, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 6, scale: 0.96 }}
-            transition={{ duration: 0.12 }}
+            initial={reduced ? { opacity: 0 } : { opacity: 0, y: 6, scale: 0.96 }}
+            animate={reduced ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
+            exit={reduced ? { opacity: 0 } : { opacity: 0, y: 6, scale: 0.96 }}
+            transition={{ duration: reduced ? 0.08 : 0.12 }}
             className={cn(
               "absolute bottom-full mb-2 right-0 min-w-[180px]",
               "rounded-md border border-[color:var(--ctrl-border)] bg-[color:var(--ctrl-bg)]",
