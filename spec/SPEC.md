@@ -1983,3 +1983,104 @@ Stack: TanStack Start v1 (file routes under `src/routes/`), React 19, Tailwind v
 
 **Remaining batches:**
 - **91–100:** Export-current-slide toggle (91), completion toast wiring (92), projector readability audit (93), reduced-motion QA matrix (94), keyboard-only walkthrough (95), share link cold-load (96), slide-jump clamp + toast (97), cross-browser smoke (98), Lighthouse perf+a11y on `/slides` (99), spec/README sync + v1 tag (100).
+
+---
+
+## Steps 91–100 — Detailed Implementation
+
+### Step 91 — "Export current slide only" toggle — ~10 min
+**File:** `src/components/settings/ExportSection.tsx`
+- Add shadcn `<Switch id="current-only" />` bound to `useExportUi(s => s.currentSlideOnly)`.
+- Label: "Export current slide only" with helper text "Useful for sharing a single frame".
+- When `true`, `exportDeckAsGif` / `exportDeckAsHtml` receive `slides: [deck.slides[currentIndex]]` instead of `deck.slides`.
+- Switch auto-disabled on `/slides` grid route (no current slide). Tooltip: "Open a slide first."
+- **Acceptance:** With toggle on, GIF contains exactly 1 frame; HTML export contains 1 `.print-slide`.
+
+### Step 92 — Completion toast with download link — ~10 min
+**File:** `src/lib/export/notify.ts`
+- Helper `notifyExportComplete(blob: Blob, filename: string)`:
+  ```ts
+  const url = URL.createObjectURL(blob);
+  toast.success(`${filename} ready`, {
+    duration: 10000,
+    action: { label: 'Download', onClick: () => triggerDownload(url, filename) },
+    onDismiss: () => URL.revokeObjectURL(url),
+    onAutoClose: () => URL.revokeObjectURL(url),
+  });
+  ```
+- Called by both `exportDeckAsHtml` and `exportDeckAsGif` callers in `ExportSection`.
+- Prevents memory leak by revoking object URL on toast close.
+- **Acceptance:** Toast persists 10 s with a Download button; clicking it triggers browser save dialog.
+
+### Step 93 — Projector readability audit — ~20 min
+**File:** `spec/QA.md` (new section "Readability")
+- Manual pass: open each slide on a 1080p projector (or simulate via 24" display 3 m away).
+- Checklist per slide:
+  - Body text ≥ 28 px (`.slide-body` = 32 px ✓ default).
+  - Chrome (`.slide-page`, `.slide-badge`) ≥ 18 px (`.slide-chrome` = 20 px ✓).
+  - Contrast ratio ≥ 4.5:1 for body, ≥ 3:1 for chrome (use Chrome DevTools "Contrast" inspector).
+- Any slide failing: bump to next semantic class or darken `--slide-foreground`.
+- **Acceptance:** Zero slides fail contrast or size check.
+
+### Step 94 — Reduced-motion QA matrix — ~15 min
+**File:** `spec/QA.md` (section "Reduced motion")
+- System: macOS "Reduce motion" ON, Windows "Show animations" OFF.
+- Walk all 4 transitions: each should collapse to ≤ 150 ms fade, no blur, no audio.
+- Specifically verify Step 79 audit items (`CameraZoom` never instantiated, whoosh suppressed, cursor never auto-hides).
+- Edge case: toggle OS reduce-motion mid-presentation → next transition immediately respects new value (motion's `useReducedMotion` is live).
+- **Acceptance:** All checklist boxes from Step 79 confirmed in live app.
+
+### Step 95 — Keyboard-only full-deck walkthrough — ~20 min
+- Disconnect mouse. Walk the entire deck using only:
+  - `Tab` to focus app, `→/←/Space` to navigate, `G` grid, `Esc` back, `F5` fullscreen, `N` notes, `S` settings, digit-buffer jump (`1` `2` `Enter`).
+- Verify focus rings visible on all interactive controls (`:focus-visible` ring already in `src/styles.css`).
+- Trap: SettingsDrawer `Sheet` must trap focus (radix default ✓); verify `Esc` closes and returns focus to trigger.
+- **Acceptance:** Full deck navigation possible without mouse; no focus-trap escape; no dead-end states.
+
+### Step 96 — Share link cold-load to exact slide + step — ~15 min
+**File:** `src/routes/slides/$slideId/$step.tsx`
+- Verify: copy URL `/slides/abc/2`, open in incognito, deck loads directly to slide `abc` step 2.
+- Edge cases:
+  - Step exceeds slide's `stepCount` → clamp to `stepCount - 1`, `history.replaceState` to canonical URL, toast.info `"Step 2 not available, showing step 1"`.
+  - `slideId` not found → `notFoundComponent` renders Step 96 fallback ("Slide not found — open grid →").
+- **Acceptance:** Cold-load lands on correct frame within 1 paint; clamp shown when out of range.
+
+### Step 97 — Slide-jump clamp + toast — ~10 min
+**File:** `src/components/SlideJumpInput.tsx`
+- On submit, if `n < 1` or `n > deck.slides.length`: clamp + `toast.warning(`Slide ${input} doesn't exist — jumped to ${clamped}`)`.
+- Same logic for digit-buffer accelerator (`5` `Enter` on 3-slide deck → jump to slide 3 + toast).
+- Visual feedback: input briefly flashes `--destructive` background (200 ms) when clamped.
+- **Acceptance:** Typing `99` on a 5-slide deck jumps to slide 5 and shows toast.
+
+### Step 98 — Cross-browser smoke — ~30 min
+**File:** `spec/QA.md` (section "Cross-browser")
+- Matrix: Chrome 126 (macOS+Win), Safari 17 (macOS+iPadOS), Firefox 127 (macOS).
+- Per browser, run scripted walk:
+  1. `/` → click first slide → `→` 3× → `G` → click slide 3 → `F5` → `Esc`.
+  2. Open Settings → swap transition → preview → swap background image → reload page.
+  3. Export GIF (5 slides) → download.
+- Known carve-outs documented:
+  - Safari < 17: `backdrop-filter` on `ControlBar` falls back to flat bg (already handled via `@supports`).
+  - Firefox: `gif.js` worker can be 2× slower (acceptable).
+- **Acceptance:** No console errors, no broken transitions, no failed exports per browser.
+
+### Step 99 — Lighthouse perf + a11y on `/slides` — ~15 min
+- Run Lighthouse (Chrome DevTools, Desktop profile) on `/slides` grid route.
+- Targets: Performance ≥ 90, Accessibility ≥ 95, Best Practices ≥ 95.
+- Likely fixes if below target:
+  - Thumbnails: add `loading="lazy"` on grid items beyond viewport, `decoding="async"`.
+  - Add `aria-label="Slide ${n}: ${title}"` on grid `<button>` (Step 52 ensured `<button>` but verify label).
+  - Preconnect fonts: `<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>` in `__root.tsx` head.
+- **Acceptance:** All three scores meet targets; screenshot saved to `spec/qa-artifacts/lighthouse-slides.png`.
+
+### Step 100 — Spec/README sync + v1 tag — ~20 min
+**Files:** `README.md`, `spec/SPEC.md`, `package.json`
+- README: replace stub with feature list (deck editor, 4 transitions, HTML/GIF export, presenter mode, keyboard nav, reduced-motion, print-to-PDF), quickstart (`bun install && bun dev`), keyboard cheat-sheet, screenshot of grid view.
+- SPEC: cross-check that every implemented step matches reality; mark any deviations in a "Drift" subsection.
+- `package.json`: bump `version` from `0.0.0` → `1.0.0`.
+- Final manual smoke: fresh `bun install`, `bun dev`, walk a 3-slide deck, export GIF, verify all passes.
+- **Acceptance:** README accurate, spec drift = 0, `package.json` at `1.0.0`, ready to tag `v1.0.0`.
+
+---
+
+**All 100 steps now specified. No remaining batches.**
