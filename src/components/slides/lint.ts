@@ -50,6 +50,33 @@ export function lintDeck(deck: Deck): LintIssue[] {
   const push = (s: Slide, i: number, rule: string, message: string, severity: LintSeverity = "warn") =>
     out.push({ slideId: s.id, slideIndex: i, slideTitle: s.title, rule, message, severity });
 
+  // Deck-level: must have at least one slide.
+  if (deck.slides.length === 0) {
+    out.push({
+      slideId: "", slideIndex: 0, slideTitle: "",
+      rule: "empty-deck",
+      message: "Deck has no slides — add at least one to render anything.",
+      severity: "error",
+    });
+    return out;
+  }
+
+  // Deck-level: warn on very long decks (cognitive load + nav UX).
+  if (deck.slides.length > 60) {
+    push(deck.slides[0], 0, "deck-too-long",
+      `Deck has ${deck.slides.length} slides — split into shorter chapters; nav and rendering degrade past ~60.`,
+      "warn");
+  }
+
+  // Deck-level: more than one Q&A slide is usually a copy/paste mistake.
+  const qaCount = deck.slides.filter((s) => s.type === "qa").length;
+  if (qaCount > 1) {
+    const first = deck.slides.findIndex((s) => s.type === "qa");
+    push(deck.slides[first], first, "multiple-qa-slides",
+      `Deck has ${qaCount} Q&A slides — usually only the final slide should be a Q&A.`,
+      "warn");
+  }
+
   // Deck-level: title must be present and not the default "Untitled".
   if (deck.slides[0]) {
     const t = deck.title?.trim() ?? "";
