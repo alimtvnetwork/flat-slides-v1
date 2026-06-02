@@ -237,7 +237,13 @@ function SlidePage() {
         <CameraBubble />
         <PresenterToast />
         <KeyboardShortcutsDialog open={helpOpen} onClose={() => setHelpOpen(false)} />
-        <SettingsDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} currentSlideId={slide.id} />
+        {settingsOpen && (
+          <Suspense fallback={null}>
+            <SettingsDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} currentSlideId={slide.id} />
+          </Suspense>
+        )}
+        <SlideAriaAnnouncer current={current} total={total} title={slide.title} />
+        <PresenterNotesPeek notes={slide.notes} />
       </div>
     );
   }
