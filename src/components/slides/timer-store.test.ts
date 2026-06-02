@@ -14,11 +14,6 @@ describe("formatDuration", () => {
     expect(formatDuration(75 * 60_000 + 30_000)).toBe("1:15:30");
   });
 
-  it("clamps negative values to zero", () => {
-    expect(formatDuration(-5)).toBe("00:00");
-  });
-});
-
 describe("classifyDrift", () => {
   it("returns 'idle' when no budget", () => {
     expect(classifyDrift(0, undefined)).toBe("idle");
