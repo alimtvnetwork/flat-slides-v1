@@ -133,6 +133,7 @@ export const SlideSchema = z.discriminatedUnion("type", [
   LeftSlideSchema,
   CenterSlideSchema,
   StepsSlideSchema,
+  TimelineSlideSchema,
   QuoteSlideSchema,
   BulletsSlideSchema,
   ImageSlideSchema,
