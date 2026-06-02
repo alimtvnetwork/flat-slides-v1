@@ -140,7 +140,7 @@ const defaultDeck: Deck = {
   version: DECK_SCHEMA_VERSION,
 };
 
-function forceFadeTransition(deck: Deck): Deck {
+export function forceFadeTransition(deck: Deck): Deck {
   if (deck.settings.transition === "fade") return deck;
   return { ...deck, settings: { ...deck.settings, transition: "fade" } };
 }
