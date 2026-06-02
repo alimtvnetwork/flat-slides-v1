@@ -139,6 +139,11 @@ const defaultDeck: Deck = {
   version: DECK_SCHEMA_VERSION,
 };
 
+function disableZoomTransition(deck: Deck): Deck {
+  if (deck.settings.transition !== "camera-zoom") return deck;
+  return { ...deck, settings: { ...deck.settings, transition: "fade" } };
+}
+
 function getUsablePersistedDeck(value: unknown): Pick<DeckStore, "deck" | "themeId"> | null {
   const state = value as Partial<DeckStore> | undefined;
   if (!state?.deck) return null;
@@ -148,7 +153,7 @@ function getUsablePersistedDeck(value: unknown): Pick<DeckStore, "deck" | "theme
   if ((parsed.data.version ?? 1) !== DECK_SCHEMA_VERSION) return null;
 
   return {
-    deck: parsed.data as Deck,
+    deck: disableZoomTransition(parsed.data as Deck),
     themeId: state.themeId ?? parsed.data.themeId ?? DEFAULT_THEME_ID,
   };
 }
@@ -176,11 +181,14 @@ export const useDeck = create<DeckStore>()(
       deck: defaultDeck,
       themeId: DEFAULT_THEME_ID,
       setSettings: (patch) =>
-        set((s) => ({ deck: { ...s.deck, settings: { ...s.deck.settings, ...patch } } })),
+        set((s) => ({ deck: disableZoomTransition({ ...s.deck, settings: { ...s.deck.settings, ...patch } }) })),
       setThemeId: (id) =>
         set((s) => ({ themeId: id, deck: { ...s.deck, themeId: id } })),
       setDeck: (deck) =>
-        set(() => ({ deck, themeId: deck.themeId ?? DEFAULT_THEME_ID })),
+        set(() => {
+          const safeDeck = disableZoomTransition(deck);
+          return { deck: safeDeck, themeId: safeDeck.themeId ?? DEFAULT_THEME_ID };
+        }),
       addSlide: (slide, index) =>
         set((s) => {
           const slides = [...s.deck.slides];
