@@ -13,6 +13,8 @@ describe("formatDuration", () => {
     expect(formatDuration(60 * 60_000)).toBe("1:00:00");
     expect(formatDuration(75 * 60_000 + 30_000)).toBe("1:15:30");
   });
+});
+
 
 describe("classifyDrift", () => {
   it("returns 'idle' when no budget", () => {
