@@ -220,7 +220,10 @@ export const useDeck = create<DeckStore>()(
         }),
       removeSlide: (id) =>
         set((s) => ({ deck: { ...s.deck, slides: s.deck.slides.filter((x) => x.id !== id) } })),
-      resetDeck: () => set({ deck: defaultDeck, themeId: DEFAULT_THEME_ID }),
+      resetDeck: () => {
+        const preferred = useChrome.getState().lastUsedThemeId ?? DEFAULT_THEME_ID;
+        set({ deck: { ...defaultDeck, themeId: preferred }, themeId: preferred });
+      },
       setLastVisited: (id) => set({ lastVisitedSlideId: id }),
       getSlideIndex: (id) => get().deck.slides.findIndex((s) => s.id === id),
     }),
