@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 export type SlideType =
-  | "left" | "center" | "steps" | "quote" | "bullets" | "image"
+  | "left" | "center" | "steps" | "timeline" | "quote" | "bullets" | "image"
   | "poll" | "qa" | "embed";
 
 export type Highlight = { text: string; pill?: boolean };
