@@ -6,6 +6,7 @@ import { createPortal } from "react-dom";
 import { useChrome } from "@/components/slides/chrome-store";
 import { useCamera } from "@/components/slides/useCamera";
 import { useFullscreen } from "@/components/slides/useFullscreen";
+import { useAutoFrame } from "@/components/slides/useAutoFrame";
 import { cn } from "@/lib/utils";
 
 import { CameraPlate } from "./CameraPlate";
