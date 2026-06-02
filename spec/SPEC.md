@@ -122,13 +122,171 @@ Stack: TanStack Start v1 (file routes under `src/routes/`), React 19, Tailwind v
 
 ## Remaining 11–100 — title list (full detail expands on each `next N`)
 
-### B. Fonts & Typography (11–16)
-11. `@import` Ubuntu (400/500/700) + Poppins (400/600/700/900) at top of `src/styles.css`.
-12. Define `.slide-title`, `.slide-subtitle`, `.slide-body`, `.slide-caption`, `.slide-kicker`, `.slide-chrome` (sizes per slides skill).
-13. Implement `.hl` (text-shadow underline) + `.hl-pill` (box-shadow pill) highlight classes.
-14. Add `@media (prefers-reduced-motion: reduce)` overrides for all `.slide-*-anim` classes.
-15. Add `--slide-camera-z` custom property + 3D perspective stage CSS.
-16. Render `/slides/_demo` smoke-test slide rendering every typography + highlight token.
+## Steps 11–20 — Fonts, Typography, Highlight CSS, Motion, Scaling
+
+### Step 11 — Web fonts via `@import`
+- **Goal:** Headings in **Ubuntu**, body in **Poppins**. Loaded once, available app-wide.
+- **Files:** `src/styles.css` (very first lines, before `@import "tailwindcss"`).
+- **Contract:**
+  ```css
+  @import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&family=Poppins:wght@400;600;700;900&display=swap');
+  ```
+  - Then add to `@theme inline`:
+    ```css
+    --font-display: 'Ubuntu', system-ui, sans-serif;
+    --font-body:    'Poppins', system-ui, sans-serif;
+    ```
+  - `.slide-content { font-family: var(--font-body); }`
+  - `.slide-title, .slide-subtitle, .slide-kicker { font-family: var(--font-display); font-weight: 700; }`
+- **Acceptance:** DevTools → Network shows both font families loaded; titles render in Ubuntu, body in Poppins. No FOUT longer than 200 ms with `display=swap`.
+
+### Step 12 — Semantic typography classes
+- **Goal:** Lock projector-readable sizes into named classes; never use raw `text-*` Tailwind for slide body.
+- **Files:** `src/styles.css`.
+- **Contract — exact values (slide-space px):**
+  ```css
+  .slide-content {
+    width: 1920px; height: 1080px; overflow: hidden; position: relative;
+    color: var(--slide-fg); background: var(--slide-bg);
+    --slide-title-lg: 104px; --slide-title: 88px; --slide-subtitle: 52px;
+    --slide-body-lg: 40px;   --slide-body: 32px;  --slide-caption: 24px;
+    --slide-kicker: 22px;    --slide-chrome: 20px;
+  }
+  .slide-title-lg { font-size: var(--slide-title-lg); line-height: 1.0;  letter-spacing: -0.05em; }
+  .slide-title    { font-size: var(--slide-title);    line-height: 1.05; letter-spacing: -0.04em; }
+  .slide-subtitle { font-size: var(--slide-subtitle); line-height: 1.15; letter-spacing: -0.025em; }
+  .slide-body-lg  { font-size: var(--slide-body-lg);  line-height: 1.22; }
+  .slide-body     { font-size: var(--slide-body);     line-height: 1.28; }
+  .slide-caption  { font-size: var(--slide-caption);  line-height: 1.25; }
+  .slide-kicker   { font-size: var(--slide-kicker);   line-height: 1.1;  letter-spacing: 0.12em; text-transform: uppercase; }
+  .slide-chrome, .slide-badge, .slide-footer, .slide-page {
+    font-size: var(--slide-chrome); line-height: 1.15;
+  }
+  .slide-badge, .slide-page { white-space: nowrap; }
+  ```
+- **Reasoning:** Slide renders at 1920×1080 then scales — Tailwind's 16px body would project at 4–8 css px. Semantic classes guarantee readability regardless of scale.
+- **Acceptance:** Rendering `<p class="slide-body">…</p>` inside a `.slide-content` shows 32 px slide-space. Tailwind `text-lg` still works for non-slide app chrome (toolbar).
+
+### Step 13 — Yellow highlight: `.hl` and `.hl-pill`
+- **Goal:** Replicate the `02-sample.webp` hero highlight in two flavors: underline-glow (inline) and solid pill (block phrase).
+- **Files:** `src/styles.css`.
+- **Contract:**
+  ```css
+  .hl {
+    background-image: linear-gradient(transparent 62%, var(--slide-hl) 62%, var(--slide-hl) 92%, transparent 92%);
+    color: inherit;
+    padding: 0 0.08em;
+  }
+  .hl-pill {
+    display: inline-block;
+    background: var(--slide-hl);
+    color: var(--slide-hl-ink);
+    padding: 0.08em 0.32em;
+    border-radius: 0.18em;
+    box-shadow: 0 0 0 0.04em var(--slide-hl) inset, 0 8px 0 -2px color-mix(in oklab, var(--slide-hl) 60%, black 0%);
+    line-height: 1.05;
+  }
+  ```
+- **Component contract:** `<Highlight pill>text</Highlight>` → `.hl-pill`; `<Highlight>text</Highlight>` → `.hl`.
+- **Acceptance:** Visual diff against `02-sample.webp` shows yellow phrase rendered with same baseline and ink color.
+
+### Step 14 — Reduced-motion overrides
+- **Goal:** Respect `prefers-reduced-motion: reduce` — no camera-zoom, no whoosh, no shake.
+- **Files:** `src/styles.css`.
+- **Contract:**
+  ```css
+  @media (prefers-reduced-motion: reduce) {
+    .slide-anim-camera, .slide-anim-morph, .slide-anim-eaten {
+      animation: none !important;
+      transition: opacity 150ms linear !important;
+      transform: none !important;
+      filter: none !important;
+    }
+  }
+  ```
+  - JS side: `useReducedMotion()` short-circuits `playWhoosh()` and forces transition to `'fade'` with 150 ms duration.
+- **Acceptance:** Toggling OS reduce-motion → slide changes become a 150 ms fade with no audio.
+
+### Step 15 — Perspective + camera-z custom properties
+- **Goal:** Allow the camera-zoom transition to be tuned by CSS variables (no JS recompile).
+- **Files:** `src/styles.css`.
+- **Contract:**
+  ```css
+  :root {
+    --slide-perspective: 2400px;
+    --slide-camera-z:    -600px;   /* incoming start Z */
+    --slide-camera-blur: 14px;     /* incoming start blur */
+    --slide-camera-dur:  720ms;    /* transition duration */
+  }
+  .slide-stage {
+    perspective: var(--slide-perspective);
+    transform-style: preserve-3d;
+    perspective-origin: 50% 50%;
+  }
+  ```
+- **Acceptance:** Changing `--slide-camera-z` in DevTools alters depth of incoming slide live.
+
+### Step 16 — Typography smoke-test route `/slides/_demo`
+- **Goal:** One page exercising every semantic class + highlight variant for visual review.
+- **Files:** `src/routes/slides._demo.tsx`.
+- **Contract:** Renders a `ScaledSlide` containing — top-to-bottom — kicker, title-lg, title, subtitle, body-lg, body paragraph (2 lines), caption, chrome row with pill, inline `.hl` example, block `.hl-pill` example.
+- **Acceptance:** Visiting `/slides/_demo` shows each class at correct size; manual measurement of `.slide-title` ≈ 88 px in slide space (use a 1×1 scale by opening at 1920×1080 viewport).
+
+### Step 17 — `ScaledSlide` component
+- **Goal:** Single component that fits a 1920×1080 slide inside any parent.
+- **Files:** `src/components/slides/ScaledSlide.tsx`.
+- **Contract:**
+  ```tsx
+  type Props = { children: ReactNode; className?: string };
+  // Outer: position: relative; overflow: hidden; width/height: 100%.
+  // Inner wrapper: position: absolute; width: 1920px; height: 1080px;
+  //                left: 50%; top: 50%; margin-left: -960px; margin-top: -540px;
+  //                transform: scale(var(--scale)); transform-origin: center center;
+  // Compute scale = Math.min(parentW / 1920, parentH / 1080).
+  ```
+  - Uses `useLayoutEffect` + ResizeObserver. Writes `--scale` to outer `style`.
+  - Default min scale 0.05 to avoid `scale(0)` on hidden parents.
+- **Acceptance:** Resizing window keeps slide centered, never clips, maintains 16:9.
+
+### Step 18 — ResizeObserver-driven recompute (debounced 16 ms)
+- **Goal:** Smooth scale during window/sidebar drag without thrash.
+- **Files:** `src/components/slides/ScaledSlide.tsx` (same file as Step 17).
+- **Contract:**
+  - Single `ResizeObserver` on the outer container.
+  - `requestAnimationFrame` coalesces multiple entries inside the same frame.
+  - Cleanup on unmount: `observer.disconnect()`.
+  - No reliance on `window.resize` — covers sidebar drags too.
+- **Acceptance:** Dragging the sidebar in editor view re-scales at 60 fps (no jank); console shows ≤ 1 scale write per frame.
+
+### Step 19 — `SlideLayout` with header/footer reserves
+- **Goal:** Standard reserved zones so all slides feel laid out on a shared grid.
+- **Files:** `src/components/slides/SlideLayout.tsx`.
+- **Contract:**
+  ```tsx
+  type Reserve = { top?: number; bottom?: number; left?: number; right?: number };
+  type Props = {
+    children: ReactNode;
+    reserve?: Reserve;                  // defaults: top 120, bottom 90, left 96, right 96
+    theme?: 'light' | 'dark';            // applies .slide-theme-* class
+    background?: { mode: 'color'|'image'; color?: string; image?: string; darken?: number; blur?: number };
+    topLeft?: ReactNode; topRight?: ReactNode;
+    bottomLeft?: ReactNode; bottomRight?: ReactNode;
+  };
+  ```
+  - Layout: outer `.slide-content` → background layer (absolute, full-bleed, with `filter: blur()` and dim overlay) → header row (height = reserve.top) → main content (flex-1) → footer row (height = reserve.bottom).
+  - Padding inset uses reserve.left / reserve.right.
+- **Acceptance:** A slide using default reserve has main content area exactly 1920 × (1080-120-90) = 1920 × 870 px; chrome slots render in corners.
+
+### Step 20 — Chrome slots (`topLeft / topRight / bottomLeft / bottomRight`)
+- **Goal:** Standard placement for brand bar, page counter, pills, decorative chips.
+- **Files:** `src/components/slides/SlideLayout.tsx` (same file as Step 19).
+- **Contract:**
+  - Each slot is `position: absolute` within the header/footer row.
+  - Padding from edges: 48 px horizontal, 24 px vertical (slide-space).
+  - Slots receive `.slide-chrome` class by default; consumers can wrap with `.slide-badge` / `.slide-page`.
+  - Vertical alignment: `topLeft/topRight` align-items: center within header; `bottomLeft/bottomRight` align-items: center within footer.
+  - Z-index: slots > background layer, < `<Outlet/>` modals.
+- **Acceptance:** Providing `topRight={<span className="slide-page">3 / 12</span>}` renders the counter 48 px from right edge, vertically centered in the 120 px header.
 
 ### C. Scaling & Layout primitives (17–24)
 17. `src/components/slides/ScaledSlide.tsx` — 1920×1080 centered, `transform: scale(min(sx, sy))`.
