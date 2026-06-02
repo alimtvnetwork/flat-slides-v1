@@ -112,6 +112,7 @@ function getUsablePersistedDeck(value: unknown): Pick<DeckStore, "deck" | "theme
 
   const parsed = DeckSchema.safeParse(state.deck);
   if (!parsed.success) return null;
+  if ((parsed.data.version ?? 1) !== DECK_VERSION) return null;
 
   return {
     deck: parsed.data as Deck,
