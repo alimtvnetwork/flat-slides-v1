@@ -186,6 +186,7 @@ export function ControllerPill(props: Props) {
                 </PillButton>
                 <MusicToggle compact />
                 <ThemeChip />
+                <ShareMenu current={current} />
                 <PillButton onClick={onOpenSettings} ariaLabel="Settings">
                   <Settings size={15} />
                 </PillButton>
