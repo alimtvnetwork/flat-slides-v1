@@ -42,7 +42,7 @@ export function PresenterNotesPeek({ notes }: { notes?: string }) {
     <div className="fixed bottom-4 left-4 z-50" data-print-hide="true">
       <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        onClick={toggle}
         aria-expanded={open}
         aria-label={open ? "Hide presenter notes" : "Show presenter notes"}
         className={cn(
