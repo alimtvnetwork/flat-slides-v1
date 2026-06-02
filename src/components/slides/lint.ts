@@ -138,6 +138,16 @@ export function lintDeck(deck: Deck): LintIssue[] {
             `Alt text "${s.alt}" looks like a filename — describe what's in the image instead.`,
             "warn");
         }
+        if (s.fit === "split" && richLen(s.heading) === 0) {
+          push(s, i, "image-split-no-heading",
+            'Image slide with fit: "split" has no heading — the text column will be empty.',
+            "warn");
+        }
+        if (hasMarkdownMarkers(s.caption) || (s.alt && /\*\*|__/.test(s.alt))) {
+          push(s, i, "caption-markdown",
+            "Caption/alt contains markdown markers (** or __) — use RichText highlights instead.",
+            "warn");
+        }
         // Inline base64 size budget — spec recommends ≤200 KB binary (~270 KB base64).
         if (s.src.startsWith("data:") && s.src.length > 270_000) {
           const kb = Math.round(s.src.length / 1024);
@@ -156,8 +166,26 @@ export function lintDeck(deck: Deck): LintIssue[] {
         break;
       }
     }
+
+    // Consecutive quote slides — pacing smell, audience tunes out.
+    if (s.type === "quote" && i > 0 && deck.slides[i - 1].type === "quote") {
+      push(s, i, "consecutive-quotes",
+        "Two quote slides in a row — break the rhythm with a different slide type.",
+        "warn");
+    }
   }
   return out;
+}
+
+function hasMarkdownMarkers(rt?: RichText): boolean {
+  if (!rt) return false;
+  return rt.some((p) => /\*\*|__/.test(typeof p === "string" ? p : p.text));
+}
+
+/** Severity tallies for a lint result — used by panels, CLI, and CI scripts. */
+export function countIssues(issues: LintIssue[]): { errors: number; warns: number; total: number } {
+  const errors = issues.filter((i) => i.severity === "error").length;
+  return { errors, warns: issues.length - errors, total: issues.length };
 }
 
 const FILENAME_RE = /\.(png|jpe?g|gif|webp|svg|avif|bmp|tiff?)$/i;
