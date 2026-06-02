@@ -50,6 +50,25 @@ const seedSlides: Slide[] = [
     ],
   },
   {
+    id: "sajida-visual",
+    type: "left",
+    title: "Sajida — Foundation Snapshot",
+    kicker: "Foundation",
+    heading: ["A ", { text: "foundation" }, "\nbuilt on impact"],
+    align: "center-left",
+    body: [
+      "Sajida Foundation runs ",
+      { text: "health, education", pill: false },
+      " and ",
+      { text: "livelihood" },
+      " programs across Bangladesh — reaching millions through community-led work.",
+    ],
+    media: {
+      src: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=1200&q=80&auto=format&fit=crop",
+      alt: "Community gathering",
+    },
+  },
+  {
     id: "principles",
     type: "steps",
     title: "Five Principles",
