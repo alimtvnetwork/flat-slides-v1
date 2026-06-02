@@ -34,6 +34,7 @@ import { SlideAriaAnnouncer } from "@/components/slides/controls/SlideAriaAnnoun
 import { SlideTransition } from "@/components/slides/SlideTransition";
 import { getDisplayNumber, slideStepCount } from "@/components/slides/types";
 import { useFullscreen } from "@/components/slides/useFullscreen";
+import { emitSlidesEvent } from "@/components/slides/telemetry";
 import { useSlideNavigation } from "@/components/slides/useSlideNavigation";
 
 export const Route = createFileRoute("/slides/$slideId/$step")({
