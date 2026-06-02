@@ -374,3 +374,33 @@ describe("lintDeck — embed pacing rules", () => {
     expect(ids).toContain("embed-too-many-deck");
   });
 });
+
+describe("lintDeck — budget & deck-title rules", () => {
+  it("flags slide.budget > 600s", () => {
+    const s: Slide = { id: "c", type: "center", title: "C", heading: ["x"], budget: 900 };
+    expect(lintDeck(deckOf([s])).some((i) => i.rule === "budget-too-long")).toBe(true);
+  });
+
+  it("does NOT flag a sane budget", () => {
+    const s: Slide = { id: "c", type: "center", title: "C", heading: ["x"], budget: 120 };
+    expect(lintDeck(deckOf([s])).some((i) => i.rule === "budget-too-long")).toBe(false);
+  });
+
+  it("flags empty deck title", () => {
+    expect(lintDeck(deckOf([center], { title: "" })).some((i) => i.rule === "deck-title-untitled")).toBe(true);
+  });
+
+  it("flags 'Untitled' deck title (case-insensitive)", () => {
+    expect(lintDeck(deckOf([center], { title: "untitled" })).some((i) => i.rule === "deck-title-untitled")).toBe(true);
+  });
+
+  it("does NOT flag a real deck title", () => {
+    expect(lintDeck(deckOf([center], { title: "Q3 Plan" })).some((i) => i.rule === "deck-title-untitled")).toBe(false);
+  });
+
+  it("documents both rules in LINT_RULES", () => {
+    const ids = LINT_RULES.map((r) => r.id);
+    expect(ids).toContain("budget-too-long");
+    expect(ids).toContain("deck-title-untitled");
+  });
+});
