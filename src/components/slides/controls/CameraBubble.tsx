@@ -96,21 +96,24 @@ export function CameraBubble() {
   if (!camera.visible) return null;
   if (camera.fullscreenOnly && !isFs) return null;
 
-  const scale = SCENE_SCALE[scene];
+  const stageFill = scene === "stage-fill";
+  const scale = SCENE_SCALE[scene] ?? 1;
   const baseSize = camera.customSize ?? SIZES[camera.size];
   const size = Math.max(MIN_SIZE, Math.min(MAX_SIZE, Math.round(baseSize * scale)));
   const radius =
-    scene === "cam-only" ? "32px" : SHAPE_RADIUS[camera.shape];
-  const anchorStyle: React.CSSProperties = (() => {
-    const margin = 20;
-    switch (camera.anchor) {
-      case "top-left":     return { top: margin + camera.offsetY, left: margin + camera.offsetX };
-      case "top-right":    return { top: margin + camera.offsetY, right: margin - camera.offsetX };
-      case "bottom-left":  return { bottom: margin - camera.offsetY, left: margin + camera.offsetX };
-      case "bottom-right":
-      default:             return { bottom: margin - camera.offsetY, right: margin - camera.offsetX };
-    }
-  })();
+    stageFill ? "0px" : scene === "cam-only" ? "32px" : SHAPE_RADIUS[camera.shape];
+  const anchorStyle: React.CSSProperties = stageFill
+    ? { top: 0, left: 0, right: 0, bottom: 0 }
+    : (() => {
+        const margin = 20;
+        switch (camera.anchor) {
+          case "top-left":     return { top: margin + camera.offsetY, left: margin + camera.offsetX };
+          case "top-right":    return { top: margin + camera.offsetY, right: margin - camera.offsetX };
+          case "bottom-left":  return { bottom: margin - camera.offsetY, left: margin + camera.offsetX };
+          case "bottom-right":
+          default:             return { bottom: margin - camera.offsetY, right: margin - camera.offsetX };
+        }
+      })();
 
   function onPointerDown(e: React.PointerEvent) {
     if ((e.target as HTMLElement).closest("[data-camera-control]")) return;
