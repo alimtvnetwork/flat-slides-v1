@@ -72,7 +72,7 @@ export function SlideTransition({ transitionKey, allowZoom = false, children }: 
 
   return (
     <div
-      className="absolute inset-0"
+      className="absolute inset-0 overflow-hidden"
       style={{ perspective: "var(--slide-perspective)", transformStyle: "preserve-3d" }}
     >
       <AnimatePresence mode="wait" initial={false}>
@@ -84,7 +84,7 @@ export function SlideTransition({ transitionKey, allowZoom = false, children }: 
           exit="exit"
           transition={tx}
           className="absolute inset-0"
-          style={{ transformStyle: "preserve-3d" }}
+          style={{ transformStyle: "preserve-3d", willChange: "transform, opacity, filter" }}
         >
           {children}
         </motion.div>
