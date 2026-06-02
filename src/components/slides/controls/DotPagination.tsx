@@ -56,6 +56,15 @@ export function DotPagination({ current, total, slides, onJump, className }: Pro
               key={n}
               type="button"
               onClick={() => onJump(n)}
+              onKeyDown={(e) => {
+                if (e.key === "ArrowRight" && n < total) {
+                  e.preventDefault();
+                  (e.currentTarget.nextElementSibling as HTMLButtonElement | null)?.focus();
+                } else if (e.key === "ArrowLeft" && n > 1) {
+                  e.preventDefault();
+                  (e.currentTarget.previousElementSibling as HTMLButtonElement | null)?.focus();
+                }
+              }}
               onMouseEnter={() => setHovered(n)}
               onMouseLeave={() => setHovered((h) => (h === n ? null : h))}
               aria-current={active ? "true" : undefined}

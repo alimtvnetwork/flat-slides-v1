@@ -39,10 +39,24 @@ export function ShareMenu({ current, step }: Props) {
     return `${base}?session=${sessionId}`;
   }
 
+  function cleanLink() {
+    return `${window.location.origin}/slides/${current}${step && step > 1 ? `/${step}` : ""}`;
+  }
+
   async function copyLink() {
     try {
       await navigator.clipboard.writeText(deepLink());
       flash("Share link copied");
+    } catch {
+      flash("Copy failed — check clipboard permissions");
+    }
+    setOpen(false);
+  }
+
+  async function copyCleanLink() {
+    try {
+      await navigator.clipboard.writeText(cleanLink());
+      flash("Slide link copied");
     } catch {
       flash("Copy failed — check clipboard permissions");
     }
@@ -91,6 +105,7 @@ export function ShareMenu({ current, step }: Props) {
             )}
           >
             <MenuItem onClick={copyLink} icon={<Link2 size={13} />} label="Copy deep link" />
+            <MenuItem onClick={copyCleanLink} icon={<Link2 size={13} />} label="Copy slide link (no session)" />
             <MenuItem
               onClick={() => { toggleQr(); setOpen(false); }}
               icon={<QrCode size={13} />}

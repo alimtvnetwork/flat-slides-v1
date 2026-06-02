@@ -310,6 +310,15 @@ export function lintDeck(deck: Deck): LintIssue[] {
         "Two quote slides in a row — break the rhythm with a different slide type.",
         "warn");
     }
+
+    // 3+ consecutive image slides — pacing smell, becomes a slideshow lull.
+    if (s.type === "image" && i >= 2
+        && deck.slides[i - 1].type === "image"
+        && deck.slides[i - 2].type === "image") {
+      push(s, i, "consecutive-images",
+        "Three image slides in a row — interleave with text or quote slides to keep narrative momentum.",
+        "warn");
+    }
   }
   return out;
 }
@@ -366,6 +375,7 @@ export const LINT_RULES: ReadonlyArray<{ id: string; severity: LintSeverity; sum
   { id: "base64-image-large", severity: "warn", summary: "Inline base64 image >200 KB." },
   { id: "embed-not-https", severity: "error", summary: "Embed URL not https://." },
   { id: "consecutive-quotes", severity: "warn", summary: "Two quote slides back-to-back." },
+  { id: "consecutive-images", severity: "warn", summary: "Three image slides back-to-back." },
   { id: "volume-out-of-range", severity: "warn", summary: "Deck volume outside [0, 1]." },
   { id: "duplicate-title", severity: "warn", summary: "Two slides share the same title." },
   { id: "focus-rect-invalid", severity: "error", summary: "Focus rect has w<=0, h<=0, or negative x/y." },

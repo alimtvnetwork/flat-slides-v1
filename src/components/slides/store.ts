@@ -4,6 +4,7 @@ import { persist } from "zustand/middleware";
 import { DeckSchema } from "@/lib/slides/schema";
 import { DECK_SCHEMA_VERSION } from "@/lib/slides/version";
 
+import { emitSlidesEvent } from "./telemetry";
 import { DEFAULT_THEME_ID } from "./themes";
 import type { Deck, DeckSettings, Slide } from "./types";
 
@@ -182,8 +183,10 @@ export const useDeck = create<DeckStore>()(
       themeId: DEFAULT_THEME_ID,
       setSettings: (patch) =>
         set((s) => ({ deck: forceFadeTransition({ ...s.deck, settings: { ...s.deck.settings, ...patch } }) })),
-      setThemeId: (id) =>
-        set((s) => ({ themeId: id, deck: { ...s.deck, themeId: id } })),
+      setThemeId: (id) => {
+        set((s) => ({ themeId: id, deck: { ...s.deck, themeId: id } }));
+        emitSlidesEvent({ type: "theme-change", themeId: id });
+      },
       setDeck: (deck) =>
         set(() => {
           const safeDeck = forceFadeTransition(deck);

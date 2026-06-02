@@ -330,3 +330,21 @@ describe("lintDeck — B17 rules", () => {
   });
 });
 
+
+describe("lintDeck — consecutive-images rule", () => {
+  const img = (id: string): Slide => ({ id, type: "image", title: id, src: "/x.png", alt: "x" });
+
+  it("flags the third image in a row", () => {
+    const issues = lintDeck(deckOf([img("a"), img("b"), img("c")]));
+    expect(issues.some((i) => i.rule === "consecutive-images" && i.slideId === "c")).toBe(true);
+  });
+
+  it("does NOT flag two image slides in a row", () => {
+    const issues = lintDeck(deckOf([img("a"), img("b")]));
+    expect(issues.some((i) => i.rule === "consecutive-images")).toBe(false);
+  });
+
+  it("is documented in LINT_RULES", () => {
+    expect(LINT_RULES.some((r) => r.id === "consecutive-images")).toBe(true);
+  });
+});
