@@ -13,6 +13,7 @@ import { SlideNumberBadge } from "@/components/slides/controls/SlideNumberBadge"
 import { LintPanel } from "@/components/slides/LintPanel";
 import { PresenterTools } from "@/components/slides/PresenterTools";
 import { RenderSlide } from "@/components/slides/RenderSlide";
+import { CameraStage } from "@/components/slides/CameraStage";
 import { ScaledSlide } from "@/components/slides/ScaledSlide";
 import { SettingsDrawer } from "@/components/slides/SettingsDrawer";
 import { SlideTransition } from "@/components/slides/SlideTransition";
@@ -129,7 +130,7 @@ function SlidePage() {
           >
             <ScaledSlide fitPadding={36}>
               <SlideTransition transitionKey={slide.id} allowZoom={slide.type === "center" && slide.display === true}>
-                <RenderSlide slide={slide} step={0} />
+                <CameraStage slide={slide} step={1}><RenderSlide slide={slide} step={0} /></CameraStage>
               </SlideTransition>
             </ScaledSlide>
           </div>
@@ -153,7 +154,7 @@ function SlidePage() {
         >
           <ScaledSlide fitPadding={36}>
             <SlideTransition transitionKey={slide.id} allowZoom={slide.type === "center" && slide.display === true}>
-              <RenderSlide slide={slide} step={0} />
+              <CameraStage slide={slide} step={1}><RenderSlide slide={slide} step={0} /></CameraStage>
             </SlideTransition>
           </ScaledSlide>
         </div>
