@@ -81,16 +81,45 @@ Other top-level:
 
 ## 4. `.lovable/` memory layout
 
+Minimum (always present):
+
 ```
 .lovable/
 ├── project.json         # project metadata
 ├── what-to-read.md      # THIS FILE — onboarding map
-├── todo-tasks.md        # active step roadmap
+└── todo-tasks.md        # active step roadmap
 ```
 
-When the user triggers a full memory write (`write memory` /
-`end memory`), expand this tree per the prompt at
-`.lovable/prompts/01-write-memory.md` (create it on first trigger).
+Full canonical layout (created on demand by the `write memory` prompt
+at `.lovable/prompts/01-write-memory.md`):
+
+```
+.lovable/
+├── overview.md
+├── strictly-avoid.md
+├── user-preferences.md
+├── plan.md                  # single-file roadmap
+├── coding-guidelines.md     # read before any code change
+├── cicd-index.md
+├── suggestions.md           # tracker (single file)
+├── suggestions/             # verbatim per-suggestion captures + index.md
+├── prompts/                 # reusable prompts + index.md
+├── memory/
+│   ├── index.md             # MASTER INDEX — every memory file listed
+│   ├── workflow/            # current batch state
+│   ├── decisions/           # architectural decisions
+│   ├── specs/               # verbatim user specs (XX-slug.md)
+│   └── avoid/               # things the user said never to do
+├── pending-issues/          # XX-name.md per open issue
+├── solved-issues/           # moved here on resolution + ## Solution
+└── cicd-issues/             # CI/CD failures, indexed in cicd-index.md
+```
+
+Rules:
+- Filenames: lowercase, hyphen-separated, numeric-prefixed (`01-name.md`).
+- Never `.lovable/memories/` (with `s`) — always `.lovable/memory/`.
+- Every new memory file MUST be added to `memory/index.md` in the same op.
+- Never delete history — mark done, move to `## Completed`.
 
 ## 5. Hard rules
 
