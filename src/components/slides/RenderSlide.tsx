@@ -1,3 +1,4 @@
+import { AnimatePresence, motion } from "motion/react";
 import type { CSSProperties } from "react";
 
 import { Rich } from "./Rich";
@@ -17,6 +18,7 @@ import type {
   Slide,
   StepsSlideProps,
   TextPosition,
+  TimelineSlideProps,
 } from "./types";
 
 /** Map a 9-cell TextPosition to Tailwind/flex alignment styles. */
