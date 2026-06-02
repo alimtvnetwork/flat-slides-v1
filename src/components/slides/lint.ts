@@ -172,6 +172,9 @@ export function lintDeck(deck: Deck): LintIssue[] {
         if (richLen(s.body) > 320) push(s, i, "body-too-long", "Body copy is dense (>320 chars) — consider splitting");
         if (richLen(s.body) === 0) push(s, i, "body-empty", "Left slide is missing body text", "error");
         if (richLen(s.heading) === 0) push(s, i, "heading-empty", "Left slide is missing a heading", "error");
+        if (s.media && typeof s.media === "object" && "src" in s.media && !(s.media as { alt?: string }).alt?.trim()) {
+          push(s, i, "left-media-alt-missing", "Left-slide media is missing alt text (a11y).", "warn");
+        }
         break;
       case "quote":
         if (richLen(s.quote) > 220) push(s, i, "quote-too-long", "Quote is long — trim for impact");
