@@ -958,3 +958,11 @@ bun scripts/lint-deck.ts path/to/deck.json
 
 Press `⌘⇧L` in the editor to toggle the lint panel; click "Rules" inside
 the panel to browse the full rule list with severities.
+
+## Print export
+
+To export the deck as a PDF, open Settings and use **Export deck as PDF (Print theme)**. The action switches the active theme to `print` (high-contrast B/W) and triggers the browser's print dialog. The Print theme is also selectable directly from the theme picker for any slide that needs a paper-friendly render.
+
+## Presenter notes (`N`)
+
+Each slide may include a top-level `notes: string` field. When present, the presenter view shows a bottom-left "Notes" pill that opens a floating panel. Press `N` to toggle, `Esc` to close. Notes are presenter-only — they're never rendered into the slide or exported with `Export deck as PDF`.
