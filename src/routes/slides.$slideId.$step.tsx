@@ -5,7 +5,9 @@ import { ControlBar } from "@/components/slides/ControlBar";
 import { RenderSlide } from "@/components/slides/RenderSlide";
 import { ScaledSlide } from "@/components/slides/ScaledSlide";
 import { SettingsDrawer } from "@/components/slides/SettingsDrawer";
+import { SlideTransition } from "@/components/slides/SlideTransition";
 import { useDeck } from "@/components/slides/store";
+import { useFullscreen } from "@/components/slides/useFullscreen";
 
 export const Route = createFileRoute("/slides/$slideId/$step")({
   head: ({ params }) => ({
@@ -22,6 +24,7 @@ function SlideStepPage() {
   const slide = index >= 0 ? slides[index] : undefined;
   const stepNum = Math.max(0, parseInt(step, 10) || 0);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const { isFs, toggle: toggleFs, exit: exitFs } = useFullscreen();
 
   useEffect(() => {
     if (!slide) return;
@@ -33,6 +36,8 @@ function SlideStepPage() {
     const last = slide.steps.length - 1;
     const onKey = (e: KeyboardEvent) => {
       if ((e.target as HTMLElement)?.tagName === "INPUT") return;
+      if (e.key === "F5") { e.preventDefault(); toggleFs(); return; }
+      if (e.key === "Escape" && isFs) { exitFs(); return; }
       if (e.key === "ArrowRight" || e.key === " " || e.key === "Enter") {
         if (stepNum < last) {
           navigate({
@@ -62,7 +67,7 @@ function SlideStepPage() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [slide, index, slides, navigate, stepNum]);
+  }, [slide, index, slides, navigate, stepNum, isFs, toggleFs, exitFs]);
 
   if (!slide || slide.type !== "steps") {
     return (
@@ -76,7 +81,9 @@ function SlideStepPage() {
     <div className="flex min-h-screen flex-col bg-black">
       <div className="flex-1 relative">
         <ScaledSlide>
-          <RenderSlide slide={slide} step={stepNum} />
+          <SlideTransition transitionKey={`${slide.id}:${stepNum}`}>
+            <RenderSlide slide={slide} step={stepNum} />
+          </SlideTransition>
         </ScaledSlide>
       </div>
       <ControlBar
