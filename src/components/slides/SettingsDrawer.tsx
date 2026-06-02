@@ -190,7 +190,9 @@ export function SettingsDrawer({
         </section>
 
         <section className="mb-6 space-y-2">
-          <label className="text-xs uppercase tracking-wider text-neutral-400">Transition</label>
+          <label className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wider text-neutral-400">
+            <ArrowLeftRight size={12} /> Transition
+          </label>
           <select
             value={settings.transition}
             onChange={(e) => setSettings({ transition: e.target.value as TransitionKind })}
