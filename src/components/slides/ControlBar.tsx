@@ -10,13 +10,15 @@ type Props = {
   step?: number;
   totalSteps?: number;
   onOpenSettings?: () => void;
+  onPresent?: () => void;
+  isPresenting?: boolean;
 };
 
 /**
  * Bottom control bar used by the single-slide route.
  * Prev / editable N/Total / Next / Share / Settings.
  */
-export function ControlBar({ slides, index, step, totalSteps, onOpenSettings }: Props) {
+export function ControlBar({ slides, index, step, totalSteps, onOpenSettings, onPresent, isPresenting }: Props) {
   const navigate = useNavigate();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
@@ -101,6 +103,15 @@ export function ControlBar({ slides, index, step, totalSteps, onOpenSettings }: 
       </div>
 
       <div className="flex items-center gap-3">
+        {onPresent ? (
+          <button
+            onClick={onPresent}
+            className="rounded bg-amber-400 px-3 py-1 font-semibold text-neutral-900 hover:bg-amber-300"
+            title="Toggle fullscreen presentation (F5)"
+          >
+            {isPresenting ? "⤢ Exit" : "▶ Present"}
+          </button>
+        ) : null}
         <button onClick={share} className="opacity-70 hover:opacity-100">🔗 Share</button>
         {onOpenSettings ? (
           <button onClick={onOpenSettings} className="opacity-70 hover:opacity-100">⚙ Settings</button>

@@ -53,7 +53,7 @@ function LeftSlide({ slide }: { slide: LeftSlideProps }) {
               {slide.kicker}
             </div>
           ) : null}
-          <h1 className="slide-heading slide-title" style={{ fontWeight: 300 }}>
+          <h1 className="slide-heading slide-title" style={{ fontWeight: 700 }}>
             <Rich value={slide.heading} />
           </h1>
           {slide.body ? (
@@ -86,12 +86,12 @@ function CenterSlide({ slide }: { slide: CenterSlideProps }) {
       <div style={positionStyle(slide.align ?? "center", slide.padding ?? 120)}>
         <h1
           className={`${slide.display ? "slide-display slide-title-lg" : "slide-heading slide-title"}`}
-          style={{ color: "var(--slide-fg)", fontWeight: slide.display ? 400 : 600 }}
+          style={{ color: "var(--slide-fg)", fontWeight: 700 }}
         >
           <Rich value={slide.heading} />
         </h1>
         {slide.subhead ? (
-          <div className="slide-subtitle slide-heading mt-[36px]" style={{ fontWeight: 600 }}>
+          <div className="slide-subtitle slide-heading mt-[36px]" style={{ fontWeight: 700 }}>
             <Rich value={slide.subhead} />
           </div>
         ) : null}
@@ -177,7 +177,7 @@ function BulletsSlide({ slide }: { slide: BulletsSlideProps }) {
             {slide.kicker}
           </div>
         ) : null}
-        <h1 className="slide-heading slide-title mb-[48px]" style={{ fontWeight: 600 }}>
+        <h1 className="slide-heading slide-title mb-[48px]" style={{ fontWeight: 700 }}>
           <Rich value={slide.heading} />
         </h1>
         <ul className="flex flex-col gap-[24px]" style={{ maxWidth: 1400 }}>
@@ -214,7 +214,7 @@ function ImageSlide({ slide }: { slide: ImageSlideProps }) {
         <div className="absolute inset-0 flex">
           <div className="w-1/2 flex flex-col justify-center px-[120px]">
             {slide.heading ? (
-              <h1 className="slide-heading slide-title mb-[28px]" style={{ fontWeight: 600 }}>
+              <h1 className="slide-heading slide-title mb-[28px]" style={{ fontWeight: 700 }}>
                 <Rich value={slide.heading} />
               </h1>
             ) : null}
