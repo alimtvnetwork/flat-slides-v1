@@ -211,8 +211,9 @@ export function CameraBubble() {
         autoPlay
         muted
         playsInline
+        style={autoFrame.active ? { objectPosition: autoFrame.objectPosition } : undefined}
         className={cn(
-          "h-full w-full object-cover",
+          "h-full w-full object-cover transition-[object-position] duration-300",
           camera.mirror && "scale-x-[-1]",
           // Cheap chroma-key stand-in: brightens & subtracts green via blend.
           camera.greenScreen && "mix-blend-screen contrast-125 saturate-150",
