@@ -31,6 +31,11 @@ export const SHORTCUTS: ShortcutDef[] = [
   { display: "P",       keys: ["p"],                       label: "Picture-in-picture",     group: "Camera" },
   { display: "M",       keys: ["m"],                       label: "Toggle background music", group: "Presenter" },
   { display: "S",       keys: ["s"],                       label: "Cycle scene preset",     group: "Presenter" },
+  { display: "L",       keys: ["l"],                       label: "Toggle laser pointer",   group: "Annotate" },
+  { display: "K",       keys: ["k"],                       label: "Toggle ink (draw)",      group: "Annotate" },
+  { display: "X",       keys: ["x"],                       label: "Clear ink on this slide", group: "Annotate" },
+  { display: "1-5",     keys: ["1","2","3","4","5"],       label: "Pick ink color",         group: "Annotate" },
+  { display: "⌘Z",      keys: [],                          label: "Undo last stroke",       group: "Annotate" },
 ];
 
 export function matchesShortcut(event: KeyboardEvent, def: ShortcutDef): boolean {
