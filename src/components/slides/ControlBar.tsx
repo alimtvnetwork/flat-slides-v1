@@ -134,9 +134,9 @@ export function ControlBar({ slides, index, step, totalSteps, onOpenSettings, on
         )}
 
         {hasNext ? (
-          <button onClick={goNext} className="hover:opacity-100">Next ▶</button>
+          <button onClick={goNext} aria-label="Next" className="inline-flex items-center gap-1 hover:opacity-100">Next <ChevronRight size={16} /></button>
         ) : (
-          <span className="opacity-30">Next ▶</span>
+          <span className="inline-flex items-center gap-1 opacity-30">Next <ChevronRight size={16} /></span>
         )}
       </div>
 
@@ -144,15 +144,15 @@ export function ControlBar({ slides, index, step, totalSteps, onOpenSettings, on
         {onPresent ? (
           <button
             onClick={onPresent}
-            className="rounded bg-amber-400 px-3 py-1 font-semibold text-neutral-900 hover:bg-amber-300"
+            className="inline-flex items-center gap-1.5 rounded bg-amber-400 px-3 py-1 font-semibold text-neutral-900 hover:bg-amber-300"
             title="Toggle fullscreen presentation (F5)"
           >
-            {isPresenting ? "⤢ Exit" : "▶ Present"}
+            {isPresenting ? <><Minimize2 size={14} /> Exit</> : <><Play size={14} /> Present</>}
           </button>
         ) : null}
-        <button onClick={share} className="opacity-70 hover:opacity-100">🔗 Share</button>
+        <button onClick={share} aria-label="Share link" className="inline-flex items-center gap-1 opacity-70 hover:opacity-100"><Share2 size={14} /> Share</button>
         {onOpenSettings ? (
-          <button onClick={onOpenSettings} className="opacity-70 hover:opacity-100">⚙ Settings</button>
+          <button onClick={onOpenSettings} aria-label="Settings" className="inline-flex items-center gap-1 opacity-70 hover:opacity-100"><SettingsIcon size={14} /> Settings</button>
         ) : null}
       </div>
     </div>
