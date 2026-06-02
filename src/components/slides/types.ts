@@ -71,6 +71,16 @@ export interface BaseSlide {
    * slide for a "coding journey" mood. Subtle, animated, respects reduced-motion.
    */
   decor?: "code" | "none";
+  /**
+   * Optional per-slide sound cue. Plays when the slide enters; honours the
+   * deck-level `soundEnabled` toggle. Validated by the linter.
+   */
+  sound?: {
+    /** https:// or absolute path under /public. */
+    url?: string;
+    /** 0..1 gain multiplier. */
+    volume?: number;
+  };
 }
 
 export interface LeftSlideProps extends BaseSlide {

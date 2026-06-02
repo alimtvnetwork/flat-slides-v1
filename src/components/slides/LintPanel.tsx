@@ -15,6 +15,7 @@ export function LintPanel({ open, onClose, deck }: Props) {
   const [showRules, setShowRules] = useState(false);
   const [filter, setFilter] = useState<"all" | "error" | "warn">("all");
   const [groupBySlide, setGroupBySlide] = useState(false);
+  const [copied, setCopied] = useState(false);
   if (!open) return null;
   const all = lintDeck(deck);
   const { errors, warns } = countIssues(all);
@@ -38,7 +39,24 @@ export function LintPanel({ open, onClose, deck }: Props) {
       >
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold">Deck linter</h2>
-          <button onClick={onClose} className="text-sm opacity-70 hover:opacity-100">Close</button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(JSON.stringify(issues, null, 2));
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 1500);
+                } catch {
+                  /* clipboard blocked — silently ignore */
+                }
+              }}
+              className="rounded bg-neutral-800 px-2 py-0.5 text-xs text-neutral-300 hover:bg-neutral-700"
+              title="Copy filtered issues as JSON"
+            >
+              {copied ? "Copied ✓" : "Copy as JSON"}
+            </button>
+            <button onClick={onClose} className="text-sm opacity-70 hover:opacity-100">Close</button>
+          </div>
         </div>
 
         <div className="mb-3 flex flex-wrap gap-2 text-xs">
