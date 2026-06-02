@@ -50,6 +50,16 @@ export function lintDeck(deck: Deck): LintIssue[] {
   const push = (s: Slide, i: number, rule: string, message: string, severity: LintSeverity = "warn") =>
     out.push({ slideId: s.id, slideIndex: i, slideTitle: s.title, rule, message, severity });
 
+  // Deck-level: title must be present and not the default "Untitled".
+  if (deck.slides[0]) {
+    const t = deck.title?.trim() ?? "";
+    if (!t || /^untitled$/i.test(t)) {
+      push(deck.slides[0], 0, "deck-title-untitled",
+        `Deck title is "${t || "(empty)"}" — set a real title; it shows in tab labels and exports.`,
+        "warn");
+    }
+  }
+
   // Deck-level: volume must be a sane 0..1 number.
   if (
     typeof deck.settings.volume === "number" &&
