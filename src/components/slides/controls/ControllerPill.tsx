@@ -6,7 +6,10 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 import { useChrome } from "@/components/slides/chrome-store";
+import { useReducedMotion } from "@/components/slides/useReducedMotion";
 import { cn } from "@/lib/utils";
+
+import { anchorStyles, type ControllerAnchor, nextControllerAnchor } from "./controller-anchor";
 
 import { MusicToggle } from "./MusicToggle";
 import { ShareMenu } from "./ShareMenu";
