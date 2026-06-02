@@ -13,12 +13,12 @@ B19A — repair settings/fullscreen/camera based on RCA:
 4. ✅ fix 1-based step focus indexing (CameraStage now gets `stepNum + 1`)
 5. ✅ harden fullscreen stage clipping (`.slide-wrapper` overflow:hidden + isolation + contain)
 6. ✅ add proposal example with right-side image (`sajida-visual` seed slide)
-7. add camera/focus-region example
-8. update RCA memory after implementation + validation
+7. ✅ add camera/focus-region example (`focus-demo` steps slide w/ per-step rects)
+8. ✅ update RCA memory — all 6 root causes resolved & noted
 
 
 ## ⏳ Pending (B19 lint/CI candidates after B19A)
-1. theme-token contrast rule (low-contrast `themeId` overrides)
+1. ✅ theme-token contrast rule (WCAG AA on fg/bg + hl/hlInk per theme)
 2. deck export-zip CLI (deck + assets bundle)
 3. CI workflow wiring (GitHub Actions)
 4. per-slide `sound` schema validation
