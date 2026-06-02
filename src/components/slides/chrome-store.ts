@@ -46,6 +46,8 @@ export interface ChromeStore {
   dotPaginationVisible: boolean;
   /** Bottom-right small badge "04 / 13"; visible by default. */
   slideNumberBadgeVisible: boolean;
+  /** Presenter timer overlay (top-left). Visible by default in fullscreen. */
+  timerVisible: boolean;
   /** Recent jump history (linear positions), most-recent-first, max 8. */
   recentJumps: number[];
   /** Presenter webcam bubble (presenter-local, never exported). */
