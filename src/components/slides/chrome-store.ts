@@ -88,6 +88,7 @@ export const useChrome = create<ChromeStore>()(
       dotPaginationVisible: true,
       slideNumberBadgeVisible: true,
       timerVisible: true,
+      focusEditorOpen: false,
       recentJumps: [],
       camera: {
         visible: false,
