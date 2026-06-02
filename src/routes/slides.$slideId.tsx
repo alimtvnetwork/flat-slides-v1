@@ -107,7 +107,7 @@ function SlidePage() {
         onOpenLint={() => setLintOpen(true)}
       />
       <LintPanel open={lintOpen} onClose={() => setLintOpen(false)} deck={deck} />
-      <PresenterTools index={index} total={slides.length} />
+      <PresenterTools index={index} total={slides.length} deck={deck} />
     </div>
   );
 }
