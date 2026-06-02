@@ -9,6 +9,8 @@ import {
   parseSlideJson,
   pickJsonFile,
 } from "@/lib/slides/io";
+// Inline-loaded LLM spec sample deck (see docs/slides/spec/llm-json-guideline.md).
+import sampleDeckJson from "../../../docs/slides/spec/sample-deck.json?raw";
 
 import { useAnnotations } from "./annotations-store";
 import { useChrome } from "./chrome-store";
