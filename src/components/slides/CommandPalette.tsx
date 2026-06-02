@@ -39,8 +39,11 @@ export function CommandPalette({ open, onClose, slides, onOpenSettings, onPresen
       { id: "act-focus", label: "Edit focus regions", hint: "F", run: toggleFocusEditor },
       { id: "act-export-rehearsal", label: "Export rehearsal report", hint: "⌘E", run: () => downloadRehearsalReport(deckTitle) },
       { id: "act-export-annotations", label: "Export annotations (JSON)", hint: "⌘⇧E", run: downloadAnnotations },
-      { id: "act-open-guideline", label: "Open LLM JSON Guideline (docs)", hint: "↗",
-        run: () => window.open("https://github.com/lovable/docs/blob/main/slides/spec/llm-json-guideline.md", "_blank", "noopener,noreferrer") },
+      { id: "act-open-guideline", label: "Open LLM JSON Guideline (spec)", hint: "↗",
+        run: () => {
+          const url = new URL("/docs/slides/spec/llm-json-guideline.md", window.location.origin).toString();
+          window.open(url, "_blank", "noopener,noreferrer");
+        } },
     ];
     const slideActs: Action[] = slides.map((s, i) => ({
       id: `slide-${s.id}`,
