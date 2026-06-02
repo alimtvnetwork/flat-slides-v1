@@ -313,5 +313,7 @@ export const LINT_RULES: ReadonlyArray<{ id: string; severity: LintSeverity; sum
   { id: "background-not-https", severity: "warn", summary: "Slide background URL uses http://." },
   { id: "embed-missing-url", severity: "error", summary: "Embed slide has no URL." },
   { id: "left-media-alt-missing", severity: "warn", summary: "Left-slide media missing alt text." },
+  { id: "music-url-not-https", severity: "warn", summary: "Deck music URL must be https:// or absolute path." },
+  { id: "music-volume-out-of-range", severity: "warn", summary: "Deck music volume outside [0, 1]." },
 ];
 
