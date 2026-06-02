@@ -1,6 +1,7 @@
+import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 
-import { lintDeck } from "./lint";
+import { LINT_RULES, countIssues, lintDeck } from "./lint";
 import type { Deck } from "./types";
 
 interface Props {
@@ -11,10 +12,10 @@ interface Props {
 
 /** Side panel listing lint issues for the deck. */
 export function LintPanel({ open, onClose, deck }: Props) {
+  const [showRules, setShowRules] = useState(false);
   if (!open) return null;
   const issues = lintDeck(deck);
-  const errors = issues.filter((i) => i.severity === "error").length;
-  const warns = issues.length - errors;
+  const { errors, warns } = countIssues(issues);
 
   return (
     <div className="fixed inset-0 z-[55] flex justify-end bg-black/50" data-app-chrome onClick={onClose}>
@@ -30,7 +31,30 @@ export function LintPanel({ open, onClose, deck }: Props) {
         <div className="mb-4 flex gap-2 text-xs">
           <span className="rounded bg-red-500/15 px-2 py-0.5 text-red-300">{errors} errors</span>
           <span className="rounded bg-amber-500/15 px-2 py-0.5 text-amber-300">{warns} warnings</span>
+          <button
+            onClick={() => setShowRules((v) => !v)}
+            className="ml-auto rounded bg-neutral-800 px-2 py-0.5 text-neutral-300 hover:bg-neutral-700"
+          >
+            {showRules ? "Hide" : "Rules"} ({LINT_RULES.length})
+          </button>
         </div>
+
+        {showRules && (
+          <div className="mb-4 rounded-md bg-neutral-900 p-3 ring-1 ring-neutral-800">
+            <p className="mb-2 text-xs text-neutral-400">All {LINT_RULES.length} rules:</p>
+            <ul className="space-y-1 text-xs">
+              {LINT_RULES.map((r) => (
+                <li key={r.id} className="flex gap-2">
+                  <span className={`w-10 shrink-0 uppercase ${r.severity === "error" ? "text-red-400" : "text-amber-400"}`}>
+                    {r.severity}
+                  </span>
+                  <code className="text-neutral-300">{r.id}</code>
+                  <span className="text-neutral-500">— {r.summary}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {issues.length === 0 ? (
           <p className="text-sm text-emerald-400">✓ No issues. Deck looks clean.</p>
