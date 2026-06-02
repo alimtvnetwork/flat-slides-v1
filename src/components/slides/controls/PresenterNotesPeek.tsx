@@ -1,22 +1,22 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { StickyNote, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
+import { useChrome } from "@/components/slides/chrome-store";
 import { useReducedMotion } from "@/components/slides/useReducedMotion";
 import { cn } from "@/lib/utils";
 
 /**
  * Presenter notes peek — a small toggle pill that reveals the current slide's
  * speaker notes in a floating card. Hidden when there are no notes.
+ * Open/closed state is persisted in the chrome store so it survives slide
+ * navigation and refresh.
  */
 export function PresenterNotesPeek({ notes }: { notes?: string }) {
-  const [open, setOpen] = useState(false);
+  const open = useChrome((s) => s.notesPeekOpen);
+  const setOpen = useChrome((s) => s.setNotesPeekOpen);
+  const toggle = useChrome((s) => s.toggleNotesPeek);
   const reduced = useReducedMotion();
-
-  // Auto-close when notes disappear (e.g. on slide change to a no-notes slide).
-  useEffect(() => {
-    if (!notes) setOpen(false);
-  }, [notes]);
 
   // "N" toggles the peek (skip while typing).
   useEffect(() => {
@@ -27,14 +27,14 @@ export function PresenterNotesPeek({ notes }: { notes?: string }) {
       if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
       if (e.key === "n" || e.key === "N") {
         e.preventDefault();
-        setOpen((v) => !v);
+        toggle();
       } else if (e.key === "Escape" && open) {
         setOpen(false);
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [notes, open]);
+  }, [notes, open, toggle, setOpen]);
 
   if (!notes) return null;
 
