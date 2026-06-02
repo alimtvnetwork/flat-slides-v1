@@ -65,6 +65,12 @@ export interface BaseSlide {
   focus?: FocusRegion[];
   /** Target dwell time in seconds for the pacing/rehearsal badge. */
   budget?: number;
+  /**
+   * Optional decorative overlay layer. "code" scatters faded developer-tool
+   * icons (VS Code, JetBrains, AWS, Azure, terminal, git, cloud…) across the
+   * slide for a "coding journey" mood. Subtle, animated, respects reduced-motion.
+   */
+  decor?: "code" | "none";
 }
 
 export interface LeftSlideProps extends BaseSlide {
