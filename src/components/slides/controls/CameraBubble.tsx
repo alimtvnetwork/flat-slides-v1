@@ -253,8 +253,8 @@ export function CameraBubble() {
             aria-hidden
             draggable={false}
             data-camera-plate="white"
-            style={{ inset: -platePad }}
-            className="pointer-events-none absolute z-0 h-[calc(100%+var(--tw-translate-y,0px))] w-auto select-none opacity-90"
+            style={{ left: -platePad, top: -platePad, width: visualWidth + platePad * 2, height: visualHeight + platePad * 2 }}
+            className="pointer-events-none absolute z-0 select-none opacity-90"
           />
           <img
             src={goldPlate}
@@ -262,8 +262,8 @@ export function CameraBubble() {
             aria-hidden
             draggable={false}
             data-camera-plate="gold"
-            style={{ inset: -platePad }}
-            className="pointer-events-none absolute z-[1] h-auto w-auto select-none"
+            style={{ left: -platePad, top: -platePad, width: visualWidth + platePad * 2, height: visualHeight + platePad * 2 }}
+            className="pointer-events-none absolute z-[1] select-none"
           />
         </>
       )}
@@ -325,7 +325,6 @@ export function CameraBubble() {
           </div>
         )}
         </div>
-      )}
 
       <div className="absolute right-2 top-2 flex gap-1 opacity-0 transition-opacity hover:opacity-100 group-hover:opacity-100">
         <button
