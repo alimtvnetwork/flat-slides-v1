@@ -1,6 +1,9 @@
+import { DECK_SCHEMA_VERSION } from "@/lib/slides/version";
+
 import { THEMES } from "./themes";
 import { slideStepCount } from "./types";
 import type { RichText, Slide, Deck } from "./types";
+
 
 /** Parse `#rgb` / `#rrggbb` to [r,g,b] in 0..255, or null. */
 function parseHex(c: string): [number, number, number] | null {
@@ -117,6 +120,15 @@ export function lintDeck(deck: Deck): LintIssue[] {
       push(anchor0, 0, "backgroundColor-not-hex",
         `Deck backgroundColor "${bg}" is not a #rgb / #rrggbb hex — contrast lint can't verify.`, "warn");
   }
+
+  // Deck-level: schema version mismatch — usually a stale import.
+  if (anchor0 && typeof deck.version === "number" && deck.version !== DECK_SCHEMA_VERSION) {
+    push(anchor0, 0, "deck-version-mismatch",
+      `Deck version ${deck.version} does not match current schema ${DECK_SCHEMA_VERSION} — re-export or migrate.`,
+      "warn");
+  }
+
+
 
 
   // Deck-level music sanity (B18).
@@ -336,6 +348,30 @@ export function lintDeck(deck: Deck): LintIssue[] {
       push(s, i, "budget-too-short",
         `budget=${s.budget}s (<5s) is too short — pacing badge will flash by; aim for ≥10s.`, "warn");
     }
+    if (typeof s.budget === "number" && s.budget > 0 && !Number.isInteger(s.budget)) {
+      push(s, i, "budget-non-integer",
+        `budget=${s.budget}s should be a whole-second integer for predictable pacing UI.`, "warn");
+    }
+
+    if (s.padding === 0 && typeof s.align === "string"
+        && (s.align.startsWith("top-") || s.align.startsWith("bottom-")
+            || s.align.endsWith("-left") || s.align.endsWith("-right"))) {
+      push(s, i, "padding-zero-edge-align",
+        `padding=0 with edge-anchored align "${s.align}" will clip against the canvas edge.`, "warn");
+    }
+    if (s.id && s.id.length > 64) {
+      push(s, i, "slide-id-too-long",
+        `Slide id is ${s.id.length} chars — keep ≤64 for URL/export readability.`, "warn");
+    }
+    if (s.decor === "code" && (s.type === "quote" || s.type === "poll" || s.type === "qa")) {
+      push(s, i, "decor-on-non-content",
+        `decor:"code" on a ${s.type} slide adds visual noise — reserve for content/timeline/steps slides.`, "warn");
+    }
+    if (s.type === "image" && s.caption && richLen(s.caption) > 160) {
+      push(s, i, "image-caption-too-long",
+        `Image caption is ${richLen(s.caption)} chars (>160) — trim or move to a left/text slide.`, "warn");
+    }
+
 
 
     // Background URL must be https:// when remote.
@@ -644,6 +680,12 @@ export const LINT_RULES: ReadonlyArray<{ id: string; severity: LintSeverity; sum
   { id: "theme-consecutive-redundant", severity: "warn", summary: "Adjacent slides share the same themeId override." },
   { id: "notes-too-long", severity: "warn", summary: "Speaker notes exceed 500 chars." },
   { id: "focus-step-duplicate", severity: "error", summary: "Two focus regions target the same step." },
+  { id: "budget-non-integer", severity: "warn", summary: "Slide budget is not an integer second value." },
+  { id: "padding-zero-edge-align", severity: "warn", summary: "padding=0 combined with an edge-anchored align." },
+  { id: "slide-id-too-long", severity: "warn", summary: "Slide id exceeds 64 chars." },
+  { id: "decor-on-non-content", severity: "warn", summary: "decor:'code' on quote/poll/qa slide." },
+  { id: "image-caption-too-long", severity: "warn", summary: "Image caption exceeds 160 chars." },
+  { id: "deck-version-mismatch", severity: "warn", summary: "deck.version differs from the current schema version." },
 ];
 
 /** Sum of all positive slide budgets, in seconds. */
@@ -653,6 +695,20 @@ export function deckRuntimeSeconds(deck: Deck): number {
     0,
   );
 }
+
+/** True if any slide in the deck has at least one focus region. */
+export function deckHasFocus(deck: Deck): boolean {
+  return deck.slides.some((s) => Array.isArray(s.focus) && s.focus.length > 0);
+}
+
+/** Group lint issues by rule id (insertion-ordered). */
+export function groupIssuesByRule(issues: LintIssue[]): Record<string, LintIssue[]> {
+  const out: Record<string, LintIssue[]> = {};
+  for (const i of issues) (out[i.rule] ??= []).push(i);
+  return out;
+}
+
+
 
 
 
