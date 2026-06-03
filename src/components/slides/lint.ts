@@ -1,6 +1,9 @@
+import { DECK_SCHEMA_VERSION } from "@/lib/slides/version";
+
 import { THEMES } from "./themes";
 import { slideStepCount } from "./types";
 import type { RichText, Slide, Deck } from "./types";
+
 
 /** Parse `#rgb` / `#rrggbb` to [r,g,b] in 0..255, or null. */
 function parseHex(c: string): [number, number, number] | null {
