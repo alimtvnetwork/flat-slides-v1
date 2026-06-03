@@ -86,7 +86,7 @@ export interface ChromeStore {
   toggleFocusEditor: () => void;
   setNotesPeekOpen: (v: boolean) => void;
   toggleNotesPeek: () => void;
-  setLastUsedThemeId: (id: string) => void;
+  setLastUsedThemeId: (id: string | null) => void;
   pushRecentJump: (n: number) => void;
   clearRecentJumps: () => void;
   setRecentJumps: (jumps: number[]) => void;
