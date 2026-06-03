@@ -3,10 +3,14 @@ import { Camera, CameraOff, Crosshair, FlipHorizontal2, Maximize, PictureInPictu
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 
+import squircleMask from "@/assets/camera-2026/02-squircle-mask-black.png";
+import whitePlate from "@/assets/camera-2026/03-squircle-plate-white-shadow.png";
+import goldPlate from "@/assets/camera-2026/04-squircle-plate-gold-shadow.png";
 import { useChrome } from "@/components/slides/chrome-store";
 import { useCamera } from "@/components/slides/useCamera";
 import { useFullscreen } from "@/components/slides/useFullscreen";
 import { useAutoFrame } from "@/components/slides/useAutoFrame";
+import { useReducedMotion } from "@/components/slides/useReducedMotion";
 import { cn } from "@/lib/utils";
 
 import { CameraPlate } from "./CameraPlate";
@@ -16,12 +20,9 @@ const SIZES = { sm: 144, md: 200, lg: 280 } as const;
 const SCENE_SCALE: Record<string, number> = { normal: 1, split: 1.6, "cam-only": 2.4, "stage-fill": 1 };
 const MIN_SIZE = 96;
 const MAX_SIZE = 720;
-// CSS squircle approximation via border-radius (superellipse-ish).
-const SHAPE_RADIUS = {
-  circle: "9999px",
-  squircle: "32%",
-  rect: "12px",
-} as const;
+const RECT_ASPECT = 16 / 9;
+const SQUIRCLE_RADIUS = "38% / 34%";
+const SHAPE_RADIUS = { circle: "9999px", squircle: SQUIRCLE_RADIUS, rect: "18px" } as const;
 
 /**
  * Floating draggable webcam bubble. Anchors to one of 4 corners (persisted)
@@ -39,8 +40,11 @@ export function CameraBubble() {
   const { status, errorMessage, start, stop, attach, togglePiP } = useCamera();
   const { isFs } = useFullscreen();
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const shapeFrameRef = useRef<HTMLDivElement | null>(null);
+  const firstShapeRef = useRef(true);
   const dragState = useRef<{ x: number; y: number; ox: number; oy: number } | null>(null);
   const resizeState = useRef<{ x: number; y: number; size: number } | null>(null);
+  const reducedMotion = useReducedMotion();
   const autoFrame = useAutoFrame(videoRef, camera.visible && camera.autoFrame && status === "active");
 
   // Auto-start whenever the bubble is opened from chrome state.
@@ -81,11 +85,14 @@ export function CameraBubble() {
       } else if (e.key === "b" || e.key === "B") {
         e.preventDefault();
         setCamera({ greenScreen: !camera.greenScreen });
+      } else if (e.key === "o" || e.key === "O") {
+        e.preventDefault();
+        cycleShape();
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [camera.visible, camera.offsetX, camera.offsetY, camera.mirror, camera.greenScreen, camera.customSize, camera.size, setCamera, setCameraCustomSize]);
+  }, [camera.visible, camera.offsetX, camera.offsetY, camera.mirror, camera.greenScreen, camera.customSize, camera.size, setCamera, setCameraCustomSize, cycleShape]);
 
   // Respect "show only in fullscreen" preference.
   // External `P` shortcut dispatched from route handler.
@@ -96,6 +103,24 @@ export function CameraBubble() {
     return () => window.removeEventListener("slides:camera-pip", onPip);
   }, [camera.visible, togglePiP]);
 
+  useEffect(() => {
+    if (firstShapeRef.current) {
+      firstShapeRef.current = false;
+      return;
+    }
+    const animate = shapeFrameRef.current?.animate;
+    if (reducedMotion || typeof animate !== "function") return;
+    animate.call(shapeFrameRef.current,
+      [
+        { transform: "scale(1)", filter: "drop-shadow(0 18px 34px rgb(0 0 0 / 0.45))" },
+        { transform: "scale(0.965)", filter: "drop-shadow(0 18px 44px rgb(0 0 0 / 0.55))", offset: 0.35 },
+        { transform: "scale(1.018)", filter: "drop-shadow(0 22px 48px rgb(0 0 0 / 0.50))", offset: 0.72 },
+        { transform: "scale(1)", filter: "drop-shadow(0 18px 34px rgb(0 0 0 / 0.45))" },
+      ],
+      { duration: 360, easing: "cubic-bezier(0.22, 1, 0.36, 1)" },
+    );
+  }, [camera.shape, reducedMotion]);
+
   // Respect "show only in fullscreen" preference.
   if (!camera.visible) return null;
   if (camera.fullscreenOnly && !isFs) return null;
@@ -104,8 +129,27 @@ export function CameraBubble() {
   const scale = SCENE_SCALE[scene] ?? 1;
   const baseSize = camera.customSize ?? SIZES[camera.size];
   const size = Math.max(MIN_SIZE, Math.min(MAX_SIZE, Math.round(baseSize * scale)));
-  const radius =
-    stageFill ? "0px" : scene === "cam-only" ? "32px" : SHAPE_RADIUS[camera.shape];
+  const shapeAspect = camera.shape === "circle" ? 1 : camera.shape === "squircle" ? 772 / 480 : RECT_ASPECT;
+  const visualWidth = Math.round(size * shapeAspect);
+  const visualHeight = size;
+  const radius = stageFill ? "0px" : SHAPE_RADIUS[camera.shape];
+  const platePad = Math.round(Math.min(visualWidth, visualHeight) * 0.07);
+  const showPlate = !stageFill && camera.shape === "squircle";
+  const shapeStyle: React.CSSProperties = {
+    borderRadius: radius,
+    ...(camera.shape === "squircle"
+      ? {
+          WebkitMaskImage: `url(${squircleMask})`,
+          maskImage: `url(${squircleMask})`,
+          WebkitMaskSize: "100% 100%",
+          maskSize: "100% 100%",
+          WebkitMaskRepeat: "no-repeat",
+          maskRepeat: "no-repeat",
+          WebkitMaskPosition: "center",
+          maskPosition: "center",
+        }
+      : {}),
+  };
   const anchorStyle: React.CSSProperties = stageFill
     ? { top: 0, left: 0, right: 0, bottom: 0 }
     : (() => {
@@ -189,13 +233,12 @@ export function CameraBubble() {
         zIndex: 60,
         ...(stageFill
           ? {}
-          : { width: size, height: size }),
-        borderRadius: radius,
+          : { width: visualWidth, height: visualHeight }),
         ...anchorStyle,
       }}
       className={cn(
-        "overflow-hidden border-2 shadow-2xl cursor-grab active:cursor-grabbing",
-        "border-white/15 bg-black/60 backdrop-blur",
+        "group cursor-grab overflow-visible active:cursor-grabbing",
+        !stageFill && "drop-shadow-2xl",
       )}
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
@@ -206,56 +249,88 @@ export function CameraBubble() {
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerUp}
     >
-      <video
-        ref={(el) => { videoRef.current = el; attach(el); }}
-        autoPlay
-        muted
-        playsInline
-        style={autoFrame.active ? { objectPosition: autoFrame.objectPosition } : undefined}
+      {showPlate && (
+        <>
+          <img
+            src={whitePlate}
+            alt=""
+            aria-hidden
+            draggable={false}
+            data-camera-plate="white"
+            style={{ left: -platePad, top: -platePad, width: visualWidth + platePad * 2, height: visualHeight + platePad * 2 }}
+            className="pointer-events-none absolute z-0 select-none opacity-90"
+          />
+          <img
+            src={goldPlate}
+            alt=""
+            aria-hidden
+            draggable={false}
+            data-camera-plate="gold"
+            style={{ left: -platePad, top: -platePad, width: visualWidth + platePad * 2, height: visualHeight + platePad * 2 }}
+            className="pointer-events-none absolute z-[1] select-none"
+          />
+        </>
+      )}
+
+      <div
+        ref={shapeFrameRef}
+        data-camera-shape={camera.shape}
+        style={shapeStyle}
         className={cn(
-          "h-full w-full object-cover transition-[object-position] duration-300",
-          camera.mirror && "scale-x-[-1]",
-          // Cheap chroma-key stand-in: brightens & subtracts green via blend.
-          camera.greenScreen && "mix-blend-screen contrast-125 saturate-150",
+          "absolute inset-0 z-[2] overflow-hidden border-2 bg-black/60 backdrop-blur",
+          "border-white/15 shadow-2xl",
+          camera.shape === "squircle" && "border-transparent",
         )}
-      />
+      >
+        <video
+          ref={(el) => { videoRef.current = el; attach(el); }}
+          autoPlay
+          muted
+          playsInline
+          style={autoFrame.active ? { objectPosition: autoFrame.objectPosition } : undefined}
+          className={cn(
+            "h-full w-full object-cover transition-[object-position] duration-300",
+            camera.mirror && "scale-x-[-1]",
+            // Cheap chroma-key stand-in: brightens & subtracts green via blend.
+            camera.greenScreen && "mix-blend-screen contrast-125 saturate-150",
+          )}
+        />
 
-      {(scene === "cam-only" || stageFill) && (
-        <CameraPlate variant={stageFill ? "stage" : "squircle"} />
-      )}
+        {stageFill && <CameraPlate variant="stage" />}
 
-      {status !== "active" && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-black/70 px-2 text-center text-[11px] text-white">
-          {status === "requesting" && (
-            <>
-              <Camera size={18} className="animate-pulse" />
-              <span>Requesting camera…</span>
-            </>
-          )}
-          {status === "denied" && (
-            <>
-              <CameraOff size={18} />
-              <span>Permission denied</span>
-              <button
-                data-camera-control
-                type="button"
-                onClick={() => void start()}
-                className="mt-1 rounded bg-white/15 px-2 py-0.5 hover:bg-white/25"
-              >
-                Retry
-              </button>
-            </>
-          )}
-          {status === "error" && (
-            <>
-              <CameraOff size={18} />
-              <span className="line-clamp-2">{errorMessage ?? "Camera error"}</span>
-            </>
-          )}
+        {status !== "active" && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-black/70 px-2 text-center text-[11px] text-white">
+            {status === "requesting" && (
+              <>
+                <Camera size={18} className="animate-pulse" />
+                <span>Requesting camera…</span>
+              </>
+            )}
+            {status === "denied" && (
+              <>
+                <CameraOff size={18} />
+                <span>Permission denied</span>
+                <button
+                  data-camera-control
+                  type="button"
+                  onClick={() => void start()}
+                  className="mt-1 rounded bg-white/15 px-2 py-0.5 hover:bg-white/25"
+                >
+                  Retry
+                </button>
+              </>
+            )}
+            {status === "error" && (
+              <>
+                <CameraOff size={18} />
+                <span className="line-clamp-2">{errorMessage ?? "Camera error"}</span>
+              </>
+            )}
+          </div>
+        )}
         </div>
-      )}
 
-      <div className="absolute right-2 top-2 flex gap-1 opacity-0 transition-opacity hover:opacity-100 group-hover:opacity-100">
+      <div className="absolute right-2 top-2 z-20 flex gap-1 opacity-0 transition-opacity hover:opacity-100 group-hover:opacity-100">
         <button
           data-camera-control
           type="button"
@@ -363,7 +438,7 @@ export function CameraBubble() {
           onPointerCancel={onResizeUp}
           onDoubleClick={(e) => { e.stopPropagation(); setCameraCustomSize(null); }}
           style={resizeStyle}
-          className="rounded-sm bg-white/40 hover:bg-white/80 ring-1 ring-black/30"
+          className="z-20 rounded-sm bg-white/40 ring-1 ring-black/30 hover:bg-white/80"
         />
       )}
     </motion.div>
