@@ -113,6 +113,7 @@ function SlideStepPage() {
       if (e.shiftKey && (e.key === "c" || e.key === "C")) { cycleCameraSize(); return; }
       if (e.key === "j" || e.key === "J") { toggleTopJumper(); return; }
       if (e.key === "c" || e.key === "C") { toggleCamera(); return; }
+      if (e.key === "o" || e.key === "O") { useChrome.getState().cycleCameraShape(); return; }
       if (e.key === "m" || e.key === "M") { toggleMusic(); return; }
       if (e.key === "s" || e.key === "S") { cycleScene(); return; }
       if (e.key === "p" || e.key === "P") {
