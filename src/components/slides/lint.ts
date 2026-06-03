@@ -453,6 +453,22 @@ function looksLikeFilename(s: string): boolean {
   return FILENAME_RE.test(trimmed) || /^[a-z0-9_\-./]+$/i.test(trimmed) && trimmed.includes("/");
 }
 
+const TRUSTED_EMBED_HOSTS = [
+  "youtube.com", "youtu.be", "youtube-nocookie.com",
+  "vimeo.com", "player.vimeo.com",
+  "codesandbox.io", "codepen.io",
+  "figma.com",
+  "loom.com",
+];
+function safeHost(url: string): string {
+  try { return new URL(url).hostname; } catch { return url.slice(0, 40); }
+}
+function isTrustedEmbedHost(url: string): boolean {
+  const host = safeHost(url).toLowerCase();
+  return TRUSTED_EMBED_HOSTS.some((h) => host === h || host.endsWith("." + h));
+}
+
+
 /** Documented list of every rule the linter can emit. Kept in sync by hand
  *  with the rules above so the LLM guideline / docs can reference it. */
 export const LINT_RULES: ReadonlyArray<{ id: string; severity: LintSeverity; summary: string }> = [
