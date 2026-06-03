@@ -137,6 +137,12 @@ export function lintDeck(deck: Deck): LintIssue[] {
     push(deck.slides[0], 0, "deck-theme-unknown",
       `Deck themeId "${deck.themeId}" does not match any built-in theme.`, "warn");
   }
+  // Deck-level: no themeId at all → inherits default; warn so authors pick one explicitly.
+  if (!deck.themeId && deck.slides[0]) {
+    push(deck.slides[0], 0, "deck-no-theme",
+      "Deck has no themeId — falling back to default. Set deck.themeId to lock visuals.", "warn");
+  }
+
 
 
   // Theme token contrast (WCAG AA): fg/bg must reach 4.5:1 for body text;
@@ -220,11 +226,18 @@ export function lintDeck(deck: Deck): LintIssue[] {
     const s = deck.slides[i];
     if (!s.title?.trim()) push(s, i, "title-missing", "Slide has no title", "error");
 
+    if (s.title && s.title.length > 80) {
+      push(s, i, "title-too-long",
+        `Slide title is ${s.title.length} chars — keep ≤80 so it fits the badge/grid without truncation.`,
+        "warn");
+    }
+
     // Per-slide themeId override must resolve.
     if (s.themeId && !THEMES.some((t) => t.id === s.themeId)) {
       push(s, i, "slide-theme-unknown",
         `Slide themeId "${s.themeId}" does not match any built-in theme.`, "warn");
     }
+
 
 
     // Spec rule: lists/quotes/timelines must never zoom.
@@ -269,6 +282,11 @@ export function lintDeck(deck: Deck): LintIssue[] {
       push(s, i, "budget-too-long",
         `budget=${s.budget}s (>10 min) is unusually long for a single slide — split or revisit.`, "warn");
     }
+    if (typeof s.budget === "number" && s.budget > 0 && s.budget < 5) {
+      push(s, i, "budget-too-short",
+        `budget=${s.budget}s (<5s) is too short — pacing badge will flash by; aim for ≥10s.`, "warn");
+    }
+
 
     // Background URL must be https:// when remote.
     if (typeof s.background === "string" && /^http:\/\//i.test(s.background)) {
@@ -299,15 +317,21 @@ export function lintDeck(deck: Deck): LintIssue[] {
 
     switch (s.type) {
       case "bullets":
+        if (!Array.isArray(s.bullets) || s.bullets.length === 0)
+          push(s, i, "bullets-no-bullets", "Bullets slide has no bullets — the body will be blank.", "error");
         if (s.bullets.length > 6) push(s, i, "too-many-bullets", `${s.bullets.length} bullets (max 6 recommended)`);
         if (s.bullets.some((b) => richLen(b) > 90))
           push(s, i, "bullet-too-long", "A bullet exceeds 90 characters — split or trim");
         if (richLen(s.heading) === 0) push(s, i, "heading-empty", "Bullets slide is missing a heading", "error");
         break;
+
       case "steps": {
+        if (!Array.isArray(s.steps) || s.steps.length === 0)
+          push(s, i, "steps-no-steps", "Steps slide has no steps — nothing to advance through.", "error");
         if (s.steps.length > 7) push(s, i, "too-many-steps", `${s.steps.length} steps (max 7 recommended)`);
         if (s.steps.some((step) => !step.label?.trim())) push(s, i, "step-label-missing", "A step is missing its label", "error");
         if (s.steps.some((step) => richLen(step.detail) === 0)) push(s, i, "step-detail-missing", "A step is missing detail text", "error");
+
         const bg = (s as { background?: string }).background;
         const isSvgBg = typeof bg === "string" && (bg.startsWith("data:image/svg") || /\.svg(\?|$)/i.test(bg));
         if (isSvgBg && (!Array.isArray(s.focus) || s.focus.length === 0)) {
@@ -318,11 +342,17 @@ export function lintDeck(deck: Deck): LintIssue[] {
         break;
       }
       case "timeline":
+        if (!Array.isArray(s.items) || s.items.length === 0)
+          push(s, i, "timeline-no-items", "Timeline slide has no items — the rail will be empty.", "error");
         if (s.items.length > 6) push(s, i, "timeline-too-many", `${s.items.length} milestones (max 6 recommended)`);
         if (s.items.some((it) => !it.label?.trim())) push(s, i, "timeline-empty-item", "Timeline item is missing a label", "error");
         if (s.items.every((it) => !it.detail || richLen(it.detail) === 0))
           push(s, i, "timeline-no-detail", "No timeline item has detail text — centre area will be empty");
+        if (s.items.some((it) => it.detail && richLen(it.detail) > 120))
+          push(s, i, "timeline-item-too-long",
+            "A timeline item's detail exceeds 120 characters — trim so the rail stays readable.", "warn");
         break;
+
       case "center":
         if (richLen(s.heading) === 0) push(s, i, "heading-empty", "Center slide is missing a heading", "error");
         if (richLen(s.heading) > 80) push(s, i, "heading-too-long", "Center heading is very long for a hero slide");
@@ -353,13 +383,26 @@ export function lintDeck(deck: Deck): LintIssue[] {
             "Poll has at least one empty/whitespace option — vote tallies will be meaningless.",
             "error");
         }
+        if (Array.isArray(s.options)) {
+          const normalized = s.options.map((o) => (o ?? "").trim().toLowerCase()).filter(Boolean);
+          if (new Set(normalized).size !== normalized.length) {
+            push(s, i, "poll-duplicate-option",
+              "Poll has duplicate options — votes split unpredictably between identical labels.", "warn");
+          }
+        }
         break;
 
       case "qa":
         if (!s.prompt?.trim())
           push(s, i, "qa-no-prompt", "Q&A slide has no prompt — audience won't know what to ask");
+        if (i !== deck.slides.length - 1)
+          push(s, i, "qa-not-last",
+            "Q&A slide isn't the last slide — audience usually expects Q&A at the end.", "warn");
         break;
       case "image": {
+        if (!s.src?.trim())
+          push(s, i, "image-src-missing", "Image slide has no src — the canvas will be blank.", "error");
+
         if (!s.alt?.trim()) push(s, i, "image-alt-missing", "Image is missing alt text (a11y)", "error");
         else if (looksLikeFilename(s.alt)) {
           push(s, i, "image-alt-filename",
@@ -534,6 +577,18 @@ export const LINT_RULES: ReadonlyArray<{ id: string; severity: LintSeverity; sum
   { id: "quote-too-short", severity: "warn", summary: "Quote shorter than 20 characters." },
   { id: "poll-empty-option", severity: "error", summary: "Poll has an empty/whitespace option." },
   { id: "embed-untrusted-host", severity: "warn", summary: "Embed URL host is not in the known-safe iframe list." },
+  { id: "deck-no-theme", severity: "warn", summary: "Deck has no themeId — falls back to default theme." },
+  { id: "title-too-long", severity: "warn", summary: "Slide title >80 chars (truncates in badge/grid)." },
+  { id: "budget-too-short", severity: "warn", summary: "Slide budget <5s (badge flashes by)." },
+  { id: "bullets-no-bullets", severity: "error", summary: "Bullets slide has empty bullets array." },
+  { id: "steps-no-steps", severity: "error", summary: "Steps slide has empty steps array." },
+  { id: "timeline-no-items", severity: "error", summary: "Timeline slide has empty items array." },
+  { id: "timeline-item-too-long", severity: "warn", summary: "A timeline item detail >120 chars." },
+  { id: "poll-duplicate-option", severity: "warn", summary: "Poll has duplicate option labels." },
+  { id: "qa-not-last", severity: "warn", summary: "Q&A slide isn't the last slide in the deck." },
+  { id: "image-src-missing", severity: "error", summary: "Image slide has empty src." },
+
+
 
 ];
 
