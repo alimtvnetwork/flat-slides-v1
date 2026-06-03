@@ -27,6 +27,7 @@ export const SHORTCUTS: ShortcutDef[] = [
   { display: "Click N", keys: [],                          label: "Jump to slide N",        group: "Navigation" },
   { display: "C",       keys: ["c"],                       label: "Toggle camera bubble",   group: "Camera" },
   { display: "Shift+C", keys: [],                          label: "Cycle camera size",      group: "Camera" },
+  { display: "O",       keys: ["o"],                       label: "Cycle camera shape",     group: "Camera" },
   { display: "Shift+←→↑↓", keys: [],                       label: "Nudge camera position",  group: "Camera" },
   { display: "P",       keys: ["p"],                       label: "Picture-in-picture",     group: "Camera" },
   { display: "M",       keys: ["m"],                       label: "Toggle background music", group: "Presenter" },
