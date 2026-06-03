@@ -9,7 +9,9 @@ export type SlidesEventDetail =
   | { type: "step-change"; current: number; step: number; stepCount: number }
   | { type: "scene-change"; scene: string }
   | { type: "theme-change"; themeId: string }
-  | { type: "deck-load"; slideCount: number; deckId?: string; title?: string };
+  | { type: "deck-load"; slideCount: number; deckId?: string; title?: string }
+  | { type: "lint-issue-clicked"; rule: string; severity: "warn" | "error"; slideId?: string };
+
 
 export const SLIDES_EVENT = "slides:event" as const;
 

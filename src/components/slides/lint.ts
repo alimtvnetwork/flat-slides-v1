@@ -113,6 +113,32 @@ export function lintDeck(deck: Deck): LintIssue[] {
       `Deck music volume ${deck.music.volume} is outside [0, 1].`, "warn");
   }
 
+  // Deck-level: total budget sanity — sum of slide budgets shouldn't exceed
+  // a typical talk slot (1 hour). Warn so presenters notice runaway pacing.
+  const totalBudget = deck.slides.reduce(
+    (n, s) => n + (typeof s.budget === "number" && s.budget > 0 ? s.budget : 0),
+    0,
+  );
+  if (totalBudget > 3600 && deck.slides[0]) {
+    push(deck.slides[0], 0, "deck-runtime-too-long",
+      `Total slide budget is ${Math.round(totalBudget / 60)} min (>60 min) — split into multiple decks.`,
+      "warn");
+  }
+
+  // Deck-level: weak opener — first slide should not be a quote.
+  if (deck.slides[0]?.type === "quote") {
+    push(deck.slides[0], 0, "quote-first-slide",
+      "First slide is a quote — quotes land better after context. Open with a title or hero.",
+      "warn");
+  }
+
+  // Deck-level: deck.themeId must resolve to a real theme.
+  if (deck.themeId && !THEMES.some((t) => t.id === deck.themeId)) {
+    push(deck.slides[0], 0, "deck-theme-unknown",
+      `Deck themeId "${deck.themeId}" does not match any built-in theme.`, "warn");
+  }
+
+
   // Theme token contrast (WCAG AA): fg/bg must reach 4.5:1 for body text;
   // .hl-pill ink-on-highlight must reach 3:1 (large-text threshold — pills
   // are display-sized). Only checks hex tokens; non-hex (oklch/var) is skipped.
@@ -190,10 +216,16 @@ export function lintDeck(deck: Deck): LintIssue[] {
     }
   }
 
-
   for (let i = 0; i < deck.slides.length; i++) {
     const s = deck.slides[i];
     if (!s.title?.trim()) push(s, i, "title-missing", "Slide has no title", "error");
+
+    // Per-slide themeId override must resolve.
+    if (s.themeId && !THEMES.some((t) => t.id === s.themeId)) {
+      push(s, i, "slide-theme-unknown",
+        `Slide themeId "${s.themeId}" does not match any built-in theme.`, "warn");
+    }
+
 
     // Spec rule: lists/quotes/timelines must never zoom.
     if ((s.type === "bullets" || s.type === "quote" || s.type === "timeline")
@@ -305,6 +337,9 @@ export function lintDeck(deck: Deck): LintIssue[] {
         break;
       case "quote":
         if (richLen(s.quote) > 220) push(s, i, "quote-too-long", "Quote is long — trim for impact");
+        if (richLen(s.quote) > 0 && richLen(s.quote) < 20)
+          push(s, i, "quote-too-short",
+            "Quote is very short (<20 chars) — risks reading as a label, not a quote.", "warn");
         if (!s.attribution) push(s, i, "quote-no-attribution", "Quote has no attribution");
         break;
       case "poll":
@@ -313,7 +348,13 @@ export function lintDeck(deck: Deck): LintIssue[] {
           push(s, i, "poll-too-few-options", "Poll needs at least 2 options", "error");
         else if (s.options.length > 6)
           push(s, i, "poll-too-many-options", `Poll has ${s.options.length} options (max 6 recommended)`);
+        if (Array.isArray(s.options) && s.options.some((o) => !o?.trim())) {
+          push(s, i, "poll-empty-option",
+            "Poll has at least one empty/whitespace option — vote tallies will be meaningless.",
+            "error");
+        }
         break;
+
       case "qa":
         if (!s.prompt?.trim())
           push(s, i, "qa-no-prompt", "Q&A slide has no prompt — audience won't know what to ask");
@@ -351,9 +392,14 @@ export function lintDeck(deck: Deck): LintIssue[] {
           push(s, i, "embed-not-https",
             `Embed URL must use https:// (got "${s.url.slice(0, 40)}…") — mixed content blocks the iframe on published sites.`,
             "error");
+        } else if (!isTrustedEmbedHost(s.url)) {
+          push(s, i, "embed-untrusted-host",
+            `Embed host "${safeHost(s.url)}" is not in the known-safe list (youtube, vimeo, codesandbox, figma, loom, codepen) — many other hosts block iframing via X-Frame-Options.`,
+            "warn");
         }
         break;
       }
+
     }
 
     // Consecutive quote slides — pacing smell, audience tunes out.
@@ -406,6 +452,22 @@ function looksLikeFilename(s: string): boolean {
   const trimmed = s.trim();
   return FILENAME_RE.test(trimmed) || /^[a-z0-9_\-./]+$/i.test(trimmed) && trimmed.includes("/");
 }
+
+const TRUSTED_EMBED_HOSTS = [
+  "youtube.com", "youtu.be", "youtube-nocookie.com",
+  "vimeo.com", "player.vimeo.com",
+  "codesandbox.io", "codepen.io",
+  "figma.com",
+  "loom.com",
+];
+function safeHost(url: string): string {
+  try { return new URL(url).hostname; } catch { return url.slice(0, 40); }
+}
+function isTrustedEmbedHost(url: string): boolean {
+  const host = safeHost(url).toLowerCase();
+  return TRUSTED_EMBED_HOSTS.some((h) => host === h || host.endsWith("." + h));
+}
+
 
 /** Documented list of every rule the linter can emit. Kept in sync by hand
  *  with the rules above so the LLM guideline / docs can reference it. */
@@ -465,6 +527,14 @@ export const LINT_RULES: ReadonlyArray<{ id: string; severity: LintSeverity; sum
   { id: "slide-sound-url-invalid", severity: "error", summary: "Per-slide sound.url is empty or not a string." },
   { id: "slide-sound-url-not-https", severity: "warn", summary: "Per-slide sound.url must be https:// or absolute path." },
   { id: "slide-sound-volume-out-of-range", severity: "warn", summary: "Per-slide sound.volume outside [0, 1]." },
+  { id: "deck-runtime-too-long", severity: "warn", summary: "Sum of slide budgets exceeds 60 min." },
+  { id: "quote-first-slide", severity: "warn", summary: "First slide is a quote — weak opener." },
+  { id: "deck-theme-unknown", severity: "warn", summary: "Deck themeId does not match any built-in theme." },
+  { id: "slide-theme-unknown", severity: "warn", summary: "Slide themeId does not match any built-in theme." },
+  { id: "quote-too-short", severity: "warn", summary: "Quote shorter than 20 characters." },
+  { id: "poll-empty-option", severity: "error", summary: "Poll has an empty/whitespace option." },
+  { id: "embed-untrusted-host", severity: "warn", summary: "Embed URL host is not in the known-safe iframe list." },
+
 ];
 
 /** Pure deck stats — counts by slide type plus totals. Used by overview UIs and analytics. */
