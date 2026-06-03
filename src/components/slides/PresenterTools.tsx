@@ -35,9 +35,9 @@ function Reactions({ trigger }: { trigger: number; }) {
       ))}
       <style>{`
         @keyframes reactionRise {
-          0% { transform: translateY(0) scale(0.6); opacity: 0; }
-          15% { opacity: 1; transform: translateY(-20px) scale(1); }
-          100% { transform: translateY(-260px) scale(1.1); opacity: 0; }
+          0% { transform: translateY(0); opacity: 0; }
+          15% { opacity: 1; transform: translateY(-20px); }
+          100% { transform: translateY(-260px); opacity: 0; }
         }
       `}</style>
     </div>

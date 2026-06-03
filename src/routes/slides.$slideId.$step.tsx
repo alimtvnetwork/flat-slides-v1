@@ -19,7 +19,6 @@ import { CameraBubble } from "@/components/slides/controls/CameraBubble";
 import { ControllerPill } from "@/components/slides/controls/ControllerPill";
 import { DotPagination } from "@/components/slides/controls/DotPagination";
 import { KeyboardShortcutsDialog } from "@/components/slides/controls/KeyboardShortcutsDialog";
-const OnboardingCoachmark = lazy(() => import("@/components/slides/controls/OnboardingCoachmark").then((m) => ({ default: m.OnboardingCoachmark })));
 import { PresenterToast } from "@/components/slides/controls/PresenterToast";
 import { PresenterTopBar } from "@/components/slides/controls/PresenterTopBar";
 import { SlideNumberBadge } from "@/components/slides/controls/SlideNumberBadge";
@@ -210,14 +209,28 @@ function SlideStepPage() {
     <ControllerPill
       current={current}
       total={total}
-      onPrev={() => prev(current)}
-      onNext={() => next(current)}
+      onPrev={() => {
+        if (stepNum > 0) {
+          const target = stepNum;
+          if (target <= 1) goTo(current, "backward");
+          else goTo(current, "backward", target);
+        } else {
+          prev(current);
+        }
+      }}
+      onNext={() => {
+        const last = stepCount - 1;
+        if (stepNum < last) goTo(current, "forward", stepNum + 2);
+        else next(current);
+      }}
       onJump={jump}
       onOpenGrid={() => navigate({ to: "/slides" })}
       onToggleFullscreen={toggleFs}
       onOpenHelp={() => setHelpOpen(true)}
       onOpenSettings={() => setSettingsOpen(true)}
       isFullscreen={isFs}
+      canPrev={current > 1 || stepNum > 0}
+      canNext={current < total || stepNum < stepCount - 1}
     />
   );
 
@@ -271,7 +284,6 @@ function SlideStepPage() {
       )}
       <SlideAriaAnnouncer current={current} total={total} step={stepNum + 1} stepCount={stepCount} title={slide.title} />
       <PresenterNotesPeek notes={slide.notes} />
-      <Suspense fallback={null}><OnboardingCoachmark /></Suspense>
     </div>
   );
 }

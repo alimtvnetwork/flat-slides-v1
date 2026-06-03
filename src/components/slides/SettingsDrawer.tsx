@@ -161,20 +161,27 @@ export function SettingsDrawer({
           <input
             type="color"
             value={settings.backgroundColor}
-            onChange={(e) => setSettings({ backgroundColor: e.target.value })}
+            onChange={(e) => setSettings({ backgroundMode: "color", backgroundColor: e.target.value })}
             className="h-10 w-full rounded bg-neutral-800"
           />
           <div className="flex flex-wrap gap-1">
             {PALETTE_PRESETS.map((c) => (
               <button
                 key={c}
-                onClick={() => setSettings({ backgroundColor: c })}
+                onClick={() => setSettings({ backgroundMode: "color", backgroundColor: c })}
                 title={c}
                 className="h-7 w-7 rounded ring-1 ring-neutral-700 hover:ring-white"
                 style={{ background: c }}
               />
             ))}
           </div>
+          <input
+            type="url"
+            value={settings.backgroundImage ?? ""}
+            onChange={(e) => setSettings({ backgroundMode: "image", backgroundImage: e.target.value })}
+            placeholder="https://… background image"
+            className="w-full rounded bg-neutral-800 px-3 py-2 text-sm text-neutral-100 outline-none ring-1 ring-neutral-700 placeholder:text-neutral-500 focus:ring-neutral-400"
+          />
         </section>
 
         <section className="mb-6 space-y-2">

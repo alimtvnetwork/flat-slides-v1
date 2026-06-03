@@ -21,7 +21,6 @@ import { CameraBubble } from "@/components/slides/controls/CameraBubble";
 import { ControllerPill } from "@/components/slides/controls/ControllerPill";
 import { DotPagination } from "@/components/slides/controls/DotPagination";
 import { KeyboardShortcutsDialog } from "@/components/slides/controls/KeyboardShortcutsDialog";
-const OnboardingCoachmark = lazy(() => import("@/components/slides/controls/OnboardingCoachmark").then((m) => ({ default: m.OnboardingCoachmark })));
 import { PresenterToast } from "@/components/slides/controls/PresenterToast";
 import { PresenterTopBar } from "@/components/slides/controls/PresenterTopBar";
 import { SlideNumberBadge } from "@/components/slides/controls/SlideNumberBadge";
@@ -226,13 +225,18 @@ function SlidePage() {
       current={current}
       total={total}
       onPrev={() => prev(current)}
-      onNext={() => next(current)}
+      onNext={() => {
+        if (slideStepCount(slide) > 1) goTo(current, "forward", 2);
+        else next(current);
+      }}
       onJump={jump}
       onOpenGrid={() => navigate({ to: "/slides" })}
       onToggleFullscreen={toggleFs}
       onOpenHelp={() => setHelpOpen(true)}
       onOpenSettings={() => setSettingsOpen(true)}
       isFullscreen={isFs}
+      canPrev={current > 1}
+      canNext={slideStepCount(slide) > 1 || current < total}
     />
   );
 
@@ -306,7 +310,6 @@ function SlidePage() {
         </Suspense>
       )}
       <KeyboardShortcutsDialog open={helpOpen} onClose={() => setHelpOpen(false)} />
-      <Suspense fallback={null}><OnboardingCoachmark /></Suspense>
       {lintOpen && (
         <Suspense fallback={null}>
           <LintPanel open={lintOpen} onClose={() => setLintOpen(false)} deck={deck} />
