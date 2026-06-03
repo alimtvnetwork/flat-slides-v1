@@ -383,13 +383,26 @@ export function lintDeck(deck: Deck): LintIssue[] {
             "Poll has at least one empty/whitespace option — vote tallies will be meaningless.",
             "error");
         }
+        if (Array.isArray(s.options)) {
+          const normalized = s.options.map((o) => (o ?? "").trim().toLowerCase()).filter(Boolean);
+          if (new Set(normalized).size !== normalized.length) {
+            push(s, i, "poll-duplicate-option",
+              "Poll has duplicate options — votes split unpredictably between identical labels.", "warn");
+          }
+        }
         break;
 
       case "qa":
         if (!s.prompt?.trim())
           push(s, i, "qa-no-prompt", "Q&A slide has no prompt — audience won't know what to ask");
+        if (i !== deck.slides.length - 1)
+          push(s, i, "qa-not-last",
+            "Q&A slide isn't the last slide — audience usually expects Q&A at the end.", "warn");
         break;
       case "image": {
+        if (!s.src?.trim())
+          push(s, i, "image-src-missing", "Image slide has no src — the canvas will be blank.", "error");
+
         if (!s.alt?.trim()) push(s, i, "image-alt-missing", "Image is missing alt text (a11y)", "error");
         else if (looksLikeFilename(s.alt)) {
           push(s, i, "image-alt-filename",
