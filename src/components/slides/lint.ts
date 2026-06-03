@@ -337,6 +337,9 @@ export function lintDeck(deck: Deck): LintIssue[] {
         break;
       case "quote":
         if (richLen(s.quote) > 220) push(s, i, "quote-too-long", "Quote is long — trim for impact");
+        if (richLen(s.quote) > 0 && richLen(s.quote) < 20)
+          push(s, i, "quote-too-short",
+            "Quote is very short (<20 chars) — risks reading as a label, not a quote.", "warn");
         if (!s.attribution) push(s, i, "quote-no-attribution", "Quote has no attribution");
         break;
       case "poll":
@@ -345,7 +348,13 @@ export function lintDeck(deck: Deck): LintIssue[] {
           push(s, i, "poll-too-few-options", "Poll needs at least 2 options", "error");
         else if (s.options.length > 6)
           push(s, i, "poll-too-many-options", `Poll has ${s.options.length} options (max 6 recommended)`);
+        if (Array.isArray(s.options) && s.options.some((o) => !o?.trim())) {
+          push(s, i, "poll-empty-option",
+            "Poll has at least one empty/whitespace option — vote tallies will be meaningless.",
+            "error");
+        }
         break;
+
       case "qa":
         if (!s.prompt?.trim())
           push(s, i, "qa-no-prompt", "Q&A slide has no prompt — audience won't know what to ask");
