@@ -229,13 +229,12 @@ export function CameraBubble() {
         zIndex: 60,
         ...(stageFill
           ? {}
-          : { width: size, height: size }),
-        borderRadius: radius,
+          : { width: visualWidth, height: visualHeight }),
         ...anchorStyle,
       }}
       className={cn(
-        "overflow-hidden border-2 shadow-2xl cursor-grab active:cursor-grabbing",
-        "border-white/15 bg-black/60 backdrop-blur",
+        "group cursor-grab overflow-visible active:cursor-grabbing",
+        !stageFill && "drop-shadow-2xl",
       )}
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
@@ -246,52 +245,85 @@ export function CameraBubble() {
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerUp}
     >
-      <video
-        ref={(el) => { videoRef.current = el; attach(el); }}
-        autoPlay
-        muted
-        playsInline
-        style={autoFrame.active ? { objectPosition: autoFrame.objectPosition } : undefined}
-        className={cn(
-          "h-full w-full object-cover transition-[object-position] duration-300",
-          camera.mirror && "scale-x-[-1]",
-          // Cheap chroma-key stand-in: brightens & subtracts green via blend.
-          camera.greenScreen && "mix-blend-screen contrast-125 saturate-150",
-        )}
-      />
-
-      {(scene === "cam-only" || stageFill) && (
-        <CameraPlate variant={stageFill ? "stage" : "squircle"} />
+      {showPlate && (
+        <>
+          <img
+            src={whitePlate}
+            alt=""
+            aria-hidden
+            draggable={false}
+            data-camera-plate="white"
+            style={{ inset: -platePad }}
+            className="pointer-events-none absolute z-0 h-[calc(100%+var(--tw-translate-y,0px))] w-auto select-none opacity-90"
+          />
+          <img
+            src={goldPlate}
+            alt=""
+            aria-hidden
+            draggable={false}
+            data-camera-plate="gold"
+            style={{ inset: -platePad }}
+            className="pointer-events-none absolute z-[1] h-auto w-auto select-none"
+          />
+        </>
       )}
 
-      {status !== "active" && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-black/70 px-2 text-center text-[11px] text-white">
-          {status === "requesting" && (
-            <>
-              <Camera size={18} className="animate-pulse" />
-              <span>Requesting camera…</span>
-            </>
+      <div
+        ref={shapeFrameRef}
+        data-camera-shape={camera.shape}
+        style={shapeStyle}
+        className={cn(
+          "absolute inset-0 z-[2] overflow-hidden border-2 bg-black/60 backdrop-blur",
+          "border-white/15 shadow-2xl",
+          camera.shape === "squircle" && "border-transparent",
+        )}
+      >
+        <video
+          ref={(el) => { videoRef.current = el; attach(el); }}
+          autoPlay
+          muted
+          playsInline
+          style={autoFrame.active ? { objectPosition: autoFrame.objectPosition } : undefined}
+          className={cn(
+            "h-full w-full object-cover transition-[object-position] duration-300",
+            camera.mirror && "scale-x-[-1]",
+            // Cheap chroma-key stand-in: brightens & subtracts green via blend.
+            camera.greenScreen && "mix-blend-screen contrast-125 saturate-150",
           )}
-          {status === "denied" && (
-            <>
-              <CameraOff size={18} />
-              <span>Permission denied</span>
-              <button
-                data-camera-control
-                type="button"
-                onClick={() => void start()}
-                className="mt-1 rounded bg-white/15 px-2 py-0.5 hover:bg-white/25"
-              >
-                Retry
-              </button>
-            </>
-          )}
-          {status === "error" && (
-            <>
-              <CameraOff size={18} />
-              <span className="line-clamp-2">{errorMessage ?? "Camera error"}</span>
-            </>
-          )}
+        />
+
+        {stageFill && <CameraPlate variant="stage" />}
+
+        {status !== "active" && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-black/70 px-2 text-center text-[11px] text-white">
+            {status === "requesting" && (
+              <>
+                <Camera size={18} className="animate-pulse" />
+                <span>Requesting camera…</span>
+              </>
+            )}
+            {status === "denied" && (
+              <>
+                <CameraOff size={18} />
+                <span>Permission denied</span>
+                <button
+                  data-camera-control
+                  type="button"
+                  onClick={() => void start()}
+                  className="mt-1 rounded bg-white/15 px-2 py-0.5 hover:bg-white/25"
+                >
+                  Retry
+                </button>
+              </>
+            )}
+            {status === "error" && (
+              <>
+                <CameraOff size={18} />
+                <span className="line-clamp-2">{errorMessage ?? "Camera error"}</span>
+              </>
+            )}
+          </div>
+        )}
         </div>
       )}
 
