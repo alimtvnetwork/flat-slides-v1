@@ -326,7 +326,7 @@ export function CameraBubble() {
         )}
         </div>
 
-      <div className="absolute right-2 top-2 flex gap-1 opacity-0 transition-opacity hover:opacity-100 group-hover:opacity-100">
+      <div className="absolute right-2 top-2 z-20 flex gap-1 opacity-0 transition-opacity hover:opacity-100 group-hover:opacity-100">
         <button
           data-camera-control
           type="button"
@@ -434,7 +434,7 @@ export function CameraBubble() {
           onPointerCancel={onResizeUp}
           onDoubleClick={(e) => { e.stopPropagation(); setCameraCustomSize(null); }}
           style={resizeStyle}
-          className="rounded-sm bg-white/40 hover:bg-white/80 ring-1 ring-black/30"
+          className="z-20 rounded-sm bg-white/40 ring-1 ring-black/30 hover:bg-white/80"
         />
       )}
     </motion.div>
