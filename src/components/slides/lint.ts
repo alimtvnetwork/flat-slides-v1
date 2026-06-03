@@ -283,9 +283,25 @@ export function lintDeck(deck: Deck): LintIssue[] {
         "warn");
     }
 
+    if (typeof s.notes === "string" && s.notes.length > 500) {
+      push(s, i, "notes-too-long",
+        `Speaker notes are ${s.notes.length} chars (>500) — split into shorter cues for stage reading.`, "warn");
+    }
+
     // Focus region step bound check — `step` must be 1..slideStepCount(slide).
     const steps = slideStepCount(s);
     if (Array.isArray(s.focus)) {
+      const stepSeen = new Set<number>();
+      for (const r of s.focus) {
+        if (typeof r.step === "number") {
+          if (stepSeen.has(r.step)) {
+            push(s, i, "focus-step-duplicate",
+              `Two focus regions target step ${r.step} — only the first will activate.`, "error");
+          } else {
+            stepSeen.add(r.step);
+          }
+        }
+
       for (const r of s.focus) {
         if (typeof r.step === "number" && (r.step < 1 || (steps > 0 && r.step > steps))) {
           push(s, i, "focus-step-out-of-range",
