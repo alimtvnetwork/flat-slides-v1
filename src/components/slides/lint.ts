@@ -137,6 +137,12 @@ export function lintDeck(deck: Deck): LintIssue[] {
     push(deck.slides[0], 0, "deck-theme-unknown",
       `Deck themeId "${deck.themeId}" does not match any built-in theme.`, "warn");
   }
+  // Deck-level: no themeId at all → inherits default; warn so authors pick one explicitly.
+  if (!deck.themeId && deck.slides[0]) {
+    push(deck.slides[0], 0, "deck-no-theme",
+      "Deck has no themeId — falling back to default. Set deck.themeId to lock visuals.", "warn");
+  }
+
 
 
   // Theme token contrast (WCAG AA): fg/bg must reach 4.5:1 for body text;
