@@ -113,6 +113,32 @@ export function lintDeck(deck: Deck): LintIssue[] {
       `Deck music volume ${deck.music.volume} is outside [0, 1].`, "warn");
   }
 
+  // Deck-level: total budget sanity — sum of slide budgets shouldn't exceed
+  // a typical talk slot (1 hour). Warn so presenters notice runaway pacing.
+  const totalBudget = deck.slides.reduce(
+    (n, s) => n + (typeof s.budget === "number" && s.budget > 0 ? s.budget : 0),
+    0,
+  );
+  if (totalBudget > 3600 && deck.slides[0]) {
+    push(deck.slides[0], 0, "deck-runtime-too-long",
+      `Total slide budget is ${Math.round(totalBudget / 60)} min (>60 min) — split into multiple decks.`,
+      "warn");
+  }
+
+  // Deck-level: weak opener — first slide should not be a quote.
+  if (deck.slides[0]?.type === "quote") {
+    push(deck.slides[0], 0, "quote-first-slide",
+      "First slide is a quote — quotes land better after context. Open with a title or hero.",
+      "warn");
+  }
+
+  // Deck-level: deck.themeId must resolve to a real theme.
+  if (deck.themeId && !THEMES.some((t) => t.id === deck.themeId)) {
+    push(deck.slides[0], 0, "deck-theme-unknown",
+      `Deck themeId "${deck.themeId}" does not match any built-in theme.`, "warn");
+  }
+
+
   // Theme token contrast (WCAG AA): fg/bg must reach 4.5:1 for body text;
   // .hl-pill ink-on-highlight must reach 3:1 (large-text threshold — pills
   // are display-sized). Only checks hex tokens; non-hex (oklch/var) is skipped.
