@@ -392,9 +392,14 @@ export function lintDeck(deck: Deck): LintIssue[] {
           push(s, i, "embed-not-https",
             `Embed URL must use https:// (got "${s.url.slice(0, 40)}…") — mixed content blocks the iframe on published sites.`,
             "error");
+        } else if (!isTrustedEmbedHost(s.url)) {
+          push(s, i, "embed-untrusted-host",
+            `Embed host "${safeHost(s.url)}" is not in the known-safe list (youtube, vimeo, codesandbox, figma, loom, codepen) — many other hosts block iframing via X-Frame-Options.`,
+            "warn");
         }
         break;
       }
+
     }
 
     // Consecutive quote slides — pacing smell, audience tunes out.
