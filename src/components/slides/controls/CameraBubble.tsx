@@ -85,11 +85,14 @@ export function CameraBubble() {
       } else if (e.key === "b" || e.key === "B") {
         e.preventDefault();
         setCamera({ greenScreen: !camera.greenScreen });
+      } else if (e.key === "o" || e.key === "O") {
+        e.preventDefault();
+        cycleShape();
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [camera.visible, camera.offsetX, camera.offsetY, camera.mirror, camera.greenScreen, camera.customSize, camera.size, setCamera, setCameraCustomSize]);
+  }, [camera.visible, camera.offsetX, camera.offsetY, camera.mirror, camera.greenScreen, camera.customSize, camera.size, setCamera, setCameraCustomSize, cycleShape]);
 
   // Respect "show only in fullscreen" preference.
   // External `P` shortcut dispatched from route handler.
