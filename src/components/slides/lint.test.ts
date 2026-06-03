@@ -435,3 +435,54 @@ describe("lintDeck — deck-level structural rules", () => {
     expect(lintDeck(deckOf([s])).some((i) => i.rule === "slide-id-not-kebab")).toBe(false);
   });
 });
+
+describe("lintDeck — content-quality additions (batch N+10)", () => {
+  it("warns when the first slide is a quote", () => {
+    const q: Slide = { id: "q", type: "quote", title: "Q", quote: ["a strong saying"], attribution: "x" };
+    expect(lintDeck(deckOf([q])).some((i) => i.rule === "quote-first-slide")).toBe(true);
+  });
+
+  it("warns on deck-runtime-too-long when total budget > 3600s", () => {
+    const slides: Slide[] = Array.from({ length: 5 }, (_, n): Slide => ({
+      id: `s-${n}`, type: "center", title: `S${n}`, heading: ["x"], budget: 800,
+    }));
+    expect(lintDeck(deckOf(slides)).some((i) => i.rule === "deck-runtime-too-long")).toBe(true);
+  });
+
+  it("flags deck-theme-unknown for unknown themeId", () => {
+    expect(lintDeck(deckOf([center], { themeId: "nope-theme" })).some((i) => i.rule === "deck-theme-unknown")).toBe(true);
+  });
+
+  it("flags slide-theme-unknown for unknown per-slide themeId", () => {
+    const s: Slide = { ...center, themeId: "missing-theme" };
+    expect(lintDeck(deckOf([s])).some((i) => i.rule === "slide-theme-unknown")).toBe(true);
+  });
+
+  it("flags very short quotes", () => {
+    const q: Slide = { id: "q", type: "quote", title: "Q", quote: ["hi"], attribution: "x" };
+    const issues = lintDeck(deckOf([center, q]));
+    expect(issues.some((i) => i.rule === "quote-too-short")).toBe(true);
+  });
+
+  it("flags poll with empty option", () => {
+    const p: Slide = { id: "p", type: "poll", title: "P", question: "Pick", options: ["A", "  "] };
+    expect(lintDeck(deckOf([center, p])).some((i) => i.rule === "poll-empty-option")).toBe(true);
+  });
+
+  it("flags untrusted embed hosts but not youtube", () => {
+    const e1: Slide = { id: "e1", type: "embed", title: "E", url: "https://example.com/foo" };
+    const e2: Slide = { id: "e2", type: "embed", title: "E", url: "https://www.youtube.com/embed/abc" };
+    const i1 = lintDeck(deckOf([center, e1]));
+    const i2 = lintDeck(deckOf([center, e2]));
+    expect(i1.some((i) => i.rule === "embed-untrusted-host")).toBe(true);
+    expect(i2.some((i) => i.rule === "embed-untrusted-host")).toBe(false);
+  });
+
+  it("documents all new rules", () => {
+    const ids = LINT_RULES.map((r) => r.id);
+    for (const id of [
+      "deck-runtime-too-long", "quote-first-slide", "deck-theme-unknown",
+      "slide-theme-unknown", "quote-too-short", "poll-empty-option", "embed-untrusted-host",
+    ]) expect(ids).toContain(id);
+  });
+});
