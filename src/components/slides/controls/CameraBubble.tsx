@@ -3,10 +3,14 @@ import { Camera, CameraOff, Crosshair, FlipHorizontal2, Maximize, PictureInPictu
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 
+import squircleMask from "@/assets/camera-2026/02-squircle-mask-black.png";
+import whitePlate from "@/assets/camera-2026/03-squircle-plate-white-shadow.png";
+import goldPlate from "@/assets/camera-2026/04-squircle-plate-gold-shadow.png";
 import { useChrome } from "@/components/slides/chrome-store";
 import { useCamera } from "@/components/slides/useCamera";
 import { useFullscreen } from "@/components/slides/useFullscreen";
 import { useAutoFrame } from "@/components/slides/useAutoFrame";
+import { useReducedMotion } from "@/components/slides/useReducedMotion";
 import { cn } from "@/lib/utils";
 
 import { CameraPlate } from "./CameraPlate";
@@ -16,12 +20,9 @@ const SIZES = { sm: 144, md: 200, lg: 280 } as const;
 const SCENE_SCALE: Record<string, number> = { normal: 1, split: 1.6, "cam-only": 2.4, "stage-fill": 1 };
 const MIN_SIZE = 96;
 const MAX_SIZE = 720;
-// CSS squircle approximation via border-radius (superellipse-ish).
-const SHAPE_RADIUS = {
-  circle: "9999px",
-  squircle: "32%",
-  rect: "12px",
-} as const;
+const RECT_ASPECT = 16 / 9;
+const SQUIRCLE_RADIUS = "38% / 34%";
+const SHAPE_RADIUS = { circle: "9999px", squircle: SQUIRCLE_RADIUS, rect: "18px" } as const;
 
 /**
  * Floating draggable webcam bubble. Anchors to one of 4 corners (persisted)
