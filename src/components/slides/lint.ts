@@ -317,11 +317,14 @@ export function lintDeck(deck: Deck): LintIssue[] {
 
     switch (s.type) {
       case "bullets":
+        if (!Array.isArray(s.bullets) || s.bullets.length === 0)
+          push(s, i, "bullets-no-bullets", "Bullets slide has no bullets — the body will be blank.", "error");
         if (s.bullets.length > 6) push(s, i, "too-many-bullets", `${s.bullets.length} bullets (max 6 recommended)`);
         if (s.bullets.some((b) => richLen(b) > 90))
           push(s, i, "bullet-too-long", "A bullet exceeds 90 characters — split or trim");
         if (richLen(s.heading) === 0) push(s, i, "heading-empty", "Bullets slide is missing a heading", "error");
         break;
+
       case "steps": {
         if (s.steps.length > 7) push(s, i, "too-many-steps", `${s.steps.length} steps (max 7 recommended)`);
         if (s.steps.some((step) => !step.label?.trim())) push(s, i, "step-label-missing", "A step is missing its label", "error");
