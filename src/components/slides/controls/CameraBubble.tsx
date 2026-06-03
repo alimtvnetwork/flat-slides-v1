@@ -1,12 +1,12 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { Camera, CameraOff, Crosshair, FlipHorizontal2, Maximize, PictureInPicture2, Shapes, Sparkles, X } from "lucide-react";
+import { Camera, CameraOff, Circle, Crosshair, FlipHorizontal2, Maximize, PictureInPicture2, RectangleHorizontal, Shapes, Sparkles, X } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 
 import squircleMask from "@/assets/camera-2026/02-squircle-mask-black.png";
 import whitePlate from "@/assets/camera-2026/03-squircle-plate-white-shadow.png";
 import goldPlate from "@/assets/camera-2026/04-squircle-plate-gold-shadow.png";
-import { useChrome } from "@/components/slides/chrome-store";
+import { useChrome, type CameraShape } from "@/components/slides/chrome-store";
 import { useCamera } from "@/components/slides/useCamera";
 import { useFullscreen } from "@/components/slides/useFullscreen";
 import { useAutoFrame } from "@/components/slides/useAutoFrame";
@@ -23,6 +23,12 @@ const MAX_SIZE = 720;
 const RECT_ASPECT = 16 / 9;
 const SQUIRCLE_RADIUS = "38% / 34%";
 const SHAPE_RADIUS = { circle: "9999px", squircle: SQUIRCLE_RADIUS, rect: "18px" } as const;
+
+function ShapeIcon({ shape }: { shape: CameraShape }) {
+  if (shape === "circle") return <Circle size={12} />;
+  if (shape === "rect") return <RectangleHorizontal size={12} />;
+  return <Shapes size={12} />;
+}
 
 /**
  * Floating draggable webcam bubble. Anchors to one of 4 corners (persisted)
@@ -112,12 +118,11 @@ export function CameraBubble() {
     if (reducedMotion || typeof animate !== "function") return;
     animate.call(shapeFrameRef.current,
       [
-        { transform: "scale(1)", filter: "drop-shadow(0 18px 34px rgb(0 0 0 / 0.45))" },
-        { transform: "scale(0.965)", filter: "drop-shadow(0 18px 44px rgb(0 0 0 / 0.55))", offset: 0.35 },
-        { transform: "scale(1.018)", filter: "drop-shadow(0 22px 48px rgb(0 0 0 / 0.50))", offset: 0.72 },
-        { transform: "scale(1)", filter: "drop-shadow(0 18px 34px rgb(0 0 0 / 0.45))" },
+        { opacity: 0.86, filter: "drop-shadow(0 18px 34px rgb(0 0 0 / 0.45))" },
+        { opacity: 1, filter: "drop-shadow(0 18px 44px rgb(0 0 0 / 0.55))", offset: 0.55 },
+        { opacity: 1, filter: "drop-shadow(0 18px 34px rgb(0 0 0 / 0.45))" },
       ],
-      { duration: 360, easing: "cubic-bezier(0.22, 1, 0.36, 1)" },
+      { duration: 220, easing: "ease-out" },
     );
   }, [camera.shape, reducedMotion]);
 
@@ -230,7 +235,7 @@ export function CameraBubble() {
       aria-label="Presenter camera"
       style={{
         position: "fixed",
-        zIndex: 60,
+        zIndex: "var(--z-camera)",
         ...(stageFill
           ? {}
           : { width: visualWidth, height: visualHeight }),
@@ -240,10 +245,10 @@ export function CameraBubble() {
         "group cursor-grab overflow-visible active:cursor-grabbing",
         !stageFill && "drop-shadow-2xl",
       )}
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.8 }}
-      transition={{ type: "spring", stiffness: 320, damping: 28 }}
+      initial={reducedMotion ? false : { opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: reducedMotion ? 0 : 0.16, ease: "easeOut" }}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
@@ -330,7 +335,7 @@ export function CameraBubble() {
         )}
         </div>
 
-      <div className="absolute right-2 top-2 z-20 flex gap-1 opacity-0 transition-opacity hover:opacity-100 group-hover:opacity-100">
+      <div className="absolute right-2 top-2 z-20 flex gap-1 opacity-75 transition-opacity hover:opacity-100 group-hover:opacity-100">
         <button
           data-camera-control
           type="button"
@@ -389,7 +394,7 @@ export function CameraBubble() {
           onClick={cycleShape}
           className="rounded-full bg-black/70 p-1.5 text-white/90 hover:bg-black/90"
         >
-          <Shapes size={12} />
+          <ShapeIcon shape={camera.shape} />
         </button>
         <button
           data-camera-control

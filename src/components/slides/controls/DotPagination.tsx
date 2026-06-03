@@ -28,7 +28,7 @@ export function DotPagination({ current, total, slides, onJump, className }: Pro
       data-print-hide="true"
       aria-label="Slide pagination"
       className={cn(
-        "fixed bottom-6 left-1/2 -translate-x-1/2 z-30",
+        "fixed bottom-20 left-1/2 -translate-x-1/2 z-30",
         "max-w-[min(90vw,1200px)]",
         className,
       )}

@@ -1,6 +1,6 @@
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { Camera, ChevronLeft, ChevronRight, Grid3x3, HelpCircle, Maximize2, Minimize2, Settings } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
@@ -26,10 +26,13 @@ interface PositionStore {
 const usePositionStore = create<PositionStore>()(
   persist(
     (set) => ({
-      anchor: "bottom-right",
+      anchor: "bottom-center",
       setAnchor: (anchor) => set({ anchor }),
     }),
-    { name: "slides-controller-pos-v1" },
+    {
+      name: "slides-controller-pos-v2",
+      partialize: (s) => ({ anchor: s.anchor }),
+    },
   ),
 );
 
@@ -44,6 +47,8 @@ interface Props {
   onOpenHelp: () => void;
   onOpenSettings: () => void;
   isFullscreen: boolean;
+  canPrev?: boolean;
+  canNext?: boolean;
 }
 
 function useCompactViewport() {
@@ -65,34 +70,16 @@ function useCompactViewport() {
  * grace-delay collapse so the user doesn't lose it on quick mouse-out.
  */
 export function ControllerPill(props: Props) {
-  const { current, total, onPrev, onNext, onJump, onOpenGrid, onToggleFullscreen, onOpenHelp, onOpenSettings, isFullscreen } = props;
+  const { current, total, onPrev, onNext, onJump, onOpenGrid, onToggleFullscreen, onOpenHelp, onOpenSettings, isFullscreen, canPrev, canNext } = props;
   const anchor = usePositionStore((s) => s.anchor);
   const setAnchor = usePositionStore((s) => s.setAnchor);
   const cameraVisible = useChrome((s) => s.camera.visible);
   const toggleCamera = useChrome((s) => s.toggleCamera);
   const compact = useCompactViewport();
   const reduced = useReducedMotion();
-  const [expanded, setExpanded] = useState(false);
-  const collapseTimer = useRef<number | undefined>(undefined);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
-  useEffect(() => () => {
-    if (collapseTimer.current !== undefined) window.clearTimeout(collapseTimer.current);
-  }, []);
-
-  function handleEnter() {
-    if (collapseTimer.current !== undefined) {
-      window.clearTimeout(collapseTimer.current);
-      collapseTimer.current = undefined;
-    }
-    setExpanded(true);
-  }
-
-  function handleLeave() {
-    if (collapseTimer.current !== undefined) window.clearTimeout(collapseTimer.current);
-    collapseTimer.current = window.setTimeout(() => setExpanded(false), 280);
-  }
 
   // Cycle through 8 anchors on right-click of the pill.
   function cycleAnchor() {
@@ -112,34 +99,30 @@ export function ControllerPill(props: Props) {
       aria-label="Slide controller"
       style={{ position: "fixed", zIndex: "var(--z-controller)" as unknown as number, ...anchorStyles(anchor) }}
       className="select-none"
-      onMouseEnter={handleEnter}
-      onMouseLeave={handleLeave}
       onContextMenu={(e) => {
         e.preventDefault();
         cycleAnchor();
       }}
     >
-      <AnimatePresence initial={false} mode="wait">
-        {expanded ? (
-          <motion.div
-            key="expanded"
-            initial={{ opacity: 0, scale: 0.92 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.92 }}
-            transition={motionPreset}
-            className={cn(
-              "flex items-center gap-1 rounded-full",
-              "border border-[color:var(--ctrl-border)] bg-[color:var(--ctrl-bg)]",
-              "backdrop-blur-md px-2 py-1 shadow-2xl",
-            )}
-          >
-            <PillButton onClick={onPrev} disabled={current <= 1} ariaLabel="Previous slide">
+      <motion.div
+        key="expanded"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={motionPreset}
+        className={cn(
+          "flex items-center gap-1 rounded-full",
+          "border border-[color:var(--ctrl-border)] bg-[color:var(--ctrl-bg)]",
+          "backdrop-blur-md px-2 py-1 shadow-2xl",
+        )}
+      >
+        <PillButton onClick={onPrev} disabled={canPrev === undefined ? current <= 1 : !canPrev} ariaLabel="Previous slide">
               <ChevronLeft size={16} />
             </PillButton>
 
             <SlideIndicator current={current} total={total} onJump={onJump} />
 
-            <PillButton onClick={onNext} disabled={current >= total} ariaLabel="Next slide">
+        <PillButton onClick={onNext} disabled={canNext === undefined ? current >= total : !canNext} ariaLabel="Next slide">
               <ChevronRight size={16} />
             </PillButton>
 
@@ -179,31 +162,7 @@ export function ControllerPill(props: Props) {
                 </span>
               </>
             )}
-          </motion.div>
-        ) : (
-          <motion.button
-            key="collapsed"
-            type="button"
-            onClick={() => setExpanded(true)}
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 0.55, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            whileHover={{ opacity: 1 }}
-            transition={motionPreset}
-            className={cn(
-              "inline-flex items-center gap-1 rounded-full",
-              "border border-[color:var(--ctrl-border)] bg-[color:var(--ctrl-bg)]",
-              "backdrop-blur-md px-3 py-1 shadow-lg text-[11px] tabular-nums",
-              "text-[color:var(--ctrl-fg)]",
-            )}
-            aria-label={`Show slide controller. Slide ${current} of ${total}`}
-          >
-            <span className="text-[color:var(--ctrl-accent)]">{current}</span>
-            <span className="text-white/40">/</span>
-            <span>{total}</span>
-          </motion.button>
-        )}
-      </AnimatePresence>
+      </motion.div>
     </div>
   );
 

@@ -165,7 +165,8 @@
   --ctrl-border: oklch(1 0 0 / 0.12);
   --ctrl-accent: oklch(0.88 0.18 95);
   --ctrl-accent-ink: oklch(0.18 0 0);
-  --z-controller: 60;
+  --z-controller: 130;
+  --z-camera: 140;
 
   /* Subtle ink-drop under light text for legibility over busy / image backgrounds.
    * Per-theme override in themes.ts (Paper sets it to `none`). */

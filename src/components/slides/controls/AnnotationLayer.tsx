@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 
-import { useAnnotations, type InkPoint } from "../annotations-store";
+import { useAnnotations, type InkPoint, type InkStroke } from "../annotations-store";
 
 interface Props {
   slideId: string;
 }
+
+const EMPTY_STROKES: InkStroke[] = [];
 
 /**
  * Combined laser-pointer + ink layer.
@@ -24,7 +26,7 @@ interface Props {
  */
 export function AnnotationLayer({ slideId }: Props) {
   const mode = useAnnotations((s) => s.mode);
-  const strokes = useAnnotations((s) => s.strokes[slideId] ?? []);
+  const strokes = useAnnotations((s) => s.strokes[slideId] ?? EMPTY_STROKES);
   const color = useAnnotations((s) => s.color);
   const beginStroke = useAnnotations((s) => s.beginStroke);
   const extendStroke = useAnnotations((s) => s.extendStroke);
