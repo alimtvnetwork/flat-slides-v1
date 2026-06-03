@@ -637,10 +637,24 @@ export const LINT_RULES: ReadonlyArray<{ id: string; severity: LintSeverity; sum
   { id: "poll-duplicate-option", severity: "warn", summary: "Poll has duplicate option labels." },
   { id: "qa-not-last", severity: "warn", summary: "Q&A slide isn't the last slide in the deck." },
   { id: "image-src-missing", severity: "error", summary: "Image slide has empty src." },
-
-
-
+  { id: "darken-out-of-range", severity: "warn", summary: "Deck darken outside [0, 1]." },
+  { id: "blur-out-of-range", severity: "warn", summary: "Deck blur outside [0, 1]." },
+  { id: "backgroundColor-not-hex", severity: "warn", summary: "Deck backgroundColor isn't a hex value." },
+  { id: "slide-number-negative", severity: "warn", summary: "Authored slide.number is negative or non-finite." },
+  { id: "theme-consecutive-redundant", severity: "warn", summary: "Adjacent slides share the same themeId override." },
+  { id: "notes-too-long", severity: "warn", summary: "Speaker notes exceed 500 chars." },
+  { id: "focus-step-duplicate", severity: "error", summary: "Two focus regions target the same step." },
 ];
+
+/** Sum of all positive slide budgets, in seconds. */
+export function deckRuntimeSeconds(deck: Deck): number {
+  return deck.slides.reduce(
+    (n, s) => n + (typeof s.budget === "number" && s.budget > 0 ? s.budget : 0),
+    0,
+  );
+}
+
+
 
 /** Pure deck stats — counts by slide type plus totals. Used by overview UIs and analytics. */
 export function deckStats(deck: Deck): {
