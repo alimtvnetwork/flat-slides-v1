@@ -226,11 +226,18 @@ export function lintDeck(deck: Deck): LintIssue[] {
     const s = deck.slides[i];
     if (!s.title?.trim()) push(s, i, "title-missing", "Slide has no title", "error");
 
+    if (s.title && s.title.length > 80) {
+      push(s, i, "title-too-long",
+        `Slide title is ${s.title.length} chars — keep ≤80 so it fits the badge/grid without truncation.`,
+        "warn");
+    }
+
     // Per-slide themeId override must resolve.
     if (s.themeId && !THEMES.some((t) => t.id === s.themeId)) {
       push(s, i, "slide-theme-unknown",
         `Slide themeId "${s.themeId}" does not match any built-in theme.`, "warn");
     }
+
 
 
     // Spec rule: lists/quotes/timelines must never zoom.
