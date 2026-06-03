@@ -40,8 +40,11 @@ export function CameraBubble() {
   const { status, errorMessage, start, stop, attach, togglePiP } = useCamera();
   const { isFs } = useFullscreen();
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const shapeFrameRef = useRef<HTMLDivElement | null>(null);
+  const firstShapeRef = useRef(true);
   const dragState = useRef<{ x: number; y: number; ox: number; oy: number } | null>(null);
   const resizeState = useRef<{ x: number; y: number; size: number } | null>(null);
+  const reducedMotion = useReducedMotion();
   const autoFrame = useAutoFrame(videoRef, camera.visible && camera.autoFrame && status === "active");
 
   // Auto-start whenever the bubble is opened from chrome state.
@@ -97,6 +100,23 @@ export function CameraBubble() {
     return () => window.removeEventListener("slides:camera-pip", onPip);
   }, [camera.visible, togglePiP]);
 
+  useEffect(() => {
+    if (firstShapeRef.current) {
+      firstShapeRef.current = false;
+      return;
+    }
+    if (reducedMotion) return;
+    shapeFrameRef.current?.animate(
+      [
+        { transform: "scale(1)", filter: "drop-shadow(0 18px 34px rgb(0 0 0 / 0.45))" },
+        { transform: "scale(0.965)", filter: "drop-shadow(0 18px 44px rgb(0 0 0 / 0.55))", offset: 0.35 },
+        { transform: "scale(1.018)", filter: "drop-shadow(0 22px 48px rgb(0 0 0 / 0.50))", offset: 0.72 },
+        { transform: "scale(1)", filter: "drop-shadow(0 18px 34px rgb(0 0 0 / 0.45))" },
+      ],
+      { duration: 360, easing: "cubic-bezier(0.22, 1, 0.36, 1)" },
+    );
+  }, [camera.shape, reducedMotion]);
+
   // Respect "show only in fullscreen" preference.
   if (!camera.visible) return null;
   if (camera.fullscreenOnly && !isFs) return null;
@@ -105,8 +125,27 @@ export function CameraBubble() {
   const scale = SCENE_SCALE[scene] ?? 1;
   const baseSize = camera.customSize ?? SIZES[camera.size];
   const size = Math.max(MIN_SIZE, Math.min(MAX_SIZE, Math.round(baseSize * scale)));
-  const radius =
-    stageFill ? "0px" : scene === "cam-only" ? "32px" : SHAPE_RADIUS[camera.shape];
+  const shapeAspect = camera.shape === "circle" ? 1 : camera.shape === "squircle" ? 772 / 480 : RECT_ASPECT;
+  const visualWidth = Math.round(size * shapeAspect);
+  const visualHeight = size;
+  const radius = stageFill ? "0px" : SHAPE_RADIUS[camera.shape];
+  const platePad = Math.round(Math.min(visualWidth, visualHeight) * 0.07);
+  const showPlate = !stageFill && camera.shape === "squircle";
+  const shapeStyle: React.CSSProperties = {
+    borderRadius: radius,
+    ...(camera.shape === "squircle"
+      ? {
+          WebkitMaskImage: `url(${squircleMask})`,
+          maskImage: `url(${squircleMask})`,
+          WebkitMaskSize: "100% 100%",
+          maskSize: "100% 100%",
+          WebkitMaskRepeat: "no-repeat",
+          maskRepeat: "no-repeat",
+          WebkitMaskPosition: "center",
+          maskPosition: "center",
+        }
+      : {}),
+  };
   const anchorStyle: React.CSSProperties = stageFill
     ? { top: 0, left: 0, right: 0, bottom: 0 }
     : (() => {
