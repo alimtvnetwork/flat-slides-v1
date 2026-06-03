@@ -108,8 +108,9 @@ export function CameraBubble() {
       firstShapeRef.current = false;
       return;
     }
-    if (reducedMotion) return;
-    shapeFrameRef.current?.animate(
+    const animate = shapeFrameRef.current?.animate;
+    if (reducedMotion || typeof animate !== "function") return;
+    animate.call(shapeFrameRef.current,
       [
         { transform: "scale(1)", filter: "drop-shadow(0 18px 34px rgb(0 0 0 / 0.45))" },
         { transform: "scale(0.965)", filter: "drop-shadow(0 18px 44px rgb(0 0 0 / 0.55))", offset: 0.35 },
