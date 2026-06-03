@@ -326,9 +326,12 @@ export function lintDeck(deck: Deck): LintIssue[] {
         break;
 
       case "steps": {
+        if (!Array.isArray(s.steps) || s.steps.length === 0)
+          push(s, i, "steps-no-steps", "Steps slide has no steps — nothing to advance through.", "error");
         if (s.steps.length > 7) push(s, i, "too-many-steps", `${s.steps.length} steps (max 7 recommended)`);
         if (s.steps.some((step) => !step.label?.trim())) push(s, i, "step-label-missing", "A step is missing its label", "error");
         if (s.steps.some((step) => richLen(step.detail) === 0)) push(s, i, "step-detail-missing", "A step is missing detail text", "error");
+
         const bg = (s as { background?: string }).background;
         const isSvgBg = typeof bg === "string" && (bg.startsWith("data:image/svg") || /\.svg(\?|$)/i.test(bg));
         if (isSvgBg && (!Array.isArray(s.focus) || s.focus.length === 0)) {
