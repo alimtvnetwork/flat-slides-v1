@@ -216,6 +216,13 @@ export function lintDeck(deck: Deck): LintIssue[] {
     }
   }
 
+    // Per-slide themeId override must resolve.
+    if (s.themeId && !THEMES.some((t) => t.id === s.themeId)) {
+      push(s, i, "slide-theme-unknown",
+        `Slide themeId "${s.themeId}" does not match any built-in theme.`, "warn");
+    }
+
+
 
   for (let i = 0; i < deck.slides.length; i++) {
     const s = deck.slides[i];
