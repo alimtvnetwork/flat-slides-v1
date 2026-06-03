@@ -216,17 +216,16 @@ export function lintDeck(deck: Deck): LintIssue[] {
     }
   }
 
+  for (let i = 0; i < deck.slides.length; i++) {
+    const s = deck.slides[i];
+    if (!s.title?.trim()) push(s, i, "title-missing", "Slide has no title", "error");
+
     // Per-slide themeId override must resolve.
     if (s.themeId && !THEMES.some((t) => t.id === s.themeId)) {
       push(s, i, "slide-theme-unknown",
         `Slide themeId "${s.themeId}" does not match any built-in theme.`, "warn");
     }
 
-
-
-  for (let i = 0; i < deck.slides.length; i++) {
-    const s = deck.slides[i];
-    if (!s.title?.trim()) push(s, i, "title-missing", "Slide has no title", "error");
 
     // Spec rule: lists/quotes/timelines must never zoom.
     if ((s.type === "bullets" || s.type === "quote" || s.type === "timeline")
