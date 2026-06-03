@@ -194,6 +194,10 @@ export function lintDeck(deck: Deck): LintIssue[] {
   for (let i = 0; i < deck.slides.length; i++) {
     const s = deck.slides[i];
     if (typeof s.number !== "number") continue;
+    if (s.number < 0 || !Number.isFinite(s.number)) {
+      push(s, i, "slide-number-negative",
+        `Slide.number=${s.number} must be a non-negative finite integer.`, "warn");
+    }
     const prior = seen.get(s.number);
     if (prior) {
       push(s, i, "number-collision", `Authored number ${s.number} duplicates slide "${prior}"`, "warn");
@@ -201,6 +205,18 @@ export function lintDeck(deck: Deck): LintIssue[] {
       seen.set(s.number, s.title || s.id);
     }
   }
+
+  // Consecutive slides with the same explicit themeId override are redundant —
+  // hoist to deck.themeId or remove the second override.
+  for (let i = 1; i < deck.slides.length; i++) {
+    const prev = deck.slides[i - 1];
+    const cur = deck.slides[i];
+    if (cur.themeId && prev.themeId && cur.themeId === prev.themeId) {
+      push(cur, i, "theme-consecutive-redundant",
+        `Slide themeId "${cur.themeId}" matches the previous slide — set deck.themeId instead.`, "warn");
+    }
+  }
+
 
   // Duplicate slide.id check — IDs are the persistence key, collisions break navigation.
   const idSeen = new Map<string, number>();
