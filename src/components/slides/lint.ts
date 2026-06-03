@@ -675,6 +675,12 @@ export const LINT_RULES: ReadonlyArray<{ id: string; severity: LintSeverity; sum
   { id: "theme-consecutive-redundant", severity: "warn", summary: "Adjacent slides share the same themeId override." },
   { id: "notes-too-long", severity: "warn", summary: "Speaker notes exceed 500 chars." },
   { id: "focus-step-duplicate", severity: "error", summary: "Two focus regions target the same step." },
+  { id: "budget-non-integer", severity: "warn", summary: "Slide budget is not an integer second value." },
+  { id: "padding-zero-edge-align", severity: "warn", summary: "padding=0 combined with an edge-anchored align." },
+  { id: "slide-id-too-long", severity: "warn", summary: "Slide id exceeds 64 chars." },
+  { id: "decor-on-non-content", severity: "warn", summary: "decor:'code' on quote/poll/qa slide." },
+  { id: "image-caption-too-long", severity: "warn", summary: "Image caption exceeds 160 chars." },
+  { id: "deck-version-mismatch", severity: "warn", summary: "deck.version differs from the current schema version." },
 ];
 
 /** Sum of all positive slide budgets, in seconds. */
@@ -684,6 +690,20 @@ export function deckRuntimeSeconds(deck: Deck): number {
     0,
   );
 }
+
+/** True if any slide in the deck has at least one focus region. */
+export function deckHasFocus(deck: Deck): boolean {
+  return deck.slides.some((s) => Array.isArray(s.focus) && s.focus.length > 0);
+}
+
+/** Group lint issues by rule id (insertion-ordered). */
+export function groupIssuesByRule(issues: LintIssue[]): Record<string, LintIssue[]> {
+  const out: Record<string, LintIssue[]> = {};
+  for (const i of issues) (out[i.rule] ??= []).push(i);
+  return out;
+}
+
+
 
 
 
