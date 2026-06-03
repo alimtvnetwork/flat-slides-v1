@@ -300,13 +300,11 @@ export function lintDeck(deck: Deck): LintIssue[] {
           } else {
             stepSeen.add(r.step);
           }
-        }
-
-      for (const r of s.focus) {
-        if (typeof r.step === "number" && (r.step < 1 || (steps > 0 && r.step > steps))) {
-          push(s, i, "focus-step-out-of-range",
-            `Focus region targets step ${r.step}, but slide has ${steps || "no"} step${steps === 1 ? "" : "s"}.`,
-            "warn");
+          if (r.step < 1 || (steps > 0 && r.step > steps)) {
+            push(s, i, "focus-step-out-of-range",
+              `Focus region targets step ${r.step}, but slide has ${steps || "no"} step${steps === 1 ? "" : "s"}.`,
+              "warn");
+          }
         }
         if (r.w <= 0 || r.h <= 0 || r.x < 0 || r.y < 0) {
           push(s, i, "focus-rect-invalid",
@@ -319,6 +317,7 @@ export function lintDeck(deck: Deck): LintIssue[] {
         }
       }
     }
+
 
     // Padding & budget sanity.
     if (typeof s.padding === "number" && (s.padding < 0 || s.padding > 400)) {
