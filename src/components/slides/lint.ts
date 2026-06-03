@@ -282,6 +282,11 @@ export function lintDeck(deck: Deck): LintIssue[] {
       push(s, i, "budget-too-long",
         `budget=${s.budget}s (>10 min) is unusually long for a single slide — split or revisit.`, "warn");
     }
+    if (typeof s.budget === "number" && s.budget > 0 && s.budget < 5) {
+      push(s, i, "budget-too-short",
+        `budget=${s.budget}s (<5s) is too short — pacing badge will flash by; aim for ≥10s.`, "warn");
+    }
+
 
     // Background URL must be https:// when remote.
     if (typeof s.background === "string" && /^http:\/\//i.test(s.background)) {
