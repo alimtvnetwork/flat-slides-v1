@@ -344,10 +344,15 @@ export function lintDeck(deck: Deck): LintIssue[] {
       push(s, i, "budget-too-long",
         `budget=${s.budget}s (>10 min) is unusually long for a single slide — split or revisit.`, "warn");
     }
+    if (typeof s.budget === "number" && s.budget > 0 && s.budget < 5) {
+      push(s, i, "budget-too-short",
+        `budget=${s.budget}s (<5s) is too short — pacing badge will flash by; aim for ≥10s.`, "warn");
+    }
     if (typeof s.budget === "number" && s.budget > 0 && !Number.isInteger(s.budget)) {
       push(s, i, "budget-non-integer",
         `budget=${s.budget}s should be a whole-second integer for predictable pacing UI.`, "warn");
     }
+
     if (s.padding === 0 && typeof s.align === "string"
         && (s.align.startsWith("top-") || s.align.startsWith("bottom-")
             || s.align.endsWith("-left") || s.align.endsWith("-right"))) {
