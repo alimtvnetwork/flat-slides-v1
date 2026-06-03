@@ -342,11 +342,17 @@ export function lintDeck(deck: Deck): LintIssue[] {
         break;
       }
       case "timeline":
+        if (!Array.isArray(s.items) || s.items.length === 0)
+          push(s, i, "timeline-no-items", "Timeline slide has no items — the rail will be empty.", "error");
         if (s.items.length > 6) push(s, i, "timeline-too-many", `${s.items.length} milestones (max 6 recommended)`);
         if (s.items.some((it) => !it.label?.trim())) push(s, i, "timeline-empty-item", "Timeline item is missing a label", "error");
         if (s.items.every((it) => !it.detail || richLen(it.detail) === 0))
           push(s, i, "timeline-no-detail", "No timeline item has detail text — centre area will be empty");
+        if (s.items.some((it) => it.detail && richLen(it.detail) > 120))
+          push(s, i, "timeline-item-too-long",
+            "A timeline item's detail exceeds 120 characters — trim so the rail stays readable.", "warn");
         break;
+
       case "center":
         if (richLen(s.heading) === 0) push(s, i, "heading-empty", "Center slide is missing a heading", "error");
         if (richLen(s.heading) > 80) push(s, i, "heading-too-long", "Center heading is very long for a hero slide");
