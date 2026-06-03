@@ -577,6 +577,18 @@ export const LINT_RULES: ReadonlyArray<{ id: string; severity: LintSeverity; sum
   { id: "quote-too-short", severity: "warn", summary: "Quote shorter than 20 characters." },
   { id: "poll-empty-option", severity: "error", summary: "Poll has an empty/whitespace option." },
   { id: "embed-untrusted-host", severity: "warn", summary: "Embed URL host is not in the known-safe iframe list." },
+  { id: "deck-no-theme", severity: "warn", summary: "Deck has no themeId — falls back to default theme." },
+  { id: "title-too-long", severity: "warn", summary: "Slide title >80 chars (truncates in badge/grid)." },
+  { id: "budget-too-short", severity: "warn", summary: "Slide budget <5s (badge flashes by)." },
+  { id: "bullets-no-bullets", severity: "error", summary: "Bullets slide has empty bullets array." },
+  { id: "steps-no-steps", severity: "error", summary: "Steps slide has empty steps array." },
+  { id: "timeline-no-items", severity: "error", summary: "Timeline slide has empty items array." },
+  { id: "timeline-item-too-long", severity: "warn", summary: "A timeline item detail >120 chars." },
+  { id: "poll-duplicate-option", severity: "warn", summary: "Poll has duplicate option labels." },
+  { id: "qa-not-last", severity: "warn", summary: "Q&A slide isn't the last slide in the deck." },
+  { id: "image-src-missing", severity: "error", summary: "Image slide has empty src." },
+
+
 
 ];
 
