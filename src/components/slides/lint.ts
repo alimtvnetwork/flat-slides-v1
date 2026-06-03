@@ -100,6 +100,25 @@ export function lintDeck(deck: Deck): LintIssue[] {
     }
   }
 
+  // Deck-level: darken/blur sliders should be in [0, 1].
+  const anchor0 = deck.slides[0];
+  if (anchor0) {
+    const d = deck.settings.darken;
+    if (typeof d === "number" && (d < 0 || d > 1))
+      push(anchor0, 0, "darken-out-of-range",
+        `Deck darken=${d} is outside [0, 1] — overlay will clamp.`, "warn");
+    const b = deck.settings.blur;
+    if (typeof b === "number" && (b < 0 || b > 1))
+      push(anchor0, 0, "blur-out-of-range",
+        `Deck blur=${b} is outside [0, 1] — backdrop-filter will clamp.`, "warn");
+    const bg = deck.settings.backgroundColor;
+    if (deck.settings.backgroundMode === "color" && typeof bg === "string"
+        && bg.trim() && !/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(bg.trim()))
+      push(anchor0, 0, "backgroundColor-not-hex",
+        `Deck backgroundColor "${bg}" is not a #rgb / #rrggbb hex — contrast lint can't verify.`, "warn");
+  }
+
+
   // Deck-level music sanity (B18).
   if (deck.music?.url && !/^https:\/\//i.test(deck.music.url) && !deck.music.url.startsWith("/")) {
     const anchor = deck.slides[0];
