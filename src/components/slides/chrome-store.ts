@@ -87,6 +87,8 @@ export interface ChromeStore {
   setNotesPeekOpen: (v: boolean) => void;
   toggleNotesPeek: () => void;
   setLastUsedThemeId: (id: string | null) => void;
+  clearLastUsedThemeId: () => void;
+
   pushRecentJump: (n: number) => void;
   clearRecentJumps: () => void;
   setRecentJumps: (jumps: number[]) => void;
