@@ -121,6 +121,15 @@ export function lintDeck(deck: Deck): LintIssue[] {
         `Deck backgroundColor "${bg}" is not a #rgb / #rrggbb hex — contrast lint can't verify.`, "warn");
   }
 
+  // Deck-level: schema version mismatch — usually a stale import.
+  if (anchor0 && typeof deck.version === "number" && deck.version !== DECK_SCHEMA_VERSION) {
+    push(anchor0, 0, "deck-version-mismatch",
+      `Deck version ${deck.version} does not match current schema ${DECK_SCHEMA_VERSION} — re-export or migrate.`,
+      "warn");
+  }
+
+
+
 
   // Deck-level music sanity (B18).
   if (deck.music?.url && !/^https:\/\//i.test(deck.music.url) && !deck.music.url.startsWith("/")) {
