@@ -332,10 +332,29 @@ export function lintDeck(deck: Deck): LintIssue[] {
       push(s, i, "budget-too-long",
         `budget=${s.budget}s (>10 min) is unusually long for a single slide — split or revisit.`, "warn");
     }
-    if (typeof s.budget === "number" && s.budget > 0 && s.budget < 5) {
-      push(s, i, "budget-too-short",
-        `budget=${s.budget}s (<5s) is too short — pacing badge will flash by; aim for ≥10s.`, "warn");
+    if (typeof s.budget === "number" && s.budget > 0 && !Number.isInteger(s.budget)) {
+      push(s, i, "budget-non-integer",
+        `budget=${s.budget}s should be a whole-second integer for predictable pacing UI.`, "warn");
     }
+    if (s.padding === 0 && typeof s.align === "string"
+        && (s.align.startsWith("top-") || s.align.startsWith("bottom-")
+            || s.align.endsWith("-left") || s.align.endsWith("-right"))) {
+      push(s, i, "padding-zero-edge-align",
+        `padding=0 with edge-anchored align "${s.align}" will clip against the canvas edge.`, "warn");
+    }
+    if (s.id && s.id.length > 64) {
+      push(s, i, "slide-id-too-long",
+        `Slide id is ${s.id.length} chars — keep ≤64 for URL/export readability.`, "warn");
+    }
+    if (s.decor === "code" && (s.type === "quote" || s.type === "poll" || s.type === "qa")) {
+      push(s, i, "decor-on-non-content",
+        `decor:"code" on a ${s.type} slide adds visual noise — reserve for content/timeline/steps slides.`, "warn");
+    }
+    if (s.type === "image" && s.caption && richLen(s.caption) > 160) {
+      push(s, i, "image-caption-too-long",
+        `Image caption is ${richLen(s.caption)} chars (>160) — trim or move to a left/text slide.`, "warn");
+    }
+
 
 
     // Background URL must be https:// when remote.
