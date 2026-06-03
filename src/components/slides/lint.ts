@@ -527,6 +527,14 @@ export const LINT_RULES: ReadonlyArray<{ id: string; severity: LintSeverity; sum
   { id: "slide-sound-url-invalid", severity: "error", summary: "Per-slide sound.url is empty or not a string." },
   { id: "slide-sound-url-not-https", severity: "warn", summary: "Per-slide sound.url must be https:// or absolute path." },
   { id: "slide-sound-volume-out-of-range", severity: "warn", summary: "Per-slide sound.volume outside [0, 1]." },
+  { id: "deck-runtime-too-long", severity: "warn", summary: "Sum of slide budgets exceeds 60 min." },
+  { id: "quote-first-slide", severity: "warn", summary: "First slide is a quote — weak opener." },
+  { id: "deck-theme-unknown", severity: "warn", summary: "Deck themeId does not match any built-in theme." },
+  { id: "slide-theme-unknown", severity: "warn", summary: "Slide themeId does not match any built-in theme." },
+  { id: "quote-too-short", severity: "warn", summary: "Quote shorter than 20 characters." },
+  { id: "poll-empty-option", severity: "error", summary: "Poll has an empty/whitespace option." },
+  { id: "embed-untrusted-host", severity: "warn", summary: "Embed URL host is not in the known-safe iframe list." },
+
 ];
 
 /** Pure deck stats — counts by slide type plus totals. Used by overview UIs and analytics. */
