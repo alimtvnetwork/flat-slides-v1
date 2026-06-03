@@ -100,6 +100,25 @@ export function lintDeck(deck: Deck): LintIssue[] {
     }
   }
 
+  // Deck-level: darken/blur sliders should be in [0, 1].
+  const anchor0 = deck.slides[0];
+  if (anchor0) {
+    const d = deck.settings.darken;
+    if (typeof d === "number" && (d < 0 || d > 1))
+      push(anchor0, 0, "darken-out-of-range",
+        `Deck darken=${d} is outside [0, 1] — overlay will clamp.`, "warn");
+    const b = deck.settings.blur;
+    if (typeof b === "number" && (b < 0 || b > 1))
+      push(anchor0, 0, "blur-out-of-range",
+        `Deck blur=${b} is outside [0, 1] — backdrop-filter will clamp.`, "warn");
+    const bg = deck.settings.backgroundColor;
+    if (deck.settings.backgroundMode === "color" && typeof bg === "string"
+        && bg.trim() && !/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(bg.trim()))
+      push(anchor0, 0, "backgroundColor-not-hex",
+        `Deck backgroundColor "${bg}" is not a #rgb / #rrggbb hex — contrast lint can't verify.`, "warn");
+  }
+
+
   // Deck-level music sanity (B18).
   if (deck.music?.url && !/^https:\/\//i.test(deck.music.url) && !deck.music.url.startsWith("/")) {
     const anchor = deck.slides[0];
@@ -175,6 +194,10 @@ export function lintDeck(deck: Deck): LintIssue[] {
   for (let i = 0; i < deck.slides.length; i++) {
     const s = deck.slides[i];
     if (typeof s.number !== "number") continue;
+    if (s.number < 0 || !Number.isFinite(s.number)) {
+      push(s, i, "slide-number-negative",
+        `Slide.number=${s.number} must be a non-negative finite integer.`, "warn");
+    }
     const prior = seen.get(s.number);
     if (prior) {
       push(s, i, "number-collision", `Authored number ${s.number} duplicates slide "${prior}"`, "warn");
@@ -182,6 +205,18 @@ export function lintDeck(deck: Deck): LintIssue[] {
       seen.set(s.number, s.title || s.id);
     }
   }
+
+  // Consecutive slides with the same explicit themeId override are redundant —
+  // hoist to deck.themeId or remove the second override.
+  for (let i = 1; i < deck.slides.length; i++) {
+    const prev = deck.slides[i - 1];
+    const cur = deck.slides[i];
+    if (cur.themeId && prev.themeId && cur.themeId === prev.themeId) {
+      push(cur, i, "theme-consecutive-redundant",
+        `Slide themeId "${cur.themeId}" matches the previous slide — set deck.themeId instead.`, "warn");
+    }
+  }
+
 
   // Duplicate slide.id check — IDs are the persistence key, collisions break navigation.
   const idSeen = new Map<string, number>();
@@ -248,14 +283,28 @@ export function lintDeck(deck: Deck): LintIssue[] {
         "warn");
     }
 
+    if (typeof s.notes === "string" && s.notes.length > 500) {
+      push(s, i, "notes-too-long",
+        `Speaker notes are ${s.notes.length} chars (>500) — split into shorter cues for stage reading.`, "warn");
+    }
+
     // Focus region step bound check — `step` must be 1..slideStepCount(slide).
     const steps = slideStepCount(s);
     if (Array.isArray(s.focus)) {
+      const stepSeen = new Set<number>();
       for (const r of s.focus) {
-        if (typeof r.step === "number" && (r.step < 1 || (steps > 0 && r.step > steps))) {
-          push(s, i, "focus-step-out-of-range",
-            `Focus region targets step ${r.step}, but slide has ${steps || "no"} step${steps === 1 ? "" : "s"}.`,
-            "warn");
+        if (typeof r.step === "number") {
+          if (stepSeen.has(r.step)) {
+            push(s, i, "focus-step-duplicate",
+              `Two focus regions target step ${r.step} — only the first will activate.`, "error");
+          } else {
+            stepSeen.add(r.step);
+          }
+          if (r.step < 1 || (steps > 0 && r.step > steps)) {
+            push(s, i, "focus-step-out-of-range",
+              `Focus region targets step ${r.step}, but slide has ${steps || "no"} step${steps === 1 ? "" : "s"}.`,
+              "warn");
+          }
         }
         if (r.w <= 0 || r.h <= 0 || r.x < 0 || r.y < 0) {
           push(s, i, "focus-rect-invalid",
@@ -268,6 +317,7 @@ export function lintDeck(deck: Deck): LintIssue[] {
         }
       }
     }
+
 
     // Padding & budget sanity.
     if (typeof s.padding === "number" && (s.padding < 0 || s.padding > 400)) {
@@ -587,10 +637,24 @@ export const LINT_RULES: ReadonlyArray<{ id: string; severity: LintSeverity; sum
   { id: "poll-duplicate-option", severity: "warn", summary: "Poll has duplicate option labels." },
   { id: "qa-not-last", severity: "warn", summary: "Q&A slide isn't the last slide in the deck." },
   { id: "image-src-missing", severity: "error", summary: "Image slide has empty src." },
-
-
-
+  { id: "darken-out-of-range", severity: "warn", summary: "Deck darken outside [0, 1]." },
+  { id: "blur-out-of-range", severity: "warn", summary: "Deck blur outside [0, 1]." },
+  { id: "backgroundColor-not-hex", severity: "warn", summary: "Deck backgroundColor isn't a hex value." },
+  { id: "slide-number-negative", severity: "warn", summary: "Authored slide.number is negative or non-finite." },
+  { id: "theme-consecutive-redundant", severity: "warn", summary: "Adjacent slides share the same themeId override." },
+  { id: "notes-too-long", severity: "warn", summary: "Speaker notes exceed 500 chars." },
+  { id: "focus-step-duplicate", severity: "error", summary: "Two focus regions target the same step." },
 ];
+
+/** Sum of all positive slide budgets, in seconds. */
+export function deckRuntimeSeconds(deck: Deck): number {
+  return deck.slides.reduce(
+    (n, s) => n + (typeof s.budget === "number" && s.budget > 0 ? s.budget : 0),
+    0,
+  );
+}
+
+
 
 /** Pure deck stats — counts by slide type plus totals. Used by overview UIs and analytics. */
 export function deckStats(deck: Deck): {
