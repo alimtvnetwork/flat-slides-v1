@@ -17,8 +17,8 @@ describe("PresenterFallbackLink", () => {
     render(<PresenterFallbackLink />);
 
     const link = screen.getByRole("link", { name: /open presenter window/i });
-    expect(link).toHaveAttribute("href", "http://localhost/slides/4?present=1");
-    expect(screen.getByRole("status")).toHaveTextContent("Presenter popup was blocked");
+    expect(link.getAttribute("href")).toBe("http://localhost/slides/4?present=1");
+    expect(screen.getByRole("status").textContent).toContain("Presenter popup was blocked");
   });
 
   it("copies the fallback URL and can be dismissed", async () => {
