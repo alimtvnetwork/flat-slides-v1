@@ -41,12 +41,14 @@ export function useSlideNavigation() {
           to: "/slides/$slideId/$step",
           params: { slideId: String(clamped), step: String(step) },
           search: search as never,
+          replace: true,
         });
       } else {
         navigate({
           to: "/slides/$slideId",
           params: { slideId: String(clamped) },
           search: search as never,
+          replace: true,
         });
       }
     },
