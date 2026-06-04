@@ -218,6 +218,31 @@ export function SettingsDrawer({
             <button type="button" onClick={cycleCameraSize} className="rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700">Cycle size</button>
             <button type="button" onClick={cycleCameraAnchor} className="rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700">Move corner</button>
           </div>
+          <div className="flex gap-2">
+            {(["color", "image"] as const).map((mode) => (
+              <button
+                key={mode}
+                type="button"
+                onClick={() => setCamera({ backgroundMode: mode })}
+                className={`flex-1 rounded px-3 py-1 text-sm capitalize ${camera.backgroundMode === mode ? "bg-neutral-700 text-white" : "bg-neutral-800 text-neutral-400 hover:text-white"}`}
+              >
+                Camera {mode}
+              </button>
+            ))}
+          </div>
+          <input
+            type="color"
+            value={camera.backgroundColor}
+            onChange={(e) => setCamera({ backgroundMode: "color", backgroundColor: e.target.value })}
+            className="h-9 w-full rounded bg-neutral-800"
+          />
+          <input
+            type="url"
+            value={camera.backgroundImage}
+            onChange={(e) => setCamera({ backgroundMode: "image", backgroundImage: e.target.value })}
+            placeholder="https://… camera background image"
+            className="w-full rounded bg-neutral-800 px-3 py-2 text-sm text-neutral-100 outline-none ring-1 ring-neutral-700 placeholder:text-neutral-500 focus:ring-neutral-400"
+          />
         </section>
 
         <section className="mb-6 space-y-2">
