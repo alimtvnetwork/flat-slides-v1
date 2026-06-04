@@ -34,6 +34,8 @@ describe("/slides/print", () => {
     expect(pages.length).toBeGreaterThan(0);
     // Each page must have an aria-label (the slide title).
     pages.forEach((p) => expect(p.getAttribute("aria-label")).toBeTruthy());
+    expect(screen.getByText("Ready to export").closest("[data-print-hide]")).toBeTruthy();
+    expect(screen.getByText("Press Cmd/Ctrl + P, then choose Save as PDF.")).toBeTruthy();
     expect(screen).toBeTruthy();
   });
 });

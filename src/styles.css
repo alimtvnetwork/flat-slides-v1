@@ -276,6 +276,27 @@
 
 .print-deck { background: #000; }
 
+.print-notice {
+  position: fixed;
+  z-index: 50;
+  right: 16px;
+  top: 16px;
+  display: flex;
+  max-width: min(420px, calc(100vw - 32px));
+  flex-direction: column;
+  gap: 4px;
+  border: 1px solid color-mix(in oklab, var(--foreground) 18%, transparent);
+  border-radius: 8px;
+  background: color-mix(in oklab, var(--background) 92%, transparent);
+  color: var(--foreground);
+  padding: 12px 14px;
+  font-size: 13px;
+  line-height: 1.35;
+  box-shadow: 0 12px 32px color-mix(in oklab, var(--foreground) 14%, transparent);
+}
+
+.print-notice span { color: color-mix(in oklab, var(--foreground) 72%, transparent); }
+
 .print-page {
   position: relative;
   width: 100vw;
