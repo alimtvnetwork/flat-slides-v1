@@ -250,11 +250,8 @@ function SlidePage() {
   );
 
   return (
-    <div
-      data-slide-presenter-root
-      className={`${isFs ? "fixed inset-0 z-[200]" : "h-dvh"} flex overflow-hidden flex-col bg-black`}
-    >
-      <div className="relative min-h-0 flex-1">
+    <PresenterShell isFullscreen={isFs}>
+      <SlideStageShell>
         <div
           style={{ opacity: scene === "cam-only" ? 0.05 : scene === "split" ? 0.75 : 1, transition: "opacity 300ms ease" }}
           className="absolute inset-0"
@@ -266,10 +263,11 @@ function SlidePage() {
           </ScaledSlide>
         </div>
         {surfaces}
-      </div>
+      </SlideStageShell>
       {controller}
       <CameraBubble />
       <PresenterToast />
+      <PresenterFallbackLink />
       <PresenterAutoStart />
       {settingsOpen && (
         <Suspense fallback={null}>
@@ -297,6 +295,6 @@ function SlidePage() {
         </Suspense>
       )}
       {!isFs && <PresenterTools index={index} total={total} deck={deck} />}
-    </div>
+    </PresenterShell>
   );
 }
