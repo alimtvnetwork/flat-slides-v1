@@ -31,7 +31,10 @@ describe("slide fullscreen target", () => {
     const stableRoot = document.createElement("div");
     stableRoot.setAttribute("data-slides-fullscreen-root", "");
     document.body.append(stableRoot);
-    vi.spyOn(document, "fullscreenElement", "get").mockReturnValue(stableRoot);
+    Object.defineProperty(document, "fullscreenElement", {
+      configurable: true,
+      get: () => stableRoot,
+    });
 
     expect(getSlidesPortalRoot()).toBe(stableRoot);
   });
