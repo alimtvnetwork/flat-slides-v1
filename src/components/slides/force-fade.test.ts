@@ -39,4 +39,27 @@ describe("forceFadeTransition", () => {
     forceFadeTransition(legacy);
     expect((legacy.settings as unknown as { transition: string }).transition).toBe("camera-zoom");
   });
+
+  it("repairs the persisted bundled focus demo rectangle that could not visibly zoom", () => {
+    const persisted = {
+      ...baseDeck,
+      slides: [
+        {
+          id: "focus-demo",
+          type: "steps",
+          title: "Focus Regions Demo",
+          heading: "Camera focus regions",
+          steps: [
+            { label: "Step 1", detail: ["One"] },
+            { label: "Step 2", detail: ["Two"] },
+          ],
+          focus: [{ step: 2, x: 80, y: 80, w: 760, h: 920, duration: 700, label: "Label column" }],
+        },
+      ],
+    } as Deck;
+
+    const repaired = forceFadeTransition(persisted);
+    expect(repaired.slides[0].focus?.[0]).toMatchObject({ step: 2, x: 80, y: 180, w: 760, h: 640 });
+    expect(persisted.slides[0].focus?.[0]).toMatchObject({ y: 80, h: 920 });
+  });
 });

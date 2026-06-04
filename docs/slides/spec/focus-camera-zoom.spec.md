@@ -38,6 +38,9 @@ explicit full-slide zoom request fail before it can render.
 - Authored focus rectangles that are too large for the canvas plus safe margin
   cannot zoom visibly; demo/test deck regions must leave enough width and height
   for a target scale greater than `1`.
+- Persisted copies of the bundled demo deck may keep the old non-zooming
+  rectangle, so the store must repair that exact legacy focus rectangle without
+  dropping the user's persisted deck.
 - `SlideTransition` is fade-only and ignores deck settings.
 - `TransitionKind`, `DeckSettingsSchema`, `forceFadeTransition`, and Settings
   allow only `"fade"`, so `"camera-zoom"` cannot survive import or UI changes.
