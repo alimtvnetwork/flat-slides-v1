@@ -19,7 +19,7 @@ describe("slide fullscreen target", () => {
     useChrome.setState({ presenterFallback: null, toast: null });
   });
 
-  it("prefers the stable slides root over transient child targets", async () => {
+  it("uses the document element as the native target so route remounts cannot exit fullscreen", async () => {
     const stableRoot = document.createElement("div");
     stableRoot.setAttribute("data-slides-fullscreen-root", "");
     const transientSlide = document.createElement("button");
@@ -27,23 +27,26 @@ describe("slide fullscreen target", () => {
 
     const stableRequest = vi.fn().mockResolvedValue(undefined);
     const transientRequest = vi.fn().mockResolvedValue(undefined);
+    const documentRequest = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(stableRoot, "requestFullscreen", { value: stableRequest });
     Object.defineProperty(transientSlide, "requestFullscreen", { value: transientRequest });
+    Object.defineProperty(document.documentElement, "requestFullscreen", { configurable: true, value: documentRequest });
 
     await enterFullscreen(transientSlide);
 
-    expect(stableRequest).toHaveBeenCalledOnce();
+    expect(documentRequest).toHaveBeenCalledOnce();
+    expect(stableRequest).not.toHaveBeenCalled();
     expect(transientRequest).not.toHaveBeenCalled();
     expect(getSlidesFullscreenRoot()).toBe(stableRoot);
   });
 
-  it("ports fullscreen UI into the native fullscreen element", () => {
+  it("ports fullscreen UI into the stable slides root even when the document element is fullscreen", () => {
     const stableRoot = document.createElement("div");
     stableRoot.setAttribute("data-slides-fullscreen-root", "");
     document.body.append(stableRoot);
     Object.defineProperty(document, "fullscreenElement", {
       configurable: true,
-      get: () => stableRoot,
+      get: () => document.documentElement,
     });
 
     expect(getSlidesPortalRoot()).toBe(stableRoot);
