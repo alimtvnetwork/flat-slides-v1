@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
 function blurActiveElement() {
   if (typeof document === "undefined") return;
@@ -14,20 +14,29 @@ function blurActiveElement() {
 
 /** Tracks whether the document is currently in Fullscreen mode and provides toggles. */
 export function useFullscreen() {
-  const [isFs, setIsFs] = useState(() => (typeof document === "undefined" ? false : Boolean(document.fullscreenElement)));
-
-  useEffect(() => {
-    const onChange = () => {
-      setIsFs(Boolean(document.fullscreenElement));
-      blurActiveElement();
-    };
-    onChange();
-    document.addEventListener("fullscreenchange", onChange);
-    return () => document.removeEventListener("fullscreenchange", onChange);
-  }, []);
+  const isFs = useSyncExternalStore(
+    (notify) => {
+      if (typeof document === "undefined") return () => {};
+      const sync = () => {
+        blurActiveElement();
+        notify();
+      };
+      document.addEventListener("fullscreenchange", sync);
+      window.addEventListener("focus", sync);
+      document.addEventListener("visibilitychange", sync);
+      return () => {
+        document.removeEventListener("fullscreenchange", sync);
+        window.removeEventListener("focus", sync);
+        document.removeEventListener("visibilitychange", sync);
+      };
+    },
+    () => (typeof document === "undefined" ? false : Boolean(document.fullscreenElement)),
+    () => false,
+  );
 
   const enter = async (target?: HTMLElement | null) => {
     try {
+      if (document.fullscreenElement) return;
       await (target ?? document.documentElement).requestFullscreen();
       blurActiveElement();
     } catch { /* ignore */ }
@@ -38,7 +47,7 @@ export function useFullscreen() {
       blurActiveElement();
     } catch { /* ignore */ }
   };
-  const toggle = (target?: HTMLElement | null) => (isFs ? exit() : enter(target));
+  const toggle = (target?: HTMLElement | null) => (document.fullscreenElement ? exit() : enter(target));
 
   return { isFs, enter, exit, toggle };
 }
