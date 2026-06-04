@@ -16,7 +16,7 @@ export type TextPosition =
 
 /**
  * A focus region targets a rectangle inside the 1920×1080 slide canvas.
- * The camera "zooms" so this rect fills the viewport (preserving aspect).
+ * Legacy focus rectangle coordinates in the 1920×1080 slide space.
  */
 export interface FocusRegion {
   /** Top-left x in 1920-px slide space. */
@@ -57,7 +57,7 @@ export interface BaseSlide {
    */
   number?: number;
   /**
-   * Optional per-slide focus regions (Ken-Burns / "camera-zoom" into a rect).
+   * Optional per-slide focus regions retained for editor compatibility.
    * Coordinates are in the 1920×1080 slide space. When `step` is set the
    * region activates on that 1-based step; otherwise it activates on every
    * step. The first matching region wins. Empty/undefined ⇒ full frame.
