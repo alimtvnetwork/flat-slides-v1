@@ -19,7 +19,7 @@ Owner: slides module. Source of truth for the "Present" (enter fullscreen) flow.
 | `document.fullscreenElement` already set | no-op | `{ ok: true, mode: "already-fullscreen" }` |
 | Embedded (`window.self !== window.top`) + popup allowed | open `?present=1` in top window | `{ ok: true, mode: "presenter-window" }` |
 | Embedded + popup blocked | toast "Allow pop-ups…" | `{ ok: false, reason: "embedded-popup-blocked" }` |
-| Top-level, fullscreen supported | `requestFullscreen(stableRoot)` + `keyboard.lock(["Escape"])` | `{ ok: true, mode: "native" }` |
+| Top-level, fullscreen supported | `requestFullscreen(document.documentElement)` + `keyboard.lock(["Escape"])` | `{ ok: true, mode: "native" }` |
 | Top-level, `requestFullscreen` rejects | toast "Fullscreen blocked…" | `{ ok: false, reason: "native-failed", error }` |
 | `fullscreenEnabled === false` | toast | `{ ok: false, reason: "unsupported" }` |
 
@@ -29,7 +29,8 @@ Owner: slides module. Source of truth for the "Present" (enter fullscreen) flow.
 - If the popup is blocked, the app keeps the presenter on the current slide and shows a persistent fallback panel with the exact top-level presenter URL. The panel MUST provide both a normal click target and copy support because browsers may allow user-initiated links even when scripted popups are blocked.
 
 ## Presenter shell containment
-- The `/slides` layout owns the stable native fullscreen target (`data-slides-fullscreen-root`). It must be viewport-sized and clipped at all times, and when it is the browser `:fullscreen` element it must be `fixed inset-0` with `100vw × 100dvh` sizing.
+- The browser native fullscreen target is `document.documentElement`, not a React route node. This avoids browser fullscreen exit if TanStack route params remount slide children during `/slides/N` → `/slides/N/S` navigation.
+- The `/slides` layout owns the stable visual fullscreen shell (`data-slides-fullscreen-root`). It must be viewport-sized and clipped at all times, and while any ancestor is `:fullscreen` it must be `fixed inset-0` with `100vw × 100dvh` sizing.
 - The slide route owns a single viewport-sized presenter shell (`data-slide-presenter-root`). It must be `fixed inset-0` in native fullscreen and `h-dvh` in normal route view.
 - The stage, transition layer, and camera layer all clip to that shell (`overflow-hidden`, no min-content height expansion). The 1920×1080 canvas is scaled only inside `.slide-wrapper`; no parent transition may apply scale/zoom.
 - The stable fullscreen target remains mounted across `/slides/N` and `/slides/N/S` navigation. Slide/step navigation and camera zoom must not remove, resize, or overflow the native fullscreen target; browser fullscreen must remain active until the presenter explicitly exits.
