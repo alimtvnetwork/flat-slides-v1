@@ -1,8 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useLocation } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
 import { RenderSlide } from "@/components/slides/RenderSlide";
 import { ScaledSlide } from "@/components/slides/ScaledSlide";
+import { parseExportPaper } from "@/components/slides/exportPaper";
 import { useDeck } from "@/components/slides/store";
 import { slideStepCount } from "@/components/slides/types";
 
@@ -18,22 +19,24 @@ export const Route = createFileRoute("/slides/print")({
 
 function SlidesPrintPage() {
   const slides = useDeck((s) => s.deck.slides).filter((s) => s.enabled !== false);
+  const location = useLocation();
   const [autoPrint, setAutoPrint] = useState(false);
+  const paper = parseExportPaper(location.searchStr);
 
   // If the user lands here via the SettingsDrawer "Export as PDF" entry,
   // `?auto=1` triggers the browser print dialog once the layout settles.
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(location.searchStr);
     const shouldAutoPrint = params.get("auto") === "1";
     setAutoPrint(shouldAutoPrint);
     if (!shouldAutoPrint) return;
     const t = window.setTimeout(() => window.print(), 600);
     return () => window.clearTimeout(t);
-  }, []);
+  }, [location.searchStr]);
 
   return (
-    <main className="print-deck">
+    <main className="print-deck" data-paper={paper}>
       <PrintInstructionNotice auto={autoPrint} />
       {slides.map((slide) => {
         // Show the final step of step-aware slides so reveals are visible in print.

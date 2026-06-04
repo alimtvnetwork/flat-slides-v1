@@ -2,6 +2,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 
 import { useChrome } from "./chrome-store";
+import { exportUrl } from "./exportPaper";
 import { downloadAnnotations } from "./exportAnnotations";
 import { downloadRehearsalReport } from "./exportRehearsal";
 import { useDeck } from "./store";
@@ -40,11 +41,11 @@ export function CommandPalette({ open, onClose, slides, onOpenSettings, onPresen
       { id: "act-export-rehearsal", label: "Export rehearsal report", hint: "⌘E", run: () => downloadRehearsalReport(deckTitle) },
       { id: "act-export-annotations", label: "Export annotations (JSON)", hint: "⌘⇧E", run: downloadAnnotations },
       { id: "act-export-pdf", label: "Export deck as PDF", hint: "↗",
-        run: () => window.open("/slides/print?auto=1", "_blank", "noopener,noreferrer") },
+        run: () => window.open(exportUrl("/slides/print", "wide"), "_blank", "noopener,noreferrer") },
       { id: "act-export-handout", label: "Export speaker handout (PDF)", hint: "↗",
-        run: () => window.open("/slides/handout?auto=1", "_blank", "noopener,noreferrer") },
+        run: () => window.open(exportUrl("/slides/handout", "wide"), "_blank", "noopener,noreferrer") },
       { id: "act-export-handout-3up", label: "Export 3-up handout (PDF)", hint: "↗",
-        run: () => window.open("/slides/handout-3up?auto=1", "_blank", "noopener,noreferrer") },
+        run: () => window.open(exportUrl("/slides/handout-3up", "wide"), "_blank", "noopener,noreferrer") },
       { id: "act-open-guideline", label: "Open LLM JSON Guideline (spec)", hint: "↗",
         run: () => {
           const url = new URL("/docs/slides/spec/llm-json-guideline.md", window.location.origin).toString();

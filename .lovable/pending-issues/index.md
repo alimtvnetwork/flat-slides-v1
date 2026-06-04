@@ -64,4 +64,13 @@
 
 - [x] CommandPalette surfaces "Export deck as PDF", "Export speaker handout", and "Export 3-up handout" (open `?auto=1` in new tab).
 
+## Active: Export paper-size selection (spec: `docs/slides/spec/export-paper-size.spec.md`)
+
+- [x] Shared export paper helper parses `paper=wide|letter|a4` with safe fallback.
+- [x] `/slides/print`, `/slides/handout`, and `/slides/handout-3up` apply `data-paper` to root export containers.
+- [x] CSS named pages and custom properties support Wide, Letter, and A4 landscape export geometry.
+- [x] SettingsDrawer exposes Wide / Letter / A4 controls for each export type.
+- [x] CommandPalette keeps quick exports as Wide/default exports.
+- [x] Regression tests cover helper parsing, URL generation, and route-level paper application.
+
 

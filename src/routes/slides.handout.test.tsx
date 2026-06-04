@@ -25,7 +25,7 @@ describe("/slides/handout", () => {
     });
     const router = createRouter({
       routeTree: rootRoute.addChildren([route]),
-      history: createMemoryHistory({ initialEntries: ["/slides/handout"] }),
+      history: createMemoryHistory({ initialEntries: ["/slides/handout?paper=a4"] }),
     });
     render(<RouterProvider router={router} />);
     await new Promise((r) => setTimeout(r, 0));
@@ -34,6 +34,7 @@ describe("/slides/handout", () => {
     const pages = document.querySelectorAll(".handout-page");
     expect(pages.length).toBe(enabled.length);
     expect(pages.length).toBeGreaterThan(0);
+    expect(document.querySelector(".handout-deck")?.getAttribute("data-paper")).toBe("a4");
 
     // First page must carry the "Slide 1" label.
     expect(screen.getAllByText(/Slide 1/i).length).toBeGreaterThan(0);
