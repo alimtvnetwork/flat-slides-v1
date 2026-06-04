@@ -1,7 +1,6 @@
 import { useSyncExternalStore } from "react";
 
 import { useChrome } from "./chrome-store";
-import { getSlidesFullscreenRoot } from "./fullscreenTarget";
 
 type KeyboardLockNavigator = Navigator & {
   keyboard?: {
@@ -95,7 +94,6 @@ export async function enterFullscreen(target?: HTMLElement | null, environment: 
     return opened ? { ok: true, mode: "presenter-window" } : { ok: false, reason: "embedded-popup-blocked" };
   }
 
-  getSlidesFullscreenRoot();
   // Fullscreening a React-owned route node is fragile: browsers exit native
   // fullscreen if that element is removed/replaced during param navigation.
   // The document element survives `/slides/N` → `/slides/N/S` route changes,
