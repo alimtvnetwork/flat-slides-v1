@@ -10,23 +10,35 @@ const focusedSlide = {
   type: "steps" as const,
   title: "Focus",
   heading: "Focus",
-  steps: [{ label: "One", detail: ["One"] }],
-  focus: [{ x: 100, y: 100, w: 400, h: 300, step: 1 }],
+  steps: [{ label: "One", detail: ["One"] }, { label: "Two", detail: ["Two"] }],
+  focus: [{ x: 100, y: 100, w: 400, h: 300, step: 2 }],
 };
 
-describe("disabled zoom effects", () => {
+describe("opt-in focus zoom effects", () => {
   afterEach(() => {
     useDeck.getState().resetDeck();
   });
 
-  it("CameraStage does not scale slides even when focus regions exist", () => {
+  it("CameraStage does not scale slides before a step-bound focus region is active", () => {
     render(
       <CameraStage slide={focusedSlide} step={1}>
         <div data-testid="slide-body" />
       </CameraStage>,
     );
 
-    expect(screen.getByTestId("slide-body").parentElement?.style.transform).toBe("");
+    expect(screen.getByTestId("slide-body").parentElement?.style.transform).toBe("translate3d(0px, 0px, 0) scale(1)");
+  });
+
+  it("CameraStage zooms when the active 1-based step has a focus region", () => {
+    render(
+      <CameraStage slide={focusedSlide} step={2}>
+        <div data-testid="slide-body" />
+      </CameraStage>,
+    );
+
+    const transform = screen.getByTestId("slide-body").parentElement?.style.transform;
+    expect(transform).toContain("scale(2.195)");
+    expect(transform).not.toBe("translate3d(0px, 0px, 0) scale(1)");
   });
 
   it("rejects legacy imported non-fade deck transitions", () => {
