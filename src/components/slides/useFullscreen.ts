@@ -1,5 +1,7 @@
 import { useSyncExternalStore } from "react";
 
+import { getSlidesFullscreenRoot } from "./fullscreenTarget";
+
 function blurActiveElement() {
   if (typeof document === "undefined") return;
   const blur = () => {
@@ -37,7 +39,7 @@ export function useFullscreen() {
   const enter = async (target?: HTMLElement | null) => {
     try {
       if (document.fullscreenElement) return;
-      await (target ?? document.documentElement).requestFullscreen();
+      await (target ?? getSlidesFullscreenRoot() ?? document.documentElement).requestFullscreen();
       blurActiveElement();
     } catch { /* ignore */ }
   };
