@@ -18,6 +18,10 @@ export interface CameraState {
   mirror: boolean;
   /** Apply a chroma-key style mix-blend; cheap visual stand-in for greenscreen. */
   greenScreen: boolean;
+  /** Backplate shown behind camera video / permission states. */
+  backgroundMode: "color" | "image";
+  backgroundColor: string;
+  backgroundImage: string;
   /** Hide the bubble while NOT in fullscreen (presenter prefers cam only on stage). */
   fullscreenOnly: boolean;
   /** Auto-frame face via experimental FaceDetector (graceful no-op when unsupported). */
@@ -126,6 +130,9 @@ export const useChrome = create<ChromeStore>()(
         shape: "circle",
         mirror: true,
         greenScreen: false,
+        backgroundMode: "color",
+        backgroundColor: "#050505",
+        backgroundImage: "",
         fullscreenOnly: false,
         autoFrame: false,
       },
