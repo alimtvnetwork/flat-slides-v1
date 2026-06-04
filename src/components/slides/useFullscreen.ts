@@ -96,7 +96,13 @@ export async function enterFullscreen(target?: HTMLElement | null, environment: 
   }
 
   const stableSlidesRoot = getSlidesFullscreenRoot();
-  const fullscreenTarget = stableSlidesRoot ?? target ?? document.documentElement;
+  // Fullscreening a React-owned route node is fragile: browsers exit native
+  // fullscreen if that element is removed/replaced during param navigation.
+  // The document element survives `/slides/N` → `/slides/N/S` route changes,
+  // so use it as the native target and keep the slides root as the visual shell.
+  const fullscreenTarget = document.documentElement.requestFullscreen
+    ? document.documentElement
+    : stableSlidesRoot ?? target ?? document.documentElement;
   if (document.fullscreenEnabled === false) return { ok: false, reason: "unsupported" };
   if (!fullscreenTarget.requestFullscreen) return { ok: false, reason: "unsupported" };
 
