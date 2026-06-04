@@ -247,40 +247,11 @@ function SlidePage() {
     />
   );
 
-  if (isFs) {
-    return (
-      <div className="fixed inset-0 z-[200] flex flex-col overflow-hidden bg-black">
-        <div className="relative min-h-0 flex-1">
-          <div
-            style={{ opacity: scene === "cam-only" ? 0.05 : scene === "split" ? 0.75 : 1, transition: "opacity 300ms ease" }}
-            className="absolute inset-0"
-          >
-            <ScaledSlide fitPadding={36}>
-            <SlideTransition transitionKey={slide.id}>
-
-                <CameraStage slide={slide} step={1}><RenderSlide slide={slide} step={0} /></CameraStage>
-              </SlideTransition>
-            </ScaledSlide>
-          </div>
-          {surfaces}
-        </div>
-        {controller}
-        <CameraBubble />
-        <PresenterToast />
-        <KeyboardShortcutsDialog open={helpOpen} onClose={() => setHelpOpen(false)} />
-        {settingsOpen && (
-          <Suspense fallback={null}>
-            <SettingsDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} currentSlideId={slide.id} />
-          </Suspense>
-        )}
-        <SlideAriaAnnouncer current={current} total={total} title={slide.title} />
-        <PresenterNotesPeek notes={slide.notes} />
-      </div>
-    );
-  }
-
   return (
-    <div className="flex h-dvh overflow-hidden flex-col bg-black">
+    <div
+      data-slide-presenter-root
+      className={`${isFs ? "fixed inset-0 z-[200]" : "h-dvh"} flex overflow-hidden flex-col bg-black`}
+    >
       <div className="relative min-h-0 flex-1">
         <div
           style={{ opacity: scene === "cam-only" ? 0.05 : scene === "split" ? 0.75 : 1, transition: "opacity 300ms ease" }}
@@ -322,7 +293,7 @@ function SlidePage() {
           <LintPanel open={lintOpen} onClose={() => setLintOpen(false)} deck={deck} />
         </Suspense>
       )}
-      <PresenterTools index={index} total={total} deck={deck} />
+      {!isFs && <PresenterTools index={index} total={total} deck={deck} />}
     </div>
   );
 }
