@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { CameraStage } from "./CameraStage";
 import { canUseCameraZoom, resolveSlideTransition } from "./SlideTransition";
 import { useDeck } from "./store";
+import { getActiveFocusRegion } from "./types";
 import { parseDeckJson } from "@/lib/slides/io";
 
 const focusedSlide = {
@@ -32,6 +33,22 @@ describe("opt-in focus zoom effects", () => {
   it("CameraStage does not scale slides before a step-bound focus region is active", () => {
     render(
       <CameraStage slide={focusedSlide} step={1}>
+        <div data-testid="slide-body" />
+      </CameraStage>,
+    );
+
+    expect(screen.getByTestId("slide-body").parentElement?.style.transform).toBe("translate3d(0px, 0px, 0) scale(1)");
+  });
+
+  it("ignores unbound focus regions on step-aware slides so first entry stays full-frame", () => {
+    const unsafeUnboundSlide = {
+      ...focusedSlide,
+      focus: [{ x: 100, y: 100, w: 400, h: 300 }],
+    };
+
+    expect(getActiveFocusRegion(unsafeUnboundSlide, 1)).toBeNull();
+    render(
+      <CameraStage slide={unsafeUnboundSlide} step={1}>
         <div data-testid="slide-body" />
       </CameraStage>,
     );
