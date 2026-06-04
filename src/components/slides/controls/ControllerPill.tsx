@@ -6,6 +6,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 import { useChrome } from "@/components/slides/chrome-store";
+import { getSlidesPortalRoot } from "@/components/slides/fullscreenTarget";
 import { useReducedMotion } from "@/components/slides/useReducedMotion";
 import { cn } from "@/lib/utils";
 
@@ -173,7 +174,7 @@ export function ControllerPill(props: Props) {
     </div>
   );
 
-  return createPortal(node, document.body);
+  return createPortal(node, getSlidesPortalRoot() ?? document.body);
 }
 
 function PillButton({
