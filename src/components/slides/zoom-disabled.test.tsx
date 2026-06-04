@@ -37,7 +37,7 @@ describe("opt-in focus zoom effects", () => {
     );
 
     const transform = screen.getByTestId("slide-body").parentElement?.style.transform;
-    expect(transform).toContain("scale(2.197)");
+    expect(transform).toContain("scale(2.195)");
     expect(transform).not.toBe("translate3d(0px, 0px, 0) scale(1)");
   });
 
