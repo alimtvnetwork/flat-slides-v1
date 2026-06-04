@@ -21,6 +21,7 @@ import { DotPagination } from "@/components/slides/controls/DotPagination";
 import { KeyboardShortcutsDialog } from "@/components/slides/controls/KeyboardShortcutsDialog";
 import { PresenterToast } from "@/components/slides/controls/PresenterToast";
 import { PresenterAutoStart } from "@/components/slides/controls/PresenterAutoStart";
+import { PresenterFallbackLink } from "@/components/slides/controls/PresenterFallbackLink";
 import { PresenterTopBar } from "@/components/slides/controls/PresenterTopBar";
 import { SlideNumberBadge } from "@/components/slides/controls/SlideNumberBadge";
 import { RenderSlide } from "@/components/slides/RenderSlide";
@@ -31,6 +32,7 @@ const SettingsDrawer = lazy(() =>
 );
 import { PresenterNotesPeek } from "@/components/slides/controls/PresenterNotesPeek";
 import { SlideAriaAnnouncer } from "@/components/slides/controls/SlideAriaAnnouncer";
+import { PresenterShell, SlideStageShell } from "@/components/slides/PresenterShell";
 import { SlideTransition } from "@/components/slides/SlideTransition";
 import { getDisplayNumber, slideStepCount } from "@/components/slides/types";
 import { useFullscreen } from "@/components/slides/useFullscreen";
