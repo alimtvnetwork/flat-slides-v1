@@ -268,6 +268,7 @@ function SlidePage() {
       {controller}
       <CameraBubble />
       <PresenterToast />
+      <PresenterAutoStart />
       {settingsOpen && (
         <Suspense fallback={null}>
           <SettingsDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} currentSlideId={slide.id} />
