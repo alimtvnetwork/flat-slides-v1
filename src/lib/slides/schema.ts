@@ -174,7 +174,7 @@ export const DeckSettingsSchema = z.object({
   backgroundImage: z.string().max(4096).optional(),
   darken: z.number().min(0).max(100),
   blur: z.number().min(0).max(20),
-  transition: z.literal("fade"),
+  transition: z.enum(["fade", "camera-zoom"]),
   soundEnabled: z.boolean(),
   volume: z.number().min(0).max(1),
 });

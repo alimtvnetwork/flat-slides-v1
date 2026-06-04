@@ -19,7 +19,7 @@
 
 - [x] 1. Unify background rendering — `ThemeWrap` + `resolveBackground()` is the single pipeline (theme → deck → per-slide → image mode).
 - [x] 2. Wire darken + blur — dedicated bg layer with `filter: blur(Npx)` + `rgba(0,0,0,darken/100)` overlay, rendered in normal and fullscreen.
-- [x] 3. Separate transition zoom from camera/focus zoom — `SlideTransition` is fade-only; `CameraStage` is identity; deck-level camera-zoom no longer stacks with per-step focus.
+- [x] 3. Separate transition zoom from camera/focus zoom — `camera-zoom` is opt-in, never default, and falls back to fade for steps/timeline/focus slides; `CameraStage` handles focus-region zoom.
 - [x] 4. Step focus indexing — both routes pass 1-based step to `CameraStage`/`getActiveFocusRegion`, 0-based to `RenderSlide`. Covered by `focus-region.test.ts`.
 - [x] 5. Fullscreen stage clipping — `.slide-wrapper` uses `overflow:hidden; isolation:isolate; contain: layout paint`; shared `PresenterShell` clips viewport. Covered by `presenterShell.test.tsx`.
 - [x] 6. Proposal example with right-side image — `sample-deck.json` has `media` on a `left` slide.

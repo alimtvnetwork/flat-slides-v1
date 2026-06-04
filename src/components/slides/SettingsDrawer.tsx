@@ -34,7 +34,7 @@ import { useDeck } from "./store";
 import { DEFAULT_THEME_ID, THEMES } from "./themes";
 import type { TransitionKind } from "./types";
 
-const TRANSITIONS: TransitionKind[] = ["fade"];
+const TRANSITIONS: TransitionKind[] = ["fade", "camera-zoom"];
 
 const PALETTE_PRESETS = ["#101010", "#000000", "#1d1d1d", "#0c2340", "#1b0d1f", "#f5f0e6"];
 const EXPORT_PAPER_LABELS: Record<ExportPaper, string> = { wide: "Wide", letter: "Letter", a4: "A4" };
@@ -280,7 +280,7 @@ export function SettingsDrawer({
             <ArrowLeftRight size={12} /> Transition
           </label>
           <select
-            value="fade"
+            value={settings.transition}
             onChange={(e) => setSettings({ transition: e.target.value as TransitionKind })}
             className="w-full rounded bg-neutral-800 px-2 py-1 text-sm"
           >

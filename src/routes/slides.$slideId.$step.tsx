@@ -49,6 +49,7 @@ export const Route = createFileRoute("/slides/$slideId/$step")({
 function SlideStepPage() {
   const { slideId, step } = Route.useParams();
   const navigate = useNavigate();
+  const deck = useDeck((s) => s.deck);
   const { linearSlides, total, next, prev, jump, goTo } = useSlideNavigation();
   const index = Math.max(0, (parseInt(slideId, 10) || 0) - 1);
   const slide = index >= 0 && index < linearSlides.length ? linearSlides[index] : undefined;
@@ -247,7 +248,7 @@ function SlideStepPage() {
   const slideStage = (
     <div style={{ opacity: slideOpacity, transition: "opacity 300ms ease" }} className="absolute inset-0">
       <ScaledSlide fitPadding={36}>
-        <SlideTransition transitionKey={slide.id}>
+        <SlideTransition transitionKey={slide.id} transitionKind={deck.settings.transition} slide={slide}>
           <CameraStage slide={slide} step={stepNum + 1}><RenderSlide slide={slide} step={stepNum} /></CameraStage>
         </SlideTransition>
       </ScaledSlide>

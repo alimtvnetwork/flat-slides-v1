@@ -67,19 +67,19 @@ Controls the deck-wide background, transition, and audio. **All keys except
   "backgroundImage": null,          // OR a URL / data: URI, ≤4096 chars
   "darken": 30,                     // 0..100  — image overlay opacity %
   "blur":   0,                      // 0..20   — image blur in px
-  "transition": "fade",             // only "fade" is rendered today
+  "transition": "fade",             // "fade" default; "camera-zoom" is opt-in
   "soundEnabled": true,             // master mute (whoosh + click)
   "volume": 0.6                      // 0..1
 }
 ```
 
-**Transitions — only `"fade"` ships.** The schema accepts legacy values
-(`"morph"`, `"camera-zoom"`, `"eaten"`) for backwards-compat with old decks
-but normalizes every value to `"fade"` on import. Do not author any other
-value — it will be silently rewritten and the UI exposes only `"fade"`.
+**Transitions.** `"fade"` is the default. `"camera-zoom"` is available only as
+an explicit hero/title-slide opt-in. The runtime resolves it back to fade for
+`steps`, `timeline`, and slides with `focus` regions so deck-level zoom never
+stacks with per-step camera motion.
 
 **Defaults to use unless the deck calls for otherwise:**
-- `transition: "fade"` — always.
+- `transition: "fade"` — default for normal decks.
 - `soundEnabled: true`, `volume: 0.6`.
 
 ---

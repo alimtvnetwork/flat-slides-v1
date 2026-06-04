@@ -142,7 +142,7 @@ const defaultDeck: Deck = {
 };
 
 export function forceFadeTransition(deck: Deck): Deck {
-  if (deck.settings.transition === "fade") return deck;
+  if (deck.settings.transition === "fade" || deck.settings.transition === "camera-zoom") return deck;
   return { ...deck, settings: { ...deck.settings, transition: "fade" } };
 }
 
