@@ -6,9 +6,10 @@ import { cn } from "@/lib/utils";
 
 const Drawer = ({
   shouldScaleBackground = true,
+  container,
   ...props
 }: React.ComponentProps<typeof DrawerPrimitive.Root>) => (
-  <DrawerPrimitive.Root shouldScaleBackground={shouldScaleBackground} {...props} />
+  <DrawerPrimitive.Root shouldScaleBackground={shouldScaleBackground} container={getSlidesPortalRoot() ?? container} {...props} />
 );
 Drawer.displayName = "Drawer";
 
