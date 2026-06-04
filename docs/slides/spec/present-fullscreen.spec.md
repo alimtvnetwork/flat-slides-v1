@@ -29,9 +29,10 @@ Owner: slides module. Source of truth for the "Present" (enter fullscreen) flow.
 - If the popup is blocked, the app keeps the presenter on the current slide and shows a persistent fallback panel with the exact top-level presenter URL. The panel MUST provide both a normal click target and copy support because browsers may allow user-initiated links even when scripted popups are blocked.
 
 ## Presenter shell containment
+- The `/slides` layout owns the stable native fullscreen target (`data-slides-fullscreen-root`). It must be viewport-sized and clipped at all times, and when it is the browser `:fullscreen` element it must be `fixed inset-0` with `100vw × 100dvh` sizing.
 - The slide route owns a single viewport-sized presenter shell (`data-slide-presenter-root`). It must be `fixed inset-0` in native fullscreen and `h-dvh` in normal route view.
 - The stage, transition layer, and camera layer all clip to that shell (`overflow-hidden`, no min-content height expansion). The 1920×1080 canvas is scaled only inside `.slide-wrapper`; no parent transition may apply scale/zoom.
-- The stable fullscreen target remains the `/slides` layout root (`data-slides-fullscreen-root`), but visible presenter content is clipped by `data-slide-presenter-root` so browser fullscreen never exposes extra document content.
+- The stable fullscreen target remains mounted across `/slides/N` and `/slides/N/S` navigation. Slide/step navigation and camera zoom must not remove, resize, or overflow the native fullscreen target; browser fullscreen must remain active until the presenter explicitly exits.
 
 ## Escape contract
 - Escape clears the active annotation tool. It does NOT exit fullscreen.
@@ -41,6 +42,7 @@ Owner: slides module. Source of truth for the "Present" (enter fullscreen) flow.
 - `src/components/slides/fullscreenTarget.test.ts` — unit coverage for stable root, embedded fallback, popup-blocked, and native-failed branches.
 - `src/components/slides/controls/PresenterFallbackLink.test.tsx` — popup-blocked fallback panel coverage.
 - `src/components/slides/presenterShell.test.tsx` — shell/stage containment regression coverage.
+- `src/routes/slides.spec.tsx` — route layout regression coverage for the stable clipped fullscreen target.
 - `e2e/fullscreen-present.spec.ts` — Playwright: direct route enters native fullscreen; embedded iframe opens a top-level presenter window.
 
 ## Remaining work (post-spec)

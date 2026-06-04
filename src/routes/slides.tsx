@@ -6,7 +6,7 @@ export const Route = createFileRoute("/slides")({
 
 function SlidesLayout() {
   return (
-    <div data-slides-fullscreen-root className="min-h-dvh bg-black">
+    <div data-slides-fullscreen-root className="relative h-dvh w-full overflow-hidden bg-black">
       <Outlet />
     </div>
   );
