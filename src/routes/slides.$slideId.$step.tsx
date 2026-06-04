@@ -98,6 +98,7 @@ function SlideStepPage() {
     const onKey = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement)?.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA" || (e.target as HTMLElement)?.isContentEditable) return;
+      if (settingsOpen || helpOpen) return;
       if ((e.metaKey || e.ctrlKey) && (e.key === "e" || e.key === "E")) {
         e.preventDefault();
         if (e.shiftKey) { void import("@/components/slides/exportAnnotations").then((m) => m.downloadAnnotations()); }
@@ -172,7 +173,7 @@ function SlideStepPage() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [slide, stepCount, stepNum, current, next, prev, goTo, isFs, toggleFs, exitFs, toggleTopJumper, toggleCamera, cycleCameraSize, toggleMusic, cycleScene, navigate]);
+  }, [slide, stepCount, stepNum, current, next, prev, goTo, isFs, toggleFs, exitFs, toggleTopJumper, toggleCamera, cycleCameraSize, toggleMusic, cycleScene, navigate, settingsOpen, helpOpen]);
 
   if (!slide || slideStepCount(slide) === 0) {
     return (
@@ -182,9 +183,24 @@ function SlideStepPage() {
     );
   }
 
+  const goPrevStepAware = () => {
+    if (stepNum > 0) {
+      const target = stepNum;
+      if (target <= 1) goTo(current, "backward");
+      else goTo(current, "backward", target);
+    } else {
+      prev(current);
+    }
+  };
+  const goNextStepAware = () => {
+    const last = stepCount - 1;
+    if (stepNum < last) goTo(current, "forward", stepNum + 2);
+    else next(current);
+  };
+
   const surfaces = (
     <>
-      <PresenterTopBar current={current} total={total} onPrev={() => prev(current)} onNext={() => next(current)} />
+      <PresenterTopBar current={current} total={total} onPrev={goPrevStepAware} onNext={goNextStepAware} />
       <DotPagination current={current} total={total} slides={linearSlides} onJump={jump} />
       <SlideNumberBadge current={current} total={total} display={slide ? getDisplayNumber(slide, current) : undefined} />
       <AnnotationLayer slideId={slide.id} />
@@ -209,20 +225,8 @@ function SlideStepPage() {
     <ControllerPill
       current={current}
       total={total}
-      onPrev={() => {
-        if (stepNum > 0) {
-          const target = stepNum;
-          if (target <= 1) goTo(current, "backward");
-          else goTo(current, "backward", target);
-        } else {
-          prev(current);
-        }
-      }}
-      onNext={() => {
-        const last = stepCount - 1;
-        if (stepNum < last) goTo(current, "forward", stepNum + 2);
-        else next(current);
-      }}
+      onPrev={goPrevStepAware}
+      onNext={goNextStepAware}
       onJump={jump}
       onOpenGrid={() => navigate({ to: "/slides" })}
       onToggleFullscreen={toggleFs}

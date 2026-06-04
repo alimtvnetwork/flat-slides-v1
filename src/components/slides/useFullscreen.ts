@@ -10,13 +10,13 @@ export function useFullscreen() {
     return () => document.removeEventListener("fullscreenchange", onChange);
   }, []);
 
-  const enter = async () => {
-    try { await document.documentElement.requestFullscreen(); } catch { /* ignore */ }
+  const enter = async (target?: HTMLElement | null) => {
+    try { await (target ?? document.documentElement).requestFullscreen(); } catch { /* ignore */ }
   };
   const exit = async () => {
     try { if (document.fullscreenElement) await document.exitFullscreen(); } catch { /* ignore */ }
   };
-  const toggle = () => (isFs ? exit() : enter());
+  const toggle = (target?: HTMLElement | null) => (isFs ? exit() : enter(target));
 
   return { isFs, enter, exit, toggle };
 }

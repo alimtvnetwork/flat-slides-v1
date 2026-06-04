@@ -7,9 +7,9 @@ import { useReducedMotion } from "./useReducedMotion";
 function fadeTransition(): { variants: Variants; transition: Transition } {
   return {
     variants: {
-      initial: { opacity: 0, y: 12 },
-      animate: { opacity: 1, y: 0 },
-      exit:    { opacity: 0, y: -12 },
+      initial: { opacity: 0 },
+      animate: { opacity: 1 },
+      exit:    { opacity: 0 },
     },
     transition: { duration: 0.3, ease: "easeOut" },
   };
@@ -36,10 +36,7 @@ export function SlideTransition({ transitionKey, children }: Props) {
   }, [transitionKey]);
 
   return (
-    <div
-      className="absolute inset-0 overflow-hidden"
-      style={{ perspective: "var(--slide-perspective)", transformStyle: "preserve-3d" }}
-    >
+    <div className="absolute inset-0 overflow-hidden">
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
           key={transitionKey}
@@ -49,7 +46,7 @@ export function SlideTransition({ transitionKey, children }: Props) {
           exit="exit"
           transition={tx}
           className="absolute inset-0"
-          style={{ transformStyle: "preserve-3d", willChange: "transform, opacity, filter" }}
+          style={{ willChange: "opacity" }}
         >
           {children}
         </motion.div>

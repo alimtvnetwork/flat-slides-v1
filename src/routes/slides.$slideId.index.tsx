@@ -109,6 +109,7 @@ function SlidePage() {
     const onKey = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement)?.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA" || (e.target as HTMLElement)?.isContentEditable) return;
+      if (settingsOpen || paletteOpen || lintOpen || helpOpen) return;
       if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === "l") {
         e.preventDefault(); setLintOpen((o) => !o); return;
       }
@@ -179,7 +180,7 @@ function SlidePage() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [slide, current, next, prev, goTo, isFs, toggleFs, exitFs, toggleTopJumper, toggleCamera, cycleCameraSize, toggleMusic, cycleScene, navigate]);
+  }, [slide, current, next, prev, goTo, isFs, toggleFs, exitFs, toggleTopJumper, toggleCamera, cycleCameraSize, toggleMusic, cycleScene, navigate, settingsOpen, paletteOpen, lintOpen, helpOpen]);
 
   if (!slide) {
     return (
@@ -192,9 +193,15 @@ function SlidePage() {
     );
   }
 
+  const goPrevStepAware = () => prev(current);
+  const goNextStepAware = () => {
+    if (slideStepCount(slide) > 1) goTo(current, "forward", 2);
+    else next(current);
+  };
+
   const surfaces = (
     <>
-      <PresenterTopBar current={current} total={total} onPrev={() => prev(current)} onNext={() => next(current)} />
+      <PresenterTopBar current={current} total={total} onPrev={goPrevStepAware} onNext={goNextStepAware} />
       <DotPagination current={current} total={total} slides={linearSlides} onJump={jump} />
       <SlideNumberBadge current={current} total={total} display={slide ? getDisplayNumber(slide, current) : undefined} />
       <AnnotationLayer slideId={slide.id} />
@@ -224,11 +231,8 @@ function SlidePage() {
     <ControllerPill
       current={current}
       total={total}
-      onPrev={() => prev(current)}
-      onNext={() => {
-        if (slideStepCount(slide) > 1) goTo(current, "forward", 2);
-        else next(current);
-      }}
+      onPrev={goPrevStepAware}
+      onNext={goNextStepAware}
       onJump={jump}
       onOpenGrid={() => navigate({ to: "/slides" })}
       onToggleFullscreen={toggleFs}
