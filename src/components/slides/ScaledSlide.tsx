@@ -8,7 +8,7 @@ type Props = { children: ReactNode; className?: string; fitPadding?: number };
  */
 export function ScaledSlide({ children, className, fitPadding = 0 }: Props) {
   const stageRef = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(1);
+  const [scale, setScale] = useState<number | null>(null);
 
   useLayoutEffect(() => {
     const el = stageRef.current;
@@ -35,7 +35,13 @@ export function ScaledSlide({ children, className, fitPadding = 0 }: Props) {
 
   return (
     <div ref={stageRef} className={`slide-stage ${className ?? ""}`}>
-      <div className="slide-wrapper" style={{ ["--scale" as string]: String(scale) }}>
+      <div
+        className="slide-wrapper"
+        style={{
+          ["--scale" as string]: String(scale ?? 1),
+          visibility: scale === null ? "hidden" : "visible",
+        }}
+      >
         {children}
       </div>
     </div>
