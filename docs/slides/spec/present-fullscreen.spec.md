@@ -42,7 +42,7 @@ Owner: slides module. Source of truth for the "Present" (enter fullscreen) flow.
 - `src/components/slides/fullscreenTarget.test.ts` — unit coverage for stable root, embedded fallback, popup-blocked, and native-failed branches.
 - `src/components/slides/controls/PresenterFallbackLink.test.tsx` — popup-blocked fallback panel coverage.
 - `src/components/slides/presenterShell.test.tsx` — shell/stage containment regression coverage.
-- `src/routes/slides.spec.tsx` — route layout regression coverage for the stable clipped fullscreen target.
+- `src/routes/slides-layout.test.tsx` — route layout regression coverage for the stable clipped fullscreen target.
 - `e2e/fullscreen-present.spec.ts` — Playwright: direct route enters native fullscreen; embedded iframe opens a top-level presenter window.
 
 ## Remaining work (post-spec)
