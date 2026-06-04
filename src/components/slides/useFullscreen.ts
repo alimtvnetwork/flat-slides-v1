@@ -35,8 +35,15 @@ export function getPresenterWindowUrl() {
 
 export function openPresenterWindow() {
   if (typeof window === "undefined") return null;
-  const opened = window.open(getPresenterWindowUrl(), "_blank", "noopener,noreferrer");
-  opened?.focus?.();
+  const opened = window.open(getPresenterWindowUrl(), "_blank");
+  if (opened) {
+    try {
+      opened.opener = null;
+    } catch {
+      /* ignore */
+    }
+    opened.focus?.();
+  }
   return opened;
 }
 
