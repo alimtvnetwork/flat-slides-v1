@@ -3,8 +3,8 @@ import { type ReactNode } from "react";
 import { type Slide } from "./types";
 
 interface Props {
-  slide: Slide;
-  step: number;
+  slide?: Slide;
+  step?: number;
   children: ReactNode;
 }
 
