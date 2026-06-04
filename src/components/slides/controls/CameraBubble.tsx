@@ -15,6 +15,8 @@ import { cn } from "@/lib/utils";
 
 import { CameraPlate } from "./CameraPlate";
 
+const CAMERA_BUTTON_CLASS = "flex h-6 w-6 items-center justify-center rounded-full bg-black/85 text-white shadow-md ring-1 ring-white/35 hover:bg-black hover:ring-white";
+
 // "split" blows the bubble up next to the slide; "stage-fill" takes over the entire viewport.
 const SIZES = { sm: 144, md: 200, lg: 280 } as const;
 const SCENE_SCALE: Record<string, number> = { normal: 1, split: 1.6, "cam-only": 2.4, "stage-fill": 1 };
@@ -335,14 +337,14 @@ export function CameraBubble() {
         )}
         </div>
 
-      <div className="absolute right-2 top-2 z-20 flex gap-1 opacity-75 transition-opacity hover:opacity-100 group-hover:opacity-100">
+      <div className="absolute right-2 top-2 z-20 flex gap-1 opacity-100">
         <button
           data-camera-control
           type="button"
           title="Mirror"
           aria-label="Toggle mirror"
           onClick={() => setCamera({ mirror: !camera.mirror })}
-          className="rounded-full bg-black/70 p-1.5 text-white/90 hover:bg-black/90"
+          className={CAMERA_BUTTON_CLASS}
         >
           <FlipHorizontal2 size={12} />
         </button>
@@ -354,7 +356,7 @@ export function CameraBubble() {
           aria-pressed={camera.greenScreen}
           onClick={() => setCamera({ greenScreen: !camera.greenScreen })}
           className={cn(
-            "rounded-full bg-black/70 p-1.5 text-white/90 hover:bg-black/90",
+            CAMERA_BUTTON_CLASS,
             camera.greenScreen && "text-emerald-300",
           )}
         >
@@ -369,7 +371,7 @@ export function CameraBubble() {
             aria-pressed={camera.autoFrame}
             onClick={() => setCamera({ autoFrame: !camera.autoFrame })}
             className={cn(
-              "rounded-full bg-black/70 p-1.5 text-white/90 hover:bg-black/90",
+              CAMERA_BUTTON_CLASS,
               camera.autoFrame && "text-sky-300",
             )}
           >
@@ -382,7 +384,7 @@ export function CameraBubble() {
           title="Cycle size (Shift+C)"
           aria-label="Cycle camera size"
           onClick={cycleSize}
-          className="rounded-full bg-black/70 p-1.5 text-white/90 hover:bg-black/90"
+          className={CAMERA_BUTTON_CLASS}
         >
           <Maximize size={12} />
         </button>
@@ -392,7 +394,7 @@ export function CameraBubble() {
           title={`Shape: ${camera.shape} (click to cycle)`}
           aria-label="Cycle camera shape"
           onClick={cycleShape}
-          className="rounded-full bg-black/70 p-1.5 text-white/90 hover:bg-black/90"
+          className={CAMERA_BUTTON_CLASS}
         >
           <ShapeIcon shape={camera.shape} />
         </button>
@@ -402,7 +404,7 @@ export function CameraBubble() {
           title="Picture-in-picture"
           aria-label="Picture in picture"
           onClick={() => void togglePiP()}
-          className="rounded-full bg-black/70 p-1.5 text-white/90 hover:bg-black/90"
+          className={CAMERA_BUTTON_CLASS}
         >
           <PictureInPicture2 size={12} />
         </button>
@@ -412,7 +414,7 @@ export function CameraBubble() {
           title="Move to next corner"
           aria-label="Move camera to next corner"
           onClick={cycleAnchor}
-          className="rounded-full bg-black/70 p-1.5 text-white/90 hover:bg-black/90"
+          className={CAMERA_BUTTON_CLASS}
         >
           <Camera size={12} />
         </button>
@@ -422,7 +424,7 @@ export function CameraBubble() {
           title="Hide"
           aria-label="Hide camera"
           onClick={() => setCamera({ visible: false })}
-          className="rounded-full bg-black/70 p-1.5 text-white/90 hover:bg-black/90"
+          className={CAMERA_BUTTON_CLASS}
         >
           <X size={12} />
         </button>
