@@ -15,13 +15,18 @@
 - [ ] Manual validation in published deployment (popup blockers vary by browser).
 - [ ] Cross-browser popup-blocker validation on Chrome / Safari / Firefox after publish.
 
-### Slide background / camera (unchanged from previous spec)
+### Slide background / camera (spec: `.lovable/memory/diagnostics/01-slide-settings-fullscreen-camera-rca.md`)
 
-1. **Unify background rendering** — one slide background pipeline (theme defaults + deck + per-slide + image mode + darken + blur).
-2. **Wire darken + blur controls** — render from `deck.settings.darken/blur` in normal and fullscreen.
-3. **Separate transition zoom from camera/focus zoom** — prefer fade/morph for slide-to-slide; reserve camera zoom for authored focus regions.
-4. **Fix step focus indexing** — pass 1-based step numbers to `CameraStage` / `getActiveFocusRegion` consistently.
-5. **Harden fullscreen stage clipping** — fixed shell, stage, transition layer, camera layer all clip to the intended viewport without layout shifts.
-6. **Add proposal example with right-side image** — `media` on the right.
-7. **Add camera-friendly proposal/focus example** — focus regions land on intended image/text regions.
-8. **Document final decision** — update `.lovable/memory/diagnostics/01-slide-settings-fullscreen-camera-rca.md` with implemented remedy.
+- [x] 1. Unify background rendering — `ThemeWrap` + `resolveBackground()` is the single pipeline (theme → deck → per-slide → image mode).
+- [x] 2. Wire darken + blur — dedicated bg layer with `filter: blur(Npx)` + `rgba(0,0,0,darken/100)` overlay, rendered in normal and fullscreen.
+- [x] 3. Separate transition zoom from camera/focus zoom — `SlideTransition` is fade-only; `CameraStage` is identity; deck-level camera-zoom no longer stacks with per-step focus.
+- [x] 4. Step focus indexing — both routes pass 1-based step to `CameraStage`/`getActiveFocusRegion`, 0-based to `RenderSlide`. Covered by `focus-region.test.ts`.
+- [x] 5. Fullscreen stage clipping — `.slide-wrapper` uses `overflow:hidden; isolation:isolate; contain: layout paint`; shared `PresenterShell` clips viewport. Covered by `presenterShell.test.tsx`.
+- [x] 6. Proposal example with right-side image — `sample-deck.json` has `media` on a `left` slide.
+- [x] 7. Camera-friendly focus example — `sample-deck.json` has a `steps` slide with per-step `focus` regions.
+- [x] 8. Final RCA documented — `Resolution (B19A)` section records remedies for RC1-RC6.
+
+### Remaining (tracked elsewhere)
+- [ ] Manual validation in published deployment of fullscreen Present across Chrome / Safari / Firefox popup blockers.
+- [ ] Run Playwright e2e (`e2e/fullscreen-present.spec.ts`) in a CI image with Chromium system deps.
+- [ ] In-app hint when `embedded-popup-blocked` is reported, with a right-click-friendly link.
