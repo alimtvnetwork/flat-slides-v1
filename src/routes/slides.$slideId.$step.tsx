@@ -247,7 +247,7 @@ function SlideStepPage() {
   const slideStage = (
     <div style={{ opacity: slideOpacity, transition: "opacity 300ms ease" }} className="absolute inset-0">
       <ScaledSlide fitPadding={36}>
-        <SlideTransition transitionKey={slide.id}>
+        <SlideTransition transitionKey={slide.id} transitionKind={useDeck.getState().deck.settings.transition} slide={slide}>
           <CameraStage slide={slide} step={stepNum + 1}><RenderSlide slide={slide} step={stepNum} /></CameraStage>
         </SlideTransition>
       </ScaledSlide>
