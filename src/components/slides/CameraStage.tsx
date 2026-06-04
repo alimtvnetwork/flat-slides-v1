@@ -1,4 +1,4 @@
-import { type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import { getActiveFocusRegion, type FocusRegion, type Slide } from "./types";
 import { useReducedMotion } from "./useReducedMotion";
@@ -18,14 +18,32 @@ export function CameraStage({ slide, step = 1, children }: Props) {
   const reducedMotion = useReducedMotion();
   const focus = slide ? getActiveFocusRegion(slide, step) : null;
   const frame = focus ? focusTransform(focus) : IDENTITY_FRAME;
+  const [transform, setTransform] = useState(IDENTITY_FRAME.transform);
   const duration = Math.max(0, Math.min(focus?.duration ?? 700, 1200));
+
+  useEffect(() => {
+    if (reducedMotion) {
+      setTransform(frame.transform);
+      return;
+    }
+    if (!focus) {
+      setTransform(IDENTITY_FRAME.transform);
+      return;
+    }
+    setTransform(IDENTITY_FRAME.transform);
+    const frameOne = requestAnimationFrame(() => {
+      const frameTwo = requestAnimationFrame(() => setTransform(frame.transform));
+      return () => cancelAnimationFrame(frameTwo);
+    });
+    return () => cancelAnimationFrame(frameOne);
+  }, [focus, frame.transform, reducedMotion]);
 
   return (
     <div className="absolute inset-0 overflow-hidden">
       <div
         className="absolute inset-0"
         style={{
-          transform: frame.transform,
+          transform,
           transformOrigin: "0 0",
           transition: reducedMotion ? "none" : `transform ${duration}ms cubic-bezier(0.22, 1, 0.36, 1)`,
           willChange: "transform",
