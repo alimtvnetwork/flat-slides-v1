@@ -57,7 +57,7 @@ function SlideStepPage() {
     : 0;
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
-  const { isFs, toggle: toggleFs, exit: exitFs } = useFullscreen();
+  const { isFs, toggle: toggleFs } = useFullscreen();
   const toggleTopJumper = useChrome((s) => s.toggleTopJumper);
   const toggleCamera = useChrome((s) => s.toggleCamera);
   const scene = useChrome((s) => s.scene);
