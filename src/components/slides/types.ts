@@ -215,7 +215,7 @@ export function getActiveFocusRegion(slide: Slide, step: number): FocusRegion | 
   return unbound ?? null;
 }
 
-export type TransitionKind = "fade";
+export type TransitionKind = "fade" | "camera-zoom";
 
 export interface DeckSettings {
   backgroundMode: "color" | "image";
