@@ -97,6 +97,8 @@ export interface ChromeStore {
   scene: Scene;
   /** Brief toast text — used by routes to flash a scene/preset notice. */
   toast: { text: string; ts: number } | null;
+  /** Persistent manual fallback shown when the browser blocks scripted presenter popups. */
+  presenterFallback: { url: string; reason: "popup-blocked" | "fullscreen-blocked"; ts: number } | null;
   toggleTopJumper: () => void;
   setTopJumperHidden: (v: boolean) => void;
   setDotPaginationVisible: (v: boolean) => void;
@@ -124,6 +126,8 @@ export interface ChromeStore {
   setScene: (s: Scene) => void;
   cycleScene: () => void;
   flashToast: (text: string) => void;
+  showPresenterFallback: (url: string, reason?: "popup-blocked" | "fullscreen-blocked") => void;
+  clearPresenterFallback: () => void;
 }
 
 export const useChrome = create<ChromeStore>()(
@@ -141,6 +145,7 @@ export const useChrome = create<ChromeStore>()(
       music: { playing: false, volume: 0.4 },
       scene: "normal",
       toast: null,
+      presenterFallback: null,
       toggleTopJumper: () => set((s) => ({ topJumperHidden: !s.topJumperHidden })),
       setTopJumperHidden: (v) => set({ topJumperHidden: v }),
       setDotPaginationVisible: (v) => set({ dotPaginationVisible: v }),
@@ -176,6 +181,9 @@ export const useChrome = create<ChromeStore>()(
           return { scene, toast: { text: `Scene: ${scene}`, ts: Date.now() } };
         }),
       flashToast: (text) => set({ toast: { text, ts: Date.now() } }),
+      showPresenterFallback: (url, reason = "popup-blocked") =>
+        set({ presenterFallback: { url, reason, ts: Date.now() } }),
+      clearPresenterFallback: () => set({ presenterFallback: null }),
     }),
     {
       name: "slides-chrome-v2",
