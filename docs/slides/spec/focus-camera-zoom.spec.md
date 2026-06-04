@@ -13,6 +13,12 @@ Step-to-step navigation had a related failure: React could render the next
 focused step with the previous step's transform for one commit before the
 effect reset it, so the new zoom did not visibly start from full-frame.
 
+The remaining visible failure was in the bundled demo data: slide 9 step 2
+declared a focus rectangle `760×920` with a `96px` safe margin. That target is
+taller than the 1080px canvas after margins (`920 + 192 = 1112`), so the
+fit-to-rect math correctly clamps scale to `1` and the animation has no visible
+zoom.
+
 There is a second blocked path: authored deck transition
 `settings.transition: "camera-zoom"` is rejected by the schema, rewritten by the
 store, hidden from Settings, and ignored by `SlideTransition`. That makes any
@@ -29,6 +35,12 @@ explicit full-slide zoom request fail before it can render.
 - The rendered transform must be keyed by slide + step + focus rectangle. If the
   key changes, the visible transform must synchronously read as identity until
   the after-paint zoom commit runs.
+- Authored focus rectangles that are too large for the canvas plus safe margin
+  cannot zoom visibly; demo/test deck regions must leave enough width and height
+  for a target scale greater than `1`.
+- Persisted copies of the bundled demo deck may keep the old non-zooming
+  rectangle, so the store must repair that exact legacy focus rectangle without
+  dropping the user's persisted deck.
 - `SlideTransition` is fade-only and ignores deck settings.
 - `TransitionKind`, `DeckSettingsSchema`, `forceFadeTransition`, and Settings
   allow only `"fade"`, so `"camera-zoom"` cannot survive import or UI changes.
@@ -62,6 +74,8 @@ explicit full-slide zoom request fail before it can render.
 - Navigating `/slides/N/2` → `/slides/N/3` restarts from full-frame before
   animating into the next rectangle.
 - The same slide does not zoom on `/slides/N/1` unless an unbound region exists.
+- Bundled demo focus regions must resolve to a non-identity zoom on every
+  labelled zoom step.
 - Imported decks with `settings.transition: "camera-zoom"` parse successfully.
 - Unknown legacy transitions such as `"morph"` still normalize to `"fade"`.
 - `SlideTransition` renders camera zoom only when explicitly requested and safe;

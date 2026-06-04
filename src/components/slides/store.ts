@@ -126,7 +126,7 @@ const seedSlides: Slide[] = [
       { label: "Step 3", title: "Zoom focus card", detail: ["Camera frames the ", { text: "focus content" }, " on the right."] },
     ],
     focus: [
-      { step: 2, x: 80, y: 80, w: 760, h: 920, duration: 700, label: "Label column" },
+      { step: 2, x: 80, y: 180, w: 760, h: 640, duration: 700, label: "Label column" },
       { step: 3, x: 880, y: 200, w: 960, h: 680, duration: 700, label: "Focus card" },
     ],
   },
@@ -142,8 +142,30 @@ const defaultDeck: Deck = {
 };
 
 export function forceFadeTransition(deck: Deck): Deck {
-  if (deck.settings.transition === "fade" || deck.settings.transition === "camera-zoom") return deck;
-  return { ...deck, settings: { ...deck.settings, transition: "fade" } };
+  const safeDeck = repairBundledFocusDemo(deck);
+  if (safeDeck.settings.transition === "fade" || safeDeck.settings.transition === "camera-zoom") return safeDeck;
+  return { ...safeDeck, settings: { ...safeDeck.settings, transition: "fade" } };
+}
+
+function repairBundledFocusDemo(deck: Deck): Deck {
+  const index = deck.slides.findIndex((slide) => slide.id === "focus-demo");
+  if (index < 0) return deck;
+  const slide = deck.slides[index];
+  const regions = slide.focus;
+  if (!regions?.some((region) => region.step === 2 && region.x === 80 && region.y === 80 && region.w === 760 && region.h === 920)) {
+    return deck;
+  }
+
+  const slides = [...deck.slides];
+  slides[index] = {
+    ...slide,
+    focus: regions.map((region) =>
+      region.step === 2 && region.x === 80 && region.y === 80 && region.w === 760 && region.h === 920
+        ? { ...region, y: 180, h: 640 }
+        : region,
+    ),
+  };
+  return { ...deck, slides };
 }
 
 function getUsablePersistedDeck(value: unknown): Pick<DeckStore, "deck" | "themeId"> | null {
