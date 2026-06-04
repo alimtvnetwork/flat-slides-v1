@@ -23,4 +23,5 @@ The previous code made this worse by swallowing `requestFullscreen()` failures i
 
 ## Remaining after this spec
 
-- Add browser-level E2E coverage if Playwright or equivalent is introduced; current project only has Vitest/jsdom tests.
+- Browser-level E2E exists in `e2e/fullscreen-present.spec.ts`; local execution still depends on the host image having Chromium system libraries.
+- Final confirmation still requires published-site browser checks because popup-blocker behavior varies by browser and user settings.

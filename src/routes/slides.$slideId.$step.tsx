@@ -21,6 +21,7 @@ import { DotPagination } from "@/components/slides/controls/DotPagination";
 import { KeyboardShortcutsDialog } from "@/components/slides/controls/KeyboardShortcutsDialog";
 import { PresenterToast } from "@/components/slides/controls/PresenterToast";
 import { PresenterAutoStart } from "@/components/slides/controls/PresenterAutoStart";
+import { PresenterFallbackLink } from "@/components/slides/controls/PresenterFallbackLink";
 import { PresenterTopBar } from "@/components/slides/controls/PresenterTopBar";
 import { SlideNumberBadge } from "@/components/slides/controls/SlideNumberBadge";
 import { RenderSlide } from "@/components/slides/RenderSlide";
@@ -31,6 +32,7 @@ const SettingsDrawer = lazy(() =>
 );
 import { PresenterNotesPeek } from "@/components/slides/controls/PresenterNotesPeek";
 import { SlideAriaAnnouncer } from "@/components/slides/controls/SlideAriaAnnouncer";
+import { PresenterShell, SlideStageShell } from "@/components/slides/PresenterShell";
 import { SlideTransition } from "@/components/slides/SlideTransition";
 import { getDisplayNumber, slideStepCount } from "@/components/slides/types";
 import { useFullscreen } from "@/components/slides/useFullscreen";
@@ -253,17 +255,15 @@ function SlideStepPage() {
   );
 
   return (
-    <div
-      data-slide-presenter-root
-      className={`${isFs ? "fixed inset-0 z-[200]" : "h-dvh"} flex overflow-hidden flex-col bg-black`}
-    >
-      <div className="relative min-h-0 flex-1">
+    <PresenterShell isFullscreen={isFs}>
+      <SlideStageShell>
         {slideStage}
         {surfaces}
-      </div>
+      </SlideStageShell>
       {controller}
       <CameraBubble />
       <PresenterToast />
+      <PresenterFallbackLink />
       <PresenterAutoStart />
       <KeyboardShortcutsDialog open={helpOpen} onClose={() => setHelpOpen(false)} />
       {settingsOpen && (
@@ -273,6 +273,6 @@ function SlideStepPage() {
       )}
       <SlideAriaAnnouncer current={current} total={total} step={stepNum + 1} stepCount={stepCount} title={slide.title} />
       <PresenterNotesPeek notes={slide.notes} />
-    </div>
+    </PresenterShell>
   );
 }

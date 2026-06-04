@@ -22,4 +22,11 @@ describe("presenter window URL", () => {
     expect(url.searchParams.get("present")).toBe("1");
     spy.mockRestore();
   });
+
+  it("can build the presenter URL from an explicit href without reading window.location", () => {
+    const url = new URL(fs.getPresenterWindowUrl("http://localhost/slides/5/2?session=abc"));
+    expect(url.pathname).toBe("/slides/5/2");
+    expect(url.searchParams.get("session")).toBe("abc");
+    expect(url.searchParams.get("present")).toBe("1");
+  });
 });

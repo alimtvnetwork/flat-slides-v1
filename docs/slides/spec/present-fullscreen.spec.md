@@ -26,6 +26,12 @@ Owner: slides module. Source of truth for the "Present" (enter fullscreen) flow.
 ## Presenter-window handshake
 - The embedded-fallback opens `${href}?present=1`.
 - The top-level page sees `present=1` and shows a one-tap "Start presenting" overlay (gesture required by the Fullscreen API), then strips `present=1` from the URL once fullscreen succeeds.
+- If the popup is blocked, the app keeps the presenter on the current slide and shows a persistent fallback panel with the exact top-level presenter URL. The panel MUST provide both a normal click target and copy support because browsers may allow user-initiated links even when scripted popups are blocked.
+
+## Presenter shell containment
+- The slide route owns a single viewport-sized presenter shell (`data-slide-presenter-root`). It must be `fixed inset-0` in native fullscreen and `h-dvh` in normal route view.
+- The stage, transition layer, and camera layer all clip to that shell (`overflow-hidden`, no min-content height expansion). The 1920×1080 canvas is scaled only inside `.slide-wrapper`; no parent transition may apply scale/zoom.
+- The stable fullscreen target remains the `/slides` layout root (`data-slides-fullscreen-root`), but visible presenter content is clipped by `data-slide-presenter-root` so browser fullscreen never exposes extra document content.
 
 ## Escape contract
 - Escape clears the active annotation tool. It does NOT exit fullscreen.
@@ -33,6 +39,8 @@ Owner: slides module. Source of truth for the "Present" (enter fullscreen) flow.
 
 ## Regression tests
 - `src/components/slides/fullscreenTarget.test.ts` — unit coverage for stable root, embedded fallback, popup-blocked, and native-failed branches.
+- `src/components/slides/controls/PresenterFallbackLink.test.tsx` — popup-blocked fallback panel coverage.
+- `src/components/slides/presenterShell.test.tsx` — shell/stage containment regression coverage.
 - `e2e/fullscreen-present.spec.ts` — Playwright: direct route enters native fullscreen; embedded iframe opens a top-level presenter window.
 
 ## Remaining work (post-spec)
