@@ -252,30 +252,11 @@ function SlideStepPage() {
     </div>
   );
 
-  if (isFs) {
-    return (
-      <div className="fixed inset-0 z-[200] flex flex-col overflow-hidden bg-black">
-        <div className="relative min-h-0 flex-1">
-          {slideStage}
-          {surfaces}
-        </div>
-        {controller}
-        <CameraBubble />
-        <PresenterToast />
-        <KeyboardShortcutsDialog open={helpOpen} onClose={() => setHelpOpen(false)} />
-        {settingsOpen && (
-          <Suspense fallback={null}>
-            <SettingsDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} currentSlideId={slide.id} />
-          </Suspense>
-        )}
-        <SlideAriaAnnouncer current={current} total={total} step={stepNum + 1} stepCount={stepCount} title={slide.title} />
-        <PresenterNotesPeek notes={slide.notes} />
-      </div>
-    );
-  }
-
   return (
-    <div className="flex h-dvh overflow-hidden flex-col bg-black">
+    <div
+      data-slide-presenter-root
+      className={`${isFs ? "fixed inset-0 z-[200]" : "h-dvh"} flex overflow-hidden flex-col bg-black`}
+    >
       <div className="relative min-h-0 flex-1">
         {slideStage}
         {surfaces}
