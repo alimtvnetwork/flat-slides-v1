@@ -25,13 +25,14 @@ describe("/slides/print", () => {
     });
     const router = createRouter({
       routeTree: rootRoute.addChildren([printRoute]),
-      history: createMemoryHistory({ initialEntries: ["/slides/print"] }),
+      history: createMemoryHistory({ initialEntries: ["/slides/print?paper=letter"] }),
     });
     render(<RouterProvider router={router} />);
     // Wait a tick for router match.
     await new Promise((r) => setTimeout(r, 0));
     const pages = document.querySelectorAll(".print-page");
     expect(pages.length).toBeGreaterThan(0);
+    expect(document.querySelector(".print-deck")?.getAttribute("data-paper")).toBe("letter");
     // Each page must have an aria-label (the slide title).
     pages.forEach((p) => expect(p.getAttribute("aria-label")).toBeTruthy());
     expect(screen.getByText("Ready to export").closest("[data-print-hide]")).toBeTruthy();
