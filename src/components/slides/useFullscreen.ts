@@ -15,6 +15,14 @@ function blurActiveElement() {
 }
 
 /** Tracks whether the document is currently in Fullscreen mode and provides toggles. */
+export async function enterFullscreen(target?: HTMLElement | null) {
+  if (document.fullscreenElement) return;
+  const stableSlidesRoot = getSlidesFullscreenRoot();
+  const fullscreenTarget = stableSlidesRoot ?? target ?? document.documentElement;
+  await fullscreenTarget.requestFullscreen();
+  blurActiveElement();
+}
+
 export function useFullscreen() {
   const isFs = useSyncExternalStore(
     (notify) => {
@@ -38,9 +46,7 @@ export function useFullscreen() {
 
   const enter = async (target?: HTMLElement | null) => {
     try {
-      if (document.fullscreenElement) return;
-      await (target ?? getSlidesFullscreenRoot() ?? document.documentElement).requestFullscreen();
-      blurActiveElement();
+      await enterFullscreen(target);
     } catch { /* ignore */ }
   };
   const exit = async () => {
