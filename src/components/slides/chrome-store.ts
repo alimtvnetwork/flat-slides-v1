@@ -49,6 +49,23 @@ const SHAPE_ORDER: CameraShape[] = ["circle", "squircle", "rect"];
 export const nextShape = (s: CameraShape): CameraShape =>
   SHAPE_ORDER[(SHAPE_ORDER.indexOf(s) + 1) % SHAPE_ORDER.length];
 
+const DEFAULT_CAMERA: CameraState = {
+  visible: false,
+  anchor: "bottom-right",
+  offsetX: 0,
+  offsetY: 0,
+  size: "md",
+  customSize: null,
+  shape: "circle",
+  mirror: true,
+  greenScreen: false,
+  backgroundMode: "color",
+  backgroundColor: "#050505",
+  backgroundImage: "",
+  fullscreenOnly: false,
+  autoFrame: false,
+};
+
 /**
  * Transient chrome / surface visibility state. Persisted so a presenter's
  * choices survive a refresh, but never exported with the deck JSON.
@@ -120,22 +137,7 @@ export const useChrome = create<ChromeStore>()(
       notesPeekOpen: false,
       lastUsedThemeId: null,
       recentJumps: [],
-      camera: {
-        visible: false,
-        anchor: "bottom-right",
-        offsetX: 0,
-        offsetY: 0,
-        size: "md",
-        customSize: null,
-        shape: "circle",
-        mirror: true,
-        greenScreen: false,
-        backgroundMode: "color",
-        backgroundColor: "#050505",
-        backgroundImage: "",
-        fullscreenOnly: false,
-        autoFrame: false,
-      },
+      camera: { ...DEFAULT_CAMERA },
       music: { playing: false, volume: 0.4 },
       scene: "normal",
       toast: null,
@@ -189,6 +191,15 @@ export const useChrome = create<ChromeStore>()(
         music: { ...s.music, playing: false },
         scene: s.scene,
       }),
+      merge: (persisted, current) => {
+        const state = persisted as Partial<ChromeStore> | undefined;
+        return {
+          ...current,
+          ...state,
+          camera: { ...DEFAULT_CAMERA, ...(state?.camera ?? current.camera), visible: false },
+          music: { ...current.music, ...(state?.music ?? current.music), playing: false },
+        };
+      },
     },
   ),
 );
