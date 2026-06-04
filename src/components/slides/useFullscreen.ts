@@ -28,9 +28,10 @@ export function isEmbeddedWindow() {
   }
 }
 
-export function getPresenterWindowUrl() {
-  if (typeof window === "undefined") return "";
-  const url = new URL(window.location.href);
+export function getPresenterWindowUrl(href?: string) {
+  const source = href ?? (typeof window === "undefined" ? "" : window.location.href);
+  if (!source) return "";
+  const url = new URL(source);
   // Signal to the new top-level window that it should auto-prompt for fullscreen.
   url.searchParams.set("present", "1");
   return url.toString();
@@ -106,12 +107,18 @@ export async function enterFullscreen(target?: HTMLElement | null, environment: 
 }
 
 function reportFullscreenFailure(result: FullscreenEnterResult) {
-  if (result.ok) return;
+  if (result.ok) {
+    useChrome.getState().clearPresenterFallback();
+    return;
+  }
   const message =
     result.reason === "embedded-popup-blocked"
       ? "Allow pop-ups to open presenter view"
       : "Fullscreen blocked by browser";
   useChrome.getState().flashToast(message);
+  if (result.reason === "embedded-popup-blocked") {
+    useChrome.getState().showPresenterFallback(getPresenterWindowUrl(), "popup-blocked");
+  }
 }
 
 export function useFullscreen() {
