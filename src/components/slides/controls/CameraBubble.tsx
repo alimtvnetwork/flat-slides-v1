@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Camera, CameraOff, Circle, Crosshair, FlipHorizontal2, Maximize, PictureInPicture2, RectangleHorizontal, Shapes, Sparkles, X } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 import squircleMask from "@/assets/camera-2026/02-squircle-mask-black.png";
@@ -52,8 +52,11 @@ export function CameraBubble() {
   const firstShapeRef = useRef(true);
   const dragState = useRef<{ x: number; y: number; ox: number; oy: number } | null>(null);
   const resizeState = useRef<{ x: number; y: number; size: number } | null>(null);
+  const [mounted, setMounted] = useState(false);
   const reducedMotion = useReducedMotion();
   const autoFrame = useAutoFrame(videoRef, camera.visible && camera.autoFrame && status === "active");
+
+  useEffect(() => setMounted(true), []);
 
   // Auto-start whenever the bubble is opened from chrome state.
   useEffect(() => {
@@ -455,6 +458,8 @@ export function CameraBubble() {
       )}
     </motion.div>
   );
+
+  if (!mounted || typeof document === "undefined") return null;
 
   return createPortal(
     <AnimatePresence>{node}</AnimatePresence>,
