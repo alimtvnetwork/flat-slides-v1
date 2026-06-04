@@ -185,6 +185,7 @@ function PillButton({
   return (
     <button
       type="button"
+      onPointerDown={(e) => e.preventDefault()}
       onClick={onClick}
       disabled={disabled}
       aria-label={ariaLabel}
