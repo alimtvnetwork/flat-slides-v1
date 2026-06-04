@@ -15,6 +15,15 @@ const focusedSlide = {
   focus: [{ x: 100, y: 100, w: 400, h: 300, step: 2 }],
 };
 
+const multiFocusSlide = {
+  ...focusedSlide,
+  steps: [...focusedSlide.steps, { label: "Three", detail: ["Three"] }],
+  focus: [
+    { x: 100, y: 100, w: 400, h: 300, step: 2 },
+    { x: 880, y: 200, w: 960, h: 680, step: 3 },
+  ],
+};
+
 describe("opt-in focus zoom effects", () => {
   afterEach(() => {
     useDeck.getState().resetDeck();
@@ -41,6 +50,25 @@ describe("opt-in focus zoom effects", () => {
     expect(cameraLayer?.style.transform).toBe("translate3d(0px, 0px, 0) scale(1)");
     await waitFor(() => expect(cameraLayer?.style.transform).toContain("scale(2.195)"));
     expect(cameraLayer?.style.transition).toContain("transform 700ms");
+  });
+
+  it("CameraStage restarts from full-frame when navigating between focused steps", async () => {
+    const { rerender } = render(
+      <CameraStage slide={multiFocusSlide} step={2}>
+        <div data-testid="slide-body" />
+      </CameraStage>,
+    );
+    const cameraLayer = screen.getByTestId("slide-body").parentElement;
+    await waitFor(() => expect(cameraLayer?.style.transform).toContain("scale(2.195)"));
+
+    rerender(
+      <CameraStage slide={multiFocusSlide} step={3}>
+        <div data-testid="slide-body" />
+      </CameraStage>,
+    );
+
+    expect(cameraLayer?.style.transform).toBe("translate3d(0px, 0px, 0) scale(1)");
+    await waitFor(() => expect(cameraLayer?.style.transform).toContain("scale(1.239)"));
   });
 
   it("accepts imported opt-in camera-zoom deck transitions", () => {
