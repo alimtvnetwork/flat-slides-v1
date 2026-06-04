@@ -11,6 +11,10 @@ describe("slide fullscreen target", () => {
       configurable: true,
       get: () => null,
     });
+    Object.defineProperty(document, "fullscreenEnabled", {
+      configurable: true,
+      value: true,
+    });
     vi.restoreAllMocks();
     useChrome.setState({ presenterFallback: null, toast: null });
   });
