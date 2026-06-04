@@ -60,3 +60,8 @@
 - [x] Regression test `src/routes/slides.handout-3up.test.tsx` covers chunking and hidden print instructions.
 - [ ] Manual validation of resulting 3-up handout PDF in Chrome / Safari / Firefox.
 
+## Active: Command palette export entries
+
+- [x] CommandPalette surfaces "Export deck as PDF", "Export speaker handout", and "Export 3-up handout" (open `?auto=1` in new tab).
+
+
