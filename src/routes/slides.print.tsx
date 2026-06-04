@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 
 import { RenderSlide } from "@/components/slides/RenderSlide";
 import { ScaledSlide } from "@/components/slides/ScaledSlide";
+import { DEFAULT_EXPORT_PAPER, parseExportPaper, type ExportPaper } from "@/components/slides/exportPaper";
 import { useDeck } from "@/components/slides/store";
 import { slideStepCount } from "@/components/slides/types";
 
@@ -19,6 +20,7 @@ export const Route = createFileRoute("/slides/print")({
 function SlidesPrintPage() {
   const slides = useDeck((s) => s.deck.slides).filter((s) => s.enabled !== false);
   const [autoPrint, setAutoPrint] = useState(false);
+  const [paper, setPaper] = useState<ExportPaper>(DEFAULT_EXPORT_PAPER);
 
   // If the user lands here via the SettingsDrawer "Export as PDF" entry,
   // `?auto=1` triggers the browser print dialog once the layout settles.
@@ -26,6 +28,7 @@ function SlidesPrintPage() {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
     const shouldAutoPrint = params.get("auto") === "1";
+    setPaper(parseExportPaper(params));
     setAutoPrint(shouldAutoPrint);
     if (!shouldAutoPrint) return;
     const t = window.setTimeout(() => window.print(), 600);
@@ -33,7 +36,7 @@ function SlidesPrintPage() {
   }, []);
 
   return (
-    <main className="print-deck">
+    <main className="print-deck" data-paper={paper}>
       <PrintInstructionNotice auto={autoPrint} />
       {slides.map((slide) => {
         // Show the final step of step-aware slides so reveals are visible in print.
