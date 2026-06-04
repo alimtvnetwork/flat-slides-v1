@@ -26,7 +26,12 @@ one slide per page, no presenter chrome.
    printing. On print, the container snaps to exact 1920×1080.
 8. **Entry point**: SettingsDrawer's "Export deck as PDF" button opens
    `/slides/print` in a new tab and triggers `window.print()` after load.
-9. **No new dependencies.**
+9. **Print instruction notice**: the print route shows a small fixed notice
+   outside the slide pages explaining that the print dialog will open
+   automatically for `?auto=1`, or that the user can press `Cmd/Ctrl + P`
+   and choose **Save as PDF**. The notice MUST carry `data-print-hide` and be
+   hidden by print CSS so it never appears in exported pages.
+10. **No new dependencies.**
 
 ## Out of scope
 - Speaker-notes handout layout (separate spec, future).

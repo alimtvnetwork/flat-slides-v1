@@ -31,6 +31,7 @@ function SlidesPrintPage() {
 
   return (
     <main className="print-deck">
+      <PrintInstructionNotice auto={isAutoPrintRequest()} />
       {slides.map((slide) => {
         // Show the final step of step-aware slides so reveals are visible in print.
         const lastStep = Math.max(0, slideStepCount(slide) - 1);
@@ -43,5 +44,19 @@ function SlidesPrintPage() {
         );
       })}
     </main>
+  );
+}
+
+function isAutoPrintRequest() {
+  if (typeof window === "undefined") return false;
+  return new URLSearchParams(window.location.search).get("auto") === "1";
+}
+
+function PrintInstructionNotice({ auto }: { auto: boolean }) {
+  return (
+    <aside className="print-notice" data-print-hide aria-live="polite">
+      <strong>{auto ? "Print dialog opening…" : "Ready to export"}</strong>
+      <span>{auto ? "Choose Save as PDF when your browser dialog appears." : "Press Cmd/Ctrl + P, then choose Save as PDF."}</span>
+    </aside>
   );
 }
