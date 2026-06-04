@@ -357,7 +357,7 @@
 .handout-page {
   position: relative;
   width: 100vw;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: var(--export-page-ratio, 16 / 9);
   display: grid;
   grid-template-rows: 2fr 1fr;
   background: #fff;
@@ -425,8 +425,8 @@
 @media print {
   html, body, .handout-deck { background: #fff !important; }
   .handout-page {
-    width: 1920px;
-    height: 1080px;
+    width: var(--export-page-width, 1920px);
+    height: var(--export-page-height, 1080px);
     aspect-ratio: auto;
     margin: 0;
   }
@@ -439,7 +439,7 @@
 .handout-threeup-page {
   position: relative;
   width: 100vw;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: var(--export-page-ratio, 16 / 9);
   display: grid;
   grid-template-rows: repeat(3, 1fr);
   background: #fff;
@@ -520,8 +520,8 @@
 @media print {
   html, body, .handout-threeup-deck { background: #fff !important; }
   .handout-threeup-page {
-    width: 1920px;
-    height: 1080px;
+    width: var(--export-page-width, 1920px);
+    height: var(--export-page-height, 1080px);
     aspect-ratio: auto;
     margin: 0;
   }
