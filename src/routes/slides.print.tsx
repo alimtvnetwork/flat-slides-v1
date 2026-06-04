@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 
 import { RenderSlide } from "@/components/slides/RenderSlide";
 import { ScaledSlide } from "@/components/slides/ScaledSlide";
-import { DEFAULT_EXPORT_PAPER, parseExportPaper, type ExportPaper } from "@/components/slides/exportPaper";
+import { parseExportPaper } from "@/components/slides/exportPaper";
 import { useDeck } from "@/components/slides/store";
 import { slideStepCount } from "@/components/slides/types";
 
@@ -21,7 +21,7 @@ function SlidesPrintPage() {
   const slides = useDeck((s) => s.deck.slides).filter((s) => s.enabled !== false);
   const location = useLocation();
   const [autoPrint, setAutoPrint] = useState(false);
-  const [paper, setPaper] = useState<ExportPaper>(DEFAULT_EXPORT_PAPER);
+  const paper = parseExportPaper(location.searchStr);
 
   // If the user lands here via the SettingsDrawer "Export as PDF" entry,
   // `?auto=1` triggers the browser print dialog once the layout settles.
@@ -29,7 +29,6 @@ function SlidesPrintPage() {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(location.searchStr);
     const shouldAutoPrint = params.get("auto") === "1";
-    setPaper(parseExportPaper(params));
     setAutoPrint(shouldAutoPrint);
     if (!shouldAutoPrint) return;
     const t = window.setTimeout(() => window.print(), 600);
