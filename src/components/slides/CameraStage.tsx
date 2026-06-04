@@ -18,28 +18,34 @@ export function CameraStage({ slide, step = 1, children }: Props) {
   const reducedMotion = useReducedMotion();
   const focus = slide ? getActiveFocusRegion(slide, step) : null;
   const frame = focus ? focusTransform(focus) : IDENTITY_FRAME;
-  const [transform, setTransform] = useState(IDENTITY_FRAME.transform);
+  const cameraKey = focus
+    ? `${slide?.id ?? "none"}:${step}:${focus.x}:${focus.y}:${focus.w}:${focus.h}`
+    : `${slide?.id ?? "none"}:${step}:identity`;
+  const [cameraFrame, setCameraFrame] = useState({ key: cameraKey, transform: IDENTITY_FRAME.transform });
+  const transform = cameraFrame.key === cameraKey ? cameraFrame.transform : IDENTITY_FRAME.transform;
   const duration = Math.max(0, Math.min(focus?.duration ?? 700, 1200));
 
   useEffect(() => {
     if (reducedMotion) {
-      setTransform(frame.transform);
+      setCameraFrame({ key: cameraKey, transform: frame.transform });
       return;
     }
     if (!focus) {
-      setTransform(IDENTITY_FRAME.transform);
+      setCameraFrame({ key: cameraKey, transform: IDENTITY_FRAME.transform });
       return;
     }
-    setTransform(IDENTITY_FRAME.transform);
-    let frameTwo = 0;
+    setCameraFrame({ key: cameraKey, transform: IDENTITY_FRAME.transform });
+    let timer = 0;
     const frameOne = requestAnimationFrame(() => {
-      frameTwo = requestAnimationFrame(() => setTransform(frame.transform));
+      timer = window.setTimeout(() => {
+        setCameraFrame({ key: cameraKey, transform: frame.transform });
+      }, 0);
     });
     return () => {
       cancelAnimationFrame(frameOne);
-      cancelAnimationFrame(frameTwo);
+      window.clearTimeout(timer);
     };
-  }, [focus, frame.transform, reducedMotion]);
+  }, [cameraKey, focus, frame.transform, reducedMotion]);
 
   return (
     <div className="absolute inset-0 overflow-hidden">
