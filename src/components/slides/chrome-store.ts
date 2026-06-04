@@ -178,7 +178,7 @@ export const useChrome = create<ChromeStore>()(
       flashToast: (text) => set({ toast: { text, ts: Date.now() } }),
     }),
     {
-      name: "slides-chrome-v1",
+      name: "slides-chrome-v2",
       // Always pause music on reload — autoplay would be blocked anyway.
       partialize: (s) => ({
         topJumperHidden: s.topJumperHidden,
