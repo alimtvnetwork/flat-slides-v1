@@ -336,39 +336,24 @@ export function SettingsDrawer({
             >
               <Download size={13} /> Export slide
             </button>
-            <button
-              onClick={() => {
-                // Open the full-deck print route in a new tab; it auto-invokes
-                // the browser print dialog so the user just picks "Save as PDF".
-                window.open("/slides/print?auto=1", "_blank", "noopener,noreferrer");
-              }}
-              className="col-span-2 inline-flex items-center justify-center gap-1.5 rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700"
-              title="Opens /slides/print in a new tab and triggers the browser print dialog"
-            >
-              <Printer size={13} /> Export deck as PDF
-            </button>
-            <button
-              onClick={() => {
-                // Speaker handout: each page shows the slide thumbnail
-                // above the speaker notes for that slide.
-                window.open("/slides/handout?auto=1", "_blank", "noopener,noreferrer");
-              }}
-              className="col-span-2 inline-flex items-center justify-center gap-1.5 rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700"
-              title="Opens /slides/handout in a new tab and triggers the browser print dialog"
-            >
-              <Printer size={13} /> Export speaker handout
-            </button>
-            <button
-              onClick={() => {
-                // Compact handout: three slide thumbnails per page with
-                // adjacent note space for printed presenter review.
-                window.open("/slides/handout-3up?auto=1", "_blank", "noopener,noreferrer");
-              }}
-              className="col-span-2 inline-flex items-center justify-center gap-1.5 rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700"
-              title="Opens /slides/handout-3up in a new tab and triggers the browser print dialog"
-            >
-              <Printer size={13} /> Export 3-up handout
-            </button>
+            {EXPORT_OPTIONS.map((option) => (
+              <div key={option.path} className="col-span-2 grid grid-cols-4 gap-1.5 rounded bg-neutral-900 p-1.5">
+                <span className="flex items-center gap-1.5 px-2 text-sm text-neutral-300">
+                  <Printer size={13} /> {option.label}
+                </span>
+                {EXPORT_PAPERS.map((paper) => (
+                  <button
+                    key={paper}
+                    type="button"
+                    onClick={() => openExport(option.path, paper)}
+                    className="rounded bg-neutral-800 px-2 py-1.5 text-xs text-neutral-200 hover:bg-neutral-700"
+                    title={`Export ${option.label} as ${EXPORT_PAPER_LABELS[paper]} PDF`}
+                  >
+                    {EXPORT_PAPER_LABELS[paper]}
+                  </button>
+                ))}
+              </div>
+            ))}
             <button
               onClick={handleLoadSpecSample}
               className="col-span-2 inline-flex items-center justify-center gap-1.5 rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700"
