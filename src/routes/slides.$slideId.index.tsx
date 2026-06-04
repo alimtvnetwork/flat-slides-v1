@@ -64,7 +64,7 @@ function SlidePage() {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [lintOpen, setLintOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
-  const { isFs, toggle: toggleFs, exit: exitFs } = useFullscreen();
+  const { isFs, toggle: toggleFs } = useFullscreen();
   const toggleTopJumper = useChrome((s) => s.toggleTopJumper);
   const toggleCamera = useChrome((s) => s.toggleCamera);
   const cycleCameraSize = useChrome((s) => s.cycleCameraSize);
