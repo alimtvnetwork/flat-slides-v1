@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import { useChrome } from "./chrome-store";
 import { getSlidesFullscreenRoot, getSlidesPortalRoot } from "./fullscreenTarget";
 import { enterFullscreen } from "./useFullscreen";
 
@@ -11,6 +12,7 @@ describe("slide fullscreen target", () => {
       get: () => null,
     });
     vi.restoreAllMocks();
+    useChrome.setState({ presenterFallback: null, toast: null });
   });
 
   it("prefers the stable slides root over transient child targets", async () => {
@@ -68,6 +70,20 @@ describe("slide fullscreen target", () => {
     });
 
     expect(result).toEqual({ ok: false, reason: "embedded-popup-blocked" });
+  });
+
+  it("returns unsupported before calling requestFullscreen when the document disallows fullscreen", async () => {
+    const stableRoot = document.createElement("div");
+    stableRoot.setAttribute("data-slides-fullscreen-root", "");
+    const stableRequest = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(stableRoot, "requestFullscreen", { value: stableRequest });
+    Object.defineProperty(document, "fullscreenEnabled", { configurable: true, value: false });
+    document.body.append(stableRoot);
+
+    const result = await enterFullscreen(stableRoot, { isEmbeddedWindow: () => false });
+
+    expect(result).toEqual({ ok: false, reason: "unsupported" });
+    expect(stableRequest).not.toHaveBeenCalled();
   });
 
   it("returns a native failure result instead of swallowing rejected fullscreen requests", async () => {
