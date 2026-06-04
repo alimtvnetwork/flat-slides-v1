@@ -41,6 +41,10 @@ explicit full-slide zoom request fail before it can render.
 - Persisted copies of the bundled demo deck may keep the old non-zooming
   rectangle, so the store must repair that exact legacy focus rectangle without
   dropping the user's persisted deck.
+- On `steps` and `timeline` slides, unbound focus rectangles are unsafe because
+  they zoom every step, including first entry from the previous slide. Runtime
+  must ignore unbound focus on step-aware slides, and the editor must save new
+  focus regions with the active 1-based step.
 - `SlideTransition` is fade-only and ignores deck settings.
 - `TransitionKind`, `DeckSettingsSchema`, `forceFadeTransition`, and Settings
   allow only `"fade"`, so `"camera-zoom"` cannot survive import or UI changes.
@@ -49,7 +53,8 @@ explicit full-slide zoom request fail before it can render.
 
 1. Default slide-to-slide transition remains `fade`.
 2. `CameraStage` applies zoom only when the active slide has a matching
-   `focus` rectangle for the current 1-based step.
+   `focus` rectangle for the current 1-based step. On step-aware slides,
+   matching means an explicit `FocusRegion.step`; unbound regions are ignored.
 3. Focus zoom frames the rectangle inside the 1920×1080 canvas with safe margin.
 4. Step-bound regions use `FocusRegion.step` as 1-based.
 5. The camera layer must clip inside `.slide-wrapper` and never resize the
@@ -73,7 +78,8 @@ explicit full-slide zoom request fail before it can render.
   rectangle; it must not first-paint already zoomed.
 - Navigating `/slides/N/2` → `/slides/N/3` restarts from full-frame before
   animating into the next rectangle.
-- The same slide does not zoom on `/slides/N/1` unless an unbound region exists.
+- The same step-aware slide does not zoom on `/slides/N/1` unless a region is
+  explicitly bound to `step: 1`; unbound regions are ignored there.
 - Bundled demo focus regions must resolve to a non-identity zoom on every
   labelled zoom step.
 - Imported decks with `settings.transition: "camera-zoom"` parse successfully.

@@ -214,7 +214,7 @@ function SlideStepPage() {
         slide={slide}
         active={focusEditorOpen}
         onRect={(rect: { x: number; y: number; w: number; h: number }) => {
-          useDeck.getState().upsertSlide({ ...slide, focus: [...(slide.focus ?? []), rect] });
+          useDeck.getState().upsertSlide({ ...slide, focus: [...(slide.focus ?? []), { ...rect, step: stepNum + 1 }] });
           useChrome.getState().flashToast("Focus region added");
         }}
         onClose={() => useChrome.getState().setFocusEditorOpen(false)}

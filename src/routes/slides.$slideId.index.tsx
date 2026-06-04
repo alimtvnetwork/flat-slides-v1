@@ -214,7 +214,8 @@ function SlidePage() {
         slide={slide}
         active={focusEditorOpen}
         onRect={(rect: { x: number; y: number; w: number; h: number }) => {
-          useDeck.getState().upsertSlide({ ...slide, focus: [...(slide.focus ?? []), rect] });
+          const stepBoundRect = slideStepCount(slide) > 0 ? { ...rect, step: 1 } : rect;
+          useDeck.getState().upsertSlide({ ...slide, focus: [...(slide.focus ?? []), stepBoundRect] });
           useChrome.getState().flashToast("Focus region added");
         }}
         onPopRegion={() => {
