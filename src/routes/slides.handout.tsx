@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 
 import { RenderSlide } from "@/components/slides/RenderSlide";
 import { ScaledSlide } from "@/components/slides/ScaledSlide";
+import { DEFAULT_EXPORT_PAPER, parseExportPaper, type ExportPaper } from "@/components/slides/exportPaper";
 import { useDeck } from "@/components/slides/store";
 import { slideStepCount } from "@/components/slides/types";
 
@@ -22,11 +23,13 @@ export const Route = createFileRoute("/slides/handout")({
 function SlidesHandoutPage() {
   const slides = useDeck((s) => s.deck.slides).filter((s) => s.enabled !== false);
   const [autoPrint, setAutoPrint] = useState(false);
+  const [paper, setPaper] = useState<ExportPaper>(DEFAULT_EXPORT_PAPER);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
     const shouldAutoPrint = params.get("auto") === "1";
+    setPaper(parseExportPaper(params));
     setAutoPrint(shouldAutoPrint);
     if (!shouldAutoPrint) return;
     const t = window.setTimeout(() => window.print(), 600);
@@ -34,7 +37,7 @@ function SlidesHandoutPage() {
   }, []);
 
   return (
-    <main className="handout-deck">
+    <main className="handout-deck" data-paper={paper}>
       <HandoutInstructionNotice auto={autoPrint} />
       {slides.map((slide, i) => {
         const lastStep = Math.max(0, slideStepCount(slide) - 1);
