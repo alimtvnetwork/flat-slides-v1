@@ -25,7 +25,7 @@ describe("/slides/handout-3up", () => {
     });
     const router = createRouter({
       routeTree: rootRoute.addChildren([route]),
-      history: createMemoryHistory({ initialEntries: ["/slides/handout-3up"] }),
+      history: createMemoryHistory({ initialEntries: ["/slides/handout-3up?paper=tabloid"] }),
     });
     render(<RouterProvider router={router} />);
     await new Promise((r) => setTimeout(r, 0));
@@ -34,6 +34,7 @@ describe("/slides/handout-3up", () => {
     const pages = document.querySelectorAll(".handout-threeup-page");
     expect(pages.length).toBe(Math.ceil(enabled.length / 3));
     expect(pages.length).toBeGreaterThan(0);
+    expect(document.querySelector(".handout-threeup-deck")?.getAttribute("data-paper")).toBe("wide");
 
     pages.forEach((page) => {
       expect(page.querySelectorAll(".handout-threeup-row").length).toBe(3);
