@@ -9,8 +9,11 @@
 - [x] Fall back to opening a top-level presenter window when embedded.
 - [x] Unit + e2e regression coverage (`fullscreenTarget.test.ts`, `presenterWindowUrl.test.ts`, `e2e/fullscreen-present.spec.ts`).
 - [x] Presenter window receives `?present=1` and shows a single-tap "Start presentation" overlay that satisfies the gesture requirement, then strips the param.
+- [x] Popup-blocked fallback now shows a persistent "Open presenter window" link plus copy/dismiss controls.
+- [x] Presenter shell/stage containment moved into shared components with viewport clipping regression tests.
+- [x] `document.fullscreenEnabled === false` is handled before `requestFullscreen()`.
 - [ ] Manual validation in published deployment (popup blockers vary by browser).
-- [ ] Consider an in-app "Open presenter window" hint shown when `embedded-popup-blocked` is reported, with a clickable link that the user can right-click → "Open in new tab".
+- [ ] Cross-browser popup-blocker validation on Chrome / Safari / Firefox after publish.
 
 ### Slide background / camera (unchanged from previous spec)
 
