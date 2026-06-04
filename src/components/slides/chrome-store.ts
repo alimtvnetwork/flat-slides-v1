@@ -50,7 +50,7 @@ export const nextShape = (s: CameraShape): CameraShape =>
   SHAPE_ORDER[(SHAPE_ORDER.indexOf(s) + 1) % SHAPE_ORDER.length];
 
 const DEFAULT_CAMERA: CameraState = {
-  visible: false,
+  visible: true,
   anchor: "bottom-right",
   offsetX: 0,
   offsetY: 0,
@@ -178,7 +178,7 @@ export const useChrome = create<ChromeStore>()(
       flashToast: (text) => set({ toast: { text, ts: Date.now() } }),
     }),
     {
-      name: "slides-chrome-v1",
+      name: "slides-chrome-v2",
       // Always pause music on reload — autoplay would be blocked anyway.
       partialize: (s) => ({
         topJumperHidden: s.topJumperHidden,
@@ -187,7 +187,7 @@ export const useChrome = create<ChromeStore>()(
         timerVisible: s.timerVisible,
         notesPeekOpen: s.notesPeekOpen,
         lastUsedThemeId: s.lastUsedThemeId,
-        camera: { ...s.camera, visible: false },
+        camera: s.camera,
         music: { ...s.music, playing: false },
         scene: s.scene,
       }),
@@ -196,7 +196,7 @@ export const useChrome = create<ChromeStore>()(
         return {
           ...current,
           ...state,
-          camera: { ...DEFAULT_CAMERA, ...(state?.camera ?? current.camera), visible: false },
+          camera: { ...DEFAULT_CAMERA, ...(state?.camera ?? current.camera), visible: state?.camera?.visible ?? DEFAULT_CAMERA.visible },
           music: { ...current.music, ...(state?.music ?? current.music), playing: false },
         };
       },

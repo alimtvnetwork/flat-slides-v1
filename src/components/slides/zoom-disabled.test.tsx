@@ -29,7 +29,7 @@ describe("disabled zoom effects", () => {
     expect(screen.getByTestId("slide-body").parentElement?.style.transform).toBe("");
   });
 
-  it("normalizes legacy imported non-fade deck transitions back to fade", () => {
+  it("rejects legacy imported non-fade deck transitions", () => {
     const parsed = parseDeckJson(JSON.stringify({
       id: "zoom-deck",
       title: "Zoom Deck",
@@ -45,10 +45,6 @@ describe("disabled zoom effects", () => {
       },
     }));
 
-    expect(parsed.ok).toBe(true);
-    if (!parsed.ok) throw new Error(parsed.error);
-
-    useDeck.getState().setDeck(parsed.value);
-    expect(useDeck.getState().deck.settings.transition).toBe("fade");
+    expect(parsed.ok).toBe(false);
   });
 });
