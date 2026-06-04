@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from "@tanstack/react-router";
 import { useCallback, useMemo } from "react";
 
-import { triggerClick, triggerZoom } from "./audio";
+import { triggerClick } from "./audio";
 import { useDeck } from "./store";
 import { slideStepCount, type Slide } from "./types";
 
@@ -35,7 +35,7 @@ export function useSlideNavigation() {
       const clamped = Math.max(1, Math.min(total, linearPosition));
       const slide = linearSlides[clamped - 1];
       if (!slide) return;
-      if (step && step > 1) triggerZoom(); else triggerClick();
+      triggerClick();
       if (step && step > 1 && slideStepCount(slide) >= step) {
         navigate({
           to: "/slides/$slideId/$step",
