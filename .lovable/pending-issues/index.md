@@ -37,6 +37,7 @@
 - [x] `@page 1920×1080 landscape` + per-page `page-break-after` in `src/styles.css`.
 - [x] Step-aware slides print at their final step so all reveals show.
 - [x] SettingsDrawer "Export deck as PDF" opens `/slides/print?auto=1` in a new tab and auto-invokes `window.print()`.
+- [x] `/slides/print` now shows a print instruction notice that is hidden from exported pages via `data-print-hide`.
 - [x] Regression test `src/routes/slides.print.test.tsx` (1/1).
 - [ ] Manual validation of resulting PDF in Chrome / Safari / Firefox.
 - [ ] Optional: speaker-notes handout layout (separate spec).
