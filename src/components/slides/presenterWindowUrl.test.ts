@@ -1,25 +1,25 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
-import { getPresenterWindowUrl } from "./useFullscreen";
-
-const ORIGINAL_HREF = "http://localhost/slides/3";
+import * as fs from "./useFullscreen";
 
 describe("presenter window URL", () => {
-  afterEach(() => {
-    window.history.replaceState({}, "", ORIGINAL_HREF);
-  });
-
   it("appends ?present=1 so the new top-level window auto-prompts fullscreen", () => {
-    window.history.replaceState({}, "", ORIGINAL_HREF);
-    const url = new URL(getPresenterWindowUrl());
+    const spy = vi.spyOn(window, "location", "get").mockReturnValue({
+      href: "http://localhost/slides/3",
+    } as Location);
+    const url = new URL(fs.getPresenterWindowUrl());
     expect(url.pathname).toBe("/slides/3");
     expect(url.searchParams.get("present")).toBe("1");
+    spy.mockRestore();
   });
 
   it("preserves existing query params alongside present=1", () => {
-    window.history.replaceState({}, "", "http://localhost/slides/3?session=abc");
-    const url = new URL(getPresenterWindowUrl());
+    const spy = vi.spyOn(window, "location", "get").mockReturnValue({
+      href: "http://localhost/slides/3?session=abc",
+    } as Location);
+    const url = new URL(fs.getPresenterWindowUrl());
     expect(url.searchParams.get("session")).toBe("abc");
     expect(url.searchParams.get("present")).toBe("1");
+    spy.mockRestore();
   });
 });
