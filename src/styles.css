@@ -163,6 +163,7 @@
   --ctrl-fg: oklch(0.96 0.01 80);
   --ctrl-muted: oklch(0.7 0.01 80);
   --ctrl-border: oklch(1 0 0 / 0.12);
+  --ctrl-hover: oklch(1 0 0 / 0.1);
   --ctrl-accent: oklch(0.88 0.18 95);
   --ctrl-accent-ink: oklch(0.18 0 0);
   --z-controller: 130;
