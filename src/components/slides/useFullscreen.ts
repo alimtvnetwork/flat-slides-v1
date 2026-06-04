@@ -39,7 +39,10 @@ export function getPresenterWindowUrl(href?: string) {
 
 export function openPresenterWindow() {
   if (typeof window === "undefined") return null;
-  const opened = window.open(getPresenterWindowUrl(), "_blank", "noopener,noreferrer");
+  // Do not pass `noopener` here: several browsers return `null` for a
+  // successfully opened window when noopener is set, which is indistinguishable
+  // from a blocked popup. Null the opener immediately after we get the handle.
+  const opened = window.open(getPresenterWindowUrl(), "_blank", "popup");
   if (opened) {
     try {
       opened.opener = null;
@@ -94,6 +97,7 @@ export async function enterFullscreen(target?: HTMLElement | null, environment: 
 
   const stableSlidesRoot = getSlidesFullscreenRoot();
   const fullscreenTarget = stableSlidesRoot ?? target ?? document.documentElement;
+  if (document.fullscreenEnabled === false) return { ok: false, reason: "unsupported" };
   if (!fullscreenTarget.requestFullscreen) return { ok: false, reason: "unsupported" };
 
   try {
