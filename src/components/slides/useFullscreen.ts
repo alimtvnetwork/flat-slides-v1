@@ -39,7 +39,9 @@ export function useFullscreen() {
   const enter = async (target?: HTMLElement | null) => {
     try {
       if (document.fullscreenElement) return;
-      await (target ?? getSlidesFullscreenRoot() ?? document.documentElement).requestFullscreen();
+      const stableSlidesRoot = getSlidesFullscreenRoot();
+      const fullscreenTarget = stableSlidesRoot ?? target ?? document.documentElement;
+      await fullscreenTarget.requestFullscreen();
       blurActiveElement();
     } catch { /* ignore */ }
   };
