@@ -1,7 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { SlidePresenterPage } from "@/components/slides/SlidePresenterPage";
-
 export const Route = createFileRoute("/slides/$slideId/$step")({
   head: ({ params }) => ({
     meta: [{ title: `Slide ${params.slideId} · step ${params.step}` }],
@@ -10,6 +8,5 @@ export const Route = createFileRoute("/slides/$slideId/$step")({
 });
 
 function SlideStepPage() {
-  const { slideId } = Route.useParams();
-  return <SlidePresenterPage slideId={slideId} />;
+  return null;
 }
