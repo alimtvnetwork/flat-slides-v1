@@ -271,6 +271,33 @@
   [data-print-hide] { display: none !important; }
 }
 
+/* ----- /slides/print : full-deck PDF export route ---------------------- */
+@page { size: 1920px 1080px landscape; margin: 0; }
+
+.print-deck { background: #000; }
+
+.print-page {
+  position: relative;
+  width: 100vw;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #000;
+  break-after: page;
+  page-break-after: always;
+}
+
+@media print {
+  html, body, .print-deck { background: #fff !important; }
+  .print-page {
+    width: 1920px;
+    height: 1080px;
+    aspect-ratio: auto;
+    margin: 0;
+  }
+  /* Last page should not force an extra blank trailing page. */
+  .print-page:last-child { break-after: auto; page-break-after: auto; }
+}
+
 
 /* A11Y: consistent keyboard focus ring for presenter chrome. */
 .app-focusable:focus-visible {

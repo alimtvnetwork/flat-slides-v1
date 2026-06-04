@@ -327,15 +327,14 @@ export function SettingsDrawer({
             </button>
             <button
               onClick={() => {
-                // Swap to the high-contrast Print theme then invoke browser print.
-                // The presenter can revert via the theme picker after exporting.
-                setThemeId("print");
-                setTimeout(() => window.print(), 60);
+                // Open the full-deck print route in a new tab; it auto-invokes
+                // the browser print dialog so the user just picks "Save as PDF".
+                window.open("/slides/print?auto=1", "_blank", "noopener,noreferrer");
               }}
               className="col-span-2 inline-flex items-center justify-center gap-1.5 rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700"
-              title="Switches to Print theme then opens the browser print dialog"
+              title="Opens /slides/print in a new tab and triggers the browser print dialog"
             >
-              <Printer size={13} /> Export deck as PDF (Print theme)
+              <Printer size={13} /> Export deck as PDF
             </button>
             <button
               onClick={handleLoadSpecSample}

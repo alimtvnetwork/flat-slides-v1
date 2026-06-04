@@ -29,4 +29,14 @@
 ### Remaining (tracked elsewhere)
 - [ ] Manual validation in published deployment of fullscreen Present across Chrome / Safari / Firefox popup blockers.
 - [ ] Run Playwright e2e (`e2e/fullscreen-present.spec.ts`) in a CI image with Chromium system deps.
-- [ ] In-app hint when `embedded-popup-blocked` is reported, with a right-click-friendly link.
+- [ ] In-app hint when `embedded-popup-blocked` is reported, with a right-click-friendly link. — **shipped** (`PresenterFallbackLink.tsx`, mounted on both slide routes).
+
+## Active: Deck PDF export (spec: `docs/slides/spec/print-mode.spec.md`)
+
+- [x] `/slides/print` route renders every enabled slide stacked.
+- [x] `@page 1920×1080 landscape` + per-page `page-break-after` in `src/styles.css`.
+- [x] Step-aware slides print at their final step so all reveals show.
+- [x] SettingsDrawer "Export deck as PDF" opens `/slides/print?auto=1` in a new tab and auto-invokes `window.print()`.
+- [x] Regression test `src/routes/slides.print.test.tsx` (1/1).
+- [ ] Manual validation of resulting PDF in Chrome / Safari / Firefox.
+- [ ] Optional: speaker-notes handout layout (separate spec).
