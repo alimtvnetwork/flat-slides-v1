@@ -54,7 +54,7 @@ function resolveBackground(
   const sb = slide.background;
   if (sb) {
     if (sb.startsWith("url(")) return { image: sb.slice(4, -1).replace(/^['"]|['"]$/g, "") };
-    if (sb.includes("://")) return { image: sb };
+    if (sb.includes("://") || sb.startsWith("/") || sb.match(/\.(png|jpg|jpeg|webp|gif|svg)($|\?)/) /* improved */) return { image: sb };
     return { color: sb };
   }
   if (settings.backgroundMode === "image") { if (settings.backgroundImage) return { image: settings.backgroundImage }; if (settings.backgroundColor) return { color: settings.backgroundColor }; }
