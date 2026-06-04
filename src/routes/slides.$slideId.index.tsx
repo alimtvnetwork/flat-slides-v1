@@ -23,12 +23,14 @@ import { DotPagination } from "@/components/slides/controls/DotPagination";
 import { KeyboardShortcutsDialog } from "@/components/slides/controls/KeyboardShortcutsDialog";
 import { PresenterToast } from "@/components/slides/controls/PresenterToast";
 import { PresenterAutoStart } from "@/components/slides/controls/PresenterAutoStart";
+import { PresenterFallbackLink } from "@/components/slides/controls/PresenterFallbackLink";
 import { PresenterTopBar } from "@/components/slides/controls/PresenterTopBar";
 import { SlideNumberBadge } from "@/components/slides/controls/SlideNumberBadge";
 const LintPanel = lazy(() =>
   import("@/components/slides/LintPanel").then((m) => ({ default: m.LintPanel })),
 );
 import { PresenterTools } from "@/components/slides/PresenterTools";
+import { PresenterShell, SlideStageShell } from "@/components/slides/PresenterShell";
 import { RenderSlide } from "@/components/slides/RenderSlide";
 import { CameraStage } from "@/components/slides/CameraStage";
 import { ScaledSlide } from "@/components/slides/ScaledSlide";
