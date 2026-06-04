@@ -107,4 +107,26 @@ describe("opt-in focus zoom effects", () => {
     expect(resolveSlideTransition("camera-zoom", heroSlide, false).willChange).toBe("opacity, transform");
     expect(resolveSlideTransition("camera-zoom", heroSlide, true).willChange).toBe("opacity");
   });
+
+  it("bundled demo focus regions zoom visibly on labelled zoom steps", async () => {
+    useDeck.getState().resetDeck();
+    const demo = useDeck.getState().deck.slides.find((slide) => slide.id === "focus-demo");
+    expect(demo).toBeDefined();
+    if (!demo) return;
+
+    const { rerender } = render(
+      <CameraStage slide={demo} step={2}>
+        <div data-testid="slide-body" />
+      </CameraStage>,
+    );
+    const cameraLayer = screen.getByTestId("slide-body").parentElement;
+    await waitFor(() => expect(cameraLayer?.style.transform).toContain("scale(1."));
+
+    rerender(
+      <CameraStage slide={demo} step={3}>
+        <div data-testid="slide-body" />
+      </CameraStage>,
+    );
+    await waitFor(() => expect(cameraLayer?.style.transform).toContain("scale(1."));
+  });
 });
