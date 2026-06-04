@@ -3,6 +3,7 @@ import { ArrowRight, Grid3x3, HelpCircle, Keyboard, Maximize2, Sparkles, X } fro
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
+import { getSlidesPortalRoot } from "@/components/slides/fullscreenTarget";
 import { useOnboardingFlag } from "@/components/slides/useOnboardingFlag";
 import { useReducedMotion } from "@/components/slides/useReducedMotion";
 
@@ -100,7 +101,7 @@ export function OnboardingCoachmark() {
     </AnimatePresence>
   );
 
-  return createPortal(node, document.body);
+  return createPortal(node, getSlidesPortalRoot() ?? document.body);
 }
 
 function KeyRow({ keys, label, icon }: { keys: string[]; label: string; icon?: React.ReactNode }) {

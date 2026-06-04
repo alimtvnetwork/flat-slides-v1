@@ -1,13 +1,15 @@
 import * as React from "react";
 import { Drawer as DrawerPrimitive } from "vaul";
 
+import { getSlidesPortalRoot } from "@/components/slides/fullscreenTarget";
 import { cn } from "@/lib/utils";
 
 const Drawer = ({
   shouldScaleBackground = true,
+  container,
   ...props
 }: React.ComponentProps<typeof DrawerPrimitive.Root>) => (
-  <DrawerPrimitive.Root shouldScaleBackground={shouldScaleBackground} {...props} />
+  <DrawerPrimitive.Root shouldScaleBackground={shouldScaleBackground} container={getSlidesPortalRoot() ?? container} {...props} />
 );
 Drawer.displayName = "Drawer";
 
@@ -33,7 +35,7 @@ const DrawerContent = React.forwardRef<
   React.ElementRef<typeof DrawerPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Content>
 >(({ className, children, ...props }, ref) => (
-  <DrawerPortal>
+  <DrawerPortal container={getSlidesPortalRoot() ?? undefined}>
     <DrawerOverlay />
     <DrawerPrimitive.Content
       ref={ref}
