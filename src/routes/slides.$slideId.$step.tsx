@@ -264,6 +264,7 @@ function SlideStepPage() {
       {controller}
       <CameraBubble />
       <PresenterToast />
+      <PresenterAutoStart />
       <KeyboardShortcutsDialog open={helpOpen} onClose={() => setHelpOpen(false)} />
       {settingsOpen && (
         <Suspense fallback={null}>
