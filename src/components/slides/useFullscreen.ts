@@ -28,6 +28,7 @@ export function useFullscreen() {
 
   const enter = async (target?: HTMLElement | null) => {
     try {
+      if (document.fullscreenElement) return;
       await (target ?? document.documentElement).requestFullscreen();
       blurActiveElement();
     } catch { /* ignore */ }
@@ -38,7 +39,7 @@ export function useFullscreen() {
       blurActiveElement();
     } catch { /* ignore */ }
   };
-  const toggle = (target?: HTMLElement | null) => (isFs ? exit() : enter(target));
+  const toggle = (target?: HTMLElement | null) => (document.fullscreenElement ? exit() : enter(target));
 
   return { isFs, enter, exit, toggle };
 }
