@@ -259,7 +259,7 @@ function SlidePage() {
         >
           <ScaledSlide fitPadding={36}>
             <SlideTransition transitionKey={slide.id} transitionKind={deck.settings.transition} slide={slide}>
-              <CameraStage slide={slide} step={1}><RenderSlide slide={slide} step={0} /></CameraStage>
+              <CameraStage slide={slide} step={0}><RenderSlide slide={slide} step={0} /></CameraStage>
             </SlideTransition>
           </ScaledSlide>
         </div>

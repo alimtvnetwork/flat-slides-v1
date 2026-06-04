@@ -56,6 +56,21 @@ describe("opt-in focus zoom effects", () => {
     expect(screen.getByTestId("slide-body").parentElement?.style.transform).toBe("translate3d(0px, 0px, 0) scale(1)");
   });
 
+  it("keeps the /slides/N overview route full-frame even if step 1 has focus", () => {
+    const stepOneFocusedSlide = {
+      ...focusedSlide,
+      focus: [{ x: 100, y: 100, w: 400, h: 300, step: 1 }],
+    };
+
+    render(
+      <CameraStage slide={stepOneFocusedSlide} step={0}>
+        <div data-testid="slide-body" />
+      </CameraStage>,
+    );
+
+    expect(screen.getByTestId("slide-body").parentElement?.style.transform).toBe("translate3d(0px, 0px, 0) scale(1)");
+  });
+
   it("CameraStage animates from full-frame into the active 1-based focus region", async () => {
     render(
       <CameraStage slide={focusedSlide} step={2}>
