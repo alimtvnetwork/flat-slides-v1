@@ -194,7 +194,10 @@ function PillButton({
       type="button"
       onPointerDown={(e) => e.preventDefault()}
       onMouseDown={(e) => e.preventDefault()}
-      onClick={onClick}
+      onClick={(e) => {
+        e.currentTarget.blur();
+        onClick();
+      }}
       disabled={disabled}
       aria-label={ariaLabel}
       aria-pressed={active}
