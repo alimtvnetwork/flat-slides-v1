@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { CameraStage } from "./CameraStage";
+import { canUseCameraZoom, resolveSlideTransition } from "./SlideTransition";
 import { useDeck } from "./store";
 import { parseDeckJson } from "@/lib/slides/io";
 
@@ -41,7 +42,7 @@ describe("opt-in focus zoom effects", () => {
     expect(transform).not.toBe("translate3d(0px, 0px, 0) scale(1)");
   });
 
-  it("rejects legacy imported non-fade deck transitions", () => {
+  it("accepts imported opt-in camera-zoom deck transitions", () => {
     const parsed = parseDeckJson(JSON.stringify({
       id: "zoom-deck",
       title: "Zoom Deck",
@@ -57,6 +58,24 @@ describe("opt-in focus zoom effects", () => {
       },
     }));
 
-    expect(parsed.ok).toBe(false);
+    expect(parsed.ok).toBe(true);
+    if (parsed.ok) expect(parsed.value.settings.transition).toBe("camera-zoom");
+  });
+
+  it("keeps camera-zoom off for steps, timelines, and focus-region slides", () => {
+    const timelineSlide = {
+      id: "timeline",
+      type: "timeline" as const,
+      title: "Timeline",
+      items: [{ label: "One" }, { label: "Two" }],
+    };
+    const heroSlide = { id: "hero", type: "center" as const, title: "Hero", heading: ["Hero"] };
+
+    expect(canUseCameraZoom(focusedSlide)).toBe(false);
+    expect(canUseCameraZoom(timelineSlide)).toBe(false);
+    expect(canUseCameraZoom(heroSlide)).toBe(true);
+    expect(resolveSlideTransition("camera-zoom", focusedSlide, false).willChange).toBe("opacity");
+    expect(resolveSlideTransition("camera-zoom", heroSlide, false).willChange).toBe("opacity, transform");
+    expect(resolveSlideTransition("camera-zoom", heroSlide, true).willChange).toBe("opacity");
   });
 });
