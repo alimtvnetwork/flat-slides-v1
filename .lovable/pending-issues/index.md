@@ -50,5 +50,13 @@
 - [x] Empty-notes pages show a muted "No speaker notes for this slide." placeholder.
 - [x] Regression test `src/routes/slides.handout.test.tsx` (1/1).
 - [ ] Manual validation of resulting handout PDF in Chrome / Safari / Firefox.
-- [ ] Optional: 3-up handout variant (separate spec).
+
+## Active: 3-up speaker handout export (spec: `docs/slides/spec/handout-3up-mode.spec.md`)
+
+- [x] `/slides/handout-3up` route renders enabled slides in groups of three per page.
+- [x] Per-page CSS (`.handout-threeup-page`, `.handout-threeup-row`, `.handout-threeup-lines`) in `src/styles.css` with print-mode snap to 1920×1080.
+- [x] Step-aware slide thumbnails render their final reveal state.
+- [x] SettingsDrawer "Export 3-up handout" opens `/slides/handout-3up?auto=1` and auto-invokes `window.print()`.
+- [x] Regression test `src/routes/slides.handout-3up.test.tsx` covers chunking and hidden print instructions.
+- [ ] Manual validation of resulting 3-up handout PDF in Chrome / Safari / Firefox.
 
