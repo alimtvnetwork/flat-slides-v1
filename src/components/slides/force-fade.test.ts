@@ -29,6 +29,11 @@ describe("forceFadeTransition", () => {
     expect(out.settings.transition).toBe("fade");
   });
 
+  it("preserves explicit opt-in camera zoom", () => {
+    const zoom = { ...baseDeck, settings: { ...baseDeck.settings, transition: "camera-zoom" } } as Deck;
+    expect(forceFadeTransition(zoom)).toBe(zoom);
+  });
+
   it("does not mutate the input deck", () => {
     const legacy = { ...baseDeck, settings: { ...baseDeck.settings, transition: "camera-zoom" } } as unknown as Deck;
     forceFadeTransition(legacy);
