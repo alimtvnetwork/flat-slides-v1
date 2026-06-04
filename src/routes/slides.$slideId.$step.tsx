@@ -255,17 +255,15 @@ function SlideStepPage() {
   );
 
   return (
-    <div
-      data-slide-presenter-root
-      className={`${isFs ? "fixed inset-0 z-[200]" : "h-dvh"} flex overflow-hidden flex-col bg-black`}
-    >
-      <div className="relative min-h-0 flex-1">
+    <PresenterShell isFullscreen={isFs}>
+      <SlideStageShell>
         {slideStage}
         {surfaces}
-      </div>
+      </SlideStageShell>
       {controller}
       <CameraBubble />
       <PresenterToast />
+      <PresenterFallbackLink />
       <PresenterAutoStart />
       <KeyboardShortcutsDialog open={helpOpen} onClose={() => setHelpOpen(false)} />
       {settingsOpen && (
@@ -275,6 +273,6 @@ function SlideStepPage() {
       )}
       <SlideAriaAnnouncer current={current} total={total} step={stepNum + 1} stepCount={stepCount} title={slide.title} />
       <PresenterNotesPeek notes={slide.notes} />
-    </div>
+    </PresenterShell>
   );
 }
