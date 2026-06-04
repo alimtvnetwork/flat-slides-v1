@@ -29,6 +29,7 @@ import sampleDeckJson from "../../../docs/slides/spec/sample-deck.json?raw";
 
 import { useAnnotations } from "./annotations-store";
 import { useChrome } from "./chrome-store";
+import { EXPORT_PAPERS, exportUrl, type ExportPaper } from "./exportPaper";
 import { useDeck } from "./store";
 import { DEFAULT_THEME_ID, THEMES } from "./themes";
 import type { TransitionKind } from "./types";
@@ -36,6 +37,12 @@ import type { TransitionKind } from "./types";
 const TRANSITIONS: TransitionKind[] = ["fade"];
 
 const PALETTE_PRESETS = ["#101010", "#000000", "#1d1d1d", "#0c2340", "#1b0d1f", "#f5f0e6"];
+const EXPORT_PAPER_LABELS: Record<ExportPaper, string> = { wide: "Wide", letter: "Letter", a4: "A4" };
+const EXPORT_OPTIONS = [
+  { label: "Deck PDF", path: "/slides/print" },
+  { label: "Speaker handout", path: "/slides/handout" },
+  { label: "3-up handout", path: "/slides/handout-3up" },
+];
 
 export function SettingsDrawer({
   open,
@@ -100,6 +107,10 @@ export function SettingsDrawer({
     if (!target) return toast.error("No slide to export");
     exportSlide(target);
     toast.success(`Exported ${target.id}.slide.json`);
+  };
+
+  const openExport = (path: string, paper: ExportPaper) => {
+    window.open(exportUrl(path, paper), "_blank", "noopener,noreferrer");
   };
 
   return (
