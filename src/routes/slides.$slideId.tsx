@@ -5,5 +5,9 @@ export const Route = createFileRoute("/slides/$slideId")({
 });
 
 function SlidesSlideLayout() {
-  return <Outlet />;
+  return (
+    <div data-slides-slide-route-root className="contents">
+      <Outlet />
+    </div>
+  );
 }
