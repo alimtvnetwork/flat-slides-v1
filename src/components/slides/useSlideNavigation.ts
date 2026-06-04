@@ -62,7 +62,7 @@ export function useSlideNavigation() {
 
   const prev = useCallback(
     (current: number) => {
-      if (current > 1) goTo(current - 1, "backward");
+      if (current > 1) { const prevSlide = linearSlides[current - 2]; const steps = slideStepCount(prevSlide); if (steps > 1) goTo(current - 1, "backward", steps); else goTo(current - 1, "backward"); }
     },
     [goTo, total],
   );

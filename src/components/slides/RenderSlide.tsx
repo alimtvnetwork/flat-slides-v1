@@ -57,7 +57,7 @@ function resolveBackground(
     if (sb.includes("://")) return { image: sb };
     return { color: sb };
   }
-  if (settings.backgroundMode === "image" && settings.backgroundImage) return { image: settings.backgroundImage };
+  if (settings.backgroundMode === "image") { if (settings.backgroundImage) return { image: settings.backgroundImage }; if (settings.backgroundColor) return { color: settings.backgroundColor }; }
   if (settings.backgroundMode === "color" && settings.backgroundColor) return { color: settings.backgroundColor };
   return {};
 }
@@ -124,10 +124,10 @@ function LeftSlide({ slide }: { slide: LeftSlideProps }) {
         </div>
         {media ? (
           <div className="w-[52%] flex items-center justify-center pr-[80px]">
-            {typeof media === "object" && "src" in media ? (
+            {(typeof media === "object" && media !== null && "src" in media) || (typeof media === "string" && media.includes("://")) ? (
               <img
-                src={media.src}
-                alt={media.alt ?? ""}
+                src={typeof media === "string" ? media : media.src}
+                alt={typeof media === "string" ? "" : media.alt ?? ""}
                 className="max-h-[760px] max-w-[760px] rounded-[36px] object-cover shadow-2xl"
               />
             ) : (

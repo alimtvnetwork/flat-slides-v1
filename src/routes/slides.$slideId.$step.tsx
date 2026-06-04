@@ -251,7 +251,7 @@ function SlideStepPage() {
 
   if (isFs) {
     return (
-      <div className="fixed inset-0 z-[100] flex flex-col overflow-hidden bg-black">
+      <div className="fixed inset-0 z-[200] flex flex-col overflow-hidden bg-black">
         <div className="relative min-h-0 flex-1">
           {slideStage}
           {surfaces}
