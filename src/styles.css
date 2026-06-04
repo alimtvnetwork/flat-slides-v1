@@ -259,6 +259,15 @@
   will-change: transform;
 }
 
+[data-slides-fullscreen-root]:fullscreen {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--slide-bg);
+}
+
 
 @media (prefers-reduced-motion: reduce) {
   .slide-anim { animation: none !important; transition: opacity 150ms ease !important; }
