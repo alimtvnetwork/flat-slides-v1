@@ -30,12 +30,15 @@ export function isEmbeddedWindow() {
 
 export function getPresenterWindowUrl() {
   if (typeof window === "undefined") return "";
-  return new URL(window.location.href).toString();
+  const url = new URL(window.location.href);
+  // Signal to the new top-level window that it should auto-prompt for fullscreen.
+  url.searchParams.set("present", "1");
+  return url.toString();
 }
 
 export function openPresenterWindow() {
   if (typeof window === "undefined") return null;
-  const opened = window.open(getPresenterWindowUrl(), "_blank");
+  const opened = window.open(getPresenterWindowUrl(), "_blank", "noopener,noreferrer");
   if (opened) {
     try {
       opened.opener = null;
