@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 
 import { RenderSlide } from "@/components/slides/RenderSlide";
 import { ScaledSlide } from "@/components/slides/ScaledSlide";
-import { DEFAULT_EXPORT_PAPER, parseExportPaper, type ExportPaper } from "@/components/slides/exportPaper";
+import { parseExportPaper } from "@/components/slides/exportPaper";
 import { useDeck } from "@/components/slides/store";
 import { slideStepCount, type Slide } from "@/components/slides/types";
 
@@ -25,13 +25,12 @@ function SlidesHandoutThreeUpPage() {
   const location = useLocation();
   const pages = chunkSlides(slides, 3);
   const [autoPrint, setAutoPrint] = useState(false);
-  const [paper, setPaper] = useState<ExportPaper>(DEFAULT_EXPORT_PAPER);
+  const paper = parseExportPaper(location.searchStr);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(location.searchStr);
     const shouldAutoPrint = params.get("auto") === "1";
-    setPaper(parseExportPaper(params));
     setAutoPrint(shouldAutoPrint);
     if (!shouldAutoPrint) return;
     const t = window.setTimeout(() => window.print(), 600);
