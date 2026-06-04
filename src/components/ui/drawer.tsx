@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Drawer as DrawerPrimitive } from "vaul";
 
+import { getSlidesPortalRoot } from "@/components/slides/fullscreenTarget";
 import { cn } from "@/lib/utils";
 
 const Drawer = ({
@@ -33,7 +34,7 @@ const DrawerContent = React.forwardRef<
   React.ElementRef<typeof DrawerPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Content>
 >(({ className, children, ...props }, ref) => (
-  <DrawerPortal>
+  <DrawerPortal container={getSlidesPortalRoot() ?? undefined}>
     <DrawerOverlay />
     <DrawerPrimitive.Content
       ref={ref}
