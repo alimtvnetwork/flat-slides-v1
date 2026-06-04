@@ -7,15 +7,13 @@ import { useDeck } from "./store";
  *
  * Cues:
  *   - whoosh → fade_swoosh_v4.mp3 (slide-to-slide)
- *   - zoom   → zoom.mp3            (step-to-step within a slide)
  *   - click  → click.mp3           (UI/jump affordance)
  */
 
-type Kind = "whoosh" | "zoom" | "click";
+type Kind = "whoosh" | "click";
 
 const SOURCES: Record<Kind, string> = {
   whoosh: "/sounds/fade_swoosh_v4.mp3",
-  zoom: "/sounds/zoom.mp3",
   click: "/sounds/click.mp3",
 };
 
@@ -56,13 +54,6 @@ export function triggerWhoosh() {
   const { settings } = useDeck.getState().deck;
   if (!settings.soundEnabled) return;
   play("whoosh", Math.min(1, (settings.volume ?? 0.5) * 1.1), 120);
-}
-
-/** Step-to-step zoom cue inside a slide (steps/timeline reveals). */
-export function triggerZoom() {
-  const { settings } = useDeck.getState().deck;
-  if (!settings.soundEnabled) return;
-  play("zoom", Math.min(1, (settings.volume ?? 0.5) * 0.9), 80);
 }
 
 /** Soft click for jump / pagination / non-cinematic UI. */

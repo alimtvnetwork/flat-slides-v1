@@ -144,6 +144,10 @@ export function CameraBubble() {
   const showPlate = !stageFill && camera.shape === "squircle";
   const shapeStyle: React.CSSProperties = {
     borderRadius: radius,
+    backgroundColor: camera.backgroundColor,
+    backgroundImage: camera.backgroundMode === "image" && camera.backgroundImage ? `url(${camera.backgroundImage})` : undefined,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
     ...(camera.shape === "squircle"
       ? {
           WebkitMaskImage: `url(${squircleMask})`,
@@ -284,7 +288,7 @@ export function CameraBubble() {
         data-camera-shape={camera.shape}
         style={shapeStyle}
         className={cn(
-          "absolute inset-0 z-[2] overflow-hidden border-2 bg-black/60 backdrop-blur",
+          "absolute inset-0 z-[2] overflow-hidden border-2 backdrop-blur",
           "border-white/15 shadow-2xl",
           camera.shape === "squircle" && "border-transparent",
         )}
@@ -296,7 +300,8 @@ export function CameraBubble() {
           playsInline
           style={autoFrame.active ? { objectPosition: autoFrame.objectPosition } : undefined}
           className={cn(
-            "h-full w-full object-cover transition-[object-position] duration-300",
+            "h-full w-full object-cover opacity-0 transition-opacity",
+            status === "active" && "opacity-100 transition-[object-position,opacity] duration-300",
             camera.mirror && "scale-x-[-1]",
             // Cheap chroma-key stand-in: brightens & subtracts green via blend.
             camera.greenScreen && "mix-blend-screen contrast-125 saturate-150",

@@ -7,6 +7,7 @@ import { CodeJourneyDecor, shouldAutoEnableCodeDecor } from "./decor/CodeJourney
 import { getRegisteredSlideType } from "./registry";
 import { getTheme, themeStyle } from "./themes";
 import { useDeck } from "./store";
+import { useReducedMotion } from "./useReducedMotion";
 import { useSlideNavigation } from "./useSlideNavigation";
 import { EmbedSlide } from "./widgets/EmbedSlide";
 import { PollSlide } from "./widgets/PollSlide";
@@ -181,6 +182,7 @@ function StepsSlide({ slide, step }: { slide: StepsSlideProps; step: number }) {
   const focus = Math.max(0, Math.min(step, slide.steps.length - 1));
   const focused = slide.steps[focus];
   const jumpToStep = useStepJump(slide);
+  const reducedMotion = useReducedMotion();
   return (
     <SlideLayout background={slide.background}>
       <div className="absolute inset-0 grid grid-cols-[520px_minmax(0,1fr)] gap-[70px] pl-[380px] pr-[260px] pt-[110px] pb-[110px]">
@@ -228,10 +230,10 @@ function StepsSlide({ slide, step }: { slide: StepsSlideProps; step: number }) {
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={focus}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -12 }}
-              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: reducedMotion ? 0 : 0.25, ease: "easeOut" }}
               style={{ width: "100%", maxWidth: 700, overflowWrap: "break-word" }}
             >
               <div className="slide-kicker slide-heading mb-[22px]" style={{ color: "var(--slide-hl)" }}>
@@ -274,6 +276,7 @@ function TimelineSlide({ slide, step }: { slide: TimelineSlideProps; step: numbe
   const focus = Math.max(0, Math.min(step, items.length - 1));
   const focused = items[focus];
   const jumpToStep = useStepJump(slide);
+  const reducedMotion = useReducedMotion();
 
   const railY = 780;
   const railLeft = 240;
@@ -303,10 +306,10 @@ function TimelineSlide({ slide, step }: { slide: TimelineSlideProps; step: numbe
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={focus}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: reducedMotion ? 0 : 0.25, ease: "easeOut" }}
             style={{ overflowWrap: "break-word" }}
           >
             <div className="slide-kicker slide-heading mb-[22px]" style={{ color: "var(--slide-hl)" }}>

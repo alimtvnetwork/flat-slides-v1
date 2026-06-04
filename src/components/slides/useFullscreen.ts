@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 
 /** Tracks whether the document is currently in Fullscreen mode and provides toggles. */
 export function useFullscreen() {
-  const [isFs, setIsFs] = useState(false);
+  const [isFs, setIsFs] = useState(() => (typeof document === "undefined" ? false : Boolean(document.fullscreenElement)));
 
   useEffect(() => {
     const onChange = () => setIsFs(Boolean(document.fullscreenElement));
+    onChange();
     document.addEventListener("fullscreenchange", onChange);
     return () => document.removeEventListener("fullscreenchange", onChange);
   }, []);

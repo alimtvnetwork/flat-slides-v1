@@ -46,6 +46,23 @@ describe("CameraBubble shape surfaces", () => {
     expect(region.querySelector('[data-camera-plate="gold"]')).toBeNull();
   });
 
+  it("applies camera background color and image settings to the shaped frame", () => {
+    useChrome.setState({
+      camera: {
+        ...useChrome.getState().camera,
+        backgroundMode: "image",
+        backgroundColor: "#123456",
+        backgroundImage: "https://example.com/camera-bg.png",
+      },
+    });
+    render(<CameraBubble />);
+
+    const frame = screen.getByRole("region", { name: /presenter camera/i }).querySelector('[data-camera-shape="squircle"]') as HTMLElement;
+
+    expect(frame.style.backgroundColor).toBe("rgb(18, 52, 86)");
+    expect(frame.style.backgroundImage).toContain("camera-bg.png");
+  });
+
   it("cycles camera shape with the spec shortcut O", () => {
     useChrome.setState({ camera: { ...useChrome.getState().camera, shape: "circle" } });
     render(<CameraBubble />);

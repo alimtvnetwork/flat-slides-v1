@@ -18,6 +18,10 @@ export interface CameraState {
   mirror: boolean;
   /** Apply a chroma-key style mix-blend; cheap visual stand-in for greenscreen. */
   greenScreen: boolean;
+  /** Backplate shown behind camera video / permission states. */
+  backgroundMode: "color" | "image";
+  backgroundColor: string;
+  backgroundImage: string;
   /** Hide the bubble while NOT in fullscreen (presenter prefers cam only on stage). */
   fullscreenOnly: boolean;
   /** Auto-frame face via experimental FaceDetector (graceful no-op when unsupported). */
@@ -44,6 +48,23 @@ export const nextScene = (s: Scene): Scene =>
 const SHAPE_ORDER: CameraShape[] = ["circle", "squircle", "rect"];
 export const nextShape = (s: CameraShape): CameraShape =>
   SHAPE_ORDER[(SHAPE_ORDER.indexOf(s) + 1) % SHAPE_ORDER.length];
+
+const DEFAULT_CAMERA: CameraState = {
+  visible: false,
+  anchor: "bottom-right",
+  offsetX: 0,
+  offsetY: 0,
+  size: "md",
+  customSize: null,
+  shape: "circle",
+  mirror: true,
+  greenScreen: false,
+  backgroundMode: "color",
+  backgroundColor: "#050505",
+  backgroundImage: "",
+  fullscreenOnly: false,
+  autoFrame: false,
+};
 
 /**
  * Transient chrome / surface visibility state. Persisted so a presenter's
@@ -116,19 +137,7 @@ export const useChrome = create<ChromeStore>()(
       notesPeekOpen: false,
       lastUsedThemeId: null,
       recentJumps: [],
-      camera: {
-        visible: false,
-        anchor: "bottom-right",
-        offsetX: 0,
-        offsetY: 0,
-        size: "md",
-        customSize: null,
-        shape: "circle",
-        mirror: true,
-        greenScreen: false,
-        fullscreenOnly: false,
-        autoFrame: false,
-      },
+      camera: { ...DEFAULT_CAMERA },
       music: { playing: false, volume: 0.4 },
       scene: "normal",
       toast: null,
@@ -182,6 +191,15 @@ export const useChrome = create<ChromeStore>()(
         music: { ...s.music, playing: false },
         scene: s.scene,
       }),
+      merge: (persisted, current) => {
+        const state = persisted as Partial<ChromeStore> | undefined;
+        return {
+          ...current,
+          ...state,
+          camera: { ...DEFAULT_CAMERA, ...(state?.camera ?? current.camera), visible: false },
+          music: { ...current.music, ...(state?.music ?? current.music), playing: false },
+        };
+      },
     },
   ),
 );
