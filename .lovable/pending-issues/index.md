@@ -40,4 +40,15 @@
 - [x] `/slides/print` now shows a print instruction notice that is hidden from exported pages via `data-print-hide`.
 - [x] Regression test `src/routes/slides.print.test.tsx` (1/1).
 - [ ] Manual validation of resulting PDF in Chrome / Safari / Firefox.
-- [ ] Optional: speaker-notes handout layout (separate spec).
+
+## Active: Speaker handout export (spec: `docs/slides/spec/handout-mode.spec.md`)
+
+- [x] `/slides/handout` route renders every enabled slide with thumbnail + notes.
+- [x] Per-page CSS (`.handout-page`, `.handout-thumb`, `.handout-notes*`) in `src/styles.css` with print-mode size snap to 1920×1080.
+- [x] Step-aware slides render their final reveal state.
+- [x] SettingsDrawer "Export speaker handout" opens `/slides/handout?auto=1` in a new tab and auto-invokes `window.print()`.
+- [x] Empty-notes pages show a muted "No speaker notes for this slide." placeholder.
+- [x] Regression test `src/routes/slides.handout.test.tsx` (1/1).
+- [ ] Manual validation of resulting handout PDF in Chrome / Safari / Firefox.
+- [ ] Optional: 3-up handout variant (separate spec).
+
