@@ -7,6 +7,7 @@ import squircleMask from "@/assets/camera-2026/02-squircle-mask-black.png";
 import whitePlate from "@/assets/camera-2026/03-squircle-plate-white-shadow.png";
 import goldPlate from "@/assets/camera-2026/04-squircle-plate-gold-shadow.png";
 import { useChrome, type CameraShape } from "@/components/slides/chrome-store";
+import { getSlidesPortalRoot } from "@/components/slides/fullscreenTarget";
 import { useCamera } from "@/components/slides/useCamera";
 import { useFullscreen } from "@/components/slides/useFullscreen";
 import { useAutoFrame } from "@/components/slides/useAutoFrame";
@@ -463,6 +464,6 @@ export function CameraBubble() {
 
   return createPortal(
     <AnimatePresence>{node}</AnimatePresence>,
-    document.body,
+    getSlidesPortalRoot() ?? document.body,
   );
 }
