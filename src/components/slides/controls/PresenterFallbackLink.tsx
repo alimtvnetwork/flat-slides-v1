@@ -44,7 +44,7 @@ export function PresenterFallbackLink() {
         <button
           type="button"
           onClick={copyUrl}
-          className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-[color:var(--ctrl-fg)] hover:bg-white/10"
+          className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-[color:var(--ctrl-fg)] hover:bg-[color:var(--ctrl-hover)]"
           aria-label="Copy presenter link"
         >
           <Copy size={14} />
@@ -52,7 +52,7 @@ export function PresenterFallbackLink() {
         <button
           type="button"
           onClick={clear}
-          className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-[color:var(--ctrl-fg)] hover:bg-white/10"
+          className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-[color:var(--ctrl-fg)] hover:bg-[color:var(--ctrl-hover)]"
           aria-label="Dismiss presenter fallback"
         >
           <X size={14} />
