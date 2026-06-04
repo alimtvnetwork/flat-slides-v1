@@ -272,7 +272,27 @@
 }
 
 /* ----- /slides/print : full-deck PDF export route ---------------------- */
-@page { size: 1920px 1080px landscape; margin: 0; }
+@page export-wide { size: 1920px 1080px landscape; margin: 0; }
+@page export-letter { size: 1100px 850px landscape; margin: 0; }
+@page export-a4 { size: 1123px 794px landscape; margin: 0; }
+
+[data-paper="wide"] {
+  --export-page-width: 1920px;
+  --export-page-height: 1080px;
+  --export-page-ratio: 16 / 9;
+}
+
+[data-paper="letter"] {
+  --export-page-width: 1100px;
+  --export-page-height: 850px;
+  --export-page-ratio: 1100 / 850;
+}
+
+[data-paper="a4"] {
+  --export-page-width: 1123px;
+  --export-page-height: 794px;
+  --export-page-ratio: 1123 / 794;
+}
 
 .print-deck { background: #000; }
 
@@ -300,18 +320,30 @@
 .print-page {
   position: relative;
   width: 100vw;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: var(--export-page-ratio, 16 / 9);
   overflow: hidden;
   background: #000;
   break-after: page;
   page-break-after: always;
 }
 
+[data-paper="wide"] .print-page,
+[data-paper="wide"] .handout-page,
+[data-paper="wide"] .handout-threeup-page { page: export-wide; }
+
+[data-paper="letter"] .print-page,
+[data-paper="letter"] .handout-page,
+[data-paper="letter"] .handout-threeup-page { page: export-letter; }
+
+[data-paper="a4"] .print-page,
+[data-paper="a4"] .handout-page,
+[data-paper="a4"] .handout-threeup-page { page: export-a4; }
+
 @media print {
   html, body, .print-deck { background: #fff !important; }
   .print-page {
-    width: 1920px;
-    height: 1080px;
+    width: var(--export-page-width, 1920px);
+    height: var(--export-page-height, 1080px);
     aspect-ratio: auto;
     margin: 0;
   }
