@@ -54,6 +54,11 @@ export function SettingsDrawer({
   const upsertSlide = useDeck((s) => s.upsertSlide);
   const resetDeck = useDeck((s) => s.resetDeck);
   const settings = deck.settings;
+  const camera = useChrome((s) => s.camera);
+  const setCamera = useChrome((s) => s.setCamera);
+  const cycleCameraSize = useChrome((s) => s.cycleCameraSize);
+  const cycleCameraAnchor = useChrome((s) => s.cycleCameraAnchor);
+  const cycleCameraShape = useChrome((s) => s.cycleCameraShape);
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -98,7 +103,7 @@ export function SettingsDrawer({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex" data-app-chrome>
+    <div className="fixed inset-0 z-[200] flex" data-app-chrome>
       <div className="flex-1 bg-black/50" onClick={onClose} />
       <aside className="w-[400px] bg-neutral-950 p-6 text-neutral-200 overflow-y-auto">
         <div className="mb-6 flex items-center justify-between">
@@ -182,6 +187,37 @@ export function SettingsDrawer({
             placeholder="https://… background image"
             className="w-full rounded bg-neutral-800 px-3 py-2 text-sm text-neutral-100 outline-none ring-1 ring-neutral-700 placeholder:text-neutral-500 focus:ring-neutral-400"
           />
+        </section>
+
+        <section className="mb-6 space-y-3">
+          <label className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wider text-neutral-400">
+            <SettingsIcon size={12} /> Camera
+          </label>
+          <label className="flex items-center justify-between gap-3 rounded bg-neutral-900 px-3 py-2 text-sm">
+            <span>Show camera</span>
+            <input type="checkbox" checked={camera.visible} onChange={(e) => setCamera({ visible: e.target.checked })} />
+          </label>
+          <label className="flex items-center justify-between gap-3 rounded bg-neutral-900 px-3 py-2 text-sm">
+            <span>Only in fullscreen</span>
+            <input type="checkbox" checked={camera.fullscreenOnly} onChange={(e) => setCamera({ fullscreenOnly: e.target.checked })} />
+          </label>
+          <div className="grid grid-cols-3 gap-2 text-sm">
+            {(["circle", "squircle", "rect"] as const).map((shape) => (
+              <button
+                key={shape}
+                type="button"
+                onClick={() => setCamera({ shape })}
+                className={`rounded px-3 py-2 capitalize ring-1 ${camera.shape === shape ? "bg-neutral-700 text-white ring-neutral-400" : "bg-neutral-800 text-neutral-400 ring-neutral-700 hover:text-white"}`}
+              >
+                {shape}
+              </button>
+            ))}
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            <button type="button" onClick={cycleCameraShape} className="rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700">Cycle shape</button>
+            <button type="button" onClick={cycleCameraSize} className="rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700">Cycle size</button>
+            <button type="button" onClick={cycleCameraAnchor} className="rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700">Move corner</button>
+          </div>
         </section>
 
         <section className="mb-6 space-y-2">
