@@ -12,10 +12,18 @@ export function useFullscreen() {
   }, []);
 
   const enter = async (target?: HTMLElement | null) => {
-    try { await (target ?? document.documentElement).requestFullscreen(); } catch { /* ignore */ }
+    try {
+      await (target ?? document.documentElement).requestFullscreen();
+      const active = document.activeElement;
+      if (active instanceof HTMLElement) active.blur();
+    } catch { /* ignore */ }
   };
   const exit = async () => {
-    try { if (document.fullscreenElement) await document.exitFullscreen(); } catch { /* ignore */ }
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      const active = document.activeElement;
+      if (active instanceof HTMLElement) active.blur();
+    } catch { /* ignore */ }
   };
   const toggle = (target?: HTMLElement | null) => (isFs ? exit() : enter(target));
 
