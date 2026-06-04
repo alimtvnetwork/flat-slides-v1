@@ -348,6 +348,17 @@ export function SettingsDrawer({
               <Printer size={13} /> Export speaker handout
             </button>
             <button
+              onClick={() => {
+                // Compact handout: three slide thumbnails per page with
+                // adjacent note space for printed presenter review.
+                window.open("/slides/handout-3up?auto=1", "_blank", "noopener,noreferrer");
+              }}
+              className="col-span-2 inline-flex items-center justify-center gap-1.5 rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700"
+              title="Opens /slides/handout-3up in a new tab and triggers the browser print dialog"
+            >
+              <Printer size={13} /> Export 3-up handout
+            </button>
+            <button
               onClick={handleLoadSpecSample}
               className="col-span-2 inline-flex items-center justify-center gap-1.5 rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700"
               title="Load docs/slides/spec/sample-deck.json"

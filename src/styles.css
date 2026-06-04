@@ -401,6 +401,101 @@
   .handout-page:last-child { break-after: auto; page-break-after: auto; }
 }
 
+/* ----- /slides/handout-3up : compact speaker handout export route ------- */
+.handout-threeup-deck { background: #1a1a1a; }
+
+.handout-threeup-page {
+  position: relative;
+  width: 100vw;
+  aspect-ratio: 16 / 9;
+  display: grid;
+  grid-template-rows: repeat(3, 1fr);
+  background: #fff;
+  color: #111;
+  break-after: page;
+  page-break-after: always;
+  overflow: hidden;
+}
+
+.handout-threeup-row {
+  display: grid;
+  grid-template-columns: minmax(0, 46%) minmax(0, 54%);
+  min-height: 0;
+  border-bottom: 1px solid #d4d4d8;
+  overflow: hidden;
+}
+
+.handout-threeup-row:last-child { border-bottom: 0; }
+.handout-threeup-row.is-empty { background: #fafafa; }
+
+.handout-threeup-thumb {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  overflow: hidden;
+}
+
+.handout-threeup-notes {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3%;
+  padding: 4.5% 5%;
+  border-left: 1px solid #d4d4d8;
+  background: #fff;
+  color: #111;
+  overflow: hidden;
+}
+
+.handout-threeup-notes-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  font-size: clamp(12px, 1.15vw, 22px);
+}
+
+.handout-threeup-notes-body {
+  margin: 0;
+  max-height: 42%;
+  color: #1f2937;
+  font-size: clamp(11px, 1vw, 18px);
+  line-height: 1.35;
+  overflow: hidden;
+  white-space: pre-wrap;
+}
+
+.handout-threeup-notes-empty {
+  margin: 0;
+  color: #9ca3af;
+  font-size: clamp(11px, 0.95vw, 17px);
+  font-style: italic;
+}
+
+.handout-threeup-lines {
+  flex: 1;
+  min-height: 38%;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(20% - 1px),
+    #e5e7eb calc(20% - 1px),
+    #e5e7eb 20%
+  );
+}
+
+@media print {
+  html, body, .handout-threeup-deck { background: #fff !important; }
+  .handout-threeup-page {
+    width: 1920px;
+    height: 1080px;
+    aspect-ratio: auto;
+    margin: 0;
+  }
+  .handout-threeup-page:last-child { break-after: auto; page-break-after: auto; }
+}
+
 
 /* A11Y: consistent keyboard focus ring for presenter chrome. */
 .app-focusable:focus-visible {
