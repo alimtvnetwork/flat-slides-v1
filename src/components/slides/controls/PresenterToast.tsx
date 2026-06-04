@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
 import { useChrome } from "@/components/slides/chrome-store";
+import { getSlidesPortalRoot } from "@/components/slides/fullscreenTarget";
 
 /**
  * Brief bottom-center toast driven by chrome.toast updates. Auto-dismiss
@@ -37,6 +38,6 @@ export function PresenterToast() {
         </motion.div>
       )}
     </AnimatePresence>,
-    document.body,
+    getSlidesPortalRoot() ?? document.body,
   );
 }
