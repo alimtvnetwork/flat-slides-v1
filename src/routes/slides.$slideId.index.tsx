@@ -22,6 +22,7 @@ import { ControllerPill } from "@/components/slides/controls/ControllerPill";
 import { DotPagination } from "@/components/slides/controls/DotPagination";
 import { KeyboardShortcutsDialog } from "@/components/slides/controls/KeyboardShortcutsDialog";
 import { PresenterToast } from "@/components/slides/controls/PresenterToast";
+import { PresenterAutoStart } from "@/components/slides/controls/PresenterAutoStart";
 import { PresenterTopBar } from "@/components/slides/controls/PresenterTopBar";
 import { SlideNumberBadge } from "@/components/slides/controls/SlideNumberBadge";
 const LintPanel = lazy(() =>
@@ -267,6 +268,7 @@ function SlidePage() {
       {controller}
       <CameraBubble />
       <PresenterToast />
+      <PresenterAutoStart />
       {settingsOpen && (
         <Suspense fallback={null}>
           <SettingsDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} currentSlideId={slide.id} />

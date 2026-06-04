@@ -20,6 +20,7 @@ import { ControllerPill } from "@/components/slides/controls/ControllerPill";
 import { DotPagination } from "@/components/slides/controls/DotPagination";
 import { KeyboardShortcutsDialog } from "@/components/slides/controls/KeyboardShortcutsDialog";
 import { PresenterToast } from "@/components/slides/controls/PresenterToast";
+import { PresenterAutoStart } from "@/components/slides/controls/PresenterAutoStart";
 import { PresenterTopBar } from "@/components/slides/controls/PresenterTopBar";
 import { SlideNumberBadge } from "@/components/slides/controls/SlideNumberBadge";
 import { RenderSlide } from "@/components/slides/RenderSlide";
@@ -263,6 +264,7 @@ function SlideStepPage() {
       {controller}
       <CameraBubble />
       <PresenterToast />
+      <PresenterAutoStart />
       <KeyboardShortcutsDialog open={helpOpen} onClose={() => setHelpOpen(false)} />
       {settingsOpen && (
         <Suspense fallback={null}>
