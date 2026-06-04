@@ -35,7 +35,7 @@ export function PresenterFallbackLink() {
             href={fallback.url}
             target="_blank"
             rel="noreferrer"
-            className="mt-2 flex min-w-0 items-center gap-2 rounded-md border border-[color:var(--ctrl-border)] px-2 py-1.5 text-xs text-[color:var(--ctrl-accent)] hover:bg-white/10"
+            className="mt-2 flex min-w-0 items-center gap-2 rounded-md border border-[color:var(--ctrl-border)] px-2 py-1.5 text-xs text-[color:var(--ctrl-accent)] hover:bg-[color:var(--ctrl-hover)]"
           >
             <ExternalLink size={14} />
             <span className="truncate">Open presenter window</span>
