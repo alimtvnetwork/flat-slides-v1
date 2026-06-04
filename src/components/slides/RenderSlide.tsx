@@ -54,10 +54,13 @@ function resolveBackground(
   const sb = slide.background;
   if (sb) {
     if (sb.startsWith("url(")) return { image: sb.slice(4, -1).replace(/^['"]|['"]$/g, "") };
-    if (sb.includes("://") || sb.startsWith("/") || sb.match(/\.(png|jpg|jpeg|webp|gif|svg)($|\?)/) /* improved */) return { image: sb };
+    if (sb.includes("://") || sb.startsWith("/") || /\.(png|jpe?g|webp|gif|svg)($|\?)/i.test(sb)) return { image: sb };
     return { color: sb };
   }
-  if (settings.backgroundMode === "image") { if (settings.backgroundImage) return { image: settings.backgroundImage }; if (settings.backgroundColor) return { color: settings.backgroundColor }; }
+  if (settings.backgroundMode === "image") {
+    if (settings.backgroundImage) return { image: settings.backgroundImage };
+    if (settings.backgroundColor) return { color: settings.backgroundColor };
+  }
   if (settings.backgroundMode === "color" && settings.backgroundColor) return { color: settings.backgroundColor };
   return {};
 }
