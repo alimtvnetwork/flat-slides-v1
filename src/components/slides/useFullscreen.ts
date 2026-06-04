@@ -2,6 +2,31 @@ import { useSyncExternalStore } from "react";
 
 import { getSlidesFullscreenRoot } from "./fullscreenTarget";
 
+type KeyboardLockNavigator = Navigator & {
+  keyboard?: {
+    lock?: (keys?: string[]) => Promise<void>;
+    unlock?: () => void;
+  };
+};
+
+async function lockEscapeKey() {
+  if (typeof navigator === "undefined") return;
+  try {
+    await (navigator as KeyboardLockNavigator).keyboard?.lock?.(["Escape"]);
+  } catch {
+    /* Keyboard Lock is browser/permission dependent. Native fullscreen still works without it. */
+  }
+}
+
+function unlockEscapeKey() {
+  if (typeof navigator === "undefined") return;
+  try {
+    (navigator as KeyboardLockNavigator).keyboard?.unlock?.();
+  } catch {
+    /* ignore */
+  }
+}
+
 function blurActiveElement() {
   if (typeof document === "undefined") return;
   const blur = () => {
@@ -20,6 +45,7 @@ export async function enterFullscreen(target?: HTMLElement | null) {
   const stableSlidesRoot = getSlidesFullscreenRoot();
   const fullscreenTarget = stableSlidesRoot ?? target ?? document.documentElement;
   await fullscreenTarget.requestFullscreen();
+  await lockEscapeKey();
   blurActiveElement();
 }
 
@@ -28,6 +54,8 @@ export function useFullscreen() {
     (notify) => {
       if (typeof document === "undefined") return () => {};
       const sync = () => {
+        if (document.fullscreenElement) void lockEscapeKey();
+        else unlockEscapeKey();
         blurActiveElement();
         notify();
       };
@@ -52,6 +80,7 @@ export function useFullscreen() {
   const exit = async () => {
     try {
       if (document.fullscreenElement) await document.exitFullscreen();
+      unlockEscapeKey();
       blurActiveElement();
     } catch { /* ignore */ }
   };
