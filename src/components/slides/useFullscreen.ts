@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from "react";
 
+import { useChrome } from "./chrome-store";
 import { getSlidesFullscreenRoot } from "./fullscreenTarget";
 
 type KeyboardLockNavigator = Navigator & {
@@ -8,6 +9,36 @@ type KeyboardLockNavigator = Navigator & {
     unlock?: () => void;
   };
 };
+
+export type FullscreenEnterResult =
+  | { ok: true; mode: "already-fullscreen" | "native" | "presenter-window" }
+  | { ok: false; reason: "unsupported" | "native-failed" | "embedded-popup-blocked"; error?: unknown };
+
+type FullscreenEnvironment = {
+  isEmbeddedWindow?: () => boolean;
+  openPresenterWindow?: () => Window | null;
+};
+
+export function isEmbeddedWindow() {
+  if (typeof window === "undefined") return false;
+  try {
+    return window.self !== window.top;
+  } catch {
+    return true;
+  }
+}
+
+export function getPresenterWindowUrl() {
+  if (typeof window === "undefined") return "";
+  return new URL(window.location.href).toString();
+}
+
+export function openPresenterWindow() {
+  if (typeof window === "undefined") return null;
+  const opened = window.open(getPresenterWindowUrl(), "_blank", "noopener,noreferrer");
+  opened?.focus?.();
+  return opened;
+}
 
 async function lockEscapeKey() {
   if (typeof navigator === "undefined") return;
@@ -40,13 +71,37 @@ function blurActiveElement() {
 }
 
 /** Tracks whether the document is currently in Fullscreen mode and provides toggles. */
-export async function enterFullscreen(target?: HTMLElement | null) {
-  if (document.fullscreenElement) return;
+export async function enterFullscreen(target?: HTMLElement | null, environment: FullscreenEnvironment = {}): Promise<FullscreenEnterResult> {
+  if (typeof document === "undefined") return { ok: false, reason: "unsupported" };
+  if (document.fullscreenElement) return { ok: true, mode: "already-fullscreen" };
+
+  const embedded = (environment.isEmbeddedWindow ?? isEmbeddedWindow)();
+  if (embedded) {
+    const opened = (environment.openPresenterWindow ?? openPresenterWindow)();
+    return opened ? { ok: true, mode: "presenter-window" } : { ok: false, reason: "embedded-popup-blocked" };
+  }
+
   const stableSlidesRoot = getSlidesFullscreenRoot();
   const fullscreenTarget = stableSlidesRoot ?? target ?? document.documentElement;
-  await fullscreenTarget.requestFullscreen();
-  await lockEscapeKey();
-  blurActiveElement();
+  if (!fullscreenTarget.requestFullscreen) return { ok: false, reason: "unsupported" };
+
+  try {
+    await fullscreenTarget.requestFullscreen();
+    await lockEscapeKey();
+    blurActiveElement();
+    return { ok: true, mode: "native" };
+  } catch (error) {
+    return { ok: false, reason: "native-failed", error };
+  }
+}
+
+function reportFullscreenFailure(result: FullscreenEnterResult) {
+  if (result.ok) return;
+  const message =
+    result.reason === "embedded-popup-blocked"
+      ? "Allow pop-ups to open presenter view"
+      : "Fullscreen blocked by browser";
+  useChrome.getState().flashToast(message);
 }
 
 export function useFullscreen() {
@@ -73,9 +128,9 @@ export function useFullscreen() {
   );
 
   const enter = async (target?: HTMLElement | null) => {
-    try {
-      await enterFullscreen(target);
-    } catch { /* ignore */ }
+    const result = await enterFullscreen(target);
+    reportFullscreenFailure(result);
+    return result;
   };
   const exit = async () => {
     try {
