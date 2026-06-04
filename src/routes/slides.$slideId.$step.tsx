@@ -57,7 +57,7 @@ function SlideStepPage() {
     : 0;
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
-  const { isFs, toggle: toggleFs, exit: exitFs } = useFullscreen();
+  const { isFs, toggle: toggleFs } = useFullscreen();
   const toggleTopJumper = useChrome((s) => s.toggleTopJumper);
   const toggleCamera = useChrome((s) => s.toggleCamera);
   const scene = useChrome((s) => s.scene);
@@ -107,7 +107,6 @@ function SlideStepPage() {
       }
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (e.key === "F5") { e.preventDefault(); toggleFs(); return; }
-      if (e.key === "Escape" && isFs) { exitFs(); return; }
       // Shift+arrows are handled by CameraBubble (nudge) — don't double-trigger nav.
       if (e.shiftKey && (e.key === "ArrowLeft" || e.key === "ArrowRight" || e.key === "ArrowUp" || e.key === "ArrowDown")) return;
       if (e.shiftKey && (e.key === "c" || e.key === "C")) { cycleCameraSize(); return; }
@@ -130,7 +129,7 @@ function SlideStepPage() {
         useAnnotations.setState((st) => ({ mode: st.mode === "ink" ? "off" : "ink" })); return;
       }
       if (e.key === "x" || e.key === "X") { useAnnotations.getState().clear(slide!.id); return; }
-      if (e.key === "Escape") { useAnnotations.setState({ mode: "off" }); }
+      if (e.key === "Escape") { e.preventDefault(); useAnnotations.setState({ mode: "off" }); return; }
       if (/^[1-5]$/.test(e.key)) {
         const colors = ["#ef4444","#facc15","#22d3ee","#a3e635","#ffffff"];
         useAnnotations.setState({ color: colors[Number(e.key) - 1] }); return;
@@ -176,7 +175,7 @@ function SlideStepPage() {
     };
     window.addEventListener("keydown", onKey, { capture: true });
     return () => window.removeEventListener("keydown", onKey, true);
-  }, [slide, stepCount, stepNum, current, next, prev, goTo, isFs, toggleFs, exitFs, toggleTopJumper, toggleCamera, cycleCameraSize, toggleMusic, cycleScene, navigate, settingsOpen, helpOpen]);
+  }, [slide, stepCount, stepNum, current, next, prev, goTo, toggleFs, toggleTopJumper, toggleCamera, cycleCameraSize, toggleMusic, cycleScene, navigate, settingsOpen, helpOpen]);
 
   if (!slide || slideStepCount(slide) === 0) {
     return (

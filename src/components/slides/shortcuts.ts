@@ -18,7 +18,7 @@ export interface ShortcutDef {
 export const SHORTCUTS: ShortcutDef[] = [
   { display: "←",     keys: ["ArrowLeft"],                 label: "Previous slide or step", group: "Navigation" },
   { display: "→",     keys: ["ArrowRight", " ", "Enter"],  label: "Next slide or step",     group: "Navigation" },
-  { display: "Esc",   keys: ["Escape"],                    label: "Exit fullscreen",        group: "Navigation" },
+  { display: "Esc",   keys: ["Escape"],                    label: "Clear annotation tool",  group: "Annotate" },
   { display: "F5",    keys: ["F5"],                        label: "Toggle fullscreen",      group: "Presenter" },
   { display: "G",     keys: ["g"],                         label: "Open deck overview",     group: "Surfaces" },
   { display: "J",     keys: ["j"],                         label: "Toggle top jumper",      group: "Surfaces" },
