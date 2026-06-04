@@ -170,16 +170,19 @@ function SlidePage() {
         return;
       }
       if (e.key === "f" || e.key === "F") { useChrome.getState().toggleFocusEditor(); return; }
-      if (e.key === "g" || e.key === "G") { navigate({ to: "/slides" }); return; }
-      if (e.key === "ArrowRight" || e.key === " " || e.key === "Enter") {
+      if (e.key === "g" || e.key === "G") { e.preventDefault(); navigate({ to: "/slides" }); return; }
+      const isForwardKey = e.key === "ArrowRight" || e.key === " " || e.code === "Space" || e.key === "Spacebar" || e.key === "Enter";
+      if (isForwardKey) {
+        e.preventDefault();
         if (slideStepCount(slide) > 1) { goTo(current, "forward", 2); return; }
         next(current);
       } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
         prev(current);
       }
     };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    window.addEventListener("keydown", onKey, { capture: true });
+    return () => window.removeEventListener("keydown", onKey, true);
   }, [slide, current, next, prev, goTo, isFs, toggleFs, exitFs, toggleTopJumper, toggleCamera, cycleCameraSize, toggleMusic, cycleScene, navigate, settingsOpen, paletteOpen, lintOpen, helpOpen]);
 
   if (!slide) {

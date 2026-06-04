@@ -80,6 +80,13 @@ export function ControllerPill(props: Props) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    requestAnimationFrame(() => {
+      const active = document.activeElement;
+      if (active instanceof HTMLElement && active.closest('[aria-label="Slide controller"]')) active.blur();
+    });
+  }, [isFullscreen]);
 
   // Cycle through 8 anchors on right-click of the pill.
   function cycleAnchor() {
@@ -185,6 +192,7 @@ function PillButton({
   return (
     <button
       type="button"
+      onPointerDown={(e) => e.preventDefault()}
       onClick={onClick}
       disabled={disabled}
       aria-label={ariaLabel}

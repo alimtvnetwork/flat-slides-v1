@@ -157,11 +157,14 @@ function SlideStepPage() {
         return;
       }
       if (e.key === "f" || e.key === "F") { useChrome.getState().toggleFocusEditor(); return; }
-      if (e.key === "g" || e.key === "G") { navigate({ to: "/slides" }); return; }
-      if (e.key === "ArrowRight" || e.key === " " || e.key === "Enter") {
+      if (e.key === "g" || e.key === "G") { e.preventDefault(); navigate({ to: "/slides" }); return; }
+      const isForwardKey = e.key === "ArrowRight" || e.key === " " || e.code === "Space" || e.key === "Spacebar" || e.key === "Enter";
+      if (isForwardKey) {
+        e.preventDefault();
         if (stepNum < last) goTo(current, "forward", stepNum + 2);
         else next(current);
       } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
         if (stepNum > 0) {
           const target = stepNum;
           if (target <= 1) goTo(current, "backward");
@@ -171,8 +174,8 @@ function SlideStepPage() {
         }
       }
     };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    window.addEventListener("keydown", onKey, { capture: true });
+    return () => window.removeEventListener("keydown", onKey, true);
   }, [slide, stepCount, stepNum, current, next, prev, goTo, isFs, toggleFs, exitFs, toggleTopJumper, toggleCamera, cycleCameraSize, toggleMusic, cycleScene, navigate, settingsOpen, helpOpen]);
 
   if (!slide || slideStepCount(slide) === 0) {
