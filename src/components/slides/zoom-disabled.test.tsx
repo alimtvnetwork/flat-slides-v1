@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { CameraStage } from "./CameraStage";
@@ -30,16 +30,17 @@ describe("opt-in focus zoom effects", () => {
     expect(screen.getByTestId("slide-body").parentElement?.style.transform).toBe("translate3d(0px, 0px, 0) scale(1)");
   });
 
-  it("CameraStage zooms when the active 1-based step has a focus region", () => {
+  it("CameraStage animates from full-frame into the active 1-based focus region", async () => {
     render(
       <CameraStage slide={focusedSlide} step={2}>
         <div data-testid="slide-body" />
       </CameraStage>,
     );
 
-    const transform = screen.getByTestId("slide-body").parentElement?.style.transform;
-    expect(transform).toContain("scale(2.195)");
-    expect(transform).not.toBe("translate3d(0px, 0px, 0) scale(1)");
+    const cameraLayer = screen.getByTestId("slide-body").parentElement;
+    expect(cameraLayer?.style.transform).toBe("translate3d(0px, 0px, 0) scale(1)");
+    await waitFor(() => expect(cameraLayer?.style.transform).toContain("scale(2.195)"));
+    expect(cameraLayer?.style.transition).toContain("transform 700ms");
   });
 
   it("accepts imported opt-in camera-zoom deck transitions", () => {
