@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useLocation } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
 import { RenderSlide } from "@/components/slides/RenderSlide";
@@ -22,19 +22,20 @@ export const Route = createFileRoute("/slides/handout")({
 
 function SlidesHandoutPage() {
   const slides = useDeck((s) => s.deck.slides).filter((s) => s.enabled !== false);
+  const location = useLocation();
   const [autoPrint, setAutoPrint] = useState(false);
   const [paper, setPaper] = useState<ExportPaper>(DEFAULT_EXPORT_PAPER);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(location.searchStr);
     const shouldAutoPrint = params.get("auto") === "1";
     setPaper(parseExportPaper(params));
     setAutoPrint(shouldAutoPrint);
     if (!shouldAutoPrint) return;
     const t = window.setTimeout(() => window.print(), 600);
     return () => window.clearTimeout(t);
-  }, []);
+  }, [location.searchStr]);
 
   return (
     <main className="handout-deck" data-paper={paper}>
