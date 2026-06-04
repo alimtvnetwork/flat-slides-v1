@@ -31,11 +31,14 @@ export function CameraStage({ slide, step = 1, children }: Props) {
       return;
     }
     setTransform(IDENTITY_FRAME.transform);
+    let frameTwo = 0;
     const frameOne = requestAnimationFrame(() => {
-      const frameTwo = requestAnimationFrame(() => setTransform(frame.transform));
-      return () => cancelAnimationFrame(frameTwo);
+      frameTwo = requestAnimationFrame(() => setTransform(frame.transform));
     });
-    return () => cancelAnimationFrame(frameOne);
+    return () => {
+      cancelAnimationFrame(frameOne);
+      cancelAnimationFrame(frameTwo);
+    };
   }, [focus, frame.transform, reducedMotion]);
 
   return (
