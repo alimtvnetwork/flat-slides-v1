@@ -157,11 +157,13 @@ function SlideStepPage() {
         return;
       }
       if (e.key === "f" || e.key === "F") { useChrome.getState().toggleFocusEditor(); return; }
-      if (e.key === "g" || e.key === "G") { navigate({ to: "/slides" }); return; }
+      if (e.key === "g" || e.key === "G") { e.preventDefault(); navigate({ to: "/slides" }); return; }
       if (e.key === "ArrowRight" || e.key === " " || e.key === "Enter") {
+        e.preventDefault();
         if (stepNum < last) goTo(current, "forward", stepNum + 2);
         else next(current);
       } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
         if (stepNum > 0) {
           const target = stepNum;
           if (target <= 1) goTo(current, "backward");
