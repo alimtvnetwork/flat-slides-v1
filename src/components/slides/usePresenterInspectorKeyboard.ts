@@ -3,9 +3,17 @@ import { useCallback, useEffect, useMemo } from "react";
 
 import { useChrome } from "./chrome-store";
 import { dispatchInspectorKey } from "./presenterActions";
+import { isTextEntryTarget, keyName, runInspectorAction } from "./presenterInspectorKeyGuards";
+import {
+  clampSlideNumber,
+  exitInspector,
+  moveInspectorNext,
+  moveInspectorPrev,
+  navigateToInspector,
+} from "./presenterInspectorNavigation";
 import type { PresenterInspectorModel } from "./presenterInspectorModel";
 import { useDeck } from "./store";
-import { slideStepCount, type Slide } from "./types";
+import { slideStepCount } from "./types";
 
 export function usePresenterInspectorKeyboard(model: PresenterInspectorModel) {
   const navigate = useNavigate();
@@ -23,11 +31,8 @@ export function usePresenterInspectorKeyboard(model: PresenterInspectorModel) {
     },
     [linearSlides, location.search, navigate],
   );
-  const goPrev = useCallback(
-    () => movePrev(model, goTo, linearSlides),
-    [goTo, linearSlides, model],
-  );
-  const goNext = useCallback(() => moveNext(model, goTo), [goTo, model]);
+  const goPrev = useCallback(() => moveInspectorPrev(model, goTo, linearSlides), [goTo, linearSlides, model]);
+  const goNext = useCallback(() => moveInspectorNext(model, goTo), [goTo, model]);
   const exit = useCallback(
     () => exitInspector(navigate, location.search, model.slideNumber),
     [location.search, model.slideNumber, navigate],
@@ -79,79 +84,6 @@ function toInspectorCtx(event: KeyboardEvent, input: InspectorKeyInput) {
     resetTimer: () => input.resetTimer(Date.now()),
     toggleTimerPause: () => input.togglePause(Date.now()),
   };
-}
-
-function movePrev(
-  model: PresenterInspectorModel,
-  goTo: (n: number, step?: number) => void,
-  slides: Slide[],
-) {
-  if (model.stepIndex > 0) return goTo(model.slideNumber, model.stepIndex);
-  const prevSlide = slides[model.slideNumber - 2];
-  const lastStep = prevSlide ? slideStepCount(prevSlide) : 0;
-  return goTo(model.slideNumber - 1, lastStep > 1 ? lastStep : undefined);
-}
-
-function moveNext(model: PresenterInspectorModel, goTo: (n: number, step?: number) => void) {
-  const stepCount = slideStepCount(model.slide);
-  if (stepCount > 1 && model.stepIndex < stepCount - 1) {
-    return goTo(model.slideNumber, model.stepIndex + 2);
-  }
-  return goTo(model.slideNumber + 1);
-}
-
-function navigateToInspector(
-  navigate: ReturnType<typeof useNavigate>,
-  search: unknown,
-  slideId: number,
-  stepCount: number,
-  step?: number,
-) {
-  if (step && step > 1 && step <= stepCount) {
-    void navigate({
-      to: "/slides/inspector/$slideId/$step",
-      params: { slideId: String(slideId), step: String(step) },
-      search: search as never,
-      replace: true,
-    });
-    return;
-  }
-  void navigate({
-    to: "/slides/inspector/$slideId",
-    params: { slideId: String(slideId) },
-    search: search as never,
-    replace: true,
-  });
-}
-
-function exitInspector(
-  navigate: ReturnType<typeof useNavigate>,
-  search: unknown,
-  slideNumber: number,
-) {
-  void navigate({
-    to: "/slides/$slideId",
-    params: { slideId: String(slideNumber) },
-    search: search as never,
-  });
-}
-
-function isTextEntryTarget(target: EventTarget | null) {
-  const element = target instanceof HTMLElement ? target : null;
-  const tag = element?.tagName;
-  return (
-    tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || Boolean(element?.isContentEditable)
-  );
-}
-
-function keyName(event: KeyboardEvent) {
-  const key = event.key.toLowerCase();
-  if (key.length === 1) return key;
-  return event.code.toLowerCase().replace(/^key/, "") || key;
-}
-
-function clampSlideNumber(value: number, total: number) {
-  return Math.max(1, Math.min(total, value));
 }
 
 interface InspectorKeyInput {
