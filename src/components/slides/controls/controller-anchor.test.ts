@@ -3,9 +3,11 @@ import { describe, expect, it } from "vitest";
 import {
   anchorStyles,
   CONTROLLER_ANCHOR_ORDER,
+  isControllerAnchorShortcut,
   nextControllerAnchor,
   type ControllerAnchor,
 } from "./controller-anchor";
+import { CONTROLLER_ANCHOR_STORAGE_KEY, cycleControllerAnchor, useControllerAnchor } from "./controller-anchor-store";
 
 describe("nextControllerAnchor", () => {
   it("wraps after the last anchor", () => {
@@ -13,15 +15,15 @@ describe("nextControllerAnchor", () => {
     expect(nextControllerAnchor(last)).toBe(CONTROLLER_ANCHOR_ORDER[0]);
   });
 
-  it("visits all 8 anchors in one full cycle without repeats", () => {
+  it("visits the B21 controller anchors in order without repeats", () => {
     const seen = new Set<ControllerAnchor>();
-    let cur: ControllerAnchor = "bottom-right";
+    let cur: ControllerAnchor = "bottom-center";
     for (let i = 0; i < CONTROLLER_ANCHOR_ORDER.length; i++) {
       seen.add(cur);
       cur = nextControllerAnchor(cur);
     }
-    expect(seen.size).toBe(8);
-    expect(cur).toBe("bottom-right");
+    expect([...seen]).toEqual(["bottom-center", "bottom-right", "bottom-left", "top-right"]);
+    expect(cur).toBe("bottom-center");
   });
 });
 
@@ -34,19 +36,24 @@ describe("anchorStyles", () => {
     expect(s).not.toHaveProperty("left");
   });
 
-  it("centers horizontally for *-center anchors", () => {
-    expect(anchorStyles("top-center").transform).toContain("translateX");
+  it("centers horizontally for bottom-center", () => {
     expect(anchorStyles("bottom-center").transform).toContain("translateX");
-  });
-
-  it("centers vertically for middle-* anchors", () => {
-    expect(anchorStyles("middle-left").transform).toContain("translateY");
-    expect(anchorStyles("middle-right").transform).toContain("translateY");
   });
 
   it("falls back to bottom-right for unknown anchors", () => {
     const s = anchorStyles("nope" as unknown as ControllerAnchor);
     expect(s).toHaveProperty("bottom");
     expect(s).toHaveProperty("right");
+  });
+});
+
+describe("controller anchor persistence", () => {
+  it("cycles with the B shortcut and persists under the required key", () => {
+    localStorage.clear();
+    useControllerAnchor.getState().setAnchor("bottom-center");
+    expect(isControllerAnchorShortcut(new KeyboardEvent("keydown", { key: "b" }))).toBe(true);
+    cycleControllerAnchor();
+    expect(useControllerAnchor.getState().anchor).toBe("bottom-right");
+    expect(localStorage.getItem(CONTROLLER_ANCHOR_STORAGE_KEY)).toContain("bottom-right");
   });
 });

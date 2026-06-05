@@ -17,6 +17,8 @@ import { useTimer } from "@/components/slides/timer-store";
 import { usePresentationTimer } from "@/components/slides/usePresentationTimer";
 import { CameraBubble } from "@/components/slides/controls/CameraBubble";
 import { ControllerPill } from "@/components/slides/controls/ControllerPill";
+import { cycleControllerAnchor } from "@/components/slides/controls/controller-anchor-store";
+import { isControllerAnchorShortcut } from "@/components/slides/controls/controller-anchor";
 import { DotPagination } from "@/components/slides/controls/DotPagination";
 import { KeyboardShortcutsDialog } from "@/components/slides/controls/KeyboardShortcutsDialog";
 import { PresenterToast } from "@/components/slides/controls/PresenterToast";
@@ -183,6 +185,7 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
         return;
       }
       if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (isControllerAnchorShortcut(e)) { e.preventDefault(); e.stopImmediatePropagation(); cycleControllerAnchor(); return; }
       if (e.key === "F5") { e.preventDefault(); toggleFs(); return; }
       if (e.shiftKey && (e.key === "ArrowLeft" || e.key === "ArrowRight" || e.key === "ArrowUp" || e.key === "ArrowDown")) return;
       if (e.shiftKey && (e.key === "c" || e.key === "C")) { cycleCameraSize(); return; }

@@ -21,6 +21,7 @@ export const SHORTCUTS: ShortcutDef[] = [
   { display: "Esc",   keys: ["Escape"],                    label: "Clear annotation tool",  group: "Annotate" },
   { display: "F5",    keys: ["F5"],                        label: "Toggle fullscreen",      group: "Presenter" },
   { display: "G",     keys: ["g"],                         label: "Open deck overview",     group: "Surfaces" },
+  { display: "B",     keys: ["b"],                         label: "Move controller",        group: "Presenter" },
   { display: "J",     keys: ["j"],                         label: "Toggle top jumper",      group: "Surfaces" },
   { display: "?",     keys: ["/", "?"],                    label: "Show keyboard shortcuts", group: "Presenter" },
   { display: "⌘K",    keys: [],                            label: "Command palette",        group: "Presenter" },
