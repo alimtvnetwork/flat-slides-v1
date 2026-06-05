@@ -47,7 +47,7 @@ const SettingsDrawer = lazy(() =>
   import("@/components/slides/SettingsDrawer").then((m) => ({ default: m.SettingsDrawer })),
 );
 
-const SLIDE_NAVIGATION_COOLDOWN_MS = 950;
+const SLIDE_NAVIGATION_COOLDOWN_MS = 150;
 
 export function SlidePresenterPage({ slideId }: { slideId: string }) {
   const navigate = useNavigate();
