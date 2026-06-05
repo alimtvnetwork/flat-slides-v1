@@ -335,3 +335,18 @@ popovers/menus (Radix `data-state="open"`) hold it open.
 
 Verified: `bunx vitest run src/components/slides/controls/useHoverReveal.test.ts
 src/components/slides/controls/ControllerPill.mount.test.tsx` — 8/8.
+
+### Step 25 — Overflow menu on narrow viewports (B21)
+
+Root cause: at <1280px the toolbar wraps/overflows because Theme, Music,
+Settings, Help all render inline alongside Grid/Fullscreen/Camera/Share.
+
+Fix: added `useNarrowViewport` (matches `(max-width: 1279px)`) and
+`ControllerOverflowMenu` (Radix DropdownMenu with `⋯` trigger,
+`aria-label="More controls"`). When narrow, Theme/Music render inside
+the menu's header strip and Settings/Help become menu items; when wide,
+the original inline layout is preserved. Share stays inline at all sizes.
+
+Verified: `bunx vitest run src/components/slides/controls/ControllerOverflowMenu.test.tsx
+src/components/slides/controls/ControllerPill.mount.test.tsx
+src/components/slides/controls/useHoverReveal.test.ts` — 10/10.
