@@ -34,7 +34,6 @@ import { getDisplayNumber, slideStepCount } from "@/components/slides/types";
 import { useFullscreen } from "@/components/slides/useFullscreen";
 import { emitSlidesEvent, installConsoleSink } from "@/components/slides/telemetry";
 import { SLIDES_FULLSCREEN_URL_CHANGE_EVENT, type SlidesFullscreenUrlChangeDetail, useSlideNavigation } from "@/components/slides/useSlideNavigation";
-import { PresenterTools } from "@/components/slides/PresenterTools";
 
 const CommandPalette = lazy(() =>
   import("@/components/slides/CommandPalette").then((m) => ({ default: m.CommandPalette })),
@@ -339,8 +338,8 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
         onClose={() => useChrome.getState().setFocusEditorOpen(false)}
       />
       {isFs && <AnnotationToolbar slideId={slide.id} />}
-      <TimerOverlay slide={slide} />
-      <PollResultsOverlay slide={slide} />
+      {isFs && <TimerOverlay slide={slide} />}
+      {isFs && <PollResultsOverlay slide={slide} />}
       {isFs && <SharePill current={current} step={isStepRoute ? stepNum + 1 : undefined} />}
       <QrOverlay />
     </>
@@ -378,8 +377,8 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
         </div>
         {surfaces}
       </SlideStageShell>
-      {controller}
-      <CameraBubble />
+      {!isFs && controller}
+      {isFs && <CameraBubble />}
       <PresenterToast />
       <PresenterFallbackLink />
       <PresenterAutoStart />
@@ -389,7 +388,7 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
         </Suspense>
       )}
       <SlideAriaAnnouncer current={current} total={total} step={isStepRoute ? stepNum + 1 : undefined} stepCount={isStepRoute ? stepCount : undefined} title={slide.title} />
-      <PresenterNotesPeek notes={slide.notes} />
+      {isFs && <PresenterNotesPeek notes={slide.notes} />}
       {paletteOpen && (
         <Suspense fallback={null}>
           <CommandPalette
@@ -410,7 +409,6 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
           <LintPanel open={lintOpen} onClose={() => setLintOpen(false)} deck={deck} />
         </Suspense>
       )}
-      {!isFs && <PresenterTools index={index} total={total} deck={deck} />}
     </PresenterShell>
   );
 }

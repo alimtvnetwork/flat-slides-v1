@@ -135,7 +135,7 @@ function cameraPatchWithClampedPosition(camera: CameraState): CameraState {
 }
 
 const DEFAULT_CAMERA: CameraState = {
-  visible: true,
+  visible: false,
   anchor: "bottom-right",
   x: CAMERA_STAGE.w - CAMERA_SIZE_STEPS.M.w - CAMERA_MARGIN,
   y: CAMERA_MARGIN,
@@ -149,7 +149,7 @@ const DEFAULT_CAMERA: CameraState = {
   backgroundMode: "color",
   backgroundColor: "#050505",
   backgroundImage: "",
-  fullscreenOnly: false,
+  fullscreenOnly: true,
   autoFrame: false,
 };
 
