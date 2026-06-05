@@ -397,4 +397,31 @@ Selectors target the controller via `getByRole("toolbar", { name: "Slide control
 and accessible names — no brittle CSS classes. Spec runs under the existing
 `playwright.config.ts` (chromium project, webServer auto-starts dev server).
 
+### Step 28 — Reduced-motion + a11y audit (B21)
+
+Audit scope: controller pill, overflow menu, hover-reveal hook.
+
+Findings:
+1. **`useHoverReveal` ignored `prefers-reduced-motion`** — 160ms expand
+   intent and 400ms collapse grace fired regardless of user preference.
+   Violates the core memory rule: "any animated slide surface MUST
+   consult useReducedMotion()."
+2. `ControllerPill` already gates its framer-motion preset on
+   `useReducedMotion()` — clean.
+3. `ControllerOverflowMenu` uses Radix DropdownMenu (no custom motion);
+   trigger has `aria-label="More controls"`, menu items expose text
+   labels for screen readers — clean.
+4. Pill has `role="toolbar"` + `aria-label="Slide controller"` — clean.
+5. The `B`-key move-controller shortcut is advertised in `SHORTCUTS`
+   (Step 23) and surfaced in the Keyboard shortcuts dialog — clean.
+
+Fix:
+- `useHoverReveal` now calls `useReducedMotion()` and collapses
+  `expandDelay`/`collapseDelay` to 0ms when the user prefers reduced
+  motion — instant expand and instant collapse, no flicker.
+- Added regression test in `useHoverReveal.test.ts` mocking
+  `matchMedia("(prefers-reduced-motion: reduce)")` and asserting both
+  state transitions land synchronously.
+
+Verified: `bunx vitest run src/components/slides/controls/useHoverReveal.test.ts` — 6/6.
 
