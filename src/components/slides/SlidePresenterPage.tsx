@@ -370,8 +370,8 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
           style={{ opacity: scene === "cam-only" ? 0.05 : scene === "split" ? 0.75 : 1, transition: "opacity 300ms ease" }}
           className="absolute inset-0"
         >
-          <ScaledSlide fitPadding={36}>
-            <SlideTransition transitionKey={slide.id} transitionKind={deck.settings.transition} slide={slide}>
+          <ScaledSlide fitPadding={isFs ? 0 : 36}>
+            <SlideTransition transitionKey={slide.id} transitionKind={deck.settings.transition} slide={slide} isFullscreen={isFs}>
               <CameraStage slide={slide} step={cameraStep}><RenderSlide slide={slide} step={stepNum} /></CameraStage>
             </SlideTransition>
           </ScaledSlide>

@@ -37,24 +37,26 @@ export function resolveSlideTransition(
   kind: TransitionKind,
   slide: Slide | undefined,
   reduced: boolean,
+  isFullscreen = false,
 ): { variants: Variants; transition: Transition; willChange: string } {
   if (reduced) return { ...fadeTransition(), transition: { duration: 0.15, ease: "linear" }, willChange: "opacity" };
+  if (isFullscreen) return { ...fadeTransition(), willChange: "opacity" };
   if (kind === "camera-zoom" && canUseCameraZoom(slide)) {
     return { ...cameraZoomTransition(), willChange: "opacity, transform" };
   }
   return { ...fadeTransition(), willChange: "opacity" };
 }
 
-type Props = { transitionKey: string; transitionKind?: TransitionKind; slide?: Slide; children: ReactNode };
+type Props = { transitionKey: string; transitionKind?: TransitionKind; slide?: Slide; isFullscreen?: boolean; children: ReactNode };
 
 /**
  * Wraps the active slide in a motion transition. The `transitionKey` should
  * change whenever you want a transition. Step changes should keep the same key
  * so timeline/list reveals stay local and never trigger a full-slide zoom.
  */
-export function SlideTransition({ transitionKey, transitionKind = "fade", slide, children }: Props) {
+export function SlideTransition({ transitionKey, transitionKind = "fade", slide, isFullscreen = false, children }: Props) {
   const reduced = useReducedMotion();
-  const { variants, transition, willChange } = resolveSlideTransition(transitionKind, slide, reduced);
+  const { variants, transition, willChange } = resolveSlideTransition(transitionKind, slide, reduced, isFullscreen);
 
   useEffect(() => {
     // Whoosh fires on every slide change — `transitionKey` only changes between
