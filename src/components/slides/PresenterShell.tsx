@@ -1,6 +1,7 @@
-import type { ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
+import { useCursorAutoHide } from "@/components/slides/useCursorAutoHide";
 
 type Props = {
   isFullscreen: boolean;
@@ -8,8 +9,11 @@ type Props = {
 };
 
 export function PresenterShell({ isFullscreen, children }: Props) {
+  const rootRef = useRef<HTMLDivElement>(null);
+  useCursorAutoHide(() => rootRef.current, isFullscreen);
   return (
     <div
+      ref={rootRef}
       data-slide-presenter-root
       data-fullscreen={isFullscreen ? "true" : "false"}
       className={cn(
