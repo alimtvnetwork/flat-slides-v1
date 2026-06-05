@@ -127,6 +127,13 @@ function normalizeCamera(camera: Partial<CameraState>): CameraState {
   return { ...draft, ...pos };
 }
 
+function cameraPatchWithClampedPosition(camera: CameraState): CameraState {
+  return {
+    ...camera,
+    ...clampCameraPosition({ x: camera.x, y: camera.y }, cameraDimensions(camera)),
+  };
+}
+
 const DEFAULT_CAMERA: CameraState = {
   visible: true,
   anchor: "bottom-right",
