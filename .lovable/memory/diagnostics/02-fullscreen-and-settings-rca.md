@@ -216,3 +216,18 @@ dedicated "Reset settings" action.
 Verified: `bunx vitest run src/components/slides/settingsStore.test.ts src/components/slides/themeWrap.test.tsx`
 passes 10/10 tests, including all-setting persistence, reset-to-defaults, and
 corrupt JSON fallback.
+
+## Step 18 — One audio instance
+
+Root cause: deck music playback lived in `useDeckMusic()` as a component-local
+`useRef<HTMLAudioElement | null>`. Presenter/control remounts could therefore
+create, pause, or discard separate audio elements instead of sharing one
+presenter-wide music player.
+
+Fix: added `deckMusicPlayer.ts` with a module-scope `HTMLAudioElement`
+singleton. `useDeckMusic()` now only configures that singleton and toggles
+playback state. Every play request calls `stopDeckMusic()` first, which pauses
+and rewinds before `play()`, so rapid toggles cannot stack overlapping music.
+
+Verified: `bunx vitest run src/components/slides/deckMusicPlayer.test.ts src/components/slides/settingsStore.test.ts`
+passes 5/5 tests, including singleton reuse and stop-before-play behavior.
