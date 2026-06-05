@@ -116,9 +116,9 @@ export function SettingsDrawer({
   };
 
   return (
-    <div className="fixed inset-0 z-[200] flex" data-app-chrome>
+    <div className="fixed z-[200] flex" data-presenter-frame-bound="true" data-app-chrome>
       <div className="flex-1 bg-transparent" onClick={onClose} />
-      <aside className="w-[400px] bg-neutral-950 p-6 text-neutral-200 overflow-y-auto">
+      <aside className="w-[min(400px,var(--presenter-frame-width))] bg-neutral-950 p-6 text-neutral-200 overflow-y-auto">
         <div className="mb-6 flex items-center justify-between">
           <h2 className="inline-flex items-center gap-2 text-lg font-semibold">
             <SettingsIcon size={16} className="text-neutral-400" /> Settings
