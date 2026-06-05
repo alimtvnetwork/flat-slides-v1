@@ -205,6 +205,37 @@ export function SettingsDrawer({
           ) : null}
         </section>
 
+        <section className="mb-6 space-y-2">
+          <label className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wider text-neutral-400">
+            <PenLine size={12} /> Text color
+          </label>
+          <div className="flex gap-2">
+            <input
+              type="color"
+              value={settings.textColor ?? "#ffffff"}
+              onChange={(e) => setSettings({ textColor: e.target.value })}
+              className="h-10 w-20 rounded bg-neutral-800"
+            />
+            <button
+              onClick={() => setSettings({ textColor: undefined })}
+              className="flex-1 rounded bg-neutral-800 px-3 py-1 text-sm text-neutral-300 hover:text-white"
+            >
+              Auto (theme)
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-1">
+            {["#ffffff", "#fafafa", "#e5e5e5", "#a3a3a3", "#101010", "#000000"].map((c) => (
+              <button
+                key={c}
+                onClick={() => setSettings({ textColor: c })}
+                title={c}
+                className="h-7 w-7 rounded ring-1 ring-neutral-700 hover:ring-white"
+                style={{ background: c }}
+              />
+            ))}
+          </div>
+        </section>
+
         <section className="mb-6 space-y-3">
           <label className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wider text-neutral-400">
             <SettingsIcon size={12} /> Camera

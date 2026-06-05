@@ -228,6 +228,7 @@ export interface DeckSettings {
   backgroundMode: "color" | "image" | "dark";
   backgroundColor: string;
   backgroundImage?: string;
+  textColor?: string;
   darken: number; // 0-100
   blur: number;   // 0-20
   transition: TransitionKind;
