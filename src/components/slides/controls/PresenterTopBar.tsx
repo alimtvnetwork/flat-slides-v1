@@ -31,9 +31,10 @@ export function PresenterTopBar({ current, total, onPrev, onNext }: Props) {
   return (
     <div
       data-print-hide="true"
+      data-presenter-frame-anchor="top-center"
       aria-live="polite"
       className={cn(
-        "fixed top-2 left-1/2 -translate-x-1/2 z-30 pointer-events-none",
+        "fixed -translate-x-1/2 z-30 pointer-events-none",
         "flex items-center gap-2 h-7 rounded-full",
         "border border-yellow-400/20 bg-black/40 backdrop-blur-md px-3",
         "text-[11px] text-white/75 shadow-md",
