@@ -173,8 +173,8 @@
   --slide-text-shadow: rgb(0 0 0) 1px 0.7px 0px;
   --stage-scale: min(100vw / 1920, 100dvh / 1080);
   --fit-padding: 0px;
-  --presenter-frame-width: min(100vw, calc(100dvh * 1.7777777778));
-  --presenter-frame-height: min(100dvh, calc(100vw * 0.5625));
+  --presenter-frame-width: min(100vw, 177.777778dvh);
+  --presenter-frame-height: min(100dvh, 56.25vw);
   --presenter-frame-left: calc((100vw - var(--presenter-frame-width)) * 0.5);
   --presenter-frame-top: calc((100dvh - var(--presenter-frame-height)) * 0.5);
   --presenter-frame-right: var(--presenter-frame-left);
