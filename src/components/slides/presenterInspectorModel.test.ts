@@ -18,7 +18,7 @@ function steps(id: string, count: number): Slide {
     id,
     type: "steps",
     title: `Steps ${id}`,
-    items: Array.from({ length: count }, (_, i) => ({ text: `s${i}` })),
+    steps: Array.from({ length: count }, (_, i) => ({ text: `s${i}` })),
   } as unknown as Slide;
 }
 
