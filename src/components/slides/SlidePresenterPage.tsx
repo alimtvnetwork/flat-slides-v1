@@ -55,6 +55,7 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
   const [fullscreenPathname, setFullscreenPathname] = useState<string | null>(null);
   const fullscreenPathnameRef = useRef<string | null>(null);
   const lastNavigationAtRef = useRef(0);
+  const keyHandlerRef = useRef<(event: KeyboardEvent) => void>(() => {});
   const deck = useDeck((s) => s.deck);
   const allSlides = deck.slides;
   const { linearSlides, total, next, prev, jump, goTo } = useSlideNavigation();
@@ -153,9 +154,8 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
     };
   }, [location.pathname, location.search, navigate]);
 
-  useEffect(() => {
-    if (!slide) return;
-    const onKey = (e: KeyboardEvent) => {
+  keyHandlerRef.current = (e: KeyboardEvent) => {
+      if (!slide) return;
       const tag = (e.target as HTMLElement)?.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA" || (e.target as HTMLElement)?.isContentEditable) return;
       if (settingsOpen || paletteOpen || lintOpen || helpOpen) return;
@@ -226,9 +226,13 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
         goPrevStepAware();
       }
     };
+  };
+
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => keyHandlerRef.current(event);
     window.addEventListener("keydown", onKey, { capture: true });
     return () => window.removeEventListener("keydown", onKey, true);
-  }, [slide, current, next, goTo, toggleFs, toggleTopJumper, toggleCamera, cycleCameraSize, toggleMusic, cycleScene, navigate, settingsOpen, paletteOpen, lintOpen, helpOpen, deck.title, isStepRoute, stepCount, stepNum]);
+  }, []);
 
   if (!slide) {
     return (
