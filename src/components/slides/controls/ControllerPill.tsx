@@ -1,12 +1,13 @@
 import { motion } from "framer-motion";
 import { Camera, ChevronLeft, ChevronRight, Grid3x3, HelpCircle, Maximize2, Minimize2, Settings } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 import { useChrome } from "@/components/slides/chrome-store";
 import { getSlidesPortalRoot } from "@/components/slides/fullscreenTarget";
 import { useReducedMotion } from "@/components/slides/useReducedMotion";
 import { cn } from "@/lib/utils";
+import { useHoverReveal } from "./useHoverReveal";
 
 import { anchorStyles, type ControllerAnchor } from "./controller-anchor";
 import { useControllerAnchor } from "./controller-anchor-store";
@@ -60,6 +61,8 @@ export function ControllerPill(props: Props) {
   const compact = useCompactViewport();
   const reduced = useReducedMotion();
   const [mounted, setMounted] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { isExpanded, handleEnter, handleLeave } = useHoverReveal(containerRef);
 
   useEffect(() => setMounted(true), []);
   useEffect(() => {
@@ -78,11 +81,17 @@ export function ControllerPill(props: Props) {
 
   const node = (
     <div
+      ref={containerRef}
       data-print-hide="true"
       role="toolbar"
       aria-label="Slide controller"
+      data-collapsed={!isExpanded}
       style={{ position: "fixed", zIndex: "var(--z-controller)" as unknown as number, ...anchorStyles(anchor) }}
       className="select-none"
+      onMouseEnter={handleEnter}
+      onMouseLeave={handleLeave}
+      onFocus={handleEnter}
+      onBlur={handleLeave}
       onContextMenu={(e) => {
         e.preventDefault();
         cycleAnchor();
@@ -91,7 +100,7 @@ export function ControllerPill(props: Props) {
       <motion.div
         key="expanded"
         initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
+        animate={{ opacity: isExpanded ? 1 : 0.28 }}
         exit={{ opacity: 0 }}
         transition={motionPreset}
         className={cn(
