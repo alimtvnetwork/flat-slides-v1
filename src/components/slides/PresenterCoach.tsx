@@ -100,10 +100,10 @@ export function PresenterCoach({ open, onClose }: Props) {
   const paceLabel = stats.wpm < 110 ? "slow" : stats.wpm > 180 ? "fast" : "good";
 
   return (
-    <div className="fixed inset-0 z-[58] flex items-end justify-center bg-black/40 p-6" data-app-chrome onClick={onClose}>
+    <div className="fixed z-[58] flex items-end justify-center bg-black/40 p-6" data-presenter-frame-bound="true" data-app-chrome onClick={onClose}>
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-[min(720px,96vw)] rounded-xl bg-neutral-900 p-4 text-sm text-neutral-200 ring-1 ring-neutral-700"
+        className="w-[min(720px,calc(var(--presenter-frame-width)-32px),96vw)] rounded-xl bg-neutral-900 p-4 text-sm text-neutral-200 ring-1 ring-neutral-700"
       >
         <div className="mb-3 flex items-center justify-between">
           <span className="font-semibold text-neutral-100">Presenter coach</span>
