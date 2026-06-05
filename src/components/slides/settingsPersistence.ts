@@ -8,6 +8,7 @@ export const SETTINGS_STORAGE_KEY = "riseup.settings.v2";
 export const DEFAULT_DECK_SETTINGS: DeckSettings = {
   backgroundMode: "color",
   backgroundColor: "#101010",
+  textColor: "#ffffff",
   darken: 0,
   blur: 0,
   transition: "fade",
