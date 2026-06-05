@@ -227,12 +227,22 @@ export const useChrome = create<ChromeStore>()(
         }),
       clearRecentJumps: () => set({ recentJumps: [] }),
       setRecentJumps: (jumps) => set({ recentJumps: jumps.slice(0, 8) }),
-      setCamera: (patch) => set((s) => ({ camera: { ...s.camera, ...patch } })),
+      setCamera: (patch) => set((s) => ({ camera: normalizeCamera({ ...s.camera, ...patch }) })),
       toggleCamera: () => set((s) => ({ camera: { ...s.camera, visible: !s.camera.visible } })),
-      cycleCameraSize: () => set((s) => ({ camera: { ...s.camera, size: nextSize(s.camera.size) } })),
-      cycleCameraAnchor: () => set((s) => ({ camera: { ...s.camera, anchor: nextAnchor(s.camera.anchor), offsetX: 0, offsetY: 0 } })),
+      cycleCameraSize: () => set((s) => {
+        const next = { ...s.camera, size: nextSize(s.camera.size), customSize: null };
+        return { camera: normalizeCamera({ ...next, ...clampCameraPosition({ x: next.x, y: next.y }, cameraDimensions(next)) }) };
+      }),
+      cycleCameraAnchor: () => set((s) => {
+        const anchor = nextAnchor(s.camera.anchor);
+        const next = { ...s.camera, anchor, offsetX: 0, offsetY: 0 };
+        return { camera: normalizeCamera({ ...next, ...anchoredCameraPosition(anchor, cameraDimensions(next)) }) };
+      }),
       cycleCameraShape: () => set((s) => ({ camera: { ...s.camera, shape: nextShape(s.camera.shape) } })),
-      setCameraCustomSize: (px) => set((s) => ({ camera: { ...s.camera, customSize: px } })),
+      setCameraCustomSize: (px) => set((s) => {
+        const next = { ...s.camera, customSize: px };
+        return { camera: normalizeCamera({ ...next, ...clampCameraPosition({ x: next.x, y: next.y }, cameraDimensions(next)) }) };
+      }),
       setMusic: (patch) => set((s) => ({ music: { ...s.music, ...patch } })),
       toggleMusic: () => set((s) => ({ music: { ...s.music, playing: !s.music.playing } })),
       setScene: (scene) => set({ scene, toast: { text: `Scene: ${scene}`, ts: Date.now() } }),
@@ -265,7 +275,7 @@ export const useChrome = create<ChromeStore>()(
         return {
           ...current,
           ...state,
-          camera: { ...DEFAULT_CAMERA, ...(state?.camera ?? current.camera), visible: state?.camera?.visible ?? DEFAULT_CAMERA.visible },
+          camera: normalizeCamera({ ...(state?.camera ?? current.camera), visible: state?.camera?.visible ?? DEFAULT_CAMERA.visible }),
           music: { ...current.music, ...(state?.music ?? current.music), playing: false },
         };
       },
