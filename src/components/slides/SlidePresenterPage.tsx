@@ -34,7 +34,7 @@ import { SlideTransition } from "@/components/slides/SlideTransition";
 import { getDisplayNumber, slideStepCount } from "@/components/slides/types";
 import { useFullscreen } from "@/components/slides/useFullscreen";
 import { emitSlidesEvent, installConsoleSink } from "@/components/slides/telemetry";
-import { SLIDES_FULLSCREEN_URL_CHANGE_EVENT, useSlideNavigation } from "@/components/slides/useSlideNavigation";
+import { SLIDES_FULLSCREEN_URL_CHANGE_EVENT, type SlidesFullscreenUrlChangeDetail, useSlideNavigation } from "@/components/slides/useSlideNavigation";
 import { PresenterTools } from "@/components/slides/PresenterTools";
 
 const CommandPalette = lazy(() =>
@@ -47,7 +47,7 @@ const SettingsDrawer = lazy(() =>
   import("@/components/slides/SettingsDrawer").then((m) => ({ default: m.SettingsDrawer })),
 );
 
-const SLIDE_NAVIGATION_COOLDOWN_MS = 150;
+const SLIDE_NAVIGATION_COOLDOWN_MS = 280;
 
 export function SlidePresenterPage({ slideId }: { slideId: string }) {
   const navigate = useNavigate();
@@ -112,28 +112,41 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const syncFullscreenPath = () => {
-      if (document.fullscreenElement) {
-        setFullscreenPathname(window.location.pathname);
-        return;
-      }
-      setFullscreenPathname(null);
-      if (location.pathname === window.location.pathname) return;
-      const slideId = getRouteSlideId(window.location.pathname);
+    const syncFullscreenRoute = (pathname: string) => {
+      const slideId = getRouteSlideId(pathname);
       if (!slideId) return;
-      const step = getRouteStep(window.location.pathname);
+      const step = getRouteStep(pathname);
       if (step && step > 1) {
         void navigate({ to: "/slides/$slideId/$step", params: { slideId, step: String(step) }, search: location.search as never, replace: true });
       } else {
         void navigate({ to: "/slides/$slideId", params: { slideId }, search: location.search as never, replace: true });
       }
     };
-    syncFullscreenPath();
-    window.addEventListener(SLIDES_FULLSCREEN_URL_CHANGE_EVENT, syncFullscreenPath);
-    document.addEventListener("fullscreenchange", syncFullscreenPath);
+    const onFullscreenUrlChange = (event: Event) => {
+      const pathname = (event as CustomEvent<SlidesFullscreenUrlChangeDetail>).detail?.pathname;
+      if (!pathname) return;
+      if (document.fullscreenElement) {
+        setFullscreenPathname(pathname);
+        return;
+      }
+      syncFullscreenRoute(pathname);
+    };
+    const onFullscreenChange = () => {
+      if (document.fullscreenElement) {
+        setFullscreenPathname((pathname) => pathname ?? location.pathname);
+        return;
+      }
+      setFullscreenPathname((pathname) => {
+        if (pathname && pathname !== location.pathname) syncFullscreenRoute(pathname);
+        return null;
+      });
+    };
+    onFullscreenChange();
+    window.addEventListener(SLIDES_FULLSCREEN_URL_CHANGE_EVENT, onFullscreenUrlChange);
+    document.addEventListener("fullscreenchange", onFullscreenChange);
     return () => {
-      window.removeEventListener(SLIDES_FULLSCREEN_URL_CHANGE_EVENT, syncFullscreenPath);
-      document.removeEventListener("fullscreenchange", syncFullscreenPath);
+      window.removeEventListener(SLIDES_FULLSCREEN_URL_CHANGE_EVENT, onFullscreenUrlChange);
+      document.removeEventListener("fullscreenchange", onFullscreenChange);
     };
   }, [location.pathname, location.search, navigate]);
 
