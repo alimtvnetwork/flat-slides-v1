@@ -196,6 +196,7 @@ export interface ChromeStore {
   setCameraCustomSize: (px: number | null) => void;
   setMusic: (patch: Partial<MusicState>) => void;
   toggleMusic: () => void;
+  setSlideMusic: (override: SlideMusicOverride | null) => void;
   setScene: (s: Scene) => void;
   cycleScene: () => void;
   flashToast: (text: string) => void;
