@@ -196,8 +196,20 @@ function PillButton({
     <button
       type="button"
       data-slide-nav={navAction}
+      onKeyDown={(e) => {
+        if (!navAction) return;
+        if (e.key !== "Enter" && e.key !== " " && e.key !== "Spacebar") return;
+        e.preventDefault();
+        e.stopPropagation();
+        e.currentTarget.blur();
+        onClick();
+      }}
       onClick={(e) => {
         e.stopPropagation();
+        if (navAction) {
+          e.preventDefault();
+          return;
+        }
         e.currentTarget.blur();
         onClick();
       }}
