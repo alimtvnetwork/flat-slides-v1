@@ -43,16 +43,16 @@ describe("ControllerPill overflow menu", () => {
   it("shows inline Settings + Help when viewport is wide (>=1280px)", () => {
     mockMatchMedia(1440);
     render(<ControllerPill {...baseProps} />);
-    expect(screen.getByLabelText("Settings")).toBeInTheDocument();
-    expect(screen.getByLabelText("Keyboard shortcuts")).toBeInTheDocument();
-    expect(screen.queryByLabelText("More controls")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Settings")).toBeTruthy();
+    expect(screen.getByLabelText("Keyboard shortcuts")).toBeTruthy();
+    expect(screen.queryByLabelText("More controls")).not.toBeTruthy();
   });
 
   it("collapses Settings + Help behind '⋯' on narrow viewports (<1280px)", () => {
     mockMatchMedia(1100);
     render(<ControllerPill {...baseProps} />);
-    expect(screen.getByLabelText("More controls")).toBeInTheDocument();
-    expect(screen.queryByLabelText("Settings")).not.toBeInTheDocument();
-    expect(screen.queryByLabelText("Keyboard shortcuts")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("More controls")).toBeTruthy();
+    expect(screen.queryByLabelText("Settings")).not.toBeTruthy();
+    expect(screen.queryByLabelText("Keyboard shortcuts")).not.toBeTruthy();
   });
 });
