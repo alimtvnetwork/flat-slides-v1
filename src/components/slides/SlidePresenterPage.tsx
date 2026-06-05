@@ -19,7 +19,6 @@ import { SlideNumberBadge } from "@/components/slides/controls/SlideNumberBadge"
 import { RenderSlide } from "@/components/slides/RenderSlide";
 import { CameraStage } from "@/components/slides/CameraStage";
 import { ScaledSlide } from "@/components/slides/ScaledSlide";
-import { PresenterNotesPeek } from "@/components/slides/controls/PresenterNotesPeek";
 import { SlideAriaAnnouncer } from "@/components/slides/controls/SlideAriaAnnouncer";
 import { PresenterShell, SlideStageShell } from "@/components/slides/PresenterShell";
 import { SlideTransition } from "@/components/slides/SlideTransition";

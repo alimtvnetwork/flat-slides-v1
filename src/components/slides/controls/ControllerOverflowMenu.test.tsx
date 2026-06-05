@@ -38,10 +38,20 @@ const baseProps = {
 };
 
 describe("ControllerPill overflow menu", () => {
-  afterEach(() => vi.restoreAllMocks());
+  afterEach(() => {
+    vi.restoreAllMocks();
+    document.body.innerHTML = "";
+  });
+
+  function createSlidesRoot() {
+    const root = document.createElement("div");
+    root.setAttribute("data-slides-fullscreen-root", "");
+    document.body.appendChild(root);
+  }
 
   it("keeps presenter mode to navigation plus fullscreen on wide viewports", () => {
     mockMatchMedia(1440);
+    createSlidesRoot();
     render(<ControllerPill {...baseProps} />);
 
     expect(screen.getByLabelText("Previous slide")).toBeTruthy();
@@ -55,6 +65,7 @@ describe("ControllerPill overflow menu", () => {
 
   it("does not add overflow chrome on narrow viewports", () => {
     mockMatchMedia(1100);
+    createSlidesRoot();
     render(<ControllerPill {...baseProps} />);
 
     expect(screen.getByLabelText("Previous slide")).toBeTruthy();
