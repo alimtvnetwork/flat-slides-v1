@@ -6,9 +6,9 @@ import { usePresenterWebcam } from "@/components/slides/usePresenterWebcam";
  *
  *   `on`         → floating bubble, positioned in 1920×1080 stage coords
  *                  (converted to viewport px via `--stage-scale`).
- *   `tray`       → small reveal chip in the bottom-right of the viewport;
+  *   `tray`       → small reveal chip in the bottom-right of the presenter shell;
  *                  stream stays alive so re-show is instantaneous.
- *   `fullscreen` → CSS fullscreen layer covering the viewport.
+  *   `fullscreen` → layer covering the clipped presenter shell.
  *   `stage`      → fills the slide stage rect (cover crop) so the camera
  *                  becomes the active slide background.
  *   `off | requesting | denied` → nothing rendered here (status surfaces
@@ -88,7 +88,7 @@ export function PresenterWebcamOverlay() {
           data-webcam-surface="tray"
           onClick={() => void show()}
           style={{
-            position: "fixed",
+            position: "absolute",
             right: 16,
             bottom: 16,
             zIndex: 60,
@@ -119,7 +119,7 @@ export function PresenterWebcamOverlay() {
         aria-label="Presenter camera (fullscreen)"
         data-webcam-surface="fullscreen"
         style={{
-          position: "fixed",
+          position: "absolute",
           inset: 0,
           zIndex: 100,
           background: "black",

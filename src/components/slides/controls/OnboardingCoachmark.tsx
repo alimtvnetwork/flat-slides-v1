@@ -29,6 +29,8 @@ export function OnboardingCoachmark() {
   }, [seen, markSeen]);
 
   if (!mounted || seen) return null;
+  const portalRoot = getSlidesPortalRoot();
+  if (!portalRoot) return null;
 
   const node = (
     <AnimatePresence>
@@ -101,7 +103,7 @@ export function OnboardingCoachmark() {
     </AnimatePresence>
   );
 
-  return createPortal(node, getSlidesPortalRoot() ?? document.body);
+  return createPortal(node, portalRoot);
 }
 
 function KeyRow({ keys, label, icon }: { keys: string[]; label: string; icon?: React.ReactNode }) {

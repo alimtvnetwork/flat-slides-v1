@@ -19,6 +19,8 @@ describe("PresenterShell containment", () => {
     expect(shell.dataset.fullscreen).toBe("true");
     expect(shell.className).toContain("fixed");
     expect(shell.className).toContain("inset-0");
+    expect(shell.className).toContain("w-full");
+    expect(shell.className).not.toContain("w-screen");
     expect(shell.className).toContain("overflow-hidden");
     expect(stage.className).toContain("min-h-0");
     expect(stage.className).toContain("overflow-hidden");

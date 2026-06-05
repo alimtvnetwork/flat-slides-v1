@@ -10,6 +10,8 @@ export function PresenterFallbackLink() {
   const flash = useChrome((s) => s.flashToast);
 
   if (!fallback || typeof document === "undefined") return null;
+  const portalRoot = getSlidesPortalRoot();
+  if (!portalRoot) return null;
 
   async function copyUrl() {
     if (!fallback) return;
@@ -59,6 +61,6 @@ export function PresenterFallbackLink() {
         </button>
       </div>
     </aside>,
-    getSlidesPortalRoot() ?? document.body,
+    portalRoot,
   );
 }

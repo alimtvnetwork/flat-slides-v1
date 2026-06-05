@@ -528,8 +528,8 @@ export function CameraBubble() {
 
   if (!mounted || typeof document === "undefined") return null;
 
-  return createPortal(
-    <AnimatePresence>{node}</AnimatePresence>,
-    getSlidesPortalRoot() ?? document.body,
-  );
+  const portalRoot = getSlidesPortalRoot();
+  if (!portalRoot) return null;
+
+  return createPortal(<AnimatePresence>{node}</AnimatePresence>, portalRoot);
 }

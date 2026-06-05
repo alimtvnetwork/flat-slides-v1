@@ -35,7 +35,7 @@ export function PresenterAutoStart() {
       data-print-hide="true"
       role="dialog"
       aria-label="Start presentation"
-      style={{ position: "fixed", inset: 0, zIndex: 9999 }}
+      style={{ position: "absolute", inset: 0, zIndex: 9999 }}
       className="flex items-center justify-center bg-background/90 backdrop-blur"
     >
       <button

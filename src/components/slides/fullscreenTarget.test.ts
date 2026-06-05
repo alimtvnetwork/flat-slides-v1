@@ -56,6 +56,10 @@ describe("slide fullscreen target", () => {
     expect(getSlidesPortalRoot()).toBe(stableRoot);
   });
 
+  it("does not silently fall back to body when no fullscreen portal root exists", () => {
+    expect(getSlidesPortalRoot()).toBeNull();
+  });
+
   it("opens a top-level presenter window instead of iframe-scoped fullscreen when embedded", async () => {
     const stableRoot = document.createElement("div");
     stableRoot.setAttribute("data-slides-fullscreen-root", "");
