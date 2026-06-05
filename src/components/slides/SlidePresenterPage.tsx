@@ -319,8 +319,8 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
   const focusStep = Math.max(1, cameraStep || 1);
   const surfaces = (
     <>
-      <PresenterTopBar current={current} total={total} onPrev={movePrevStepAware} onNext={moveNextStepAware} />
-      <DotPagination current={current} total={total} slides={linearSlides} onJump={jump} />
+      {isFs && <PresenterTopBar current={current} total={total} onPrev={movePrevStepAware} onNext={moveNextStepAware} />}
+      {isFs && <DotPagination current={current} total={total} slides={linearSlides} onJump={jump} />}
       <SlideNumberBadge current={current} total={total} display={getDisplayNumber(slide, current)} />
       <AnnotationLayer slideId={slide.id} />
       <FocusEditor
@@ -338,10 +338,10 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
         }}
         onClose={() => useChrome.getState().setFocusEditorOpen(false)}
       />
-      <AnnotationToolbar slideId={slide.id} />
+      {isFs && <AnnotationToolbar slideId={slide.id} />}
       <TimerOverlay slide={slide} />
       <PollResultsOverlay slide={slide} />
-      <SharePill current={current} step={isStepRoute ? stepNum + 1 : undefined} />
+      {isFs && <SharePill current={current} step={isStepRoute ? stepNum + 1 : undefined} />}
       <QrOverlay />
     </>
   );
