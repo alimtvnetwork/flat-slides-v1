@@ -161,3 +161,20 @@ Paper, etc.). Dark tokens live as module constants in `slideBackground.ts`
 
 Verified: `bunx vitest run src/components/slides/themeWrap.test.tsx` passes
 3/3 tests, including a `themeId: "paper"` slide rendered with dark mode.
+
+## Step 14 — Background image mode
+
+Root cause: image mode still let an authored per-slide `background` win before
+`settings.backgroundImage`, so the Settings URL input could update the store
+without changing slides that already had a background. The image input was also
+always visible rather than tied to the active image mode.
+
+Fix: `resolveImageMode()` now treats `settings.backgroundImage` as the deck-level
+image override, before falling back to authored slide backgrounds or the deck
+color. `ThemeWrap` already renders that resolved image through the dedicated
+`data-slide-bg-layer` behind transparent content with `background-size: cover`
+and `background-position: center`. `SettingsDrawer` now exposes the URL field
+only in image mode and paste/change both immediately apply image mode.
+
+Verified: `bunx vitest run src/components/slides/themeWrap.test.tsx` passes
+4/4 tests, including settings image priority and bg layer sizing/positioning.
