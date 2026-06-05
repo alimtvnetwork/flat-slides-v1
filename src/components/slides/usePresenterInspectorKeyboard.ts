@@ -23,7 +23,10 @@ export function usePresenterInspectorKeyboard(model: PresenterInspectorModel) {
     },
     [linearSlides, location.search, navigate],
   );
-  const goPrev = useCallback(() => movePrev(model, goTo, linearSlides), [goTo, linearSlides, model]);
+  const goPrev = useCallback(
+    () => movePrev(model, goTo, linearSlides),
+    [goTo, linearSlides, model],
+  );
   const goNext = useCallback(() => moveNext(model, goTo), [goTo, model]);
   const exit = useCallback(
     () => exitInspector(navigate, location.search, model.slideNumber),
@@ -63,7 +66,11 @@ function toInspectorCtx(event: KeyboardEvent, input: InspectorKeyInput) {
   };
 }
 
-function movePrev(model: PresenterInspectorModel, goTo: (n: number, step?: number) => void, slides: Slide[]) {
+function movePrev(
+  model: PresenterInspectorModel,
+  goTo: (n: number, step?: number) => void,
+  slides: Slide[],
+) {
   if (model.stepIndex > 0) return goTo(model.slideNumber, model.stepIndex);
   const prevSlide = slides[model.slideNumber - 2];
   const lastStep = prevSlide ? slideStepCount(prevSlide) : 0;
@@ -72,7 +79,9 @@ function movePrev(model: PresenterInspectorModel, goTo: (n: number, step?: numbe
 
 function moveNext(model: PresenterInspectorModel, goTo: (n: number, step?: number) => void) {
   const stepCount = slideStepCount(model.slide);
-  if (stepCount > 1 && model.stepIndex < stepCount - 1) return goTo(model.slideNumber, model.stepIndex + 2);
+  if (stepCount > 1 && model.stepIndex < stepCount - 1) {
+    return goTo(model.slideNumber, model.stepIndex + 2);
+  }
   return goTo(model.slideNumber + 1);
 }
 
@@ -100,14 +109,24 @@ function navigateToInspector(
   });
 }
 
-function exitInspector(navigate: ReturnType<typeof useNavigate>, search: unknown, slideNumber: number) {
-  void navigate({ to: "/slides/$slideId", params: { slideId: String(slideNumber) }, search: search as never });
+function exitInspector(
+  navigate: ReturnType<typeof useNavigate>,
+  search: unknown,
+  slideNumber: number,
+) {
+  void navigate({
+    to: "/slides/$slideId",
+    params: { slideId: String(slideNumber) },
+    search: search as never,
+  });
 }
 
 function isTextEntryTarget(target: EventTarget | null) {
   const element = target instanceof HTMLElement ? target : null;
   const tag = element?.tagName;
-  return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || Boolean(element?.isContentEditable);
+  return (
+    tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || Boolean(element?.isContentEditable)
+  );
 }
 
 function clampSlideNumber(value: number, total: number) {
