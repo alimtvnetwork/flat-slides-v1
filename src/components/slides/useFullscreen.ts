@@ -13,10 +13,16 @@ export type FullscreenEnterResult =
   | { ok: true; mode: "already-fullscreen" | "native" | "presenter-window" }
   | { ok: false; reason: "unsupported" | "native-failed" | "embedded-popup-blocked"; error?: unknown };
 
-type FullscreenEnvironment = {
+export type FullscreenEnvironment = {
   isEmbeddedWindow?: () => boolean;
   openPresenterWindow?: () => Window | null;
 };
+
+type FullscreenFailureOptions = { fallbackUrl?: string };
+
+const POPUP_BLOCKED_REASON = "embedded-popup-blocked";
+const POPUP_BLOCKED_MESSAGE = "Allow pop-ups to open presenter view";
+const FULLSCREEN_BLOCKED_MESSAGE = "Fullscreen blocked by browser";
 
 export function isEmbeddedWindow() {
   if (typeof window === "undefined") return false;
@@ -112,19 +118,23 @@ export async function enterFullscreen(target?: HTMLElement | null, environment: 
   }
 }
 
-function reportFullscreenFailure(result: FullscreenEnterResult) {
+function fullscreenFailureMessage(result: FullscreenEnterResult) {
+  if (result.ok) return "";
+  return result.reason === POPUP_BLOCKED_REASON ? POPUP_BLOCKED_MESSAGE : FULLSCREEN_BLOCKED_MESSAGE;
+}
+
+function presenterFallbackUrl(options: FullscreenFailureOptions) {
+  return options.fallbackUrl ?? getPresenterWindowUrl();
+}
+
+export function reportFullscreenFailure(result: FullscreenEnterResult, options: FullscreenFailureOptions = {}) {
   if (result.ok) {
     useChrome.getState().clearPresenterFallback();
     return;
   }
-  const message =
-    result.reason === "embedded-popup-blocked"
-      ? "Allow pop-ups to open presenter view"
-      : "Fullscreen blocked by browser";
-  useChrome.getState().flashToast(message);
-  if (result.reason === "embedded-popup-blocked") {
-    useChrome.getState().showPresenterFallback(getPresenterWindowUrl(), "popup-blocked");
-  }
+  useChrome.getState().flashToast(fullscreenFailureMessage(result));
+  if (result.reason !== POPUP_BLOCKED_REASON) return;
+  useChrome.getState().showPresenterFallback(presenterFallbackUrl(options), "popup-blocked");
 }
 
 export function useFullscreen() {
