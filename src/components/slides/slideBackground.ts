@@ -9,6 +9,10 @@ const CSS_URL_PREFIX = "url(";
 const MAX_DARKEN_PERCENT = 100;
 const MAX_BACKGROUND_BLUR_PX = 20;
 
+export const DARK_PRESET_BG = "#0a0a0a";
+export const DARK_PRESET_FG = "#fafafa";
+export const DARK_PRESET_MUTED = "#a3a3a3";
+
 type BackgroundSettings = Pick<DeckSettings, "backgroundMode" | "backgroundColor" | "backgroundImage">;
 
 export type ResolvedSlideBackground = {
