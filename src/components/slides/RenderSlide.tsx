@@ -447,7 +447,7 @@ function TimelineSlide({ slide, step }: { slide: TimelineSlideProps; step: numbe
       })}
 
       <div
-        className="slide-chrome absolute right-[60px] bottom-[44px]"
+        className="slide-chrome absolute left-[60px] bottom-[44px]"
         style={{ color: "var(--slide-muted)" }}
       >
         Step {focus + 1} / {items.length}
