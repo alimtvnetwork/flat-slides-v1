@@ -252,7 +252,6 @@
   top: 50%;
   margin-left: -960px;
   margin-top: -540px;
-  transform: scale(calc(min((100% - var(--fit-padding) * 2) / 1920, (100% - var(--fit-padding) * 2) / 1080)));
   transform: scale(var(--stage-scale));
   transform-origin: center center;
   overflow: hidden;
@@ -261,7 +260,7 @@
   will-change: transform;
 }
 
-[data-slide-presenter-root="true"],
+[data-slide-presenter-root],
 [data-slides-fullscreen-root] {
   inline-size: 100vw;
   block-size: 100dvh;
