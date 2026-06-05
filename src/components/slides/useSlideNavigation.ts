@@ -28,7 +28,8 @@ export function useSlideNavigation() {
   );
   const total = linearSlides.length;
 
-  const search = (location.search ?? "") as string;
+  const search = location.search;
+  const searchString = typeof window === "undefined" ? "" : window.location.search;
 
   const goTo = useCallback(
     (linearPosition: number, _dir: NavDirection = "forward", step?: number) => {
@@ -38,7 +39,7 @@ export function useSlideNavigation() {
       if (!slide) return;
       triggerClick();
       if (canUseFullscreenHistoryNavigation()) {
-        replaceFullscreenSlideUrl(String(clamped), step && step > 1 && slideStepCount(slide) >= step ? step : undefined, search);
+        replaceFullscreenSlideUrl(String(clamped), step && step > 1 && slideStepCount(slide) >= step ? step : undefined, searchString);
         return;
       }
       if (step && step > 1 && slideStepCount(slide) >= step) {
@@ -57,7 +58,7 @@ export function useSlideNavigation() {
         });
       }
     },
-    [linearSlides, total, navigate, search],
+    [linearSlides, total, navigate, search, searchString],
   );
 
   const next = useCallback(
