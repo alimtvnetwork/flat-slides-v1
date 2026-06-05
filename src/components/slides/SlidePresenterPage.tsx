@@ -244,6 +244,24 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
     };
   }, []);
 
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const onPointerUp = (event: PointerEvent) => {
+      const target = event.target as HTMLElement | null;
+      const button = target?.closest<HTMLButtonElement>("button[data-slide-nav]");
+      if (!button || button.disabled) return;
+      const action = button.dataset.slideNav;
+      if (action !== "next" && action !== "prev") return;
+      event.preventDefault();
+      event.stopPropagation();
+      button.blur();
+      if (action === "next") moveNextStepAware();
+      else movePrevStepAware();
+    };
+    document.addEventListener("pointerup", onPointerUp, true);
+    return () => document.removeEventListener("pointerup", onPointerUp, true);
+  });
+
   if (!slide) {
     return (
       <div className="flex min-h-dvh items-center justify-center bg-black text-white">
@@ -276,7 +294,6 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
   }
 
   function moveNextStepAware() {
-    if (import.meta.env.DEV) console.debug("[slides-next-debug] move-next", { current, stepCount, isStepRoute, stepNum });
     if (!isStepRoute && stepCount > 1) goTo(current, "forward", 2);
     else if (isStepRoute && stepNum < stepCount - 1) goTo(current, "forward", stepNum + 2);
     else next(current);
