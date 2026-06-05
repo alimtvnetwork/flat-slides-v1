@@ -12,7 +12,6 @@ import { cn } from "@/lib/utils";
 export function MusicToggle({ compact = false }: { compact?: boolean }) {
   const { hasTrack, playing } = useDeckMusic();
   const setMusic = useChrome((s) => s.setMusic);
-  const volume = useChrome((s) => s.music.volume);
 
   // Pause when unmounted (e.g. navigating away from slides).
   useEffect(() => () => setMusic({ playing: false }), [setMusic]);
@@ -34,18 +33,6 @@ export function MusicToggle({ compact = false }: { compact?: boolean }) {
       >
         {playing ? <Music size={14} /> : <VolumeX size={14} />}
       </button>
-      {!compact && (
-        <input
-          aria-label="Music volume"
-          type="range"
-          min={0}
-          max={1}
-          step={0.05}
-          value={volume}
-          onChange={(e) => setMusic({ volume: parseFloat(e.target.value) })}
-          className="h-1 w-16 accent-[color:var(--ctrl-accent)]"
-        />
-      )}
     </div>
   );
 }
