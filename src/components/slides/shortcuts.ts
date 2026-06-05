@@ -117,7 +117,12 @@ export const SHORTCUTS: ShortcutDef[] = [
 ];
 
 export function matchesShortcut(event: KeyboardEvent, def: ShortcutDef): boolean {
-  return def.keys.some((k) => k.toLowerCase() === event.key.toLowerCase());
+  return def.keys.some((key) => matchesKeyAlias(event, key));
+}
+
+function matchesKeyAlias(event: KeyboardEvent, alias: string): boolean {
+  const normalized = alias.toLowerCase();
+  return normalized === event.key.toLowerCase() || normalized === event.code.toLowerCase();
 }
 
 /**
