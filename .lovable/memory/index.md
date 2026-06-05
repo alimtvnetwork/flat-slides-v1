@@ -7,6 +7,7 @@
 
 ## Diagnostics
 - [01-slide-settings-fullscreen-camera-rca.md](diagnostics/01-slide-settings-fullscreen-camera-rca.md) — RCA for settings not applying, darken/blur no-op, fullscreen zoom escape, camera focus indexing, and proposal example gaps
+- [02-fullscreen-and-settings-rca.md](diagnostics/02-fullscreen-and-settings-rca.md) — B21 controller batch (steps 1–28): persistent PresenterShell, 4-anchor controller pill (`riseup.controller.anchor`, `B` shortcut), hover-reveal with reduced-motion support, overflow menu <1280px, single keymap via `presenterActions.ts` + `SHORTCUTS` parity test, e2e happy path
 
 ## Decisions
 - [01-audio-system.md](decisions/01-audio-system.md) — HTMLAudioElement stop-before-play; whoosh/zoom/click mapping
