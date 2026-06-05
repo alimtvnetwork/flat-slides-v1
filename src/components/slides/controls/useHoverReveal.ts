@@ -10,7 +10,7 @@ const OPEN_CHILD_SELECTOR = '[data-state="open"]';
  * - 400ms grace before collapse (so users don't lose it on quick mouse-out).
  * - Stays open while a child popover/menu is mounted (data-state="open").
  */
-export function useHoverReveal(containerRef: RefObject<HTMLElement>) {
+export function useHoverReveal(containerRef: RefObject<HTMLElement | null>) {
   const [isExpanded, setIsExpanded] = useState(false);
   const expandTimer = useRef<number | null>(null);
   const collapseTimer = useRef<number | null>(null);
