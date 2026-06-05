@@ -319,3 +319,19 @@ camera shortcuts (`stopImmediatePropagation`) so the controller owns the key.
 Verified: `bunx vitest run src/components/slides/controls/controller-anchor.test.ts
 src/components/slides/controls/ControllerPill.mount.test.tsx` passes 9/9,
 including ordered cycling and required localStorage key persistence.
+
+### Step 24 — Collapsed hover-reveal (B21)
+
+Root cause: ControllerPill was always fully visible (opacity 1), which
+fights with overlay UI and violates the B21 spec for a faint resting
+state that reveals on intent.
+
+Fix: extracted `useHoverReveal` (160ms expand intent / 400ms collapse
+grace, stays open while any descendant has `data-state="open"`). Wired
+to `ControllerPill` outer div via `onMouseEnter/Leave/Focus/Blur`; the
+inner toolbar now animates `opacity` between 0.28 (collapsed) and 1
+(expanded). Keyboard focus inside the pill auto-expands it, child
+popovers/menus (Radix `data-state="open"`) hold it open.
+
+Verified: `bunx vitest run src/components/slides/controls/useHoverReveal.test.ts
+src/components/slides/controls/ControllerPill.mount.test.tsx` — 8/8.
