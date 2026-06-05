@@ -82,14 +82,14 @@ export function CameraBubble() {
     const update = () => setStageFrame(readStageFrame());
     update();
     const frame = requestAnimationFrame(update);
-    const ro = new ResizeObserver(update);
+    const ro = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(update);
     const stage = document.querySelector<HTMLElement>(".slide-wrapper");
-    if (stage) ro.observe(stage);
+    if (stage) ro?.observe(stage);
     window.addEventListener("resize", update);
     return () => {
       cancelAnimationFrame(frame);
       window.removeEventListener("resize", update);
-      ro.disconnect();
+      ro?.disconnect();
     };
   }, []);
 
