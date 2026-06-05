@@ -6,6 +6,9 @@ import { SlideLayout } from "./SlideLayout";
 import { CodeJourneyDecor, shouldAutoEnableCodeDecor } from "./decor/CodeJourneyDecor";
 import { getRegisteredSlideType } from "./registry";
 import {
+  DARK_PRESET_BG,
+  DARK_PRESET_FG,
+  DARK_PRESET_MUTED,
   clampBackgroundBlurPx,
   clampDarkenPercent,
   resolveBackgroundLayerStyle,
