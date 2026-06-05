@@ -14,13 +14,15 @@ interface Props {
   open: boolean;
   onClose: () => void;
   slides: Slide[];
+  onJump?: (n: number) => void;
+  onOpenOverview?: () => void;
   onOpenSettings?: () => void;
   onPresent?: () => void;
   onOpenLint?: () => void;
 }
 
 /** ⌘K / Ctrl+K command palette: jump to slide or run an action. */
-export function CommandPalette({ open, onClose, slides, onOpenSettings, onPresent, onOpenLint }: Props) {
+export function CommandPalette({ open, onClose, slides, onJump, onOpenOverview, onOpenSettings, onPresent, onOpenLint }: Props) {
   const navigate = useNavigate();
   const deckTitle = useDeck((s) => s.deck.title);
   const toggleFocusEditor = useChrome((s) => s.toggleFocusEditor);
@@ -33,7 +35,7 @@ export function CommandPalette({ open, onClose, slides, onOpenSettings, onPresen
 
   const items = useMemo<Action[]>(() => {
     const acts: Action[] = [
-      { id: "act-overview", label: "Go to overview", hint: "G", run: () => navigate({ to: "/slides" }) },
+      { id: "act-overview", label: "Go to overview", hint: "G", run: () => onOpenOverview ? onOpenOverview() : navigate({ to: "/slides" }) },
       ...(onPresent ? [{ id: "act-present", label: "Present (fullscreen)", hint: "F5", run: onPresent }] : []),
       ...(onOpenSettings ? [{ id: "act-settings", label: "Open settings", hint: "S", run: onOpenSettings }] : []),
       ...(onOpenLint ? [{ id: "act-lint", label: "Run deck linter", hint: "L", run: onOpenLint }] : []),
@@ -56,13 +58,13 @@ export function CommandPalette({ open, onClose, slides, onOpenSettings, onPresen
       id: `slide-${s.id}`,
       label: `${i + 1}. ${s.title}`,
       hint: s.type,
-      run: () => navigate({ to: "/slides/$slideId", params: { slideId: String(i + 1) } }),
+      run: () => onJump ? onJump(i + 1) : navigate({ to: "/slides/$slideId", params: { slideId: String(i + 1) } }),
     }));
     const all = [...acts, ...slideActs];
     if (!q.trim()) return all;
     const needle = q.toLowerCase();
     return all.filter((a) => a.label.toLowerCase().includes(needle));
-  }, [q, slides, navigate, onOpenSettings, onPresent, onOpenLint, deckTitle, toggleFocusEditor]);
+  }, [q, slides, navigate, onJump, onOpenOverview, onOpenSettings, onPresent, onOpenLint, deckTitle, toggleFocusEditor]);
 
   useEffect(() => setActive(0), [q]);
 
