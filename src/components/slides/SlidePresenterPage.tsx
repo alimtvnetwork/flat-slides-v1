@@ -213,7 +213,7 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
 
   function claimNavigationSlot() {
     const now = typeof performance === "undefined" ? Date.now() : performance.now();
-    if (now - lastNavigationAtRef.current < 360) return false;
+    if (now - lastNavigationAtRef.current < SLIDE_NAVIGATION_COOLDOWN_MS) return false;
     lastNavigationAtRef.current = now;
     return true;
   }
