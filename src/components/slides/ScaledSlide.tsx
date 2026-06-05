@@ -24,7 +24,10 @@ export function ScaledSlide({ children, className, fitPadding = 0 }: Props) {
       const safeHeight = Math.max(1, height - fitPadding * 2);
       const nextScale = Math.min(safeWidth / CANVAS_WIDTH, safeHeight / CANVAS_HEIGHT);
       el.style.setProperty("--stage-scale", String(nextScale));
-      if (isPresenterStage(el)) writePresenterFrameVars(rect, nextScale);
+      if (isPresenterStage(el)) {
+        document.documentElement.style.setProperty("--stage-scale", String(nextScale));
+        writePresenterFrameVars(rect, nextScale);
+      }
     };
     const scheduleRecompute = () => scheduleSettledFrames(recompute, frames);
     recompute();
