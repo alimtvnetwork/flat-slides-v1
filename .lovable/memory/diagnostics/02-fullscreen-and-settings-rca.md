@@ -380,3 +380,21 @@ src/components/slides/shortcuts-catalogue.test.ts
 src/components/slides/shortcuts-additions.test.ts
 src/components/slides/controls/controller-anchor.test.ts` — 19/19.
 
+### Step 27 — Controller happy-path e2e (B21)
+
+Coverage was vitest-only; no Playwright spec exercised the full
+controller flow under a real browser. Added `e2e/controller-happy-path.spec.ts`
+with three scenarios:
+
+1. `B` cycles the anchor and the `riseup.controller.anchor`
+   localStorage key advances through `bottom-right` → `bottom-left`.
+2. At 1100×720 the toolbar collapses Settings + Help behind `More controls`,
+   and opening the menu exposes both as menu items.
+3. At 1440×900 the inline Settings + Help buttons are visible and
+   `More controls` is absent.
+
+Selectors target the controller via `getByRole("toolbar", { name: "Slide controller" })`
+and accessible names — no brittle CSS classes. Spec runs under the existing
+`playwright.config.ts` (chromium project, webServer auto-starts dev server).
+
+
