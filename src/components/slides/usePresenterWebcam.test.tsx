@@ -9,6 +9,10 @@ import {
   writeStoredPos,
   writeStoredSize,
   describeGetUserMediaError,
+  clampPos,
+  freeSizeFromWidth,
+  nextStep,
+  SIZE_STEPS,
   DEFAULT_POS,
   DEFAULT_SIZE,
   SIZE_KEY,
@@ -76,5 +80,50 @@ describe("usePresenterWebcam (tasks 1–3)", () => {
     writeStoredSize({ kind: "step", id: "L" });
     expect(readStoredPos()).toEqual({ x: 100, y: 200 });
     expect(readStoredSize()).toEqual({ kind: "step", id: "L" });
+  });
+});
+
+describe("usePresenterWebcam geometry (tasks 5–6)", () => {
+  it("clampPos keeps bubble inside the 1920×1080 stage", () => {
+    expect(clampPos({ x: -50, y: -50 }, { w: 320, h: 180 })).toEqual({ x: 0, y: 0 });
+    expect(clampPos({ x: 9999, y: 9999 }, { w: 320, h: 180 })).toEqual({
+      x: 1920 - 320,
+      y: 1080 - 180,
+    });
+  });
+
+  it("freeSizeFromWidth is 16:9 and clamped to [160,960]", () => {
+    expect(freeSizeFromWidth(50)).toEqual({ w: 160, h: 90 });
+    expect(freeSizeFromWidth(2000)).toEqual({ w: 960, h: 540 });
+    expect(freeSizeFromWidth(400)).toEqual({ w: 400, h: 225 });
+  });
+
+  it("nextStep walks S↔M↔L↔XL and clamps at the ends", () => {
+    expect(nextStep("S", -1)).toBe("S");
+    expect(nextStep("S", 1)).toBe("M");
+    expect(nextStep("L", 1)).toBe("XL");
+    expect(nextStep("XL", 1)).toBe("XL");
+  });
+});
+
+describe("usePresenterWebcam context actions (tasks 5–6)", () => {
+  beforeEach(() => localStorage.clear());
+
+  it("setPosition clamps to stage and persists", () => {
+    const { result } = renderHook(() => usePresenterWebcam(), { wrapper });
+    act(() => result.current.setPosition({ x: -100, y: -100 }));
+    expect(result.current.position).toEqual({ x: 0, y: 0 });
+    expect(readStoredPos()).toEqual({ x: 0, y: 0 });
+  });
+
+  it("stepSize walks presets and setFreeSize switches to 16:9", () => {
+    const { result } = renderHook(() => usePresenterWebcam(), { wrapper });
+    // default is M
+    act(() => result.current.stepSize(1));
+    expect(result.current.sizeCfg).toEqual({ kind: "step", id: "L" });
+    expect(result.current.size).toEqual(SIZE_STEPS.L);
+
+    act(() => result.current.setFreeSize(500));
+    expect(result.current.sizeCfg).toEqual({ kind: "free", w: 500, h: 281 });
   });
 });
