@@ -1,6 +1,6 @@
+@import url("https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&family=Poppins:wght@400;600;700;900&family=Instrument+Serif&display=swap");
 @import "tailwindcss" source(none);
 @import "tw-animate-css";
-@import url("https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&family=Poppins:wght@400;600;700;900&family=Instrument+Serif&display=swap");
 @source "../src";
 
 @custom-variant dark (&:is(.dark *));
