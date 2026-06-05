@@ -47,11 +47,12 @@ describe("autoFrame pure pipeline (task 11)", () => {
   });
 
   it("frameToTransform composes translate+scale; mirror flips X intent", () => {
-    // Face on the LEFT of the unmirrored video (cx=0.2) → translate +X to center it.
+    // Face on the LEFT of the unmirrored video (cx=0.2) → translate +X to
+    // re-center; (0.5-0.2)*100 = 30% gets clamped down to MAX_TRANSLATE = 22%.
     const t1 = frameToTransform({ cx: 0.2, cy: 0.5, fill: 0 }, false);
-    expect(t1).toMatch(/translate\(30\.00%, 0\.00%\) scale\(1\.000\)/);
-    // Same raw cx in MIRRORED space (the user sees the face on the right) →
-    // translate -X. And the trailing scaleX(-1) must be appended.
+    expect(t1).toMatch(/translate\(22\.00%, 0\.00%\) scale\(1\.000\)/);
+    // Same raw cx in MIRRORED space: cxEff = 1-0.2 = 0.8 → translate -22%
+    // (also clamped), with a trailing scaleX(-1).
     const t2 = frameToTransform({ cx: 0.2, cy: 0.5, fill: 0 }, true);
     expect(t2).toMatch(/translate\(-22\.00%, 0\.00%\) scale\(1\.000\) scaleX\(-1\)/);
   });
