@@ -26,3 +26,4 @@
 
 ## Features
 - [01-presenter-controller-pill.md](features/01-presenter-controller-pill.md) — B21 controller pill: 4 anchors (`riseup.controller.anchor`, `B` shortcut), hover-reveal w/ reduced-motion, <1280px overflow menu, single keymap via SHORTCUTS + presenterActions
+- [02-presenter-inspector.md](features/02-presenter-inspector.md) — B22 speaker view at `/slides/inspector/$slideId(/$step)`: 1-based routing, 4-pane layout, persistent timer (`riseup.inspector.startedAt`), scoped inspector keymap (R/P/Esc/arrows) via `dispatchInspectorKey`
