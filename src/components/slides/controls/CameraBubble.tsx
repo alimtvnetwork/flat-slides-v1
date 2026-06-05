@@ -311,10 +311,13 @@ export function CameraBubble() {
         zIndex: "var(--z-camera)",
         width: visualWidth,
         height: visualHeight,
+        borderRadius: radius,
+        overflow: isFs ? "hidden" : undefined,
         ...anchorStyle,
       }}
       className={cn(
-        "group overflow-visible",
+        "group",
+        isFs ? "overflow-hidden" : "overflow-visible",
         stageFill ? "cursor-default" : "cursor-grab active:cursor-grabbing",
         !stageFill && "drop-shadow-2xl",
       )}
