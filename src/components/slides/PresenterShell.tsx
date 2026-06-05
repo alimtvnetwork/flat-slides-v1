@@ -1,19 +1,33 @@
-import { useRef, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 
 import { useCursorAutoHide } from "@/components/slides/useCursorAutoHide";
 import { useDeck } from "@/components/slides/store";
 import { DARK_PRESET_BG } from "@/components/slides/slideBackground";
+import { DEFAULT_DECK_SETTINGS } from "@/components/slides/settingsPersistence";
 
 type Props = {
   isFullscreen: boolean;
   children: ReactNode;
 };
 
-function useShellBackground(): string {
-  const settings = useDeck((s) => s.deck.settings);
+function resolveShellBg(settings: { backgroundMode?: string; backgroundColor?: string }): string {
   if (settings.backgroundMode === "dark") return DARK_PRESET_BG;
   if (settings.backgroundColor) return settings.backgroundColor;
   return DARK_PRESET_BG;
+}
+
+/**
+ * The shell background must match the deck background so the area around
+ * the scaled slide doesn't fall back to black. We gate the read on a
+ * post-hydration flag so that the SSR markup uses the deck defaults
+ * (matching what the server rendered) and React can hydrate cleanly,
+ * then we swap to the persisted/store value on the next render.
+ */
+function useShellBackground(): string {
+  const settings = useDeck((s) => s.deck.settings);
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => setHydrated(true), []);
+  return resolveShellBg(hydrated ? settings : DEFAULT_DECK_SETTINGS);
 }
 
 export function PresenterShell({ isFullscreen, children }: Props) {
