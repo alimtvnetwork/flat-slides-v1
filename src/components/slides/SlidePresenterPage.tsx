@@ -109,6 +109,12 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
   }, [current, isStepRoute, stepNum, stepCount]);
 
   useEffect(() => {
+    const override = slide?.sound?.music;
+    setSlideMusic(override ? { url: override.url, loop: override.loop, volume: override.volume } : null);
+    return () => setSlideMusic(null);
+  }, [slide?.id, slide?.sound?.music?.url, slide?.sound?.music?.loop, slide?.sound?.music?.volume, setSlideMusic]);
+
+  useEffect(() => {
     emitSlidesEvent({ type: "scene-change", scene });
   }, [scene]);
 
