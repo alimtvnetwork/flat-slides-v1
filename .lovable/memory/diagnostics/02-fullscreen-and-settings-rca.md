@@ -231,3 +231,21 @@ and rewinds before `play()`, so rapid toggles cannot stack overlapping music.
 
 Verified: `bunx vitest run src/components/slides/deckMusicPlayer.test.ts src/components/slides/settingsStore.test.ts`
 passes 5/5 tests, including singleton reuse and stop-before-play behavior.
+
+## Step 19 — Autoplay-block recovery
+
+Root cause: `setDeckMusicPlaying(true)` swallowed `audio.play()` rejections
+with a single `console.warn`. Browsers reject with `NotAllowedError` when
+playback starts without a user gesture, so users who toggled music on the
+home/present route saw no audio and no signal explaining why.
+
+Fix: `setDeckMusicPlaying` now returns `Promise<PlayResult>` and
+distinguishes `NotAllowedError` (autoplay block) from other failures. A new
+`deckMusicAutoplayRecovery.ts` shows a sonner toast ("Tap to enable music")
+and arms a one-shot `pointerdown` listener that retries `setDeckMusicPlaying(true)`.
+`useDeckMusic` invokes the recovery only when the play promise resolves to
+`{ ok: false, blocked: true }`, and disposes the listener + toast on
+cleanup so route changes do not leak handlers.
+
+Verified: `bunx vitest run src/components/slides/deckMusicPlayer.test.ts`
+passes 3/3, including the new `NotAllowedError` → `{ ok: false, blocked: true }` case.
