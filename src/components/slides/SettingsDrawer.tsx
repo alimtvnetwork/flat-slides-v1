@@ -160,7 +160,7 @@ export function SettingsDrawer({
             <ImageIcon size={12} /> Background
           </label>
           <div className="flex gap-2">
-            {(["color", "image"] as const).map((mode) => (
+            {(["color", "dark", "image"] as const).map((mode) => (
               <button
                 key={mode}
                 onClick={() => setSettings({ backgroundMode: mode })}

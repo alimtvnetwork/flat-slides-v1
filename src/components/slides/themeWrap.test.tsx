@@ -38,4 +38,14 @@ describe("ThemeWrap background pipeline", () => {
     expect(root.style.getPropertyValue("--slide-bg")).toBe("transparent");
     expect(layer.style.backgroundImage).toBe('url("/authored.png")');
   });
+
+  it("forces dark tokens regardless of theme when backgroundMode is dark", () => {
+    act(() => useDeck.getState().setSettings({ backgroundMode: "dark" }));
+    const { container } = render(<RenderSlide slide={{ ...SLIDE, themeId: "paper" }} />);
+
+    const root = container.firstElementChild as HTMLElement;
+    expect(root.style.getPropertyValue("--slide-bg")).toBe("#0a0a0a");
+    expect(root.style.getPropertyValue("--slide-fg")).toBe("#fafafa");
+    expect(root.style.getPropertyValue("--slide-text-shadow")).toBe("none");
+  });
 });

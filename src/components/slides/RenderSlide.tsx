@@ -6,6 +6,9 @@ import { SlideLayout } from "./SlideLayout";
 import { CodeJourneyDecor, shouldAutoEnableCodeDecor } from "./decor/CodeJourneyDecor";
 import { getRegisteredSlideType } from "./registry";
 import {
+  DARK_PRESET_BG,
+  DARK_PRESET_FG,
+  DARK_PRESET_MUTED,
   clampBackgroundBlurPx,
   clampDarkenPercent,
   resolveBackgroundLayerStyle,
@@ -49,6 +52,13 @@ function positionStyle(pos: TextPosition | undefined, padding = 120): CSSPropert
   };
 }
 
+function applyDarkPresetTokens(style: Record<string, string>): void {
+  style["--slide-bg"] = DARK_PRESET_BG;
+  style["--slide-fg"] = DARK_PRESET_FG;
+  style["--slide-muted"] = DARK_PRESET_MUTED;
+  style["--slide-text-shadow"] = "none";
+}
+
 function ThemeWrap({ slide, children }: { slide: Slide; children: React.ReactNode }) {
   const deckThemeId = useDeck((s) => s.deck.themeId);
   const settings = useDeck((s) => s.deck.settings);
@@ -57,8 +67,10 @@ function ThemeWrap({ slide, children }: { slide: Slide; children: React.ReactNod
   const background = resolveSlideBackground(slide, settings);
   const darken = clampDarkenPercent(settings.darken);
   const blur = clampBackgroundBlurPx(settings.blur);
-  (style as Record<string, string>)["--slide-bg"] = resolveSlideBgVariable(background);
-  (style as Record<string, string>)["--slide-content-bg"] = "transparent";
+  const styleRecord = style as Record<string, string>;
+  styleRecord["--slide-bg"] = resolveSlideBgVariable(background);
+  styleRecord["--slide-content-bg"] = "transparent";
+  if (settings.backgroundMode === "dark") applyDarkPresetTokens(styleRecord);
   const bgStyle = resolveBackgroundLayerStyle(background, theme, blur);
   return (
     <div style={style}>
