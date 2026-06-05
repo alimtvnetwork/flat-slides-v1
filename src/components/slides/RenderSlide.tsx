@@ -58,6 +58,7 @@ function ThemeWrap({ slide, children }: { slide: Slide; children: React.ReactNod
   const darken = clampDarkenPercent(settings.darken);
   const blur = clampBackgroundBlurPx(settings.blur);
   (style as Record<string, string>)["--slide-bg"] = resolveSlideBgVariable(background);
+  (style as Record<string, string>)["--slide-content-bg"] = "transparent";
   const bgStyle = resolveBackgroundLayerStyle(background, theme, blur);
   return (
     <div style={style}>
