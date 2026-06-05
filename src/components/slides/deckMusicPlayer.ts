@@ -68,10 +68,24 @@ function updateDeckMusicUrl(url: string): void {
   audioUrl = url;
 }
 
-function startDeckMusic(): void {
-  if (!audio) return;
+async function startDeckMusic(): Promise<PlayResult> {
+  if (!audio) return { ok: true };
   stopDeckMusic();
-  void audio.play().catch((error) => console.warn("Unable to play deck music", error));
+  try {
+    await audio.play();
+    return { ok: true };
+  } catch (error) {
+    const blocked = isAutoplayBlock(error);
+    if (!blocked) console.warn("Unable to play deck music", error);
+    return { ok: false, blocked };
+  }
+}
+
+function isAutoplayBlock(error: unknown): boolean {
+  if (typeof DOMException !== "undefined" && error instanceof DOMException) {
+    return error.name === "NotAllowedError";
+  }
+  return Boolean(error && (error as { name?: string }).name === "NotAllowedError");
 }
 
 function clampVolume(volume: number): number {
