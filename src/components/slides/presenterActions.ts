@@ -75,7 +75,7 @@ export const PRESENTER_KEY_ACTIONS: Record<string, PresenterAction> = {
     );
   },
   "toggle-focus-editor": () => useChrome.getState().toggleFocusEditor(),
-  "toggle-notes":        () => useChrome.getState().toggleNotesPeek?.(),
+  "toggle-notes":        () => useChrome.getState().toggleNotesPeek(),
 };
 
 /**

@@ -17,8 +17,7 @@ import { useTimer } from "@/components/slides/timer-store";
 import { usePresentationTimer } from "@/components/slides/usePresentationTimer";
 import { CameraBubble } from "@/components/slides/controls/CameraBubble";
 import { ControllerPill } from "@/components/slides/controls/ControllerPill";
-import { cycleControllerAnchor } from "@/components/slides/controls/controller-anchor-store";
-import { isControllerAnchorShortcut } from "@/components/slides/controls/controller-anchor";
+import { dispatchPresenterKey } from "@/components/slides/presenterActions";
 import { DotPagination } from "@/components/slides/controls/DotPagination";
 import { KeyboardShortcutsDialog } from "@/components/slides/controls/KeyboardShortcutsDialog";
 import { PresenterToast } from "@/components/slides/controls/PresenterToast";
@@ -185,50 +184,30 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
         return;
       }
       if (e.metaKey || e.ctrlKey || e.altKey) return;
-      if (isControllerAnchorShortcut(e)) { e.preventDefault(); e.stopImmediatePropagation(); cycleControllerAnchor(); return; }
-      if (e.key === "F5") { e.preventDefault(); toggleFs(); return; }
+      // Modifier-combo branches that don't fit the per-key registry shape.
       if (e.shiftKey && (e.key === "ArrowLeft" || e.key === "ArrowRight" || e.key === "ArrowUp" || e.key === "ArrowDown")) return;
       if (e.shiftKey && (e.key === "c" || e.key === "C")) { cycleCameraSize(); return; }
-      if (e.key === "j" || e.key === "J") { toggleTopJumper(); return; }
-      if (e.key === "c" || e.key === "C") { toggleCamera(); return; }
-      if (e.key === "o" || e.key === "O") {
-        if (!useChrome.getState().camera.visible) useChrome.getState().cycleCameraShape();
-        return;
-      }
-      if (e.key === "m" || e.key === "M") { toggleMusic(); return; }
-      if (e.key === "s" || e.key === "S") { cycleScene(); return; }
-      if (e.key === "p" || e.key === "P") { window.dispatchEvent(new CustomEvent("slides:camera-pip")); return; }
-      if (e.key === "l" || e.key === "L") { useAnnotations.setState((st) => ({ mode: st.mode === "pointer" ? "off" : "pointer" })); return; }
-      if (e.key === "k" || e.key === "K") { useAnnotations.setState((st) => ({ mode: st.mode === "ink" ? "off" : "ink" })); return; }
-      if (e.key === "x" || e.key === "X") { useAnnotations.getState().clear(slide.id); return; }
-      if (e.key === "Escape") { e.preventDefault(); useAnnotations.setState({ mode: "off" }); return; }
-      if (/^[1-5]$/.test(e.key)) {
-        const colors = ["#ef4444", "#facc15", "#22d3ee", "#a3e635", "#ffffff"];
-        useAnnotations.setState({ color: colors[Number(e.key) - 1] }); return;
-      }
-      if (e.key === "t" || e.key === "T") {
-        if (e.shiftKey) { useTimer.getState().reset(); return; }
-        useChrome.getState().toggleTimerVisible(); return;
-      }
-      if (e.key === "r" || e.key === "R") {
-        if (e.shiftKey) { useTimer.getState().resetRehearsal(); return; }
-        useTimer.getState().toggleRehearsal(); return;
-      }
       if (e.key === " " && e.shiftKey) { e.preventDefault(); useTimer.getState().toggle(); return; }
-      if (e.key === "?" || e.key === "/") { e.preventDefault(); setHelpOpen((o) => !o); return; }
-      if (e.key === "q" || e.key === "Q") { useAudience.getState().toggleQr(); return; }
-      if (e.key === "v" || e.key === "V") { useAudience.getState().toggleResults(); return; }
-      if (e.key === "y" || e.key === "Y") {
-        const sid = useAudience.getState().sessionId;
-        const url = `${window.location.origin}/slides/${current}${isStepRoute ? `/${stepNum + 1}` : ""}?session=${sid}`;
-        navigator.clipboard?.writeText(url).then(
-          () => useChrome.getState().flashToast("Share link copied"),
-          () => useChrome.getState().flashToast("Copy failed"),
-        );
-        return;
-      }
-      if (e.key === "f" || e.key === "F") { useChrome.getState().toggleFocusEditor(); return; }
-      if (e.key === "g" || e.key === "G") { e.preventDefault(); openDeckOverview(); return; }
+
+      // Step 26 — single keymap. SHORTCUTS owns the keys, presenterActions
+      // owns the side-effects. Everything below (except the navigation
+      // arrows) flows through dispatchPresenterKey.
+      const matched = dispatchPresenterKey({
+        event: e,
+        slideId: slide.id,
+        current,
+        isStepRoute,
+        stepNum,
+        toggleFullscreen: toggleFs,
+        toggleTopJumper,
+        toggleCamera,
+        toggleMusic,
+        cycleScene,
+        openOverview: openDeckOverview,
+        openHelp: () => setHelpOpen((o) => !o),
+      });
+      if (matched && matched.id !== "nav-prev" && matched.id !== "nav-next") return;
+
       const isForwardKey = e.key === "ArrowRight" || e.key === " " || e.code === "Space" || e.key === "Spacebar" || e.key === "Enter";
       if (isForwardKey) {
         e.preventDefault();
