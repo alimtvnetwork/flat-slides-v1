@@ -12,6 +12,7 @@ export function useCamera() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const requestIdRef = useRef(0);
 
   const attach = useCallback((el: HTMLVideoElement | null) => {
     videoRef.current = el;
@@ -26,6 +27,7 @@ export function useCamera() {
   }, [status]);
 
   const close = useCallback(() => {
+    requestIdRef.current += 1;
     if (streamRef.current) {
       for (const t of streamRef.current.getTracks()) t.stop();
       streamRef.current = null;
@@ -53,11 +55,16 @@ export function useCamera() {
     }
     setStatus("requesting");
     setErrorMessage(null);
+    const requestId = ++requestIdRef.current;
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: "user" },
         audio: false,
       });
+      if (requestId !== requestIdRef.current) {
+        for (const t of stream.getTracks()) t.stop();
+        return;
+      }
       streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
