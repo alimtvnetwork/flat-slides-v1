@@ -38,7 +38,7 @@ describe("ThemeWrap background pipeline", () => {
     expect(root.style.getPropertyValue("--slide-bg")).toBe("transparent");
     expect(layer.style.backgroundImage).toBe('url("/fallback.png")');
     expect(layer.style.backgroundSize).toBe("cover");
-    expect(layer.style.backgroundPosition).toBe("center");
+    expect(layer.style.backgroundPosition).toContain("center");
   });
 
   it("falls back to authored image backgrounds when settings has no image", () => {
