@@ -108,6 +108,24 @@ generate the handler from `SHORTCUTS`.
 - Step 9 (embedded-popup fallback) — already covered by tests; smoke
   re-verify after step 8.
 
+## Step 9 — Embedded popup fallback resolution
+
+Root cause: the slide presenter path used `useFullscreen.enter()`, which
+reports `embedded-popup-blocked` into the chrome store and renders
+`PresenterFallbackLink`. The home `Present deck` path called the lower-level
+`enterFullscreen()` helper directly, so a blocked embedded popup produced only
+navigation/failure behavior and did not mount the persistent fallback link on
+`/`.
+
+Fix: export `reportFullscreenFailure()`, call it from the home presenter
+gesture with the home URL (`/slides/1?present=1`), mount
+`PresenterFallbackLink` on `/`, and keep the user on home when the fallback
+owns recovery. Regression coverage added for the blocked-popup store update
+and home navigation decision.
+
+Verified: `bunx vitest run src/components/slides/home-present.test.ts src/components/slides/fullscreenTarget.test.ts src/components/slides/controls/PresenterFallbackLink.test.tsx`
+passes 11/11 tests.
+
 ## Open questions still blocking later phases
 
 - Q2 (dark preset overrides per-slide bg?) — pending user.
