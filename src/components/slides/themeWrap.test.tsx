@@ -28,7 +28,7 @@ describe("ThemeWrap background pipeline", () => {
     expect(layer.style.background).toContain("34, 68, 102");
   });
 
-  it("keeps image-mode authored backgrounds behind transparent content", () => {
+  it("uses the settings image layer behind transparent content", () => {
     act(() => useDeck.getState().setSettings({ backgroundMode: "image", backgroundImage: "/fallback.png" }));
     const { container } = render(<RenderSlide slide={{ ...SLIDE, background: "/authored.png" }} />);
 
@@ -36,7 +36,9 @@ describe("ThemeWrap background pipeline", () => {
     const layer = container.querySelector("[data-slide-bg-layer]") as HTMLElement;
 
     expect(root.style.getPropertyValue("--slide-bg")).toBe("transparent");
-    expect(layer.style.backgroundImage).toBe('url("/authored.png")');
+    expect(layer.style.backgroundImage).toBe('url("/fallback.png")');
+    expect(layer.style.backgroundSize).toBe("cover");
+    expect(layer.style.backgroundPosition).toBe("center");
   });
 
   it("forces dark tokens regardless of theme when backgroundMode is dark", () => {
