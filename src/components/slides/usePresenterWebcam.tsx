@@ -244,6 +244,23 @@ export interface PresenterWebcamCtx {
   restoreFromOverlay: () => void;
   /** Task 9 — convenience: dispatch a `riseup:webcam-passthrough` next/prev event. */
   emitPassthrough: (direction: "next" | "prev") => void;
+
+  /** Task 11 — persisted auto-frame enable flag. */
+  autoFrame: boolean;
+  setAutoFrame: (v: boolean) => void;
+  toggleAutoFrame: () => void;
+  /** Task 12 — persisted halo flag (independent of plate / circle). */
+  halo: boolean;
+  setHalo: (v: boolean) => void;
+  toggleHalo: () => void;
+  /** Task 13 — persisted plate variant; `circle=true` bypasses the plate visually. */
+  plateVariant: PlateVariant;
+  setPlateVariant: (v: PlateVariant) => void;
+  cyclePlateVariant: () => void;
+  /** Task 13 — persisted circle/squircle toggle; circle bypasses plate/mask. */
+  circle: boolean;
+  setCircle: (v: boolean) => void;
+  toggleCircle: () => void;
 }
 
 /** Task 9 — event name for nav keys forwarded by the camera while fullscreen/stage owns focus. */
