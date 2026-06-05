@@ -1,4 +1,4 @@
-import { render } from "@testing-library/react";
+import { act, render } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { useAudience } from "../audience-store";
@@ -30,7 +30,9 @@ describe("presenter frame anchored overlays", () => {
   });
 
   it("anchors poll results inside the slide frame", () => {
-    useAudience.setState({ resultsVisible: true, polls: { "poll-1": { voters: { voter: 0 }, counts: [1, 0] } } });
+    act(() => {
+      useAudience.setState({ resultsVisible: true, polls: { "poll-1": { voters: { voter: 0 }, counts: [1, 0] } } });
+    });
 
     const { getByLabelText } = render(<PollResultsOverlay slide={pollSlide} />);
 
@@ -41,7 +43,9 @@ describe("presenter frame anchored overlays", () => {
   });
 
   it("bounds QR overlay to the computed slide frame", () => {
-    useAudience.setState({ qrVisible: true });
+    act(() => {
+      useAudience.setState({ qrVisible: true });
+    });
 
     const { getByRole } = render(<QrOverlay />);
 
