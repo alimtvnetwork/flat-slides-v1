@@ -17,6 +17,7 @@ import {
 } from "./slideBackground";
 import { getTheme, themeStyle } from "./themes";
 import { useDeck } from "./store";
+import { useHydratedDeckSettings } from "./useHydratedDeckSettings";
 import { useReducedMotion } from "./useReducedMotion";
 import { useSlideNavigation } from "./useSlideNavigation";
 import { EmbedSlide } from "./widgets/EmbedSlide";
