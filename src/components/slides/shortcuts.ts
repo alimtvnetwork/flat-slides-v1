@@ -12,6 +12,8 @@
 
 export type ShortcutGroup = "Navigation" | "Steps" | "Surfaces" | "Presenter" | "Camera" | "Annotate" | "Timer" | "Audience";
 
+export type ShortcutScope = "presenter" | "inspector";
+
 export interface ShortcutDef {
   /** Stable identifier consumed by the action registry. */
   id: string;
@@ -21,6 +23,7 @@ export interface ShortcutDef {
   keys: string[];
   label: string;
   group: ShortcutGroup;
+  scope?: ShortcutScope;
 }
 
 export const SHORTCUTS: ShortcutDef[] = [
@@ -60,6 +63,11 @@ export const SHORTCUTS: ShortcutDef[] = [
   { id: "toggle-lint",         display: "⌘⇧L",     keys: [],                          label: "Toggle lint panel",      group: "Presenter" },
   { id: "toggle-notes",        display: "N",       keys: ["n"],                       label: "Toggle presenter notes", group: "Presenter" },
   { id: "esc-close-panel",     display: "Esc",     keys: [],                          label: "Close open panel or dialog", group: "Surfaces" },
+  { id: "inspector-nav-prev",  display: "←",       keys: ["ArrowLeft"],               label: "Inspector previous slide or step", group: "Navigation", scope: "inspector" },
+  { id: "inspector-nav-next",  display: "→",       keys: ["ArrowRight", " ", "Enter"], label: "Inspector next slide or step", group: "Navigation", scope: "inspector" },
+  { id: "inspector-reset-timer", display: "R",     keys: ["r"],                       label: "Reset inspector timer", group: "Timer", scope: "inspector" },
+  { id: "inspector-toggle-timer-pause", display: "P", keys: ["p"],                    label: "Pause / resume inspector timer", group: "Timer", scope: "inspector" },
+  { id: "inspector-exit",      display: "Esc",     keys: ["Escape"],                  label: "Exit presenter inspector", group: "Surfaces", scope: "inspector" },
 ];
 
 export function matchesShortcut(event: KeyboardEvent, def: ShortcutDef): boolean {
@@ -71,8 +79,13 @@ export function matchesShortcut(event: KeyboardEvent, def: ShortcutDef): boolean
  * `event.key`. Returns `undefined` when no plain-key binding applies
  * (e.g. modifier combos, mouse-only shortcuts, unmapped keys).
  */
-export function matchShortcut(event: KeyboardEvent): ShortcutDef | undefined {
-  return SHORTCUTS.find((def) => def.keys.length > 0 && matchesShortcut(event, def));
+export function matchShortcut(event: KeyboardEvent, scope: ShortcutScope = "presenter"): ShortcutDef | undefined {
+  return SHORTCUTS.find((def) => hasScope(def, scope) && def.keys.length > 0 && matchesShortcut(event, def));
+}
+
+function hasScope(def: ShortcutDef, scope: ShortcutScope): boolean {
+  if (scope === "inspector") return def.scope === "inspector";
+  return def.scope !== "inspector";
 }
 
 /**

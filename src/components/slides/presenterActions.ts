@@ -38,6 +38,21 @@ export interface PresenterActionCtx {
 
 export type PresenterAction = (ctx: PresenterActionCtx) => void;
 
+export interface InspectorActionCtx {
+  event: KeyboardEvent;
+  current: number;
+  stepNum: number;
+  stepCount: number;
+  total: number;
+  goPrev: () => void;
+  goNext: () => void;
+  exitInspector: () => void;
+  resetTimer: () => void;
+  toggleTimerPause: () => void;
+}
+
+export type InspectorAction = (ctx: InspectorActionCtx) => void;
+
 const INK_COLORS = ["#ef4444", "#facc15", "#22d3ee", "#a3e635", "#ffffff"];
 
 export const PRESENTER_KEY_ACTIONS: Record<string, PresenterAction> = {
@@ -78,6 +93,14 @@ export const PRESENTER_KEY_ACTIONS: Record<string, PresenterAction> = {
   "toggle-notes":        () => useChrome.getState().toggleNotesPeek(),
 };
 
+export const INSPECTOR_KEY_ACTIONS: Record<string, InspectorAction> = {
+  "inspector-nav-prev": ({ event, goPrev }) => { event.preventDefault(); goPrev(); },
+  "inspector-nav-next": ({ event, goNext }) => { event.preventDefault(); goNext(); },
+  "inspector-reset-timer": ({ event, resetTimer }) => { event.preventDefault(); resetTimer(); },
+  "inspector-toggle-timer-pause": ({ event, toggleTimerPause }) => { event.preventDefault(); toggleTimerPause(); },
+  "inspector-exit": ({ event, exitInspector }) => { event.preventDefault(); exitInspector(); },
+};
+
 /**
  * SHORTCUTS ids that are handled outside the registry because they need
  * modifier-combo branching, repeat-debounce, or are mouse/menu only.
@@ -106,7 +129,20 @@ export function dispatchPresenterKey(ctx: PresenterActionCtx): ShortcutDef | und
   return def;
 }
 
+export function dispatchInspectorKey(ctx: InspectorActionCtx): ShortcutDef | undefined {
+  const def = matchShortcut(ctx.event, "inspector");
+  if (!def) return undefined;
+  const action = INSPECTOR_KEY_ACTIONS[def.id];
+  if (!action) return def;
+  action(ctx);
+  return def;
+}
+
 /** Test-visible: SHORTCUTS entries that bind plain keys (no modifiers). */
 export function plainKeyShortcuts(): ShortcutDef[] {
-  return SHORTCUTS.filter((s) => s.keys.length > 0);
+  return SHORTCUTS.filter((s) => s.scope !== "inspector" && s.keys.length > 0);
+}
+
+export function inspectorKeyShortcuts(): ShortcutDef[] {
+  return SHORTCUTS.filter((s) => s.scope === "inspector" && s.keys.length > 0);
 }

@@ -5,6 +5,7 @@ import { InspectorFooter } from "./PresenterInspectorFooter";
 import { CurrentSlidePanel, NextSlidePanel, NotesPanel } from "./PresenterInspectorPanels";
 import type { PresenterInspectorModel } from "./presenterInspectorModel";
 import { useInspectorTimer } from "./useInspectorTimer";
+import { usePresenterInspectorKeyboard } from "./usePresenterInspectorKeyboard";
 
 export function PresenterInspectorView({
   model,
@@ -14,6 +15,7 @@ export function PresenterInspectorView({
   isReducedMotion: boolean;
 }) {
   const timer = useInspectorTimer();
+  usePresenterInspectorKeyboard(model);
 
   return (
     <PresenterShell isFullscreen={false}>
