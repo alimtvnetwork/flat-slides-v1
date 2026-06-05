@@ -17,6 +17,7 @@ import {
 } from "./slideBackground";
 import { getTheme, themeStyle } from "./themes";
 import { useDeck } from "./store";
+import { useHydratedDeckSettings } from "./useHydratedDeckSettings";
 import { useReducedMotion } from "./useReducedMotion";
 import { useSlideNavigation } from "./useSlideNavigation";
 import { EmbedSlide } from "./widgets/EmbedSlide";
@@ -61,7 +62,7 @@ function applyDarkPresetTokens(style: Record<string, string>): void {
 
 function ThemeWrap({ slide, children }: { slide: Slide; children: React.ReactNode }) {
   const deckThemeId = useDeck((s) => s.deck.themeId);
-  const settings = useDeck((s) => s.deck.settings);
+  const settings = useHydratedDeckSettings();
   const theme = getTheme(slide.themeId ?? deckThemeId);
   const style: React.CSSProperties = { ...themeStyle(theme), position: "absolute", inset: 0 };
   const background = resolveSlideBackground(slide, settings);
