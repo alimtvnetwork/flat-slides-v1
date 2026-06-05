@@ -55,10 +55,19 @@ function parseSettingsPayload(payload: PersistedSettingsPayload): DeckSettings |
 
 function readSettingsStorage(): string | null {
   if (typeof window === "undefined") return null;
-  return window.localStorage.getItem(SETTINGS_STORAGE_KEY);
+  try {
+    return window.localStorage.getItem(SETTINGS_STORAGE_KEY);
+  } catch (error) {
+    console.warn("Unable to read persisted slide settings", error);
+    return null;
+  }
 }
 
 function writeSettingsStorage(value: string): void {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(SETTINGS_STORAGE_KEY, value);
+  try {
+    window.localStorage.setItem(SETTINGS_STORAGE_KEY, value);
+  } catch (error) {
+    console.warn("Unable to persist slide settings", error);
+  }
 }
