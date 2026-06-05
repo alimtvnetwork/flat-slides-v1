@@ -82,4 +82,22 @@ describe("useHoverReveal", () => {
     act(() => vi.advanceTimersByTime(HOVER_REVEAL_COLLAPSE_GRACE_MS + 200));
     expect(result.current.isExpanded).toBe(true);
   });
+
+  it("expands and collapses instantly under prefers-reduced-motion (Step 28)", () => {
+    const mql = {
+      matches: true, media: "(prefers-reduced-motion: reduce)", onchange: null,
+      addEventListener: () => {}, removeEventListener: () => {},
+      addListener: () => {}, removeListener: () => {}, dispatchEvent: () => false,
+    };
+    Object.defineProperty(window, "matchMedia", { writable: true, value: () => mql });
+
+    const { result } = setup(container);
+    act(() => result.current.handleEnter());
+    act(() => vi.advanceTimersByTime(0));
+    expect(result.current.isExpanded).toBe(true);
+
+    act(() => result.current.handleLeave());
+    act(() => vi.advanceTimersByTime(0));
+    expect(result.current.isExpanded).toBe(false);
+  });
 });

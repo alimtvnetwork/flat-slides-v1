@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
 
+import { useReducedMotion } from "@/components/slides/useReducedMotion";
+
 export const HOVER_REVEAL_EXPAND_MS = 160;
 export const HOVER_REVEAL_COLLAPSE_GRACE_MS = 400;
 const OPEN_CHILD_SELECTOR = '[data-state="open"]';
@@ -9,11 +11,19 @@ const OPEN_CHILD_SELECTOR = '[data-state="open"]';
  * - 160ms intent delay before expand (avoids flicker on mouse fly-over).
  * - 400ms grace before collapse (so users don't lose it on quick mouse-out).
  * - Stays open while a child popover/menu is mounted (data-state="open").
+ *
+ * Step 28 (B21) a11y: under `prefers-reduced-motion: reduce` both timers
+ * collapse to 0ms — the chip expands and collapses instantly. Per core
+ * memory rule, any animated slide surface must consult useReducedMotion().
  */
 export function useHoverReveal(containerRef: RefObject<HTMLElement | null>) {
+  const reduced = useReducedMotion();
   const [isExpanded, setIsExpanded] = useState(false);
   const expandTimer = useRef<number | null>(null);
   const collapseTimer = useRef<number | null>(null);
+
+  const expandDelay = reduced ? 0 : HOVER_REVEAL_EXPAND_MS;
+  const collapseDelay = reduced ? 0 : HOVER_REVEAL_COLLAPSE_GRACE_MS;
 
   const clearExpand = () => {
     if (expandTimer.current === null) return;
@@ -40,8 +50,8 @@ export function useHoverReveal(containerRef: RefObject<HTMLElement | null>) {
         return;
       }
       setIsExpanded(false);
-    }, HOVER_REVEAL_COLLAPSE_GRACE_MS);
-  }, [hasOpenChild]);
+    }, collapseDelay);
+  }, [hasOpenChild, collapseDelay]);
 
   const handleEnter = useCallback(() => {
     clearCollapse();
@@ -49,8 +59,8 @@ export function useHoverReveal(containerRef: RefObject<HTMLElement | null>) {
     expandTimer.current = window.setTimeout(() => {
       expandTimer.current = null;
       setIsExpanded(true);
-    }, HOVER_REVEAL_EXPAND_MS);
-  }, []);
+    }, expandDelay);
+  }, [expandDelay]);
 
   const handleLeave = useCallback(() => {
     clearExpand();
