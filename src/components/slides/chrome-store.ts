@@ -217,6 +217,7 @@ export const useChrome = create<ChromeStore>()(
       recentJumps: [],
       camera: { ...DEFAULT_CAMERA },
       music: { playing: false, volume: 0.4 },
+      slideMusic: null,
       scene: "normal",
       toast: null,
       presenterFallback: null,
