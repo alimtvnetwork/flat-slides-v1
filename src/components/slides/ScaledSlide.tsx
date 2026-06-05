@@ -74,10 +74,20 @@ function writePresenterFrameVars(rect: ContainerRect, scale: number) {
   const left = rect.left + Math.max(0, (rect.width - frameWidth) / 2);
   const top = rect.top + Math.max(0, (rect.height - frameHeight) / 2);
   const { width, height } = readViewportSize();
-  document.documentElement.style.setProperty("--presenter-frame-left", `${Math.round(left)}px`);
-  document.documentElement.style.setProperty("--presenter-frame-top", `${Math.round(top)}px`);
-  document.documentElement.style.setProperty("--presenter-frame-right", `${Math.round(Math.max(0, width - left - frameWidth))}px`);
-  document.documentElement.style.setProperty("--presenter-frame-bottom", `${Math.round(Math.max(0, height - top - frameHeight))}px`);
+  const vars = {
+    "--stage-scale": String(scale),
+    "--presenter-frame-left": `${Math.round(left)}px`,
+    "--presenter-frame-top": `${Math.round(top)}px`,
+    "--presenter-frame-right": `${Math.round(Math.max(0, width - left - frameWidth))}px`,
+    "--presenter-frame-bottom": `${Math.round(Math.max(0, height - top - frameHeight))}px`,
+    "--presenter-frame-width": `${Math.round(frameWidth)}px`,
+    "--presenter-frame-height": `${Math.round(frameHeight)}px`,
+    "--presenter-frame-center-x": `${Math.round(left + frameWidth / 2)}px`,
+    "--presenter-frame-center-y": `${Math.round(top + frameHeight / 2)}px`,
+  };
+  for (const target of presenterVarTargets()) {
+    for (const [name, value] of Object.entries(vars)) target.style.setProperty(name, value);
+  }
 }
 
 function isPresenterStage(el: HTMLElement) {
@@ -90,9 +100,30 @@ function readViewportSize() {
 }
 
 function clearPresenterFrameVars() {
-  for (const name of ["--stage-scale", "--presenter-frame-left", "--presenter-frame-top", "--presenter-frame-right", "--presenter-frame-bottom"]) {
-    document.documentElement.style.removeProperty(name);
+  for (const target of presenterVarTargets()) {
+    for (const name of presenterFrameVarNames) target.style.removeProperty(name);
   }
+}
+
+const presenterFrameVarNames = [
+  "--stage-scale",
+  "--presenter-frame-left",
+  "--presenter-frame-top",
+  "--presenter-frame-right",
+  "--presenter-frame-bottom",
+  "--presenter-frame-width",
+  "--presenter-frame-height",
+  "--presenter-frame-center-x",
+  "--presenter-frame-center-y",
+];
+
+function presenterVarTargets() {
+  const targets = [document.documentElement];
+  for (const selector of ["[data-slides-fullscreen-root]", "[data-slide-presenter-root]"]) {
+    const el = document.querySelector<HTMLElement>(selector);
+    if (el && !targets.includes(el)) targets.push(el);
+  }
+  return targets;
 }
 
 function scheduleSettledFrames(callback: () => void, frames: Set<number>) {
