@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Camera, ChevronLeft, ChevronRight, Grid3x3, HelpCircle, Maximize2, Minimize2, Settings } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
@@ -190,14 +190,38 @@ function PillButton({
   ariaLabel: string;
   active?: boolean;
 }) {
+  const pointerActivatedAtRef = useRef(0);
+
+  function recentlyActivated() {
+    return Date.now() - pointerActivatedAtRef.current < 700;
+  }
+
+  function activate(button: HTMLButtonElement) {
+    button.blur();
+    onClick();
+  }
+
   return (
     <button
       type="button"
-      onPointerDown={(e) => e.preventDefault()}
-      onMouseDown={(e) => e.preventDefault()}
+      onPointerDown={(e) => {
+        if (disabled || e.button !== 0) return;
+        e.preventDefault();
+        e.stopPropagation();
+        pointerActivatedAtRef.current = Date.now();
+        activate(e.currentTarget);
+      }}
+      onMouseDown={(e) => {
+        if (disabled || e.button !== 0 || recentlyActivated()) return;
+        e.preventDefault();
+        e.stopPropagation();
+        pointerActivatedAtRef.current = Date.now();
+        activate(e.currentTarget);
+      }}
       onClick={(e) => {
-        e.currentTarget.blur();
-        onClick();
+        e.stopPropagation();
+        if (recentlyActivated()) return;
+        activate(e.currentTarget);
       }}
       disabled={disabled}
       aria-label={ariaLabel}

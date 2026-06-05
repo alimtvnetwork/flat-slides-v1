@@ -257,6 +257,15 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
 
   function goPrevStepAware() {
     if (!claimNavigationSlot()) return;
+    movePrevStepAware();
+  }
+
+  function goNextStepAware() {
+    if (!claimNavigationSlot()) return;
+    moveNextStepAware();
+  }
+
+  function movePrevStepAware() {
     if (isStepRoute && stepNum > 0) {
       const target = stepNum;
       if (target <= 1) goTo(current, "backward");
@@ -266,8 +275,7 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
     }
   }
 
-  function goNextStepAware() {
-    if (!claimNavigationSlot()) return;
+  function moveNextStepAware() {
     if (!isStepRoute && stepCount > 1) goTo(current, "forward", 2);
     else if (isStepRoute && stepNum < stepCount - 1) goTo(current, "forward", stepNum + 2);
     else next(current);
@@ -299,7 +307,7 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
   const focusStep = Math.max(1, cameraStep || 1);
   const surfaces = (
     <>
-      <PresenterTopBar current={current} total={total} onPrev={goPrevStepAware} onNext={goNextStepAware} />
+      <PresenterTopBar current={current} total={total} onPrev={movePrevStepAware} onNext={moveNextStepAware} />
       <DotPagination current={current} total={total} slides={linearSlides} onJump={jump} />
       <SlideNumberBadge current={current} total={total} display={getDisplayNumber(slide, current)} />
       <AnnotationLayer slideId={slide.id} />
@@ -330,8 +338,8 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
     <ControllerPill
       current={current}
       total={total}
-      onPrev={goPrevStepAware}
-      onNext={goNextStepAware}
+        onPrev={movePrevStepAware}
+        onNext={moveNextStepAware}
       onJump={jump}
       onOpenGrid={openDeckOverview}
       onToggleFullscreen={toggleFs}
