@@ -138,11 +138,9 @@ export function useFullscreen() {
         notify();
       };
       document.addEventListener("fullscreenchange", sync);
-      window.addEventListener("focus", sync);
       document.addEventListener("visibilitychange", sync);
       return () => {
         document.removeEventListener("fullscreenchange", sync);
-        window.removeEventListener("focus", sync);
         document.removeEventListener("visibilitychange", sync);
       };
     },
