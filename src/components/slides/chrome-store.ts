@@ -343,7 +343,7 @@ export const useChrome = create<ChromeStore>()(
         timerVisible: s.timerVisible,
         notesPeekOpen: s.notesPeekOpen,
         lastUsedThemeId: s.lastUsedThemeId,
-        camera: s.camera,
+        camera: { ...s.camera, visible: false, fullscreenOnly: true },
         music: { ...s.music, playing: false },
         scene: s.scene,
       }),
@@ -354,7 +354,8 @@ export const useChrome = create<ChromeStore>()(
           ...state,
           camera: normalizeCamera({
             ...(state?.camera ?? current.camera),
-            visible: state?.camera?.visible ?? DEFAULT_CAMERA.visible,
+            visible: false,
+            fullscreenOnly: true,
           }),
           music: { ...current.music, ...(state?.music ?? current.music), playing: false },
         };
