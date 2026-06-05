@@ -119,6 +119,11 @@ export const PRESENTER_KEY_ACTIONS: Record<string, PresenterAction> = {
   },
   "toggle-focus-editor": () => useChrome.getState().toggleFocusEditor(),
   "toggle-notes": () => useChrome.getState().toggleNotesPeek(),
+  "open-inspector": ({ event, current }) => {
+    event.preventDefault();
+    const url = `${window.location.origin}/slides/inspector/${current}`;
+    window.open(url, "riseup-presenter-inspector", "noopener,noreferrer");
+  },
 };
 
 export const INSPECTOR_KEY_ACTIONS: Record<string, InspectorAction> = {
