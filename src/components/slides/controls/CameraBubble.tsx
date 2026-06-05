@@ -457,9 +457,9 @@ export function CameraBubble() {
         <button
           data-camera-control
           type="button"
-          title="Hide"
-          aria-label="Hide camera"
-          onClick={() => setCamera({ visible: false })}
+          title="Close camera"
+          aria-label="Close camera"
+          onClick={() => { close(); setCamera({ visible: false }); }}
           className={CAMERA_BUTTON_CLASS}
         >
           <X size={12} />
@@ -471,9 +471,9 @@ export function CameraBubble() {
           data-resize-handle
           role="slider"
           aria-label="Resize camera"
-          aria-valuemin={MIN_SIZE}
-          aria-valuemax={MAX_SIZE}
-          aria-valuenow={size}
+          aria-valuemin={CAMERA_FREE_MIN_W}
+          aria-valuemax={CAMERA_FREE_MAX_W}
+          aria-valuenow={dims.w}
           title="Drag to resize · double-click to reset"
           onPointerDown={onResizeDown}
           onPointerMove={onResizeMove}
