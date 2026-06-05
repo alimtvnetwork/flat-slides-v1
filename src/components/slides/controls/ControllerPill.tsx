@@ -61,6 +61,7 @@ export function ControllerPill(props: Props) {
   const cameraVisible = useChrome((s) => s.camera.visible);
   const toggleCamera = useChrome((s) => s.toggleCamera);
   const compact = useCompactViewport();
+  const narrow = useNarrowViewport();
   const reduced = useReducedMotion();
   const [mounted, setMounted] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
