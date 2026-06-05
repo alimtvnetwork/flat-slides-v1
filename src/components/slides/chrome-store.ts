@@ -259,6 +259,7 @@ export const useChrome = create<ChromeStore>()(
       }),
       setMusic: (patch) => set((s) => ({ music: { ...s.music, ...patch } })),
       toggleMusic: () => set((s) => ({ music: { ...s.music, playing: !s.music.playing } })),
+      setSlideMusic: (override) => set({ slideMusic: override }),
       setScene: (scene) => set({ scene, toast: { text: `Scene: ${scene}`, ts: Date.now() } }),
       cycleScene: () =>
         set((s) => {
