@@ -1,20 +1,24 @@
 import { Link } from "@tanstack/react-router";
 
 import { PresenterShell } from "./PresenterShell";
-import { CurrentSlidePanel, InspectorFooter, NextSlidePanel, NotesPanel } from "./PresenterInspectorPanels";
+import { InspectorFooter } from "./PresenterInspectorFooter";
+import {
+  CurrentSlidePanel,
+  NextSlidePanel,
+  NotesPanel,
+} from "./PresenterInspectorPanels";
 import type { PresenterInspectorModel } from "./presenterInspectorModel";
+import { useInspectorTimer } from "./useInspectorTimer";
 
 export function PresenterInspectorView({
   model,
   isReducedMotion,
-  timerLabel,
-  isTimerPaused,
 }: {
   model: PresenterInspectorModel;
   isReducedMotion: boolean;
-  timerLabel: string;
-  isTimerPaused: boolean;
 }) {
+  const timer = useInspectorTimer();
+
   return (
     <PresenterShell isFullscreen={false}>
       <main
@@ -25,7 +29,7 @@ export function PresenterInspectorView({
         <CurrentSlidePanel model={model} />
         <NextSlidePanel slide={model.nextSlide} />
         <NotesPanel notes={model.notes} title={model.slide.title} />
-        <InspectorFooter model={model} timerLabel={timerLabel} isTimerPaused={isTimerPaused} />
+        <InspectorFooter model={model} {...timer} />
       </main>
     </PresenterShell>
   );
