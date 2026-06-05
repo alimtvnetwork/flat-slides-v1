@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowRight,
   Braces,
@@ -11,6 +11,10 @@ import {
   Terminal,
   Zap,
 } from "lucide-react";
+import { useCallback, useEffect } from "react";
+
+import { HOME_PRESENT_SLIDE_ID, openHomePresenterWindow } from "@/components/slides/home-present";
+import { enterFullscreen } from "@/components/slides/useFullscreen";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -33,6 +37,23 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
+  const navigate = useNavigate();
+  const presentDeck = useCallback(async () => {
+    const result = await enterFullscreen(null, { openPresenterWindow: openHomePresenterWindow });
+    if (result.ok && result.mode === "presenter-window") return;
+    await navigate({ to: "/slides/$slideId", params: { slideId: HOME_PRESENT_SLIDE_ID }, search: { present: "1" } as never });
+  }, [navigate]);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "F5") return;
+      event.preventDefault();
+      void presentDeck();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [presentDeck]);
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-10 bg-black px-6 text-center text-white">
       <div className="flex items-center gap-3 text-white/70">
@@ -54,11 +75,20 @@ function Index() {
       </div>
 
       <div className="flex flex-wrap items-center justify-center gap-3">
-        <Link
-          to="/slides"
-          className="inline-flex items-center gap-2 rounded-md bg-white px-5 py-2.5 text-sm font-semibold text-black hover:bg-white/90"
+        <button
+          type="button"
+          onClick={() => void presentDeck()}
+          className="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
         >
           <Presentation className="h-4 w-4" aria-hidden />
+          Present deck
+          <ArrowRight className="h-4 w-4" aria-hidden />
+        </button>
+        <Link
+          to="/slides"
+          className="inline-flex items-center gap-2 rounded-md border border-white/30 px-5 py-2.5 text-sm text-white hover:border-white/60"
+        >
+          <Layers className="h-4 w-4" aria-hidden />
           Open deck
           <ArrowRight className="h-4 w-4" aria-hidden />
         </Link>
