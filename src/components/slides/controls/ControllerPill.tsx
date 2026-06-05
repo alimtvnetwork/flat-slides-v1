@@ -89,7 +89,7 @@ export function ControllerPill(props: Props) {
       role="toolbar"
       aria-label="Slide controller"
       data-collapsed={!isExpanded}
-      style={{ position: "fixed", zIndex: "var(--z-controller)" as unknown as number, ...anchorStyles(anchor, isFullscreen) }}
+      style={{ position: "fixed", zIndex: "var(--z-controller)" as unknown as number, ...anchorStyles(anchor) }}
       className="select-none"
       onMouseEnter={handleEnter}
       onMouseLeave={handleLeave}

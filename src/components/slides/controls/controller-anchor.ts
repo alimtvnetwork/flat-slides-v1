@@ -28,13 +28,13 @@ export function isControllerAnchorShortcut(event: KeyboardEvent): boolean {
 }
 
 /** Fixed-position CSS for the pill at a given anchor. */
-export function anchorStyles(a: ControllerAnchor, isFullscreen = false): React.CSSProperties {
+export function anchorStyles(a: ControllerAnchor): React.CSSProperties {
   const inset = "max(env(safe-area-inset-bottom, 0px), 16px)";
   const sideInset = "max(env(safe-area-inset-right, 0px), 16px)";
-  const bottom = isFullscreen ? `calc(var(--presenter-frame-bottom, 0px) + ${inset})` : inset;
-  const top = isFullscreen ? `calc(var(--presenter-frame-top, 0px) + ${inset})` : inset;
-  const right = isFullscreen ? `calc(var(--presenter-frame-right, 0px) + ${sideInset})` : sideInset;
-  const left = isFullscreen ? `calc(var(--presenter-frame-left, 0px) + ${sideInset})` : sideInset;
+  const bottom = `calc(var(--presenter-frame-bottom, 0px) + ${inset})`;
+  const top = `calc(var(--presenter-frame-top, 0px) + ${inset})`;
+  const right = `calc(var(--presenter-frame-right, 0px) + ${sideInset})`;
+  const left = `calc(var(--presenter-frame-left, 0px) + ${sideInset})`;
   switch (a) {
     case "top-right":     return { top, right };
     case "bottom-left":   return { bottom, left };

@@ -40,8 +40,8 @@ describe("anchorStyles", () => {
     expect(anchorStyles("bottom-center").transform).toContain("translateX");
   });
 
-  it("keeps fullscreen anchors inside the measured presenter frame", () => {
-    const s = anchorStyles("bottom-right", true);
+  it("keeps anchors inside the measured presenter frame even before native fullscreen", () => {
+    const s = anchorStyles("bottom-right");
     expect(s.bottom).toContain("--presenter-frame-bottom");
     expect(s.right).toContain("--presenter-frame-right");
   });
