@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { PresenterShell, SlideStageShell } from "./PresenterShell";
 
 describe("PresenterShell containment", () => {
-  it("uses a fixed clipped viewport shell in fullscreen", () => {
+  it("stays in the fullscreen root flow so the stable root clips it", () => {
     const { container } = render(
       <PresenterShell isFullscreen>
         <SlideStageShell>
@@ -17,8 +17,8 @@ describe("PresenterShell containment", () => {
     const stage = container.querySelector("[data-slide-stage-shell]") as HTMLElement;
 
     expect(shell.dataset.fullscreen).toBe("true");
-    expect(shell.className).toContain("fixed");
-    expect(shell.className).toContain("inset-0");
+    expect(shell.className).not.toContain("fixed");
+    expect(shell.className).not.toContain("inset-0");
     expect(shell.className).toContain("w-full");
     expect(shell.className).not.toContain("w-screen");
     expect(shell.className).toContain("overflow-hidden");

@@ -54,4 +54,9 @@ describe("ControllerPill mount audit (B21/step 22)", () => {
     expect(root.querySelector('[aria-label="Slide controller"]')).not.toBeNull();
     root.remove();
   });
+
+  it("renders inline instead of disappearing when the slides root is not mounted yet", () => {
+    render(<ControllerPill current={1} {...baseProps} />);
+    expect(document.querySelectorAll('[aria-label="Slide controller"]')).toHaveLength(1);
+  });
 });
