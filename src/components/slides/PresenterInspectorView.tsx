@@ -24,8 +24,14 @@ export function PresenterInspectorView({
           label={`Current slide: ${model.slide.title}`}
           slide={model.slide}
           stepIndex={model.stepIndex}
+          variant="current"
         />
-        <SlidePanel label={nextSlideLabel(model.nextSlide)} slide={model.nextSlide} stepIndex={0} />
+        <SlidePanel
+          label={nextSlideLabel(model.nextSlide)}
+          slide={model.nextSlide}
+          stepIndex={0}
+          variant="next"
+        />
         <NotesPanel notes={model.notes} title={model.slide.title} />
         <InspectorFooter model={model} />
       </main>
@@ -50,15 +56,17 @@ function SlidePanel({
   label,
   slide,
   stepIndex,
+  variant,
 }: {
   label: string;
   slide?: Slide;
   stepIndex: number;
+  variant: "current" | "next";
 }) {
   return (
     <section
       aria-label={label}
-      className="relative min-h-0 overflow-hidden rounded-md border border-border bg-card"
+      className={slidePanelClassName(variant)}
     >
       {slide ? <RenderedSlide slide={slide} stepIndex={stepIndex} /> : <EmptyNextSlide />}
     </section>
@@ -109,6 +117,11 @@ function InspectorFooter({ model }: { model: PresenterInspectorModel }) {
 
 function nextSlideLabel(slide?: Slide) {
   return slide ? `Next slide: ${slide.title}` : "Next slide";
+}
+
+function slidePanelClassName(variant: "current" | "next") {
+  const base = "relative min-h-0 overflow-hidden rounded-md border border-border bg-card";
+  return variant === "next" ? `${base} pointer-events-none` : base;
 }
 
 function inspectorMotionStyle(isReducedMotion: boolean) {
