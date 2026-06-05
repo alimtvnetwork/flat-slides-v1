@@ -14,9 +14,14 @@ export function configureDeckMusic(music: DeckMusic | undefined, volume: number)
   el.volume = clampVolume(volume);
 }
 
-export function setDeckMusicPlaying(isPlaying: boolean): void {
-  if (!isPlaying) return stopDeckMusic();
-  startDeckMusic();
+export type PlayResult = { ok: true } | { ok: false; blocked: boolean };
+
+export function setDeckMusicPlaying(isPlaying: boolean): Promise<PlayResult> {
+  if (!isPlaying) {
+    stopDeckMusic();
+    return Promise.resolve({ ok: true });
+  }
+  return startDeckMusic();
 }
 
 export function stopDeckMusic(): void {
