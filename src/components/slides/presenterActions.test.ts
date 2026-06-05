@@ -56,4 +56,25 @@ describe("presenterActions — single keymap parity (Step 26)", () => {
     const ctx = { ...baseCtx(), event: new KeyboardEvent("keydown", { key: "z" }) };
     expect(dispatchPresenterKey(ctx)).toBeUndefined();
   });
+
+  it("open-inspector opens /slides/inspector/N in a new window", () => {
+    const originalOpen = window.open;
+    const openSpy = vi.fn();
+    window.open = openSpy as unknown as typeof window.open;
+    try {
+      const ctx = {
+        ...baseCtx(),
+        current: 7,
+        event: new KeyboardEvent("keydown", { key: "i" }),
+      };
+      const def = dispatchPresenterKey(ctx);
+      expect(def?.id).toBe("open-inspector");
+      expect(openSpy).toHaveBeenCalledTimes(1);
+      const [url, target] = openSpy.mock.calls[0];
+      expect(url).toMatch(/\/slides\/inspector\/7$/);
+      expect(target).toBe("riseup-presenter-inspector");
+    } finally {
+      window.open = originalOpen;
+    }
+  });
 });
