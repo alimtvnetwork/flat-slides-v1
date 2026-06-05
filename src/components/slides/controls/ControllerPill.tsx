@@ -61,8 +61,9 @@ export function ControllerPill(props: Props) {
   const compact = useCompactViewport();
   const reduced = useReducedMotion();
   const [mounted, setMounted] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { isExpanded, handleEnter, handleLeave } = useHoverReveal(containerRef);
 
-  useEffect(() => setMounted(true), []);
   useEffect(() => {
     if (typeof document === "undefined") return;
     requestAnimationFrame(() => {
