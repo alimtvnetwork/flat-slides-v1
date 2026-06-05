@@ -86,7 +86,7 @@ export function CommandPalette({ open, onClose, slides, onJump, onOpenOverview, 
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-[min(640px,calc(var(--presenter-frame-width)-32px),92vw)] overflow-hidden rounded-xl bg-neutral-900 shadow-2xl ring-1 ring-neutral-700"
+        className="w-[min(640px,calc(var(--presenter-frame-width)_-_32px),92vw)] overflow-hidden rounded-xl bg-neutral-900 shadow-2xl ring-1 ring-neutral-700"
       >
         <input
           autoFocus

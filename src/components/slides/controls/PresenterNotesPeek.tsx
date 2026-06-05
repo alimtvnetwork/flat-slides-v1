@@ -67,7 +67,7 @@ export function PresenterNotesPeek({ notes }: { notes?: string }) {
             animate={reduced ? { opacity: 1 } : { opacity: 1, y: 0 }}
             exit={reduced ? { opacity: 0 } : { opacity: 0, y: 8 }}
             transition={{ duration: reduced ? 0.12 : 0.2 }}
-            className="mt-2 w-[min(420px,calc(var(--presenter-frame-width)-32px),80vw)] rounded-xl border border-white/15 bg-neutral-950/95 p-4 text-sm leading-relaxed text-white/90 shadow-2xl"
+            className="mt-2 w-[min(420px,calc(var(--presenter-frame-width)_-_32px),80vw)] rounded-xl border border-white/15 bg-neutral-950/95 p-4 text-sm leading-relaxed text-white/90 shadow-2xl"
           >
             <button
               type="button"

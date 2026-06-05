@@ -31,7 +31,7 @@ export function PresenterFallbackLink() {
       role="status"
       aria-live="polite"
       style={{ ["--presenter-safe-inset" as string]: "96px" }}
-      className="fixed z-[75] w-[min(520px,calc(var(--presenter-frame-width)-32px),calc(100vw-32px))] -translate-x-1/2 rounded-lg border border-[color:var(--ctrl-border)] bg-[color:var(--ctrl-bg)] p-3 text-[color:var(--ctrl-fg)] shadow-2xl backdrop-blur-md"
+      className="fixed z-[75] w-[min(520px,calc(var(--presenter-frame-width)_-_32px),calc(100vw_-_32px))] -translate-x-1/2 rounded-lg border border-[color:var(--ctrl-border)] bg-[color:var(--ctrl-bg)] p-3 text-[color:var(--ctrl-fg)] shadow-2xl backdrop-blur-md"
     >
       <div className="flex items-start gap-3">
         <div className="min-w-0 flex-1">
