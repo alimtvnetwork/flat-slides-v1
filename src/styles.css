@@ -180,7 +180,7 @@
   position: relative;
   font-family: var(--slide-font-body);
   color: var(--slide-fg);
-  background-color: var(--slide-bg);
+  background-color: var(--slide-content-bg, var(--slide-bg));
   text-shadow: var(--slide-text-shadow);
 
   --slide-title-lg: 240px;
