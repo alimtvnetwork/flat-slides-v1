@@ -248,9 +248,9 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
     if (typeof document === "undefined") return;
     const handleNavButtonEvent = (event: Event) => {
       const target = event.target as HTMLElement | null;
-      const button = target?.closest<HTMLButtonElement>("button[data-slide-nav]");
+      const button = target?.closest<HTMLButtonElement>('button[aria-label="Next slide"],button[aria-label="Previous slide"]');
       if (!button || button.disabled) return;
-      const action = button.dataset.slideNav;
+      const action = button.getAttribute("aria-label") === "Next slide" ? "next" : "prev";
       if (action !== "next" && action !== "prev") return;
       const handledAt = Number(button.dataset.slideNavHandledAt ?? 0);
       if (Date.now() - handledAt < 700) return;
