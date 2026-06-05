@@ -16,10 +16,9 @@ describe("deck music player", () => {
   const created: FakeAudio[] = [];
 
   beforeEach(() => {
-    const AudioMock = vi.fn((src?: string) => {
-      const audio = makeAudio(src);
-      created.push(audio);
-      return audio;
+    const AudioMock = vi.fn(function AudioStub(this: FakeAudio, src?: string) {
+      Object.assign(this, makeAudio(src));
+      created.push(this);
     });
     vi.stubGlobal("Audio", AudioMock);
   });
