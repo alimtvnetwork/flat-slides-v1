@@ -5,7 +5,7 @@ import type { Deck, Slide } from "./types";
 
 const settings: Deck["settings"] = {
   backgroundMode: "color", backgroundColor: "#000", darken: 0, blur: 0,
-  transition: "fade", soundEnabled: true, volume: 0.5,
+  transition: "fade", soundEnabled: true, volume: 0.5, musicVolume: 40,
 };
 
 const slide = (id: string, type: Slide["type"]): Slide => {

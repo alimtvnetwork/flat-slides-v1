@@ -116,6 +116,7 @@ describe("opt-in focus zoom effects", () => {
         transition: "camera-zoom",
         soundEnabled: true,
         volume: 0.6,
+        musicVolume: 40,
       },
     }));
 
