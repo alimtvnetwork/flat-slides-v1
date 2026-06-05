@@ -246,12 +246,14 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
 
   useEffect(() => {
     if (typeof document === "undefined") return;
-    const onPointerUp = (event: PointerEvent) => {
+    const handleNavButtonEvent = (event: Event) => {
       const target = event.target as HTMLElement | null;
       const button = target?.closest<HTMLButtonElement>("button[data-slide-nav]");
       if (!button || button.disabled) return;
       const action = button.dataset.slideNav;
       if (action !== "next" && action !== "prev") return;
+      const handledAt = Number(button.dataset.slideNavHandledAt ?? 0);
+      if (Date.now() - handledAt < 700) return;
       event.preventDefault();
       event.stopPropagation();
       button.blur();
@@ -259,8 +261,12 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
       if (action === "next") moveNextStepAware();
       else movePrevStepAware();
     };
-    document.addEventListener("pointerup", onPointerUp, true);
-    return () => document.removeEventListener("pointerup", onPointerUp, true);
+    document.addEventListener("pointerup", handleNavButtonEvent, true);
+    document.addEventListener("click", handleNavButtonEvent, true);
+    return () => {
+      document.removeEventListener("pointerup", handleNavButtonEvent, true);
+      document.removeEventListener("click", handleNavButtonEvent, true);
+    };
   });
 
   if (!slide) {
