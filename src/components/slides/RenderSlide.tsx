@@ -5,6 +5,13 @@ import { Rich } from "./Rich";
 import { SlideLayout } from "./SlideLayout";
 import { CodeJourneyDecor, shouldAutoEnableCodeDecor } from "./decor/CodeJourneyDecor";
 import { getRegisteredSlideType } from "./registry";
+import {
+  clampBackgroundBlurPx,
+  clampDarkenPercent,
+  resolveBackgroundLayerStyle,
+  resolveSlideBackground,
+  resolveSlideBgVariable,
+} from "./slideBackground";
 import { getTheme, themeStyle } from "./themes";
 import { useDeck } from "./store";
 import { useReducedMotion } from "./useReducedMotion";
