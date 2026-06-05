@@ -199,3 +199,20 @@ settings cannot push unsupported blur values into the slide background layer.
 
 Verified: `themeWrap.test.tsx` covers `blur: 80` in image mode and asserts the
 rendered background layer filter is exactly `blur(20px)`.
+
+## Step 17 — Settings persistence + reset
+
+Root cause: deck settings were only persisted as part of the Zustand deck key
+(`slides-deck-v1`). There was no independent settings persistence under the
+required `riseup.settings.v2` key, and the only reset action restored the whole
+sample deck rather than just the six user-facing settings.
+
+Fix: added `settingsPersistence.ts` with default settings, safe parse/read/write,
+corrupt-JSON fallback logging, and explicit persistence under
+`riseup.settings.v2`. `setSettings()` now writes all settings to that key,
+`resetDeck()` restores persisted defaults, and SettingsDrawer exposes a
+dedicated "Reset settings" action.
+
+Verified: `bunx vitest run src/components/slides/settingsStore.test.ts src/components/slides/themeWrap.test.tsx`
+passes 10/10 tests, including all-setting persistence, reset-to-defaults, and
+corrupt JSON fallback.

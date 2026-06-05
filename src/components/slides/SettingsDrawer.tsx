@@ -30,6 +30,7 @@ import sampleDeckJson from "../../../docs/slides/spec/sample-deck.json?raw";
 import { useAnnotations } from "./annotations-store";
 import { useChrome } from "./chrome-store";
 import { EXPORT_PAPERS, exportUrl, type ExportPaper } from "./exportPaper";
+import { getDefaultDeckSettings } from "./settingsPersistence";
 import { useDeck } from "./store";
 import { DEFAULT_THEME_ID, THEMES } from "./themes";
 import type { TransitionKind } from "./types";
@@ -307,6 +308,16 @@ export function SettingsDrawer({
             className="w-full"
             disabled={!settings.soundEnabled}
           />
+          <button
+            type="button"
+            onClick={() => {
+              setSettings(getDefaultDeckSettings());
+              toast.success("Reset settings to defaults");
+            }}
+            className="inline-flex w-full items-center justify-center gap-1.5 rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700"
+          >
+            <RotateCcw size={13} /> Reset settings
+          </button>
         </section>
 
         {/* Import / Export */}
