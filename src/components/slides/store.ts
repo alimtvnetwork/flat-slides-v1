@@ -128,7 +128,7 @@ const defaultDeck: Deck = {
   title: "Sample Deck",
   themeId: DEFAULT_THEME_ID,
   slides: seedSlides,
-  settings: getDefaultDeckSettings(),
+  settings: readPersistedDeckSettings(getDefaultDeckSettings()),
   version: DECK_SCHEMA_VERSION,
 };
 
