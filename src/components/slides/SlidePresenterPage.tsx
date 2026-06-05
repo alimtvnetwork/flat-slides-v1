@@ -198,7 +198,7 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
         return;
       }
       if (e.key === "f" || e.key === "F") { useChrome.getState().toggleFocusEditor(); return; }
-      if (e.key === "g" || e.key === "G") { e.preventDefault(); navigate({ to: "/slides" }); return; }
+      if (e.key === "g" || e.key === "G") { e.preventDefault(); openDeckOverview(); return; }
       const isForwardKey = e.key === "ArrowRight" || e.key === " " || e.code === "Space" || e.key === "Spacebar" || e.key === "Enter";
       if (isForwardKey) {
         e.preventDefault();
@@ -250,6 +250,14 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
     return true;
   }
 
+  function openDeckOverview() {
+    if (typeof document !== "undefined" && document.fullscreenElement) {
+      void document.exitFullscreen().finally(() => navigate({ to: "/slides" }));
+      return;
+    }
+    navigate({ to: "/slides" });
+  }
+
   const focusStep = Math.max(1, cameraStep || 1);
   const surfaces = (
     <>
@@ -287,7 +295,7 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
       onPrev={goPrevStepAware}
       onNext={goNextStepAware}
       onJump={jump}
-      onOpenGrid={() => navigate({ to: "/slides" })}
+      onOpenGrid={openDeckOverview}
       onToggleFullscreen={toggleFs}
       onOpenHelp={() => setHelpOpen(true)}
       onOpenSettings={() => setSettingsOpen(true)}
