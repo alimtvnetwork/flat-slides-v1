@@ -220,6 +220,22 @@ export interface PresenterWebcamCtx {
   setStepSize: (id: SizeStep) => void;
   /** Free 16:9 resize driven by width in stage px. */
   setFreeSize: (width: number) => void;
+
+  /** Task 8 — enter camera CSS fullscreen, snapshotting current phase/pos/size. */
+  enterFullscreen: () => void;
+  /** Task 8 — fill the slide stage rect (cover), snapshotting prior state. */
+  enterStage: () => void;
+  /** Task 8 — restore the snapshot taken by enterFullscreen/enterStage. Idempotent. */
+  restoreFromOverlay: () => void;
+  /** Task 9 — convenience: dispatch a `riseup:webcam-passthrough` next/prev event. */
+  emitPassthrough: (direction: "next" | "prev") => void;
+}
+
+/** Task 9 — event name for nav keys forwarded by the camera while fullscreen/stage owns focus. */
+export const WEBCAM_PASSTHROUGH_EVENT = "riseup:webcam-passthrough" as const;
+
+export interface WebcamPassthroughDetail {
+  direction: "next" | "prev";
 }
 
 const WebcamCtx = createContext<PresenterWebcamCtx | null>(null);
