@@ -95,16 +95,12 @@ export async function enterFullscreen(target?: HTMLElement | null, environment: 
   if (typeof document === "undefined") return { ok: false, reason: "unsupported" };
   if (document.fullscreenElement) return { ok: true, mode: "already-fullscreen" };
 
-  const embedded = (environment.isEmbeddedWindow ?? isEmbeddedWindow)();
-  if (embedded) {
-    const opened = (environment.openPresenterWindow ?? openPresenterWindow)();
-    return opened ? { ok: true, mode: "presenter-window" } : { ok: false, reason: "embedded-popup-blocked" };
-  }
-
   // Fullscreen the stable `/slides` layout root, not the slide/step leaf.
   // It stays mounted across `/slides/N` ↔ `/slides/N/S`, and native fullscreen
   // clips every presenter portal to the same visual surface.
-  const fullscreenTarget = getSlidesFullscreenRoot();
+  // On the home route that root does not exist yet, so enter fullscreen on the
+  // document first, then the route can change while fullscreen stays active.
+  const fullscreenTarget = getSlidesFullscreenRoot() ?? target ?? document.documentElement;
   if (document.fullscreenEnabled === false) return { ok: false, reason: "unsupported" };
   if (!fullscreenTarget?.requestFullscreen) return { ok: false, reason: "unsupported" };
 
@@ -114,6 +110,11 @@ export async function enterFullscreen(target?: HTMLElement | null, environment: 
     blurActiveElement();
     return { ok: true, mode: "native" };
   } catch (error) {
+    const embedded = (environment.isEmbeddedWindow ?? isEmbeddedWindow)();
+    if (embedded && environment.openPresenterWindow) {
+      const opened = environment.openPresenterWindow();
+      return opened ? { ok: true, mode: "presenter-window" } : { ok: false, reason: "embedded-popup-blocked" };
+    }
     return { ok: false, reason: "native-failed", error };
   }
 }
