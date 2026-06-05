@@ -84,6 +84,21 @@ export const SIZE_KEY = "riseup.webcam.size";
 export const HALO_KEY = "riseup.webcam.halo";
 export const CIRCLE_KEY = "riseup.webcam.circle";
 export const AUTOFRAME_KEY = "riseup.webcam.autoframe";
+export const PLATE_KEY = "riseup.webcam.plate";
+
+/** camera-2026 task 13 — plate variant under the bubble. `none` bypasses the plate entirely. */
+export type PlateVariant = "none" | "neutral" | "gold";
+export const PLATE_VARIANTS: PlateVariant[] = ["none", "neutral", "gold"];
+export const DEFAULT_PLATE: PlateVariant = "neutral";
+
+export function readStoredPlate(): PlateVariant {
+  return safeRead(PLATE_KEY, DEFAULT_PLATE, (raw) =>
+    (PLATE_VARIANTS as string[]).includes(raw) ? (raw as PlateVariant) : undefined,
+  );
+}
+export function writeStoredPlate(v: PlateVariant) {
+  safeWrite(PLATE_KEY, v);
+}
 
 export const _SIZE_STEPS_FOR_TEST = SIZE_STEPS;
 export const _STEP_ORDER_FOR_TEST = STEP_ORDER;
@@ -229,6 +244,23 @@ export interface PresenterWebcamCtx {
   restoreFromOverlay: () => void;
   /** Task 9 — convenience: dispatch a `riseup:webcam-passthrough` next/prev event. */
   emitPassthrough: (direction: "next" | "prev") => void;
+
+  /** Task 11 — persisted auto-frame enable flag. */
+  autoFrame: boolean;
+  setAutoFrame: (v: boolean) => void;
+  toggleAutoFrame: () => void;
+  /** Task 12 — persisted halo flag (independent of plate / circle). */
+  halo: boolean;
+  setHalo: (v: boolean) => void;
+  toggleHalo: () => void;
+  /** Task 13 — persisted plate variant; `circle=true` bypasses the plate visually. */
+  plateVariant: PlateVariant;
+  setPlateVariant: (v: PlateVariant) => void;
+  cyclePlateVariant: () => void;
+  /** Task 13 — persisted circle/squircle toggle; circle bypasses plate/mask. */
+  circle: boolean;
+  setCircle: (v: boolean) => void;
+  toggleCircle: () => void;
 }
 
 /** Task 9 — event name for nav keys forwarded by the camera while fullscreen/stage owns focus. */
@@ -248,6 +280,48 @@ export function PresenterWebcamProvider({ children }: { children: ReactNode }) {
   }));
   const [position, setPositionState] = useState(() => readStoredPos());
   const [sizeCfg, setSizeCfgState] = useState<SizeConfig>(() => readStoredSize());
+  const [autoFrame, setAutoFrameState] = useState(() => readStoredFlag(AUTOFRAME_KEY, false));
+  const [halo, setHaloState] = useState(() => readStoredFlag(HALO_KEY, true));
+  const [circle, setCircleState] = useState(() => readStoredFlag(CIRCLE_KEY, false));
+  const [plateVariant, setPlateVariantState] = useState<PlateVariant>(() => readStoredPlate());
+
+  const setAutoFrame = useCallback((v: boolean) => {
+    setAutoFrameState(v);
+    writeStoredFlag(AUTOFRAME_KEY, v);
+  }, []);
+  const toggleAutoFrame = useCallback(() => setAutoFrameState((v) => {
+    writeStoredFlag(AUTOFRAME_KEY, !v);
+    return !v;
+  }), []);
+
+  const setHalo = useCallback((v: boolean) => {
+    setHaloState(v);
+    writeStoredFlag(HALO_KEY, v);
+  }, []);
+  const toggleHalo = useCallback(() => setHaloState((v) => {
+    writeStoredFlag(HALO_KEY, !v);
+    return !v;
+  }), []);
+
+  const setCircle = useCallback((v: boolean) => {
+    setCircleState(v);
+    writeStoredFlag(CIRCLE_KEY, v);
+  }, []);
+  const toggleCircle = useCallback(() => setCircleState((v) => {
+    writeStoredFlag(CIRCLE_KEY, !v);
+    return !v;
+  }), []);
+
+  const setPlateVariant = useCallback((v: PlateVariant) => {
+    setPlateVariantState(v);
+    writeStoredPlate(v);
+  }, []);
+  const cyclePlateVariant = useCallback(() => setPlateVariantState((prev) => {
+    const idx = PLATE_VARIANTS.indexOf(prev);
+    const next = PLATE_VARIANTS[(idx + 1) % PLATE_VARIANTS.length];
+    writeStoredPlate(next);
+    return next;
+  }), []);
 
   const stateRef = useRef(state);
   useEffect(() => {
@@ -438,6 +512,18 @@ export function PresenterWebcamProvider({ children }: { children: ReactNode }) {
       enterStage,
       restoreFromOverlay,
       emitPassthrough,
+      autoFrame,
+      setAutoFrame,
+      toggleAutoFrame,
+      halo,
+      setHalo,
+      toggleHalo,
+      plateVariant,
+      setPlateVariant,
+      cyclePlateVariant,
+      circle,
+      setCircle,
+      toggleCircle,
     }),
     [
       state,
@@ -456,6 +542,18 @@ export function PresenterWebcamProvider({ children }: { children: ReactNode }) {
       enterStage,
       restoreFromOverlay,
       emitPassthrough,
+      autoFrame,
+      setAutoFrame,
+      toggleAutoFrame,
+      halo,
+      setHalo,
+      toggleHalo,
+      plateVariant,
+      setPlateVariant,
+      cyclePlateVariant,
+      circle,
+      setCircle,
+      toggleCircle,
     ],
   );
 

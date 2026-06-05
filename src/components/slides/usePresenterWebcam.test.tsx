@@ -184,3 +184,43 @@ describe("usePresenterWebcam overlay round-trip (task 8) + passthrough (task 9)"
     window.removeEventListener("riseup:webcam-passthrough", handler as EventListener);
   });
 });
+
+describe("usePresenterWebcam halo / plate / autoframe persistence (tasks 11–13)", () => {
+  beforeEach(() => localStorage.clear());
+
+  it("toggleHalo flips and persists under riseup.webcam.halo", () => {
+    const { result } = renderHook(() => usePresenterWebcam(), { wrapper });
+    expect(result.current.halo).toBe(true); // default on
+    act(() => result.current.toggleHalo());
+    expect(result.current.halo).toBe(false);
+    expect(localStorage.getItem("riseup.webcam.halo")).toBe("0");
+  });
+
+  it("toggleAutoFrame defaults off and persists under riseup.webcam.autoframe", () => {
+    const { result } = renderHook(() => usePresenterWebcam(), { wrapper });
+    expect(result.current.autoFrame).toBe(false);
+    act(() => result.current.toggleAutoFrame());
+    expect(result.current.autoFrame).toBe(true);
+    expect(localStorage.getItem("riseup.webcam.autoframe")).toBe("1");
+  });
+
+  it("cyclePlateVariant walks none→neutral→gold→none and persists", () => {
+    const { result } = renderHook(() => usePresenterWebcam(), { wrapper });
+    expect(result.current.plateVariant).toBe("neutral"); // default
+    act(() => result.current.cyclePlateVariant());
+    expect(result.current.plateVariant).toBe("gold");
+    act(() => result.current.cyclePlateVariant());
+    expect(result.current.plateVariant).toBe("none");
+    expect(localStorage.getItem("riseup.webcam.plate")).toBe("none");
+  });
+
+  it("toggleCircle persists and is independent of plate", () => {
+    const { result } = renderHook(() => usePresenterWebcam(), { wrapper });
+    expect(result.current.circle).toBe(false);
+    act(() => result.current.toggleCircle());
+    expect(result.current.circle).toBe(true);
+    // Plate variant unchanged
+    expect(result.current.plateVariant).toBe("neutral");
+    expect(localStorage.getItem("riseup.webcam.circle")).toBe("1");
+  });
+});
