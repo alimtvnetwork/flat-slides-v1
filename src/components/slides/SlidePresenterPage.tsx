@@ -111,6 +111,20 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
   useEffect(() => installConsoleSink(), []);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    const syncFullscreenPath = () => {
+      setFullscreenPathname(document.fullscreenElement ? window.location.pathname : null);
+    };
+    syncFullscreenPath();
+    window.addEventListener(SLIDES_FULLSCREEN_URL_CHANGE_EVENT, syncFullscreenPath);
+    document.addEventListener("fullscreenchange", syncFullscreenPath);
+    return () => {
+      window.removeEventListener(SLIDES_FULLSCREEN_URL_CHANGE_EVENT, syncFullscreenPath);
+      document.removeEventListener("fullscreenchange", syncFullscreenPath);
+    };
+  }, []);
+
+  useEffect(() => {
     if (!slide) return;
     const onKey = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement)?.tagName;
@@ -325,4 +339,9 @@ function getRouteStep(pathname: string) {
   if (!match) return null;
   const step = parseInt(match[1], 10);
   return Number.isFinite(step) ? step : null;
+}
+
+function getRouteSlideId(pathname: string) {
+  const match = pathname.match(/^\/slides\/(\d+)(?:\/\d+)?(?:\/)?$/);
+  return match?.[1] ?? null;
 }
