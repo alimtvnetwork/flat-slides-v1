@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 
 import { useAnnotations } from "@/components/slides/annotations-store";
 import { useAudience } from "@/components/slides/audience-store";
@@ -50,6 +50,7 @@ const SettingsDrawer = lazy(() =>
 export function SlidePresenterPage({ slideId }: { slideId: string }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const lastNavigationAtRef = useRef(0);
   const deck = useDeck((s) => s.deck);
   const allSlides = deck.slides;
   const { linearSlides, total, next, prev, jump, goTo } = useSlideNavigation();
@@ -169,11 +170,11 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
       const isForwardKey = e.key === "ArrowRight" || e.key === " " || e.code === "Space" || e.key === "Spacebar" || e.key === "Enter";
       if (isForwardKey) {
         e.preventDefault();
-        if (!isStepRoute && stepCount > 1) { goTo(current, "forward", 2); return; }
-        if (isStepRoute && stepNum < stepCount - 1) { goTo(current, "forward", stepNum + 2); return; }
-        next(current);
+        if (e.repeat) return;
+        goNextStepAware();
       } else if (e.key === "ArrowLeft") {
         e.preventDefault();
+        if (e.repeat) return;
         goPrevStepAware();
       }
     };
@@ -193,6 +194,7 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
   }
 
   function goPrevStepAware() {
+    if (!claimNavigationSlot()) return;
     if (isStepRoute && stepNum > 0) {
       const target = stepNum;
       if (target <= 1) goTo(current, "backward");
@@ -203,9 +205,17 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
   }
 
   function goNextStepAware() {
+    if (!claimNavigationSlot()) return;
     if (!isStepRoute && stepCount > 1) goTo(current, "forward", 2);
     else if (isStepRoute && stepNum < stepCount - 1) goTo(current, "forward", stepNum + 2);
     else next(current);
+  }
+
+  function claimNavigationSlot() {
+    const now = typeof performance === "undefined" ? Date.now() : performance.now();
+    if (now - lastNavigationAtRef.current < 360) return false;
+    lastNavigationAtRef.current = now;
+    return true;
   }
 
   const focusStep = Math.max(1, cameraStep || 1);
