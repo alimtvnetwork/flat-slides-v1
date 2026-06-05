@@ -51,7 +51,7 @@ function useCompactViewport() {
 
 /**
  * Hover-reveal controller pill. Collapsed = faint chip, expanded = full
- * toolbar. Portaled to <body>, anchored at one of 8 positions (persisted),
+  * toolbar. Portaled to the clipped slides root, anchored at one of 8 positions (persisted),
  * grace-delay collapse so the user doesn't lose it on quick mouse-out.
  */
 export function ControllerPill(props: Props) {
@@ -168,7 +168,9 @@ export function ControllerPill(props: Props) {
     </div>
   );
 
-  return createPortal(node, getSlidesPortalRoot() ?? document.body);
+  const portalRoot = getSlidesPortalRoot();
+  if (!portalRoot) return null;
+  return createPortal(node, portalRoot);
 }
 
 function PillButton({

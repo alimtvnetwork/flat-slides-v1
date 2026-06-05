@@ -21,6 +21,8 @@ export function PresenterToast() {
   }, [toast]);
 
   if (typeof document === "undefined") return null;
+  const portalRoot = getSlidesPortalRoot();
+  if (!portalRoot) return null;
 
   return createPortal(
     <AnimatePresence>
@@ -38,6 +40,6 @@ export function PresenterToast() {
         </motion.div>
       )}
     </AnimatePresence>,
-    getSlidesPortalRoot() ?? document.body,
+    portalRoot,
   );
 }
