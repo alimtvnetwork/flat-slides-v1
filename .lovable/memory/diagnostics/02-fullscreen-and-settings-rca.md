@@ -249,3 +249,16 @@ cleanup so route changes do not leak handlers.
 
 Verified: `bunx vitest run src/components/slides/deckMusicPlayer.test.ts`
 passes 3/3, including the new `NotAllowedError` → `{ ok: false, blocked: true }` case.
+
+## Step 20 — Volume from settings
+
+Root cause: background music still read `chrome.music.volume` (0–1), a
+presenter-local control, while B21 requires persisted deck settings to own music
+gain as `settings.musicVolume` (0–100). That split meant the Settings reset and
+`riseup.settings.v2` persistence path did not actually control background music.
+
+Fix: added `musicVolume` to `DeckSettings`, schema defaults, sample deck, and the
+settings persistence defaults. `useDeckMusic()` now reads
+`deck.settings.musicVolume`, and `deckMusicPlayer` converts the percentage to
+`HTMLAudioElement.volume`. SettingsDrawer exposes the music volume slider while
+leaving `settings.volume` as the existing whoosh/click SFX gain.

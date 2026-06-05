@@ -13,6 +13,7 @@ const baseSettings: Deck["settings"] = {
   transition: "fade",
   soundEnabled: true,
   volume: 0.6,
+  musicVolume: 40,
 };
 
 const center: Slide = { id: "c", type: "center", title: "C", heading: ["Hello"] };

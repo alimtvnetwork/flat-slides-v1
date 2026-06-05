@@ -1,4 +1,5 @@
 import { DeckSettingsSchema } from "@/lib/slides/schema";
+import { DEFAULT_MUSIC_VOLUME } from "@/lib/slides/musicVolume";
 
 import type { DeckSettings } from "./types";
 
@@ -12,6 +13,7 @@ export const DEFAULT_DECK_SETTINGS: DeckSettings = {
   transition: "fade",
   soundEnabled: true,
   volume: 0.6,
+  musicVolume: DEFAULT_MUSIC_VOLUME,
 };
 
 type PersistedSettingsPayload = Partial<DeckSettings> & { settings?: DeckSettings; version?: number };

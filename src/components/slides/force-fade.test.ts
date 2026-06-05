@@ -15,6 +15,7 @@ const baseDeck: Deck = {
     transition: "fade",
     soundEnabled: true,
     volume: 0.5,
+    musicVolume: 40,
   },
 };
 

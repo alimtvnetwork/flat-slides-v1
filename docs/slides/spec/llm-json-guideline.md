@@ -69,7 +69,8 @@ Controls the deck-wide background, transition, and audio. **All keys except
   "blur":   0,                      // 0..20   — image blur in px
   "transition": "fade",             // "fade" default; "camera-zoom" is opt-in
   "soundEnabled": true,             // master mute (whoosh + click)
-  "volume": 0.6                      // 0..1
+  "volume": 0.6,                     // 0..1 — whoosh/click SFX
+  "musicVolume": 40                  // 0..100 — deck background music
 }
 ```
 
@@ -80,7 +81,7 @@ stacks with per-step camera motion.
 
 **Defaults to use unless the deck calls for otherwise:**
 - `transition: "fade"` — default for normal decks.
-- `soundEnabled: true`, `volume: 0.6`.
+- `soundEnabled: true`, `volume: 0.6`, `musicVolume: 40`.
 
 ---
 

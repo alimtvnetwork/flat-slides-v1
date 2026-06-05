@@ -10,7 +10,8 @@
     "blur": 0,
     "transition": "fade",
     "soundEnabled": true,
-    "volume": 0.6
+    "volume": 0.6,
+    "musicVolume": 40
   },
   "slides": [
     {

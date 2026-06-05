@@ -30,8 +30,8 @@ describe("deck music player", () => {
   });
 
   it("uses one shared audio element for repeated configuration", () => {
-    configureDeckMusic({ url: "/music/a.mp3" }, 0.4);
-    configureDeckMusic({ url: "/music/a.mp3", loop: false }, 0.7);
+    configureDeckMusic({ url: "/music/a.mp3" }, 40);
+    configureDeckMusic({ url: "/music/a.mp3", loop: false }, 70);
 
     expect(created).toHaveLength(1);
     expect(created[0]?.src).toBe("/music/a.mp3");
@@ -39,8 +39,14 @@ describe("deck music player", () => {
     expect(created[0]?.volume).toBe(0.7);
   });
 
+  it("converts settings musicVolume percent into audio gain", () => {
+    configureDeckMusic({ url: "/music/a.mp3" }, 25);
+
+    expect(created[0]?.volume).toBe(0.25);
+  });
+
   it("stops before each play toggle", async () => {
-    configureDeckMusic({ url: "/music/a.mp3" }, 0.4);
+    configureDeckMusic({ url: "/music/a.mp3" }, 40);
     await setDeckMusicPlaying(true);
     await setDeckMusicPlaying(true);
 
@@ -52,7 +58,7 @@ describe("deck music player", () => {
 
   it("reports autoplay block on NotAllowedError", async () => {
     const err = Object.assign(new Error("blocked"), { name: "NotAllowedError" });
-    configureDeckMusic({ url: "/music/a.mp3" }, 0.4);
+    configureDeckMusic({ url: "/music/a.mp3" }, 40);
     const audio = created[0] as FakeAudio;
     (audio.play as ReturnType<typeof vi.fn>).mockRejectedValueOnce(err);
     const result = await setDeckMusicPlaying(true);

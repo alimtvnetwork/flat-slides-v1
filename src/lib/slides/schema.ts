@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { DEFAULT_MUSIC_VOLUME, MAX_MUSIC_VOLUME, MIN_MUSIC_VOLUME } from "./musicVolume";
+
 /**
  * Zod schemas mirroring `src/components/slides/types.ts`.
  * Used by the JSON import path to validate untrusted input
@@ -177,6 +179,7 @@ export const DeckSettingsSchema = z.object({
   transition: z.enum(["fade", "camera-zoom"]),
   soundEnabled: z.boolean(),
   volume: z.number().min(0).max(1),
+  musicVolume: z.number().min(MIN_MUSIC_VOLUME).max(MAX_MUSIC_VOLUME).default(DEFAULT_MUSIC_VOLUME),
 });
 
 export const DeckMusicSchema = z.object({
