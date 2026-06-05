@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { useChrome } from "./chrome-store";
 import { getSlidesFullscreenRoot, getSlidesPortalRoot } from "./fullscreenTarget";
-import { enterFullscreen } from "./useFullscreen";
+import { enterFullscreen, reportFullscreenFailure } from "./useFullscreen";
 
 describe("slide fullscreen target", () => {
   afterEach(() => {
@@ -81,6 +81,16 @@ describe("slide fullscreen target", () => {
     });
 
     expect(result).toEqual({ ok: false, reason: "embedded-popup-blocked" });
+  });
+
+  it("surfaces a persistent fallback URL when presenter popup is blocked", () => {
+    reportFullscreenFailure(
+      { ok: false, reason: "embedded-popup-blocked" },
+      { fallbackUrl: "http://localhost/slides/1?present=1" },
+    );
+
+    expect(useChrome.getState().toast?.text).toBe("Allow pop-ups to open presenter view");
+    expect(useChrome.getState().presenterFallback?.url).toBe("http://localhost/slides/1?present=1");
   });
 
   it("returns unsupported before calling requestFullscreen when the document disallows fullscreen", async () => {
