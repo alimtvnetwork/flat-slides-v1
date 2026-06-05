@@ -406,3 +406,7 @@ function getRouteSlideId(pathname: string) {
   const match = pathname.match(/^\/slides\/(\d+)(?:\/\d+)?(?:\/)?$/);
   return match?.[1] ?? null;
 }
+
+function getNavigationKeyId(event: KeyboardEvent) {
+  return event.code || event.key;
+}
