@@ -84,6 +84,21 @@ export const SIZE_KEY = "riseup.webcam.size";
 export const HALO_KEY = "riseup.webcam.halo";
 export const CIRCLE_KEY = "riseup.webcam.circle";
 export const AUTOFRAME_KEY = "riseup.webcam.autoframe";
+export const PLATE_KEY = "riseup.webcam.plate";
+
+/** camera-2026 task 13 — plate variant under the bubble. `none` bypasses the plate entirely. */
+export type PlateVariant = "none" | "neutral" | "gold";
+export const PLATE_VARIANTS: PlateVariant[] = ["none", "neutral", "gold"];
+export const DEFAULT_PLATE: PlateVariant = "neutral";
+
+export function readStoredPlate(): PlateVariant {
+  return safeRead(PLATE_KEY, DEFAULT_PLATE, (raw) =>
+    (PLATE_VARIANTS as string[]).includes(raw) ? (raw as PlateVariant) : undefined,
+  );
+}
+export function writeStoredPlate(v: PlateVariant) {
+  safeWrite(PLATE_KEY, v);
+}
 
 export const _SIZE_STEPS_FOR_TEST = SIZE_STEPS;
 export const _STEP_ORDER_FOR_TEST = STEP_ORDER;
