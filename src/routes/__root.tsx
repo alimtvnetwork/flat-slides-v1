@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useLocation,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -126,6 +127,8 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const pathname = useLocation({ select: (location) => location.pathname });
+  const isSlidesRoute = pathname === "/slides" || pathname.startsWith("/slides/");
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -139,7 +142,7 @@ function RootComponent() {
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet />
       </div>
-      <Toaster />
+      {!isSlidesRoute && <Toaster />}
     </QueryClientProvider>
   );
 }
