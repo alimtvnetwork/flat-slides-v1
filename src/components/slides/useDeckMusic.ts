@@ -16,8 +16,9 @@ export function useDeckMusic() {
 
   useEffect(() => {
     configureDeckMusic(music, volume);
-    return () => stopDeckMusic();
   }, [music?.url, music?.loop, volume]);
+
+  useEffect(() => () => stopDeckMusic(), []);
 
   useEffect(() => {
     setDeckMusicPlaying(playing);
