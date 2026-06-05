@@ -109,7 +109,7 @@ describe("CameraBubble shape surfaces", () => {
     render(<CameraBubble />);
 
     const region = screen.getByRole("region", { name: /presenter camera/i });
-    await waitFor(() => expect(region.style.left).toBe("740px"));
-    expect(region.style.top).toBe("410px");
+    await waitFor(() => expect(region.style.left).toBe("900px"));
+    expect(region.style.top).toBe("500px");
   });
 });

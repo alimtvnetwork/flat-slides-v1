@@ -112,6 +112,10 @@ describe("slide fullscreen target", () => {
     stableRoot.setAttribute("data-slides-fullscreen-root", "");
     document.body.append(stableRoot);
     const error = new Error("fullscreen denied");
+    Object.defineProperty(stableRoot, "requestFullscreen", {
+      configurable: true,
+      value: vi.fn().mockRejectedValue(error),
+    });
     Object.defineProperty(document.documentElement, "requestFullscreen", {
       configurable: true,
       value: vi.fn().mockRejectedValue(error),
