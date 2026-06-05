@@ -48,6 +48,12 @@ export interface MusicState {
   volume: number;
 }
 
+export interface SlideMusicOverride {
+  url: string;
+  loop?: boolean;
+  volume?: number;
+}
+
 const SIZE_ORDER: CameraSize[] = ["S", "M", "L", "XL"];
 export const nextSize = (s: CameraSize): CameraSize =>
   SIZE_ORDER[(SIZE_ORDER.indexOf(s) + 1) % SIZE_ORDER.length];
@@ -154,6 +160,12 @@ export interface ChromeStore {
   camera: CameraState;
   /** Deck background music presenter state (never exported). */
   music: MusicState;
+  /**
+   * Active slide's per-slide music override (transient). Set by the
+   * presenter on slide change so `useDeckMusic` can cross-fade between
+   * deck-level music and the slide's override.
+   */
+  slideMusic: SlideMusicOverride | null;
   /** Active stage layout — drives bubble size and slide opacity. */
   scene: Scene;
   /** Brief toast text — used by routes to flash a scene/preset notice. */
@@ -184,6 +196,7 @@ export interface ChromeStore {
   setCameraCustomSize: (px: number | null) => void;
   setMusic: (patch: Partial<MusicState>) => void;
   toggleMusic: () => void;
+  setSlideMusic: (override: SlideMusicOverride | null) => void;
   setScene: (s: Scene) => void;
   cycleScene: () => void;
   flashToast: (text: string) => void;
@@ -204,6 +217,7 @@ export const useChrome = create<ChromeStore>()(
       recentJumps: [],
       camera: { ...DEFAULT_CAMERA },
       music: { playing: false, volume: 0.4 },
+      slideMusic: null,
       scene: "normal",
       toast: null,
       presenterFallback: null,
@@ -245,6 +259,7 @@ export const useChrome = create<ChromeStore>()(
       }),
       setMusic: (patch) => set((s) => ({ music: { ...s.music, ...patch } })),
       toggleMusic: () => set((s) => ({ music: { ...s.music, playing: !s.music.playing } })),
+      setSlideMusic: (override) => set({ slideMusic: override }),
       setScene: (scene) => set({ scene, toast: { text: `Scene: ${scene}`, ts: Date.now() } }),
       cycleScene: () =>
         set((s) => {

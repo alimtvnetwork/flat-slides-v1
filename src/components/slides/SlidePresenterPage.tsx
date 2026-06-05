@@ -80,6 +80,7 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
   const toggleCamera = useChrome((s) => s.toggleCamera);
   const cycleCameraSize = useChrome((s) => s.cycleCameraSize);
   const toggleMusic = useChrome((s) => s.toggleMusic);
+  const setSlideMusic = useChrome((s) => s.setSlideMusic);
   const cycleScene = useChrome((s) => s.cycleScene);
   const scene = useChrome((s) => s.scene);
   const focusEditorOpen = useChrome((s) => s.focusEditorOpen);
@@ -106,6 +107,12 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
   useEffect(() => {
     if (isStepRoute && stepCount > 1) emitSlidesEvent({ type: "step-change", current, step: stepNum + 1, stepCount });
   }, [current, isStepRoute, stepNum, stepCount]);
+
+  useEffect(() => {
+    const override = slide?.sound?.music;
+    setSlideMusic(override ? { url: override.url, loop: override.loop, volume: override.volume } : null);
+    return () => setSlideMusic(null);
+  }, [slide?.id, slide?.sound?.music?.url, slide?.sound?.music?.loop, slide?.sound?.music?.volume, setSlideMusic]);
 
   useEffect(() => {
     emitSlidesEvent({ type: "scene-change", scene });

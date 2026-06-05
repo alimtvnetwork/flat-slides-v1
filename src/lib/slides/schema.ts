@@ -35,6 +35,18 @@ export const TextPositionSchema = z.enum([
   "bottom-left", "bottom-center", "bottom-right",
 ]);
 
+export const SlideSoundSchema = z.object({
+  url: z.string().min(1).max(4096).optional(),
+  volume: z.number().min(0).max(1).optional(),
+  music: z
+    .object({
+      url: z.string().min(1).max(4096),
+      loop: z.boolean().optional(),
+      volume: z.number().min(0).max(1).optional(),
+    })
+    .optional(),
+});
+
 const BaseSlideShape = {
   id: z.string().min(1).max(64).regex(/^[a-zA-Z0-9_-]+$/, "id must be url-safe"),
   title: z.string().min(1).max(200),
@@ -48,6 +60,7 @@ const BaseSlideShape = {
   number: z.number().int().min(0).max(9999).optional(),
   budget: z.number().min(1).max(3600).optional(),
   decor: z.enum(["code", "none"]).optional(),
+  sound: SlideSoundSchema.optional(),
   focus: z
     .array(z.object({
       x: z.number().min(-1920).max(1920),
