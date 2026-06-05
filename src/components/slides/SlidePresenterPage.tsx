@@ -1,8 +1,6 @@
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 
-import { useAnnotations } from "@/components/slides/annotations-store";
-import { useAudience } from "@/components/slides/audience-store";
 import { useAudienceSync } from "@/components/slides/useAudienceSync";
 import { useChrome } from "@/components/slides/chrome-store";
 import { AnnotationLayer } from "@/components/slides/controls/AnnotationLayer";
