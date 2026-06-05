@@ -191,13 +191,16 @@ export function SettingsDrawer({
               />
             ))}
           </div>
-          <input
-            type="url"
-            value={settings.backgroundImage ?? ""}
-            onChange={(e) => setSettings({ backgroundMode: "image", backgroundImage: e.target.value })}
-            placeholder="https://… background image"
-            className="w-full rounded bg-neutral-800 px-3 py-2 text-sm text-neutral-100 outline-none ring-1 ring-neutral-700 placeholder:text-neutral-500 focus:ring-neutral-400"
-          />
+          {settings.backgroundMode === "image" ? (
+            <input
+              type="url"
+              value={settings.backgroundImage ?? ""}
+              onChange={(e) => setSettings({ backgroundMode: "image", backgroundImage: e.target.value.trim() })}
+              onPaste={(e) => setSettings({ backgroundMode: "image", backgroundImage: e.clipboardData.getData("text").trim() })}
+              placeholder="Paste image URL"
+              className="w-full rounded bg-neutral-800 px-3 py-2 text-sm text-neutral-100 outline-none ring-1 ring-neutral-700 placeholder:text-neutral-500 focus:ring-neutral-400"
+            />
+          ) : null}
         </section>
 
         <section className="mb-6 space-y-3">

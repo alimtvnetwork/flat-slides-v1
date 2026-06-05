@@ -56,9 +56,9 @@ function colorOverride(color: string): ResolvedSlideBackground {
 }
 
 function resolveImageMode(background: string | undefined, settings: BackgroundSettings): ResolvedSlideBackground {
+  if (settings.backgroundImage) return { image: settings.backgroundImage };
   const authored = resolveAuthoredBackground(background);
   if (authored.color || authored.image) return authored;
-  if (settings.backgroundImage) return { image: settings.backgroundImage };
   if (settings.backgroundColor) return { color: settings.backgroundColor };
   return {};
 }
