@@ -1,4 +1,4 @@
-import { render } from "@testing-library/react";
+import { act, render } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { RenderSlide } from "./RenderSlide";
@@ -14,10 +14,10 @@ const SLIDE: CenterSlideProps = {
 };
 
 describe("ThemeWrap background pipeline", () => {
-  afterEach(() => useDeck.getState().resetDeck());
+  afterEach(() => act(() => useDeck.getState().resetDeck()));
 
   it("lets the settings color override authored slide backgrounds", () => {
-    useDeck.getState().setSettings({ backgroundMode: "color", backgroundColor: "#224466" });
+    act(() => useDeck.getState().setSettings({ backgroundMode: "color", backgroundColor: "#224466" }));
     const { container } = render(<RenderSlide slide={SLIDE} />);
 
     const root = container.firstElementChild as HTMLElement;
@@ -28,7 +28,7 @@ describe("ThemeWrap background pipeline", () => {
   });
 
   it("keeps image-mode authored backgrounds behind transparent content", () => {
-    useDeck.getState().setSettings({ backgroundMode: "image", backgroundImage: "/fallback.png" });
+    act(() => useDeck.getState().setSettings({ backgroundMode: "image", backgroundImage: "/fallback.png" }));
     const { container } = render(<RenderSlide slide={{ ...SLIDE, background: "/authored.png" }} />);
 
     const root = container.firstElementChild as HTMLElement;
