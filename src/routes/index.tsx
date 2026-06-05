@@ -13,8 +13,9 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect } from "react";
 
-import { HOME_PRESENT_SLIDE_ID, openHomePresenterWindow } from "@/components/slides/home-present";
-import { enterFullscreen } from "@/components/slides/useFullscreen";
+import { PresenterFallbackLink } from "@/components/slides/controls/PresenterFallbackLink";
+import { HOME_PRESENT_SLIDE_ID, getHomePresentUrl, openHomePresenterWindow } from "@/components/slides/home-present";
+import { enterFullscreen, reportFullscreenFailure } from "@/components/slides/useFullscreen";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -40,7 +41,9 @@ function Index() {
   const navigate = useNavigate();
   const presentDeck = useCallback(async () => {
     const result = await enterFullscreen(null, { openPresenterWindow: openHomePresenterWindow });
+    reportFullscreenFailure(result, { fallbackUrl: getHomePresentUrl(window.location.origin) });
     if (result.ok && result.mode === "presenter-window") return;
+    if (!result.ok && result.reason === "embedded-popup-blocked") return;
     await navigate({ to: "/slides/$slideId", params: { slideId: HOME_PRESENT_SLIDE_ID }, search: { present: 1 } as never });
   }, [navigate]);
 
@@ -123,6 +126,7 @@ function Index() {
           <kbd>→</kbd> next · <kbd>F5</kbd> present · <kbd>G</kbd> overview · <kbd>S</kbd> settings
         </span>
       </div>
+      <PresenterFallbackLink />
     </main>
   );
 }
