@@ -1,0 +1,80 @@
+# Presenter Inspector (B22)
+
+> Spec for the dedicated speaker view that surfaces the current slide, next
+> slide, speaker notes, step counter, and elapsed timer in a single layout.
+
+## Goals
+
+- Give presenters a single screen with everything needed mid-talk.
+- Stay opt-in: existing `PresenterNotesPeek` keeps working for casual use.
+- Reuse the existing slide renderer — no fork of `RenderSlide`.
+
+## Non-goals
+
+- Multi-monitor sync (browser cannot reliably target a second display).
+- Editing notes from the inspector.
+- Replacing `PresenterNotesPeek` (kept for embedded preview).
+
+## Route
+
+`/slides/$slideId/inspector` and `/slides/$slideId/$step/inspector`.
+
+- 1-based `$slideId` per Core memory rule (`slides[Number(slideId)-1]`).
+- Resolves the same slide + step the main presenter route does.
+- Reuses `PresenterShell` for fullscreen clipping.
+
+## Layout (1920×1080 reference)
+
+```text
+┌────────────────────────────────────────────────────────────┐
+│ Current slide (60%)            │ Next slide (40%, scaled)  │
+│                                │                           │
+├────────────────────────────────┼───────────────────────────┤
+│ Speaker notes (scrollable)     │ Step N/Total · Timer mm:ss│
+└────────────────────────────────┴───────────────────────────┘
+```
+
+- Current slide: rendered via `ScaledSlide` at full fidelity.
+- Next slide: same renderer, scaled to ~40% width, no interactions.
+- Notes panel: `whitespace-pre-wrap`, supports long content with overflow.
+- Footer strip: step counter (from `slideStepCount`) + elapsed timer.
+
+## Timer
+
+- Starts on first mount, persists in chrome store (`riseup.inspector.startedAt`).
+- `R` resets, `Space` pauses/resumes. Skip when typing (mirrors existing pattern).
+
+## Keyboard
+
+- `←` / `→` / `Space` / `Enter` — reuse `presenterActions` registry (no fork).
+- `R` — reset timer.
+- `P` — toggle pause.
+- `Esc` — exit to `/slides/$slideId`.
+
+## Reduced motion
+
+- All transitions consult `useReducedMotion()` per Core memory rule.
+- Inspector itself uses opacity-only fades when reduced.
+
+## Reuse contract
+
+- Slide rendering: `RenderSlide` (no duplication).
+- Step resolution: `slideStepCount` + 1-based URL parsing.
+- Shortcuts: extend `SHORTCUTS` with stable `id`s; side-effects in
+  `presenterActions.ts`. Parity test must continue to pass.
+
+## Out-of-scope follow-ups
+
+- Multi-window sync via `BroadcastChannel`.
+- Annotation overlay on the next-slide preview.
+- Note editing from inspector.
+
+## Implementation slices
+
+1. Spec (this doc).
+2. Route scaffolds (`slides.$slideId.inspector.tsx`, step variant).
+3. Layout component + reuse of `ScaledSlide` and `RenderSlide`.
+4. Timer + chrome-store state.
+5. Shortcut wiring via `presenterActions` (R, P, Esc).
+6. Tests: route resolution, timer reducer, shortcut parity.
+7. Memory + pending-issues entries.
