@@ -172,6 +172,7 @@
    * Per-theme override in themes.ts (Paper sets it to `none`). */
   --slide-text-shadow: rgb(0 0 0) 1px 0.7px 0px;
   --stage-scale: min(100vw / 1920, 100dvh / 1080);
+  --fit-padding: 0px;
 }
 
 .slide-content {
@@ -251,12 +252,31 @@
   top: 50%;
   margin-left: -960px;
   margin-top: -540px;
-  transform: scale(var(--scale, var(--stage-scale)));
+  transform: scale(calc(min((100% - var(--fit-padding) * 2) / 1920, (100% - var(--fit-padding) * 2) / 1080)));
+  transform: scale(var(--stage-scale));
   transform-origin: center center;
   overflow: hidden;
   isolation: isolate;
   contain: layout paint;
   will-change: transform;
+}
+
+[data-slide-presenter-root="true"],
+[data-slides-fullscreen-root] {
+  inline-size: 100vw;
+  block-size: 100dvh;
+  max-inline-size: 100vw;
+  max-block-size: 100dvh;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+[data-slide-stage-shell] {
+  inline-size: 100%;
+  block-size: 100%;
+  max-inline-size: 100%;
+  max-block-size: 100%;
+  overflow: hidden;
 }
 
 [data-slides-fullscreen-root]:fullscreen {
