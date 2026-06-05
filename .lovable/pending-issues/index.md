@@ -74,3 +74,13 @@
 - [x] Regression tests cover helper parsing, URL generation, and route-level paper application.
 
 
+## Active: Presenter controller pill (B21 — spec: `.lovable/memory/diagnostics/02-fullscreen-and-settings-rca.md`, feature card: `mem://features/presenter-controller-pill`)
+
+- [x] 4 anchors persisted to `riseup.controller.anchor`; cycle via right-click or `B` shortcut.
+- [x] Hover-reveal collapsed state (160ms expand / 400ms grace), zeroed under `prefers-reduced-motion`.
+- [x] Overflow menu (`More controls`) below 1280px viewport; inline Settings/Help ≥1280px.
+- [x] Single keymap contract: SHORTCUTS `id` + `presenterActions.ts` registry, parity test enforces drift.
+- [x] Playwright happy-path coverage (`e2e/controller-happy-path.spec.ts`) — anchor cycling, narrow + wide viewports.
+- [x] Reduced-motion + a11y audit (`useHoverReveal` honours `prefers-reduced-motion`; ControllerPill gates framer-motion; ControllerOverflowMenu uses Radix labelled triggers).
+- [ ] Manual cross-browser validation of controller hover-reveal + anchor cycling on Chrome / Safari / Firefox (post-publish).
+
