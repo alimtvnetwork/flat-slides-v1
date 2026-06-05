@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+import { persistInspectorStartedAt, readPersistedInspectorStartedAt } from "./inspectorTimerPersistence";
+
 export type CameraAnchor = "top-left" | "top-right" | "bottom-left" | "bottom-right";
 export type CameraSize = "S" | "M" | "L" | "XL";
 export type CameraShape = "circle" | "rect" | "squircle";
@@ -172,6 +174,10 @@ export interface ChromeStore {
   toast: { text: string; ts: number } | null;
   /** Persistent manual fallback shown when the browser blocks scripted presenter popups. */
   presenterFallback: { url: string; reason: "popup-blocked" | "fullscreen-blocked"; ts: number } | null;
+  /** Dedicated presenter-inspector timer start, persisted under riseup.inspector.startedAt. */
+  inspectorTimerStartedAt: number | null;
+  inspectorTimerPausedAt: number | null;
+  inspectorTimerPausedMs: number;
   toggleTopJumper: () => void;
   setTopJumperHidden: (v: boolean) => void;
   setDotPaginationVisible: (v: boolean) => void;
@@ -202,6 +208,9 @@ export interface ChromeStore {
   flashToast: (text: string) => void;
   showPresenterFallback: (url: string, reason?: "popup-blocked" | "fullscreen-blocked") => void;
   clearPresenterFallback: () => void;
+  ensureInspectorTimerStarted: (now: number) => void;
+  resetInspectorTimer: (now: number) => void;
+  toggleInspectorTimerPause: (now: number) => void;
 }
 
 export const useChrome = create<ChromeStore>()(
@@ -221,6 +230,9 @@ export const useChrome = create<ChromeStore>()(
       scene: "normal",
       toast: null,
       presenterFallback: null,
+      inspectorTimerStartedAt: readPersistedInspectorStartedAt(),
+      inspectorTimerPausedAt: null,
+      inspectorTimerPausedMs: 0,
       toggleTopJumper: () => set((s) => ({ topJumperHidden: !s.topJumperHidden })),
       setTopJumperHidden: (v) => set({ topJumperHidden: v }),
       setDotPaginationVisible: (v) => set({ dotPaginationVisible: v }),
@@ -270,6 +282,18 @@ export const useChrome = create<ChromeStore>()(
       showPresenterFallback: (url, reason = "popup-blocked") =>
         set({ presenterFallback: { url, reason, ts: Date.now() } }),
       clearPresenterFallback: () => set({ presenterFallback: null }),
+      ensureInspectorTimerStarted: (now) =>
+        set((s) => {
+          if (s.inspectorTimerStartedAt !== null) return {};
+          persistInspectorStartedAt(now);
+          return { inspectorTimerStartedAt: now, inspectorTimerPausedAt: null, inspectorTimerPausedMs: 0 };
+        }),
+      resetInspectorTimer: (now) => {
+        persistInspectorStartedAt(now);
+        set({ inspectorTimerStartedAt: now, inspectorTimerPausedAt: null, inspectorTimerPausedMs: 0 });
+      },
+      toggleInspectorTimerPause: (now) =>
+        set((s) => resolveInspectorPausePatch(s, now)),
     }),
     {
       name: "slides-chrome-v2",
@@ -297,3 +321,19 @@ export const useChrome = create<ChromeStore>()(
     },
   ),
 );
+
+function resolveInspectorPausePatch(state: ChromeStore, now: number): Partial<ChromeStore> {
+  if (state.inspectorTimerStartedAt === null) return startInspectorTimerPatch(now);
+  if (state.inspectorTimerPausedAt === null) return { inspectorTimerPausedAt: now };
+  return resumeInspectorTimerPatch(state, now);
+}
+
+function startInspectorTimerPatch(now: number): Partial<ChromeStore> {
+  persistInspectorStartedAt(now);
+  return { inspectorTimerStartedAt: now, inspectorTimerPausedAt: null, inspectorTimerPausedMs: 0 };
+}
+
+function resumeInspectorTimerPatch(state: ChromeStore, now: number): Partial<ChromeStore> {
+  const pausedDelta = Math.max(0, now - (state.inspectorTimerPausedAt ?? now));
+  return { inspectorTimerPausedAt: null, inspectorTimerPausedMs: state.inspectorTimerPausedMs + pausedDelta };
+}
