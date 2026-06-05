@@ -6,6 +6,14 @@ import { CameraBubble } from "./CameraBubble";
 
 const RESET_CAMERA = useChrome.getState().camera;
 
+function setFullscreenElement(element: Element | null) {
+  Object.defineProperty(document, "fullscreenElement", {
+    configurable: true,
+    get: () => element,
+  });
+  document.dispatchEvent(new Event("fullscreenchange"));
+}
+
 describe("CameraBubble shape surfaces", () => {
   beforeEach(() => {
     vi.stubGlobal("navigator", {
@@ -19,6 +27,7 @@ describe("CameraBubble shape surfaces", () => {
 
   afterEach(() => {
     cleanup();
+    setFullscreenElement(null);
     vi.unstubAllGlobals();
     useChrome.setState({ camera: { ...RESET_CAMERA, visible: false }, scene: "normal" });
   });
@@ -74,6 +83,8 @@ describe("CameraBubble shape surfaces", () => {
 
   it("keeps stage-fill camera inside the scaled slide frame", async () => {
     document.documentElement.style.setProperty("--stage-scale", "0.5");
+    document.documentElement.style.setProperty("--presenter-frame-left", "100px");
+    document.documentElement.style.setProperty("--presenter-frame-top", "50px");
     document.body.innerHTML = '<div class="slide-wrapper"></div>';
     const rectSpy = vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function (this: HTMLElement) {
       if (this.classList.contains("slide-wrapper")) {
@@ -94,5 +105,33 @@ describe("CameraBubble shape surfaces", () => {
     expect(region.style.right).toBe("");
     expect(region.style.bottom).toBe("");
     rectSpy.mockRestore();
+  });
+
+  it("clamps free camera chrome to the measured presenter frame", async () => {
+    document.documentElement.style.setProperty("--stage-scale", "0.5");
+    document.documentElement.style.setProperty("--presenter-frame-left", "100px");
+    document.documentElement.style.setProperty("--presenter-frame-top", "50px");
+    useChrome.setState({
+      camera: { ...useChrome.getState().camera, x: 1900, y: 1070, customSize: 320, shape: "circle" },
+    });
+
+    render(<CameraBubble />);
+
+    const region = screen.getByRole("region", { name: /presenter camera/i });
+    await waitFor(() => expect(region.style.left).toBe("900px"));
+    expect(region.style.top).toBe("500px");
+  });
+
+  it("clips camera controls to the bubble surface in fullscreen", async () => {
+    const root = document.createElement("div");
+    document.body.appendChild(root);
+    setFullscreenElement(root);
+
+    render(<CameraBubble />);
+
+    const region = screen.getByRole("region", { name: /presenter camera/i });
+    await waitFor(() => expect(region.style.overflow).toBe("hidden"));
+    expect(region.className).toContain("overflow-hidden");
+    root.remove();
   });
 });

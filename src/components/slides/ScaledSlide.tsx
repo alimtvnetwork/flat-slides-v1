@@ -17,13 +17,15 @@ export function ScaledSlide({ children, className, fitPadding = 0 }: Props) {
     const el = stageRef.current;
     if (!el) return;
     const recompute = () => {
-      const { width, height } = readContainerSize(el);
+      const rect = readContainerRect(el);
+      const { width, height } = rect;
       if (width === 0 || height === 0) return;
       const safeWidth = Math.max(1, width - fitPadding * 2);
       const safeHeight = Math.max(1, height - fitPadding * 2);
       const nextScale = Math.min(safeWidth / CANVAS_WIDTH, safeHeight / CANVAS_HEIGHT);
       setScale(nextScale);
       document.documentElement.style.setProperty("--stage-scale", String(nextScale));
+      writePresenterFrameVars(rect, nextScale);
     };
     recompute();
     const frames = scheduleSettledFrames(recompute);
@@ -38,6 +40,7 @@ export function ScaledSlide({ children, className, fitPadding = 0 }: Props) {
       window.removeEventListener("resize", recompute);
       window.visualViewport?.removeEventListener("resize", recompute);
       document.removeEventListener("fullscreenchange", recompute);
+      clearPresenterFrameVars();
       ro?.disconnect();
     };
   }, [fitPadding]);
@@ -51,13 +54,38 @@ export function ScaledSlide({ children, className, fitPadding = 0 }: Props) {
   );
 }
 
-function readContainerSize(el: HTMLElement) {
+type ContainerRect = { width: number; height: number; left: number; top: number };
+
+function readContainerRect(el: HTMLElement): ContainerRect {
   const rect = el.getBoundingClientRect();
   if (rect.width > 0 && rect.height > 0) return rect;
   const parent = el.parentElement?.getBoundingClientRect();
   if (parent && parent.width > 0 && parent.height > 0) return parent;
   const viewport = window.visualViewport;
-  return { width: el.clientWidth || viewport?.width || window.innerWidth, height: el.clientHeight || viewport?.height || window.innerHeight };
+  return { width: el.clientWidth || viewport?.width || window.innerWidth, height: el.clientHeight || viewport?.height || window.innerHeight, left: 0, top: 0 };
+}
+
+function writePresenterFrameVars(rect: ContainerRect, scale: number) {
+  const frameWidth = CANVAS_WIDTH * scale;
+  const frameHeight = CANVAS_HEIGHT * scale;
+  const left = rect.left + Math.max(0, (rect.width - frameWidth) / 2);
+  const top = rect.top + Math.max(0, (rect.height - frameHeight) / 2);
+  const { width, height } = readViewportSize();
+  document.documentElement.style.setProperty("--presenter-frame-left", `${Math.round(left)}px`);
+  document.documentElement.style.setProperty("--presenter-frame-top", `${Math.round(top)}px`);
+  document.documentElement.style.setProperty("--presenter-frame-right", `${Math.round(Math.max(0, width - left - frameWidth))}px`);
+  document.documentElement.style.setProperty("--presenter-frame-bottom", `${Math.round(Math.max(0, height - top - frameHeight))}px`);
+}
+
+function readViewportSize() {
+  const viewport = window.visualViewport;
+  return { width: viewport?.width ?? window.innerWidth, height: viewport?.height ?? window.innerHeight };
+}
+
+function clearPresenterFrameVars() {
+  for (const name of ["--stage-scale", "--presenter-frame-left", "--presenter-frame-top", "--presenter-frame-right", "--presenter-frame-bottom"]) {
+    document.documentElement.style.removeProperty(name);
+  }
 }
 
 function scheduleSettledFrames(callback: () => void) {

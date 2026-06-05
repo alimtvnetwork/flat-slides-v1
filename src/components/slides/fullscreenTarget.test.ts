@@ -23,7 +23,7 @@ describe("slide fullscreen target", () => {
     useChrome.setState({ presenterFallback: null, toast: null });
   });
 
-  it("uses the document element as the native target so route remounts cannot exit fullscreen", async () => {
+  it("uses the stable slides root as the native target so route remounts cannot exit fullscreen", async () => {
     const stableRoot = document.createElement("div");
     stableRoot.setAttribute("data-slides-fullscreen-root", "");
     const transientSlide = document.createElement("button");
@@ -38,8 +38,8 @@ describe("slide fullscreen target", () => {
 
     await enterFullscreen(transientSlide);
 
-    expect(documentRequest).toHaveBeenCalledOnce();
-    expect(stableRequest).not.toHaveBeenCalled();
+    expect(stableRequest).toHaveBeenCalledOnce();
+    expect(documentRequest).not.toHaveBeenCalled();
     expect(transientRequest).not.toHaveBeenCalled();
     expect(getSlidesFullscreenRoot()).toBe(stableRoot);
   });
@@ -112,6 +112,10 @@ describe("slide fullscreen target", () => {
     stableRoot.setAttribute("data-slides-fullscreen-root", "");
     document.body.append(stableRoot);
     const error = new Error("fullscreen denied");
+    Object.defineProperty(stableRoot, "requestFullscreen", {
+      configurable: true,
+      value: vi.fn().mockRejectedValue(error),
+    });
     Object.defineProperty(document.documentElement, "requestFullscreen", {
       configurable: true,
       value: vi.fn().mockRejectedValue(error),

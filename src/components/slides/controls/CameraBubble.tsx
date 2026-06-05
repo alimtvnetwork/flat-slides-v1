@@ -40,9 +40,35 @@ function readStageScale() {
 
 function readStageFrame() {
   if (typeof document === "undefined") return { left: 0, top: 0, scale: 1 };
+  const cssFrame = readCssStageFrame();
+  if (cssFrame) return cssFrame;
   const stage = document.querySelector<HTMLElement>(".slide-wrapper");
   const rect = stage?.getBoundingClientRect();
   return rect && rect.width > 0 ? { left: rect.left, top: rect.top, scale: rect.width / 1920 } : { left: 0, top: 0, scale: readStageScale() };
+}
+
+function readCssStageFrame() {
+  const styles = getComputedStyle(document.documentElement);
+  const scale = parseFloat(styles.getPropertyValue("--stage-scale"));
+  const left = parseCssPx(styles.getPropertyValue("--presenter-frame-left"));
+  const top = parseCssPx(styles.getPropertyValue("--presenter-frame-top"));
+  if (!Number.isFinite(scale) || !Number.isFinite(left) || !Number.isFinite(top)) return null;
+  if (scale <= 0) return null;
+  return { left, top, scale };
+}
+
+function parseCssPx(value: string) {
+  const parsed = parseFloat(value);
+  return Number.isFinite(parsed) ? parsed : Number.NaN;
+}
+
+function clampToStageFrame(left: number, top: number, width: number, height: number, frame: { left: number; top: number; scale: number }) {
+  const frameWidth = CAMERA_STAGE.w * frame.scale;
+  const frameHeight = CAMERA_STAGE.h * frame.scale;
+  return {
+    left: Math.max(frame.left, Math.min(frame.left + frameWidth - width, left)),
+    top: Math.max(frame.top, Math.min(frame.top + frameHeight - height, top)),
+  };
 }
 
 function ShapeIcon({ shape }: { shape: CameraShape }) {
@@ -204,9 +230,11 @@ export function CameraBubble() {
         }
       : {}),
   };
-  const anchorStyle: React.CSSProperties = stageFill
+  const rawAnchor = stageFill
     ? { left: stageFrame.left, top: stageFrame.top }
     : { left: stageFrame.left + camera.x * stageFrame.scale, top: stageFrame.top + camera.y * stageFrame.scale };
+  const anchor = clampToStageFrame(rawAnchor.left, rawAnchor.top, visualWidth, visualHeight, stageFrame);
+  const anchorStyle: React.CSSProperties = { left: anchor.left, top: anchor.top };
 
   function onPointerDown(e: React.PointerEvent) {
     if (stageFill) return;
@@ -283,10 +311,13 @@ export function CameraBubble() {
         zIndex: "var(--z-camera)",
         width: visualWidth,
         height: visualHeight,
+        borderRadius: radius,
+        overflow: isFs ? "hidden" : undefined,
         ...anchorStyle,
       }}
       className={cn(
-        "group overflow-visible",
+        "group",
+        isFs ? "overflow-hidden" : "overflow-visible",
         stageFill ? "cursor-default" : "cursor-grab active:cursor-grabbing",
         !stageFill && "drop-shadow-2xl",
       )}

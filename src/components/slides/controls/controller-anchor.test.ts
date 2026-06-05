@@ -40,6 +40,12 @@ describe("anchorStyles", () => {
     expect(anchorStyles("bottom-center").transform).toContain("translateX");
   });
 
+  it("keeps fullscreen anchors inside the measured presenter frame", () => {
+    const s = anchorStyles("bottom-right", true);
+    expect(s.bottom).toContain("--presenter-frame-bottom");
+    expect(s.right).toContain("--presenter-frame-right");
+  });
+
   it("falls back to bottom-right for unknown anchors", () => {
     const s = anchorStyles("nope" as unknown as ControllerAnchor);
     expect(s).toHaveProperty("bottom");
