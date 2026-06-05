@@ -14,16 +14,17 @@ beforeEach(() => {
   // Restore the initial store snapshot so each test starts clean.
   useChrome.setState({
     ...RESET,
-    camera: { ...RESET.camera, visible: false, offsetX: 0, offsetY: 0, customSize: null, size: "md", anchor: "bottom-right", shape: "circle", mirror: true, greenScreen: false },
+    camera: { ...RESET.camera, visible: false, offsetX: 0, offsetY: 0, customSize: null, size: "M", anchor: "bottom-right", shape: "circle", mirror: true, greenScreen: false },
     scene: "normal",
   });
 });
 
 describe("camera cycle helpers", () => {
-  it("nextSize cycles sm → md → lg → sm", () => {
-    expect(nextSize("sm")).toBe("md");
-    expect(nextSize("md")).toBe("lg");
-    expect(nextSize("lg")).toBe("sm");
+  it("nextSize cycles S → M → L → XL → S", () => {
+    expect(nextSize("S")).toBe("M");
+    expect(nextSize("M")).toBe("L");
+    expect(nextSize("L")).toBe("XL");
+    expect(nextSize("XL")).toBe("S");
   });
 
   it("nextAnchor cycles through 4 corners", () => {

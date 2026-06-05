@@ -18,7 +18,9 @@ export function ScaledSlide({ children, className, fitPadding = 0 }: Props) {
       if (width === 0 || height === 0) return;
       const safeWidth = Math.max(1, width - fitPadding * 2);
       const safeHeight = Math.max(1, height - fitPadding * 2);
-      setScale(Math.min(safeWidth / 1920, safeHeight / 1080));
+      const nextScale = Math.min(safeWidth / 1920, safeHeight / 1080);
+      setScale(nextScale);
+      document.documentElement.style.setProperty("--stage-scale", String(nextScale));
     };
     recompute();
     const frame = requestAnimationFrame(recompute);
