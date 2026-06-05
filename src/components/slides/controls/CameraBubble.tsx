@@ -6,7 +6,14 @@ import { createPortal } from "react-dom";
 import squircleMask from "@/assets/camera-2026/02-squircle-mask-black.png";
 import whitePlate from "@/assets/camera-2026/03-squircle-plate-white-shadow.png";
 import goldPlate from "@/assets/camera-2026/04-squircle-plate-gold-shadow.png";
-import { useChrome, type CameraShape } from "@/components/slides/chrome-store";
+import {
+  CAMERA_FREE_MAX_W,
+  CAMERA_FREE_MIN_W,
+  cameraDimensions,
+  clampCameraPosition,
+  useChrome,
+  type CameraShape,
+} from "@/components/slides/chrome-store";
 import { getSlidesPortalRoot } from "@/components/slides/fullscreenTarget";
 import { useCamera } from "@/components/slides/useCamera";
 import { useFullscreen } from "@/components/slides/useFullscreen";
@@ -18,14 +25,24 @@ import { CameraPlate } from "./CameraPlate";
 
 const CAMERA_BUTTON_CLASS = "flex h-6 w-6 items-center justify-center rounded-full bg-black/85 text-white shadow-md ring-1 ring-white/35 hover:bg-black hover:ring-white";
 
-// "split" blows the bubble up next to the slide; "stage-fill" takes over the entire viewport.
-const SIZES = { sm: 144, md: 200, lg: 280 } as const;
-const SCENE_SCALE: Record<string, number> = { normal: 1, split: 1.6, "cam-only": 2.4, "stage-fill": 1 };
-const MIN_SIZE = 96;
-const MAX_SIZE = 720;
-const RECT_ASPECT = 16 / 9;
 const SQUIRCLE_RADIUS = "38% / 34%";
 const SHAPE_RADIUS = { circle: "9999px", squircle: SQUIRCLE_RADIUS, rect: "18px" } as const;
+
+function readStageScale() {
+  if (typeof document === "undefined") return 1;
+  const cssScale = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--stage-scale"));
+  if (Number.isFinite(cssScale) && cssScale > 0) return cssScale;
+  const stage = document.querySelector<HTMLElement>(".slide-wrapper");
+  const rect = stage?.getBoundingClientRect();
+  return rect && rect.width > 0 ? rect.width / 1920 : 1;
+}
+
+function readStageFrame() {
+  if (typeof document === "undefined") return { left: 0, top: 0, scale: 1 };
+  const stage = document.querySelector<HTMLElement>(".slide-wrapper");
+  const rect = stage?.getBoundingClientRect();
+  return rect && rect.width > 0 ? { left: rect.left, top: rect.top, scale: rect.width / 1920 } : { left: 0, top: 0, scale: readStageScale() };
+}
 
 function ShapeIcon({ shape }: { shape: CameraShape }) {
   if (shape === "circle") return <Circle size={12} />;
@@ -46,24 +63,42 @@ export function CameraBubble() {
   const cycleAnchor = useChrome((s) => s.cycleCameraAnchor);
   const cycleShape = useChrome((s) => s.cycleCameraShape);
   const setCameraCustomSize = useChrome((s) => s.setCameraCustomSize);
-  const { status, errorMessage, start, stop, attach, togglePiP } = useCamera();
+  const { status, errorMessage, start, hide, close, attach, togglePiP } = useCamera();
   const { isFs } = useFullscreen();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const shapeFrameRef = useRef<HTMLDivElement | null>(null);
   const firstShapeRef = useRef(true);
   const dragState = useRef<{ x: number; y: number; ox: number; oy: number } | null>(null);
-  const resizeState = useRef<{ x: number; y: number; size: number } | null>(null);
+  const resizeState = useRef<{ x: number; y: number; width: number; baseX: number; baseY: number } | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [stageFrame, setStageFrame] = useState(() => readStageFrame());
   const reducedMotion = useReducedMotion();
   const autoFrame = useAutoFrame(videoRef, camera.visible && camera.autoFrame && status === "active");
 
   useEffect(() => setMounted(true), []);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const update = () => setStageFrame(readStageFrame());
+    update();
+    const frame = requestAnimationFrame(update);
+    const ro = new ResizeObserver(update);
+    const stage = document.querySelector<HTMLElement>(".slide-wrapper");
+    if (stage) ro.observe(stage);
+    window.addEventListener("resize", update);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("resize", update);
+      ro.disconnect();
+    };
+  }, []);
+
   // Auto-start whenever the bubble is opened from chrome state.
   useEffect(() => {
-    if (camera.visible && status === "idle") void start();
-    if (!camera.visible && (status === "active" || status === "requesting")) stop();
-  }, [camera.visible, status, start, stop]);
+    if (camera.visible && (status === "idle" || status === "tray")) void start();
+    if (!camera.visible && status === "active") hide();
+    if (!camera.visible && status === "requesting") close();
+  }, [camera.visible, status, start, hide, close]);
 
   // Camera keyboard shortcuts (active only when bubble is visible).
   // - Shift+Arrow: nudge by 16px
