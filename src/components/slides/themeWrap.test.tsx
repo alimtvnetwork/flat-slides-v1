@@ -24,6 +24,7 @@ describe("ThemeWrap background pipeline", () => {
     const layer = container.querySelector("[data-slide-bg-layer]") as HTMLElement;
 
     expect(root.style.getPropertyValue("--slide-bg")).toBe("#224466");
+    expect(root.style.getPropertyValue("--slide-content-bg")).toBe("transparent");
     expect(layer.style.background).toContain("34, 68, 102");
   });
 
