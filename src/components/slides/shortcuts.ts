@@ -34,6 +34,14 @@ export interface ShortcutDef {
   scope?: ShortcutScope;
 }
 
+function shortcut(id: string, display: string, keys: string[], label: string, group: ShortcutGroup): ShortcutDef {
+  return { id, display, keys, label, group };
+}
+
+function inspectorShortcut(id: string, display: string, keys: string[], label: string, group: ShortcutGroup): ShortcutDef {
+  return { ...shortcut(id, display, keys, label, group), scope: "inspector" };
+}
+
 export const SHORTCUTS: ShortcutDef[] = [
   shortcut("nav-prev", "←", ["ArrowLeft"], "Previous slide or step", "Navigation"),
   shortcut("nav-next", "→", ["ArrowRight", " ", "Enter"], "Next slide or step", "Navigation"),
