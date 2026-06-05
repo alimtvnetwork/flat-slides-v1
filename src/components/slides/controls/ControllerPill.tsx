@@ -2,15 +2,14 @@ import { motion } from "framer-motion";
 import { Camera, ChevronLeft, ChevronRight, Grid3x3, HelpCircle, Maximize2, Minimize2, Settings } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
 
 import { useChrome } from "@/components/slides/chrome-store";
 import { getSlidesPortalRoot } from "@/components/slides/fullscreenTarget";
 import { useReducedMotion } from "@/components/slides/useReducedMotion";
 import { cn } from "@/lib/utils";
 
-import { anchorStyles, type ControllerAnchor, nextControllerAnchor } from "./controller-anchor";
+import { anchorStyles, type ControllerAnchor } from "./controller-anchor";
+import { useControllerAnchor } from "./controller-anchor-store";
 
 import { MusicToggle } from "./MusicToggle";
 import { ShareMenu } from "./ShareMenu";
@@ -18,24 +17,6 @@ import { SlideIndicator } from "./SlideIndicator";
 import { ThemeChip } from "./ThemeChip";
 
 export type { ControllerAnchor };
-
-interface PositionStore {
-  anchor: ControllerAnchor;
-  setAnchor: (a: ControllerAnchor) => void;
-}
-
-const usePositionStore = create<PositionStore>()(
-  persist(
-    (set) => ({
-      anchor: "bottom-center",
-      setAnchor: (anchor) => set({ anchor }),
-    }),
-    {
-      name: "slides-controller-pos-v2",
-      partialize: (s) => ({ anchor: s.anchor }),
-    },
-  ),
-);
 
 interface Props {
   current: number;
@@ -72,8 +53,8 @@ function useCompactViewport() {
  */
 export function ControllerPill(props: Props) {
   const { current, total, onPrev, onNext, onJump, onOpenGrid, onToggleFullscreen, onOpenHelp, onOpenSettings, isFullscreen, canPrev, canNext } = props;
-  const anchor = usePositionStore((s) => s.anchor);
-  const setAnchor = usePositionStore((s) => s.setAnchor);
+  const anchor = useControllerAnchor((s) => s.anchor);
+  const cycleAnchor = useControllerAnchor((s) => s.cycleAnchor);
   const cameraVisible = useChrome((s) => s.camera.visible);
   const toggleCamera = useChrome((s) => s.toggleCamera);
   const compact = useCompactViewport();
@@ -88,11 +69,6 @@ export function ControllerPill(props: Props) {
       if (active instanceof HTMLElement && active.closest('[aria-label="Slide controller"]')) active.blur();
     });
   }, [isFullscreen]);
-
-  // Cycle through 8 anchors on right-click of the pill.
-  function cycleAnchor() {
-    setAnchor(nextControllerAnchor(anchor));
-  }
 
   if (!mounted) return null;
 
