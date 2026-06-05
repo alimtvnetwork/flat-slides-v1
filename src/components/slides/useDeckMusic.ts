@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 
 import { useChrome } from "./chrome-store";
+import { armAutoplayRetry } from "./deckMusicAutoplayRecovery";
 import { configureDeckMusic, setDeckMusicPlaying, stopDeckMusic } from "./deckMusicPlayer";
 import { useDeck } from "./store";
 
@@ -21,8 +22,18 @@ export function useDeckMusic() {
   useEffect(() => () => stopDeckMusic(), []);
 
   useEffect(() => {
-    setDeckMusicPlaying(playing);
+    let disposeRetry: (() => void) | null = null;
+    let cancelled = false;
+    void setDeckMusicPlaying(playing).then((result) => {
+      if (cancelled || result.ok || !result.blocked) return;
+      disposeRetry = armAutoplayRetry();
+    });
+    return () => {
+      cancelled = true;
+      disposeRetry?.();
+    };
   }, [playing, music?.url]);
 
   return { hasTrack: Boolean(music?.url), playing };
 }
+

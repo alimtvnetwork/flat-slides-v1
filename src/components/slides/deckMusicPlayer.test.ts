@@ -41,12 +41,21 @@ describe("deck music player", () => {
 
   it("stops before each play toggle", async () => {
     configureDeckMusic({ url: "/music/a.mp3" }, 0.4);
-    setDeckMusicPlaying(true);
-    setDeckMusicPlaying(true);
+    await setDeckMusicPlaying(true);
+    await setDeckMusicPlaying(true);
 
     const audio = created[0];
     expect(audio?.pause).toHaveBeenCalledTimes(2);
     expect(audio?.play).toHaveBeenCalledTimes(2);
     expect(audio?.currentTime).toBe(0);
+  });
+
+  it("reports autoplay block on NotAllowedError", async () => {
+    const err = Object.assign(new Error("blocked"), { name: "NotAllowedError" });
+    configureDeckMusic({ url: "/music/a.mp3" }, 0.4);
+    const audio = created[0] as FakeAudio;
+    (audio.play as ReturnType<typeof vi.fn>).mockRejectedValueOnce(err);
+    const result = await setDeckMusicPlaying(true);
+    expect(result).toEqual({ ok: false, blocked: true });
   });
 });

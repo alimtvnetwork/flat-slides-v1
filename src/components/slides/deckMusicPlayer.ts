@@ -14,9 +14,14 @@ export function configureDeckMusic(music: DeckMusic | undefined, volume: number)
   el.volume = clampVolume(volume);
 }
 
-export function setDeckMusicPlaying(isPlaying: boolean): void {
-  if (!isPlaying) return stopDeckMusic();
-  startDeckMusic();
+export type PlayResult = { ok: true } | { ok: false; blocked: boolean };
+
+export function setDeckMusicPlaying(isPlaying: boolean): Promise<PlayResult> {
+  if (!isPlaying) {
+    stopDeckMusic();
+    return Promise.resolve({ ok: true });
+  }
+  return startDeckMusic();
 }
 
 export function stopDeckMusic(): void {
@@ -63,10 +68,24 @@ function updateDeckMusicUrl(url: string): void {
   audioUrl = url;
 }
 
-function startDeckMusic(): void {
-  if (!audio) return;
+async function startDeckMusic(): Promise<PlayResult> {
+  if (!audio) return { ok: true };
   stopDeckMusic();
-  void audio.play().catch((error) => console.warn("Unable to play deck music", error));
+  try {
+    await audio.play();
+    return { ok: true };
+  } catch (error) {
+    const blocked = isAutoplayBlock(error);
+    if (!blocked) console.warn("Unable to play deck music", error);
+    return { ok: false, blocked };
+  }
+}
+
+function isAutoplayBlock(error: unknown): boolean {
+  if (typeof DOMException !== "undefined" && error instanceof DOMException) {
+    return error.name === "NotAllowedError";
+  }
+  return Boolean(error && (error as { name?: string }).name === "NotAllowedError");
 }
 
 function clampVolume(volume: number): number {
