@@ -19,7 +19,10 @@ const baseProps = {
   canNext: true,
 };
 
-afterEach(() => cleanup());
+afterEach(() => {
+  cleanup();
+  document.body.innerHTML = "";
+});
 
 function createSlidesRoot() {
   const root = document.createElement("div");
