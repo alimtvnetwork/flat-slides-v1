@@ -1,8 +1,7 @@
-import type { DeckMusic } from "./types";
 import { musicVolumePercentToGain } from "@/lib/slides/musicVolume";
 
-const MIN_VOLUME = 0;
-const MAX_VOLUME = 1;
+import type { DeckMusic } from "./types";
+
 const DEFAULT_LOOP = true;
 
 let audio: HTMLAudioElement | null = null;
@@ -87,8 +86,4 @@ function isAutoplayBlock(error: unknown): boolean {
     return error.name === "NotAllowedError";
   }
   return Boolean(error && (error as { name?: string }).name === "NotAllowedError");
-}
-
-function clampVolume(volume: number): number {
-  return Math.max(MIN_VOLUME, Math.min(MAX_VOLUME, volume));
 }
