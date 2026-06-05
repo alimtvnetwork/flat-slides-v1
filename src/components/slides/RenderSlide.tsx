@@ -72,6 +72,11 @@ function ThemeWrap({ slide, children }: { slide: Slide; children: React.ReactNod
   styleRecord["--slide-bg"] = resolveSlideBgVariable(background);
   styleRecord["--slide-content-bg"] = "transparent";
   if (settings.backgroundMode === "dark") applyDarkPresetTokens(styleRecord);
+  if (settings.textColor) {
+    styleRecord["--slide-fg"] = settings.textColor;
+    styleRecord["--slide-muted"] = `color-mix(in oklab, ${settings.textColor} 70%, transparent)`;
+    styleRecord.color = settings.textColor;
+  }
   const bgStyle = resolveBackgroundLayerStyle(background, theme, blur);
   return (
     <div style={style}>
