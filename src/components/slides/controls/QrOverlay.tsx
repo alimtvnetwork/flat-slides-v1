@@ -35,7 +35,8 @@ export function QrOverlay() {
   return (
     <div
       data-print-hide
-      className="absolute inset-0 z-[80] flex items-center justify-center bg-black/85 backdrop-blur-md"
+      data-presenter-frame-bound="true"
+      className="fixed z-[80] flex items-center justify-center bg-black/85 backdrop-blur-md"
       onClick={() => setQr(false)}
       role="dialog"
       aria-label="Join the audience — scan to participate"

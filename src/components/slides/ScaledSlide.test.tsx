@@ -37,6 +37,17 @@ describe("ScaledSlide", () => {
     expect(document.documentElement.style.getPropertyValue("--presenter-frame-center-x")).toBe("512px");
     expect(document.documentElement.style.getPropertyValue("--presenter-frame-center-y")).toBe("384px");
   });
+
+  it("does not render with a tiny hard-coded scale before measurement", () => {
+    const { container } = render(
+      <ScaledSlide>
+        <div />
+      </ScaledSlide>,
+    );
+
+    const stage = container.querySelector(".slide-stage") as HTMLElement;
+    expect(stage.style.getPropertyValue("--stage-scale")).not.toBe("0.1");
+  });
 });
 
 function rect(width: number, height: number) {

@@ -49,7 +49,7 @@ export function ScaledSlide({ children, className, fitPadding = 0 }: Props) {
   }, [fitPadding]);
 
   return (
-    <div ref={stageRef} className={`slide-stage ${className ?? ""}`} style={{ ["--fit-padding" as string]: `${fitPadding}px`, ["--stage-scale" as string]: "0.1" }}>
+    <div ref={stageRef} className={`slide-stage ${className ?? ""}`} style={{ ["--fit-padding" as string]: `${fitPadding}px` }}>
       <div className="slide-wrapper">
         {children}
       </div>
