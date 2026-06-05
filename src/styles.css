@@ -171,6 +171,7 @@
   /* Subtle ink-drop under light text for legibility over busy / image backgrounds.
    * Per-theme override in themes.ts (Paper sets it to `none`). */
   --slide-text-shadow: rgb(0 0 0) 1px 0.7px 0px;
+  --stage-scale: min(100vw / 1920, 100dvh / 1080);
 }
 
 .slide-content {
@@ -250,7 +251,7 @@
   top: 50%;
   margin-left: -960px;
   margin-top: -540px;
-  transform: scale(var(--scale, 1));
+  transform: scale(var(--scale, var(--stage-scale)));
   transform-origin: center center;
   overflow: hidden;
   isolation: isolate;
