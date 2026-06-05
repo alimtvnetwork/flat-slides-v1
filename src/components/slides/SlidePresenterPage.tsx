@@ -321,3 +321,5 @@ function getRouteStep(pathname: string) {
   const step = parseInt(match[1], 10);
   return Number.isFinite(step) ? step : null;
 }
+
+const SLIDE_NAVIGATION_COOLDOWN_MS = 950;
