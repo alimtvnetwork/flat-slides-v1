@@ -301,3 +301,21 @@ Regression: added `controls/ControllerPill.mount.test.tsx` asserting
 exactly one `[aria-label="Slide controller"]` after rerenders simulating
 `/N ↔ /N/S` prop changes, that the toolbar is `position: fixed`, and that
 it portals into the slides fullscreen root when present. 3/3 pass.
+
+## Step 23 — Controller anchor cycling persistence
+
+Root cause: controller position still used the earlier eight-anchor helper and
+persisted under `slides-controller-pos-v2`; B21 requires only
+`bottom-center → bottom-right → bottom-left → top-right`, plus persistence under
+`riseup.controller.anchor`. There was also no presenter-level `B` key handler,
+so keyboard cycling was unavailable and the camera bubble could consume `B`.
+
+Fix: narrowed `ControllerAnchor` to the four B21 anchors, added
+`controller-anchor-store.ts` with `riseup.controller.anchor`, wired
+`ControllerPill` to that store, and handled `B` in `SlidePresenterPage` before
+camera shortcuts (`stopImmediatePropagation`) so the controller owns the key.
+`KeyboardShortcutsDialog` now lists `B — Move controller` from `SHORTCUTS`.
+
+Verified: `bunx vitest run src/components/slides/controls/controller-anchor.test.ts
+src/components/slides/controls/ControllerPill.mount.test.tsx` passes 9/9,
+including ordered cycling and required localStorage key persistence.
