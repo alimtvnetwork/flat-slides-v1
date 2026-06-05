@@ -1,5 +1,4 @@
-import { Outlet, createFileRoute } from "@tanstack/react-router";
-import { useLocation } from "@tanstack/react-router";
+import { Outlet, createFileRoute, useLocation } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
 import { SlidePresenterPage } from "@/components/slides/SlidePresenterPage";
