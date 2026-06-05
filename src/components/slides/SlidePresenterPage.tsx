@@ -47,6 +47,8 @@ const SettingsDrawer = lazy(() =>
   import("@/components/slides/SettingsDrawer").then((m) => ({ default: m.SettingsDrawer })),
 );
 
+const SLIDE_NAVIGATION_COOLDOWN_MS = 950;
+
 export function SlidePresenterPage({ slideId }: { slideId: string }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -321,5 +323,3 @@ function getRouteStep(pathname: string) {
   const step = parseInt(match[1], 10);
   return Number.isFinite(step) ? step : null;
 }
-
-const SLIDE_NAVIGATION_COOLDOWN_MS = 950;
