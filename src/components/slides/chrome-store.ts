@@ -48,6 +48,12 @@ export interface MusicState {
   volume: number;
 }
 
+export interface SlideMusicOverride {
+  url: string;
+  loop?: boolean;
+  volume?: number;
+}
+
 const SIZE_ORDER: CameraSize[] = ["S", "M", "L", "XL"];
 export const nextSize = (s: CameraSize): CameraSize =>
   SIZE_ORDER[(SIZE_ORDER.indexOf(s) + 1) % SIZE_ORDER.length];
