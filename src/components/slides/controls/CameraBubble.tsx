@@ -7,6 +7,7 @@ import squircleMask from "@/assets/camera-2026/02-squircle-mask-black.png";
 import whitePlate from "@/assets/camera-2026/03-squircle-plate-white-shadow.png";
 import goldPlate from "@/assets/camera-2026/04-squircle-plate-gold-shadow.png";
 import {
+  CAMERA_STAGE,
   CAMERA_FREE_MAX_W,
   CAMERA_FREE_MIN_W,
   cameraDimensions,
@@ -174,8 +175,8 @@ export function CameraBubble() {
 
   const stageFill = scene === "stage-fill";
   const dims = cameraDimensions(camera);
-  const visualWidth = stageFill ? 1920 : Math.round(dims.w * stageFrame.scale);
-  const visualHeight = stageFill ? 1080 : Math.round(dims.h * stageFrame.scale);
+  const visualWidth = Math.round((stageFill ? CAMERA_STAGE.w : dims.w) * stageFrame.scale);
+  const visualHeight = Math.round((stageFill ? CAMERA_STAGE.h : dims.h) * stageFrame.scale);
   const radius = stageFill ? "0px" : SHAPE_RADIUS[camera.shape];
   const platePad = Math.round(Math.min(visualWidth, visualHeight) * 0.07);
   const showPlate = !stageFill && camera.shape === "squircle";
@@ -199,10 +200,11 @@ export function CameraBubble() {
       : {}),
   };
   const anchorStyle: React.CSSProperties = stageFill
-    ? { top: 0, left: 0, right: 0, bottom: 0 }
+    ? { left: stageFrame.left, top: stageFrame.top }
     : { left: stageFrame.left + camera.x * stageFrame.scale, top: stageFrame.top + camera.y * stageFrame.scale };
 
   function onPointerDown(e: React.PointerEvent) {
+    if (stageFill) return;
     if ((e.target as HTMLElement).closest("[data-camera-control]")) return;
     if ((e.target as HTMLElement).closest("[data-resize-handle]")) return;
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
@@ -268,18 +270,19 @@ export function CameraBubble() {
   const node = (
     <motion.div
       data-print-hide="true"
+      data-camera-stage-fill={stageFill ? "true" : "false"}
       role="region"
       aria-label="Presenter camera"
       style={{
         position: "fixed",
         zIndex: "var(--z-camera)",
-        ...(stageFill
-          ? {}
-          : { width: visualWidth, height: visualHeight }),
+        width: visualWidth,
+        height: visualHeight,
         ...anchorStyle,
       }}
       className={cn(
-        "group cursor-grab overflow-visible active:cursor-grabbing",
+        "group overflow-visible",
+        stageFill ? "cursor-default" : "cursor-grab active:cursor-grabbing",
         !stageFill && "drop-shadow-2xl",
       )}
       initial={reducedMotion ? false : { opacity: 0 }}
