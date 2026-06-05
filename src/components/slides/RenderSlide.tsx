@@ -49,24 +49,6 @@ function positionStyle(pos: TextPosition | undefined, padding = 120): CSSPropert
   };
 }
 
-function legacyResolveBackground(
-  slide: Slide,
-  settings: { backgroundMode: "color" | "image"; backgroundColor: string; backgroundImage?: string },
-): { color?: string; image?: string } {
-  const sb = slide.background;
-  if (sb) {
-    if (sb.startsWith("url(")) return { image: sb.slice(4, -1).replace(/^['"]|['"]$/g, "") };
-    if (sb.includes("://") || sb.startsWith("/") || /\.(png|jpe?g|webp|gif|svg)($|\?)/i.test(sb)) return { image: sb };
-    return { color: sb };
-  }
-  if (settings.backgroundMode === "image") {
-    if (settings.backgroundImage) return { image: settings.backgroundImage };
-    if (settings.backgroundColor) return { color: settings.backgroundColor };
-  }
-  if (settings.backgroundMode === "color" && settings.backgroundColor) return { color: settings.backgroundColor };
-  return {};
-}
-
 function ThemeWrap({ slide, children }: { slide: Slide; children: React.ReactNode }) {
   const deckThemeId = useDeck((s) => s.deck.themeId);
   const settings = useDeck((s) => s.deck.settings);
