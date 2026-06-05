@@ -84,12 +84,38 @@ function anchoredCameraPosition(anchor: CameraAnchor, dims: { w: number; h: numb
   return { x: CAMERA_STAGE.w - dims.w - CAMERA_MARGIN, y: CAMERA_STAGE.h - dims.h - CAMERA_MARGIN };
 }
 
+function normalizeCameraSize(value: unknown): CameraSize {
+  if (value === "S" || value === "M" || value === "L" || value === "XL") return value;
+  if (value === "sm") return "S";
+  if (value === "lg") return "L";
+  return "M";
+}
+
+function normalizeCamera(camera: Partial<CameraState>): CameraState {
+  const size = normalizeCameraSize(camera.size);
+  const customSize = typeof camera.customSize === "number"
+    ? Math.max(CAMERA_FREE_MIN_W, Math.min(CAMERA_FREE_MAX_W, Math.round(camera.customSize)))
+    : null;
+  const draft: CameraState = {
+    ...DEFAULT_CAMERA,
+    ...camera,
+    size,
+    customSize,
+  };
+  const fallback = anchoredCameraPosition(draft.anchor, cameraDimensions(draft));
+  const hasStagePos = typeof camera.x === "number" && typeof camera.y === "number";
+  const pos = clampCameraPosition(hasStagePos ? { x: camera.x!, y: camera.y! } : fallback, cameraDimensions(draft));
+  return { ...draft, ...pos };
+}
+
 const DEFAULT_CAMERA: CameraState = {
   visible: true,
   anchor: "bottom-right",
+  x: CAMERA_STAGE.w - CAMERA_SIZE_STEPS.M.w - CAMERA_MARGIN,
+  y: CAMERA_MARGIN,
   offsetX: 0,
   offsetY: 0,
-  size: "md",
+  size: "M",
   customSize: null,
   shape: "circle",
   mirror: true,
