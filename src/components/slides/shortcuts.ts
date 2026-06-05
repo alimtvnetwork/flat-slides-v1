@@ -34,11 +34,23 @@ export interface ShortcutDef {
   scope?: ShortcutScope;
 }
 
-function shortcut(id: string, display: string, keys: string[], label: string, group: ShortcutGroup): ShortcutDef {
+function shortcut(
+  id: string,
+  display: string,
+  keys: string[],
+  label: string,
+  group: ShortcutGroup,
+): ShortcutDef {
   return { id, display, keys, label, group };
 }
 
-function inspectorShortcut(id: string, display: string, keys: string[], label: string, group: ShortcutGroup): ShortcutDef {
+function inspectorShortcut(
+  id: string,
+  display: string,
+  keys: string[],
+  label: string,
+  group: ShortcutGroup,
+): ShortcutDef {
   return { ...shortcut(id, display, keys, label, group), scope: "inspector" };
 }
 
@@ -79,10 +91,28 @@ export const SHORTCUTS: ShortcutDef[] = [
   shortcut("toggle-lint", "⌘⇧L", [], "Toggle lint panel", "Presenter"),
   shortcut("toggle-notes", "N", ["n"], "Toggle presenter notes", "Presenter"),
   shortcut("esc-close-panel", "Esc", [], "Close open panel or dialog", "Surfaces"),
-  inspectorShortcut("inspector-nav-prev", "←", ["ArrowLeft"], "Inspector previous slide or step", "Navigation"),
-  inspectorShortcut("inspector-nav-next", "→", ["ArrowRight", " ", "Enter"], "Inspector next slide or step", "Navigation"),
+  inspectorShortcut(
+    "inspector-nav-prev",
+    "←",
+    ["ArrowLeft"],
+    "Inspector previous slide or step",
+    "Navigation",
+  ),
+  inspectorShortcut(
+    "inspector-nav-next",
+    "→",
+    ["ArrowRight", " ", "Enter"],
+    "Inspector next slide or step",
+    "Navigation",
+  ),
   inspectorShortcut("inspector-reset-timer", "R", ["r"], "Reset inspector timer", "Timer"),
-  inspectorShortcut("inspector-toggle-timer-pause", "P", ["p"], "Pause / resume inspector timer", "Timer"),
+  inspectorShortcut(
+    "inspector-toggle-timer-pause",
+    "P",
+    ["p"],
+    "Pause / resume inspector timer",
+    "Timer",
+  ),
   inspectorShortcut("inspector-exit", "Esc", ["Escape"], "Exit presenter inspector", "Surfaces"),
 ];
 
@@ -95,7 +125,10 @@ export function matchesShortcut(event: KeyboardEvent, def: ShortcutDef): boolean
  * `event.key`. Returns `undefined` when no plain-key binding applies
  * (e.g. modifier combos, mouse-only shortcuts, unmapped keys).
  */
-export function matchShortcut(event: KeyboardEvent, scope: ShortcutScope = "presenter"): ShortcutDef | undefined {
+export function matchShortcut(
+  event: KeyboardEvent,
+  scope: ShortcutScope = "presenter",
+): ShortcutDef | undefined {
   return SHORTCUTS.find(
     (def) => hasScope(def, scope) && def.keys.length > 0 && matchesShortcut(event, def),
   );
@@ -121,11 +154,35 @@ function hasScope(def: ShortcutDef, scope: ShortcutScope): boolean {
  * input-guard check and AFTER ink/annotation tools have first refusal.
  */
 export const CAMERA_SHORTCUTS: ShortcutDef[] = [
-  { id: "cam-info",        display: "I",     keys: ["i"], label: "Show camera info / status", group: "Camera" },
-  { id: "cam-soft-hide",   display: "Alt+M", keys: [],    label: "Soft-hide camera to tray",  group: "Camera" },
-  { id: "cam-autoframe",   display: "Alt+F", keys: [],    label: "Toggle camera auto-frame",  group: "Camera" },
-  { id: "cam-halo",        display: "H",     keys: ["h"], label: "Toggle camera halo",        group: "Camera" },
-  { id: "cam-size-down",   display: "[",     keys: ["["], label: "Camera size step down",     group: "Camera" },
-  { id: "cam-size-up",     display: "]",     keys: ["]"], label: "Camera size step up",       group: "Camera" },
-  { id: "cam-fill-stage",  display: "1",     keys: ["1"], label: "Camera fill stage",         group: "Camera" },
+  {
+    id: "cam-info",
+    display: "I",
+    keys: ["i"],
+    label: "Show camera info / status",
+    group: "Camera",
+  },
+  {
+    id: "cam-soft-hide",
+    display: "Alt+M",
+    keys: [],
+    label: "Soft-hide camera to tray",
+    group: "Camera",
+  },
+  {
+    id: "cam-autoframe",
+    display: "Alt+F",
+    keys: [],
+    label: "Toggle camera auto-frame",
+    group: "Camera",
+  },
+  { id: "cam-halo", display: "H", keys: ["h"], label: "Toggle camera halo", group: "Camera" },
+  {
+    id: "cam-size-down",
+    display: "[",
+    keys: ["["],
+    label: "Camera size step down",
+    group: "Camera",
+  },
+  { id: "cam-size-up", display: "]", keys: ["]"], label: "Camera size step up", group: "Camera" },
+  { id: "cam-fill-stage", display: "1", keys: ["1"], label: "Camera fill stage", group: "Camera" },
 ];
