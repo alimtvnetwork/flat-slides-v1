@@ -1,4 +1,5 @@
 import type { DeckMusic } from "./types";
+import { musicVolumePercentToGain } from "@/lib/slides/musicVolume";
 
 const MIN_VOLUME = 0;
 const MAX_VOLUME = 1;
@@ -7,11 +8,11 @@ const DEFAULT_LOOP = true;
 let audio: HTMLAudioElement | null = null;
 let audioUrl: string | null = null;
 
-export function configureDeckMusic(music: DeckMusic | undefined, volume: number): void {
+export function configureDeckMusic(music: DeckMusic | undefined, musicVolume: number): void {
   if (!music?.url) return clearDeckMusic();
   const el = getDeckMusicAudio(music.url);
   el.loop = music.loop ?? DEFAULT_LOOP;
-  el.volume = clampVolume(volume);
+  el.volume = musicVolumePercentToGain(musicVolume);
 }
 
 export type PlayResult = { ok: true } | { ok: false; blocked: boolean };
