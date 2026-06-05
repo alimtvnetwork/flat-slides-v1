@@ -6,6 +6,7 @@
 - B18 (partial 6/10) — audio overhaul, `.hl` text-shadow, step clicks, LintPanel severity filter + group-by-slide, glob CLI, music-url-not-https + music-volume-out-of-range
 - B19 / B19A — settings/fullscreen/camera repair + theme contrast + export-zip + CI + per-slide `sound` schema + LintPanel Copy-as-JSON
 - **B21 (steps 1–30)** — Fullscreen, Settings, Music, Controller hardening. See `.lovable/memory/diagnostics/02-fullscreen-and-settings-rca.md` and `features/01-presenter-controller-pill.md`.
+- **B22 (steps 1–7)** — Presenter Inspector speaker view. Route tree `/slides/inspector/$slideId(/$step)`, 4-pane layout, persistent timer (`riseup.inspector.startedAt`) with pause/reset, scoped inspector keymap via `ShortcutScope` + `INSPECTOR_KEY_ACTIONS`. Tests: `presenterInspectorModel.test.ts`, `inspectorTimer.test.ts`, `inspectorKeyboard.test.ts`, parity in `presenterActions.test.ts`. Card: `features/02-presenter-inspector.md`; spec: `docs/slides/spec/presenter-inspector.spec.md`.
 
 ## B21 highlights
 - PresenterShell hoisted into `slides.$slideId.tsx` (survives route-param nav).
@@ -23,5 +24,5 @@
 - None.
 
 ## Next session resume point
-B21 fully shipped. Future batches: speaker-notes inspector, richer presenter mode, manual cross-browser validation passes.
+B22 fully shipped (Presenter Inspector). Only manual cross-browser validation remains (out of agent scope). Future batches: richer presenter mode, audience features, manual QA passes.
 
