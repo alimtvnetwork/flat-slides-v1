@@ -16,11 +16,12 @@
 - Single keymap: SHORTCUTS entries carry stable `id`; side-effects live in `presenterActions.ts`; parity test fails the build on drift.
 - Playwright happy-path spec for controller (`e2e/controller-happy-path.spec.ts`).
 
-## 🔁 B21 remaining (1)
-- **Step 30** — close pending issues / tasks (sweep `.lovable/pending-issues/` and `.lovable/todo-tasks.md`).
+## ✅ B21 complete (30/30)
+- Step 30 — pending-issues sweep done. `.lovable/pending-issues/index.md` now has a "Presenter controller pill (B21)" section recording all shipped items. Only manual cross-browser validation remains (out of agent scope).
 
 ## 🚫 Blocked
 - None.
 
 ## Next session resume point
-B21 functionally complete; only the pending-issues sweep (Step 30) is left. Future batches: speaker-notes inspector, PDF export, richer presenter mode.
+B21 fully shipped. Future batches: speaker-notes inspector, richer presenter mode, manual cross-browser validation passes.
+
