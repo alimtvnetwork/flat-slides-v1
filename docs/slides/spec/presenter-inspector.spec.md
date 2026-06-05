@@ -17,11 +17,15 @@
 
 ## Route
 
-`/slides/$slideId/inspector` and `/slides/$slideId/$step/inspector`.
+`/slides/inspector/$slideId` and `/slides/inspector/$slideId/$step`.
 
 - 1-based `$slideId` per Core memory rule (`slides[Number(slideId)-1]`).
+- Standalone branch — does NOT nest under `slides.$slideId.tsx`, so the main
+  `SlidePresenterPage` (controller pill, settings drawer, music toggle) does
+  not double-mount on the inspector screen.
 - Resolves the same slide + step the main presenter route does.
 - Reuses `PresenterShell` for fullscreen clipping.
+
 
 ## Layout (1920×1080 reference)
 
