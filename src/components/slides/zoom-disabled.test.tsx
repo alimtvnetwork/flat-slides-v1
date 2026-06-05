@@ -141,6 +141,12 @@ describe("opt-in focus zoom effects", () => {
     expect(resolveSlideTransition("camera-zoom", heroSlide, true).willChange).toBe("opacity");
   });
 
+  it("forces fullscreen slide navigation to fade so the slide surface cannot break frame", () => {
+    const heroSlide = { id: "hero", type: "center" as const, title: "Hero", heading: ["Hero"] };
+
+    expect(resolveSlideTransition("camera-zoom", heroSlide, false, true).willChange).toBe("opacity");
+  });
+
   it("bundled demo focus regions zoom visibly on labelled zoom steps", async () => {
     useDeck.getState().resetDeck();
     const demo = useDeck.getState().deck.slides.find((slide) => slide.id === "focus-demo");
