@@ -1,6 +1,9 @@
 import { beforeEach, describe, expect, it } from "vitest";
 
 import {
+  CAMERA_SIZE_STEPS,
+  cameraDimensions,
+  clampCameraPosition,
   nextAnchor,
   nextScene,
   nextShape,
@@ -71,6 +74,13 @@ describe("chrome-store camera reducers", () => {
     expect(useChrome.getState().camera.customSize).toBe(320);
     useChrome.getState().setCameraCustomSize(null);
     expect(useChrome.getState().camera.customSize).toBe(null);
+  });
+
+  it("uses 16:9 stepped camera sizes and clamps free stage geometry", () => {
+    expect(CAMERA_SIZE_STEPS).toMatchObject({ S: { w: 240, h: 135 }, XL: { w: 720, h: 405 } });
+    expect(cameraDimensions({ size: "M", customSize: null })).toEqual({ w: 320, h: 180 });
+    expect(cameraDimensions({ size: "M", customSize: 9999 })).toEqual({ w: 960, h: 540 });
+    expect(clampCameraPosition({ x: 3000, y: -20 }, { w: 320, h: 180 })).toEqual({ x: 1600, y: 0 });
   });
 
   it("cycleCameraShape advances the shape", () => {
