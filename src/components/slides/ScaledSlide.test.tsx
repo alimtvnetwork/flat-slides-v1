@@ -19,10 +19,12 @@ describe("ScaledSlide", () => {
     });
 
     render(
-      <div data-testid="host">
-        <ScaledSlide>
-          <div />
-        </ScaledSlide>
+      <div data-slide-presenter-root>
+        <div data-testid="host">
+          <ScaledSlide>
+            <div />
+          </ScaledSlide>
+        </div>
       </div>,
     );
 
