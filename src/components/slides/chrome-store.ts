@@ -1,7 +1,10 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-import { persistInspectorStartedAt, readPersistedInspectorStartedAt } from "./inspectorTimerPersistence";
+import {
+  persistInspectorStartedAt,
+  readPersistedInspectorStartedAt,
+} from "./inspectorTimerPersistence";
 
 export type CameraAnchor = "top-left" | "top-right" | "bottom-left" | "bottom-right";
 export type CameraSize = "S" | "M" | "L" | "XL";
@@ -75,7 +78,7 @@ export const nextShape = (s: CameraShape): CameraShape =>
 export function cameraDimensions(camera: Pick<CameraState, "size" | "customSize">) {
   const width = camera.customSize ?? CAMERA_SIZE_STEPS[camera.size].w;
   const clampedWidth = Math.max(CAMERA_FREE_MIN_W, Math.min(CAMERA_FREE_MAX_W, Math.round(width)));
-  return { w: clampedWidth, h: Math.round(clampedWidth * 9 / 16) };
+  return { w: clampedWidth, h: Math.round((clampedWidth * 9) / 16) };
 }
 
 export function clampCameraPosition(pos: { x: number; y: number }, dims: { w: number; h: number }) {
@@ -87,8 +90,12 @@ export function clampCameraPosition(pos: { x: number; y: number }, dims: { w: nu
 
 function anchoredCameraPosition(anchor: CameraAnchor, dims: { w: number; h: number }) {
   if (anchor === "top-left") return { x: CAMERA_MARGIN, y: CAMERA_MARGIN };
-  if (anchor === "top-right") return { x: CAMERA_STAGE.w - dims.w - CAMERA_MARGIN, y: CAMERA_MARGIN };
-  if (anchor === "bottom-left") return { x: CAMERA_MARGIN, y: CAMERA_STAGE.h - dims.h - CAMERA_MARGIN };
+  if (anchor === "top-right") {
+    return { x: CAMERA_STAGE.w - dims.w - CAMERA_MARGIN, y: CAMERA_MARGIN };
+  }
+  if (anchor === "bottom-left") {
+    return { x: CAMERA_MARGIN, y: CAMERA_STAGE.h - dims.h - CAMERA_MARGIN };
+  }
   return { x: CAMERA_STAGE.w - dims.w - CAMERA_MARGIN, y: CAMERA_STAGE.h - dims.h - CAMERA_MARGIN };
 }
 
@@ -101,9 +108,10 @@ function normalizeCameraSize(value: unknown): CameraSize {
 
 function normalizeCamera(camera: Partial<CameraState>): CameraState {
   const size = normalizeCameraSize(camera.size);
-  const customSize = typeof camera.customSize === "number"
-    ? Math.max(CAMERA_FREE_MIN_W, Math.min(CAMERA_FREE_MAX_W, Math.round(camera.customSize)))
-    : null;
+  const customSize =
+    typeof camera.customSize === "number"
+      ? Math.max(CAMERA_FREE_MIN_W, Math.min(CAMERA_FREE_MAX_W, Math.round(camera.customSize)))
+      : null;
   const draft: CameraState = {
     ...DEFAULT_CAMERA,
     ...camera,
@@ -112,7 +120,10 @@ function normalizeCamera(camera: Partial<CameraState>): CameraState {
   };
   const fallback = anchoredCameraPosition(draft.anchor, cameraDimensions(draft));
   const hasStagePos = typeof camera.x === "number" && typeof camera.y === "number";
-  const pos = clampCameraPosition(hasStagePos ? { x: camera.x!, y: camera.y! } : fallback, cameraDimensions(draft));
+  const pos = clampCameraPosition(
+    hasStagePos ? { x: camera.x!, y: camera.y! } : fallback,
+    cameraDimensions(draft),
+  );
   return { ...draft, ...pos };
 }
 
