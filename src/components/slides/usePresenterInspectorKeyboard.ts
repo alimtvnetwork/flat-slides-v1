@@ -65,12 +65,6 @@ function handleDirectInspectorKey(event: KeyboardEvent, input: InspectorKeyInput
   return false;
 }
 
-function runInspectorAction(event: KeyboardEvent, action: () => void) {
-  event.preventDefault();
-  action();
-  return true;
-}
-
 function toInspectorCtx(event: KeyboardEvent, input: InspectorKeyInput) {
   return {
     event,
