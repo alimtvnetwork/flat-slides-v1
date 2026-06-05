@@ -2,7 +2,6 @@ import { useNavigate, useLocation } from "@tanstack/react-router";
 import { useCallback, useMemo } from "react";
 
 import { triggerClick } from "./audio";
-import { canUseFullscreenHistoryNavigation, replaceFullscreenSlideUrl } from "./fullscreenNavigation";
 import { useDeck } from "./store";
 import { slideStepCount, type Slide } from "./types";
 
@@ -29,7 +28,6 @@ export function useSlideNavigation() {
   const total = linearSlides.length;
 
   const search = location.search;
-  const searchString = typeof window === "undefined" ? "" : window.location.search;
 
   const goTo = useCallback(
     (linearPosition: number, _dir: NavDirection = "forward", step?: number) => {
@@ -38,10 +36,6 @@ export function useSlideNavigation() {
       const slide = linearSlides[clamped - 1];
       if (!slide) return;
       triggerClick();
-      if (canUseFullscreenHistoryNavigation()) {
-        replaceFullscreenSlideUrl(String(clamped), step && step > 1 && slideStepCount(slide) >= step ? step : undefined, searchString);
-        return;
-      }
       if (step && step > 1 && slideStepCount(slide) >= step) {
         navigate({
           to: "/slides/$slideId/$step",
@@ -58,7 +52,7 @@ export function useSlideNavigation() {
         });
       }
     },
-    [linearSlides, total, navigate, search, searchString],
+    [linearSlides, total, navigate, search],
   );
 
   const next = useCallback(
