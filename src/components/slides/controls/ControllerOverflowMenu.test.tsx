@@ -38,20 +38,39 @@ const baseProps = {
 };
 
 describe("ControllerPill overflow menu", () => {
-  afterEach(() => vi.restoreAllMocks());
+  afterEach(() => {
+    vi.restoreAllMocks();
+    document.body.innerHTML = "";
+  });
 
-  it("shows inline Settings + Help when viewport is wide (>=1280px)", () => {
+  function createSlidesRoot() {
+    const root = document.createElement("div");
+    root.setAttribute("data-slides-fullscreen-root", "");
+    document.body.appendChild(root);
+  }
+
+  it("keeps presenter mode to navigation plus fullscreen on wide viewports", () => {
     mockMatchMedia(1440);
+    createSlidesRoot();
     render(<ControllerPill {...baseProps} />);
-    expect(screen.getByLabelText("Settings")).toBeTruthy();
-    expect(screen.getByLabelText("Keyboard shortcuts")).toBeTruthy();
+
+    expect(screen.getByLabelText("Previous slide")).toBeTruthy();
+    expect(screen.getByLabelText("Jump to slide. Current 1 of 3")).toBeTruthy();
+    expect(screen.getByLabelText("Next slide")).toBeTruthy();
+    expect(screen.getByLabelText("Enter fullscreen")).toBeTruthy();
+    expect(screen.queryByLabelText("Settings")).not.toBeTruthy();
+    expect(screen.queryByLabelText("Keyboard shortcuts")).not.toBeTruthy();
     expect(screen.queryByLabelText("More controls")).not.toBeTruthy();
   });
 
-  it("collapses Settings + Help behind '⋯' on narrow viewports (<1280px)", () => {
+  it("does not add overflow chrome on narrow viewports", () => {
     mockMatchMedia(1100);
+    createSlidesRoot();
     render(<ControllerPill {...baseProps} />);
-    expect(screen.getByLabelText("More controls")).toBeTruthy();
+
+    expect(screen.getByLabelText("Previous slide")).toBeTruthy();
+    expect(screen.getByLabelText("Next slide")).toBeTruthy();
+    expect(screen.queryByLabelText("More controls")).not.toBeTruthy();
     expect(screen.queryByLabelText("Settings")).not.toBeTruthy();
     expect(screen.queryByLabelText("Keyboard shortcuts")).not.toBeTruthy();
   });

@@ -95,6 +95,11 @@ function isPresenterStage(el: HTMLElement) {
 }
 
 function readViewportSize() {
+  const fullscreenRoot = document.querySelector<HTMLElement>("[data-slides-fullscreen-root]");
+  if (fullscreenRoot && document.fullscreenElement) {
+    const rect = fullscreenRoot.getBoundingClientRect();
+    if (rect.width > 0 && rect.height > 0) return { width: rect.width, height: rect.height };
+  }
   const viewport = window.visualViewport;
   return { width: viewport?.width ?? window.innerWidth, height: viewport?.height ?? window.innerHeight };
 }

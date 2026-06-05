@@ -5,28 +5,20 @@ import { useAudienceSync } from "@/components/slides/useAudienceSync";
 import { useChrome } from "@/components/slides/chrome-store";
 import { AnnotationLayer } from "@/components/slides/controls/AnnotationLayer";
 import { FocusEditor } from "@/components/slides/controls/FocusEditor";
-import { AnnotationToolbar } from "@/components/slides/controls/AnnotationToolbar";
-import { PollResultsOverlay } from "@/components/slides/controls/PollResultsOverlay";
 import { QrOverlay } from "@/components/slides/controls/QrOverlay";
-import { SharePill } from "@/components/slides/controls/SharePill";
-import { TimerOverlay } from "@/components/slides/controls/TimerOverlay";
 import { useDeck } from "@/components/slides/store";
 import { useTimer } from "@/components/slides/timer-store";
 import { usePresentationTimer } from "@/components/slides/usePresentationTimer";
-import { CameraBubble } from "@/components/slides/controls/CameraBubble";
 import { ControllerPill } from "@/components/slides/controls/ControllerPill";
 import { dispatchPresenterKey } from "@/components/slides/presenterActions";
-import { DotPagination } from "@/components/slides/controls/DotPagination";
 import { KeyboardShortcutsDialog } from "@/components/slides/controls/KeyboardShortcutsDialog";
 import { PresenterToast } from "@/components/slides/controls/PresenterToast";
 import { PresenterAutoStart } from "@/components/slides/controls/PresenterAutoStart";
 import { PresenterFallbackLink } from "@/components/slides/controls/PresenterFallbackLink";
-import { PresenterTopBar } from "@/components/slides/controls/PresenterTopBar";
 import { SlideNumberBadge } from "@/components/slides/controls/SlideNumberBadge";
 import { RenderSlide } from "@/components/slides/RenderSlide";
 import { CameraStage } from "@/components/slides/CameraStage";
 import { ScaledSlide } from "@/components/slides/ScaledSlide";
-import { PresenterNotesPeek } from "@/components/slides/controls/PresenterNotesPeek";
 import { SlideAriaAnnouncer } from "@/components/slides/controls/SlideAriaAnnouncer";
 import { PresenterShell, SlideStageShell } from "@/components/slides/PresenterShell";
 import { SlideTransition } from "@/components/slides/SlideTransition";
@@ -168,6 +160,7 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
       const targetUsesNativeActivation = Boolean(target?.closest("button,a,select,[role='button'],[role='menuitem'],[role='slider']"));
       if (targetUsesNativeActivation && (e.key === "Enter" || e.key === " " || e.code === "Space" || e.key === "Spacebar")) return;
       if (settingsOpen || paletteOpen || lintOpen || helpOpen) return;
+      if (isHiddenPresenterChromeShortcut(e)) return;
       if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === "l") {
         e.preventDefault(); setLintOpen((o) => !o); return;
       }
@@ -318,8 +311,6 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
   const focusStep = Math.max(1, cameraStep || 1);
   const surfaces = (
     <>
-      {isFs && <PresenterTopBar current={current} total={total} onPrev={movePrevStepAware} onNext={moveNextStepAware} />}
-      {isFs && <DotPagination current={current} total={total} slides={linearSlides} onJump={jump} />}
       <SlideNumberBadge current={current} total={total} display={getDisplayNumber(slide, current)} />
       <AnnotationLayer slideId={slide.id} />
       <FocusEditor
@@ -337,10 +328,6 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
         }}
         onClose={() => useChrome.getState().setFocusEditorOpen(false)}
       />
-      {isFs && <AnnotationToolbar slideId={slide.id} />}
-      {isFs && <TimerOverlay slide={slide} />}
-      {isFs && <PollResultsOverlay slide={slide} />}
-      {isFs && <SharePill current={current} step={isStepRoute ? stepNum + 1 : undefined} />}
       <QrOverlay />
     </>
   );
@@ -377,8 +364,7 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
         </div>
         {surfaces}
       </SlideStageShell>
-      {!isFs && controller}
-      {isFs && <CameraBubble />}
+      {controller}
       <PresenterToast />
       <PresenterFallbackLink />
       <PresenterAutoStart />
@@ -388,7 +374,6 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
         </Suspense>
       )}
       <SlideAriaAnnouncer current={current} total={total} step={isStepRoute ? stepNum + 1 : undefined} stepCount={isStepRoute ? stepCount : undefined} title={slide.title} />
-      {isFs && <PresenterNotesPeek notes={slide.notes} />}
       {paletteOpen && (
         <Suspense fallback={null}>
           <CommandPalette
@@ -427,4 +412,14 @@ function getRouteSlideId(pathname: string) {
 
 function getNavigationKeyId(event: KeyboardEvent) {
   return event.code || event.key;
+}
+
+function isHiddenPresenterChromeShortcut(event: KeyboardEvent) {
+  if (event.metaKey || event.ctrlKey || event.altKey) return false;
+  const key = event.key.toLowerCase();
+  if (["j", "c", "m", "s", "t", "q", "p", "n"].includes(key)) {
+    event.preventDefault();
+    return true;
+  }
+  return false;
 }

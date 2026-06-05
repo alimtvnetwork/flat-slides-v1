@@ -1,23 +1,17 @@
 import { motion } from "framer-motion";
-import { Camera, ChevronLeft, ChevronRight, Grid3x3, HelpCircle, Maximize2, Minimize2, Settings } from "lucide-react";
+import { ChevronLeft, ChevronRight, Maximize2, Minimize2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
-import { useChrome } from "@/components/slides/chrome-store";
 import { getSlidesPortalRoot } from "@/components/slides/fullscreenTarget";
 import { useReducedMotion } from "@/components/slides/useReducedMotion";
 import { cn } from "@/lib/utils";
 import { useHoverReveal } from "./useHoverReveal";
-import { useNarrowViewport } from "./useNarrowViewport";
-import { ControllerOverflowMenu } from "./ControllerOverflowMenu";
 
 import { anchorStyles, type ControllerAnchor } from "./controller-anchor";
 import { useControllerAnchor } from "./controller-anchor-store";
 
-import { MusicToggle } from "./MusicToggle";
-import { ShareMenu } from "./ShareMenu";
 import { SlideIndicator } from "./SlideIndicator";
-import { ThemeChip } from "./ThemeChip";
 
 export type { ControllerAnchor };
 
@@ -55,13 +49,10 @@ function useCompactViewport() {
  * grace-delay collapse so the user doesn't lose it on quick mouse-out.
  */
 export function ControllerPill(props: Props) {
-  const { current, total, onPrev, onNext, onJump, onOpenGrid, onToggleFullscreen, onOpenHelp, onOpenSettings, isFullscreen, canPrev, canNext } = props;
+  const { current, total, onPrev, onNext, onJump, onToggleFullscreen, isFullscreen, canPrev, canNext } = props;
   const anchor = useControllerAnchor((s) => s.anchor);
   const cycleAnchor = useControllerAnchor((s) => s.cycleAnchor);
-  const cameraVisible = useChrome((s) => s.camera.visible);
-  const toggleCamera = useChrome((s) => s.toggleCamera);
   const compact = useCompactViewport();
-  const narrow = useNarrowViewport();
   const reduced = useReducedMotion();
   const [mounted, setMounted] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -119,63 +110,23 @@ export function ControllerPill(props: Props) {
             <SlideIndicator current={current} total={total} onJump={onJump} />
 
         <PillButton navAction="next" onClick={onNext} disabled={canNext === undefined ? current >= total : !canNext} ariaLabel="Next slide">
-              <ChevronRight size={16} />
+          <ChevronRight size={16} />
+        </PillButton>
+
+        {!compact && (
+          <>
+            <span className="mx-1 h-4 w-px bg-white/15" aria-hidden />
+            <PillButton onClick={onToggleFullscreen} ariaLabel={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}>
+              {isFullscreen ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
             </PillButton>
-
-            {!compact && (
-              <>
-                <span className="mx-1 h-4 w-px bg-white/15" aria-hidden />
-
-                <PillButton onClick={onToggleFullscreen} ariaLabel={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}>
-                  {isFullscreen ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
-                </PillButton>
-                {isFullscreen && (
-                  <>
-                    <PillButton onClick={onOpenGrid} ariaLabel="Deck overview">
-                      <Grid3x3 size={15} />
-                    </PillButton>
-                    <PillButton
-                      onClick={toggleCamera}
-                      ariaLabel={cameraVisible ? "Hide camera" : "Show camera"}
-                      active={cameraVisible}
-                    >
-                      <Camera size={15} />
-                    </PillButton>
-                    <ShareMenu current={current} />
-                    {narrow ? (
-                      <ControllerOverflowMenu onOpenSettings={onOpenSettings} onOpenHelp={onOpenHelp} />
-                    ) : (
-                      <>
-                        <MusicToggle compact />
-                        <ThemeChip />
-                        <PillButton onClick={onOpenSettings} ariaLabel="Settings">
-                          <Settings size={15} />
-                        </PillButton>
-                        <PillButton onClick={onOpenHelp} ariaLabel="Keyboard shortcuts">
-                          <HelpCircle size={15} />
-                        </PillButton>
-                      </>
-                    )}
-                  </>
-                )}
-
-                {isFullscreen && (
-                  <span
-                    className="ml-1 hidden text-[10px] uppercase tracking-wider text-white/35 md:inline"
-                    aria-hidden
-                    title="Right-click anywhere on the pill to move it"
-                  >
-                    right-click to move
-                  </span>
-                )}
-              </>
-            )}
+          </>
+        )}
       </motion.div>
     </div>
   );
 
   const portalRoot = getSlidesPortalRoot();
-  if (!portalRoot) return null;
+  if (!portalRoot) return node;
   return createPortal(node, portalRoot);
 }
 
