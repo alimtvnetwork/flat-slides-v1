@@ -5,23 +5,16 @@ import { useAudienceSync } from "@/components/slides/useAudienceSync";
 import { useChrome } from "@/components/slides/chrome-store";
 import { AnnotationLayer } from "@/components/slides/controls/AnnotationLayer";
 import { FocusEditor } from "@/components/slides/controls/FocusEditor";
-import { AnnotationToolbar } from "@/components/slides/controls/AnnotationToolbar";
-import { PollResultsOverlay } from "@/components/slides/controls/PollResultsOverlay";
 import { QrOverlay } from "@/components/slides/controls/QrOverlay";
-import { SharePill } from "@/components/slides/controls/SharePill";
-import { TimerOverlay } from "@/components/slides/controls/TimerOverlay";
 import { useDeck } from "@/components/slides/store";
 import { useTimer } from "@/components/slides/timer-store";
 import { usePresentationTimer } from "@/components/slides/usePresentationTimer";
-import { CameraBubble } from "@/components/slides/controls/CameraBubble";
 import { ControllerPill } from "@/components/slides/controls/ControllerPill";
 import { dispatchPresenterKey } from "@/components/slides/presenterActions";
-import { DotPagination } from "@/components/slides/controls/DotPagination";
 import { KeyboardShortcutsDialog } from "@/components/slides/controls/KeyboardShortcutsDialog";
 import { PresenterToast } from "@/components/slides/controls/PresenterToast";
 import { PresenterAutoStart } from "@/components/slides/controls/PresenterAutoStart";
 import { PresenterFallbackLink } from "@/components/slides/controls/PresenterFallbackLink";
-import { PresenterTopBar } from "@/components/slides/controls/PresenterTopBar";
 import { SlideNumberBadge } from "@/components/slides/controls/SlideNumberBadge";
 import { RenderSlide } from "@/components/slides/RenderSlide";
 import { CameraStage } from "@/components/slides/CameraStage";
@@ -168,6 +161,7 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
       const targetUsesNativeActivation = Boolean(target?.closest("button,a,select,[role='button'],[role='menuitem'],[role='slider']"));
       if (targetUsesNativeActivation && (e.key === "Enter" || e.key === " " || e.code === "Space" || e.key === "Spacebar")) return;
       if (settingsOpen || paletteOpen || lintOpen || helpOpen) return;
+      if (isHiddenPresenterChromeShortcut(e)) return;
       if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === "l") {
         e.preventDefault(); setLintOpen((o) => !o); return;
       }
@@ -419,4 +413,14 @@ function getRouteSlideId(pathname: string) {
 
 function getNavigationKeyId(event: KeyboardEvent) {
   return event.code || event.key;
+}
+
+function isHiddenPresenterChromeShortcut(event: KeyboardEvent) {
+  if (event.metaKey || event.ctrlKey || event.altKey) return false;
+  const key = event.key.toLowerCase();
+  if (["j", "c", "m", "s", "t", "q", "p", "n"].includes(key)) {
+    event.preventDefault();
+    return true;
+  }
+  return false;
 }
