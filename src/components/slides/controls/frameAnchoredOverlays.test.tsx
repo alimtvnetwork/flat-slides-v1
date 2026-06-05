@@ -1,11 +1,15 @@
-import { act, render } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { act, cleanup, render } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { useAudience } from "../audience-store";
 import type { Slide } from "../types";
 import { PollResultsOverlay } from "./PollResultsOverlay";
 import { QrOverlay } from "./QrOverlay";
 import { SharePill } from "./SharePill";
+
+vi.mock("qrcode", () => ({
+  default: { toDataURL: vi.fn(() => new Promise<string>(() => {})) },
+}));
 
 const pollSlide = {
   id: "poll-1",
@@ -17,7 +21,10 @@ const pollSlide = {
 
 describe("presenter frame anchored overlays", () => {
   afterEach(() => {
-    useAudience.setState({ resultsVisible: false, qrVisible: false });
+    cleanup();
+    act(() => {
+      useAudience.setState({ resultsVisible: false, qrVisible: false, polls: {} });
+    });
   });
 
   it("anchors the share pill to the slide frame top-right, not the viewport", () => {
