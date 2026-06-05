@@ -64,6 +64,7 @@ export function ControllerPill(props: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const { isExpanded, handleEnter, handleLeave } = useHoverReveal(containerRef);
 
+  useEffect(() => setMounted(true), []);
   useEffect(() => {
     if (typeof document === "undefined") return;
     requestAnimationFrame(() => {
@@ -80,11 +81,17 @@ export function ControllerPill(props: Props) {
 
   const node = (
     <div
+      ref={containerRef}
       data-print-hide="true"
       role="toolbar"
       aria-label="Slide controller"
+      data-collapsed={!isExpanded}
       style={{ position: "fixed", zIndex: "var(--z-controller)" as unknown as number, ...anchorStyles(anchor) }}
       className="select-none"
+      onMouseEnter={handleEnter}
+      onMouseLeave={handleLeave}
+      onFocus={handleEnter}
+      onBlur={handleLeave}
       onContextMenu={(e) => {
         e.preventDefault();
         cycleAnchor();
