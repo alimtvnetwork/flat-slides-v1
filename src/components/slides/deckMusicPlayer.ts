@@ -8,7 +8,7 @@ let audio: HTMLAudioElement | null = null;
 let audioUrl: string | null = null;
 
 export function configureDeckMusic(music: DeckMusic | undefined, volume: number): void {
-  if (!music?.url) return stopDeckMusic();
+  if (!music?.url) return clearDeckMusic();
   const el = getDeckMusicAudio(music.url);
   el.loop = music.loop ?? DEFAULT_LOOP;
   el.volume = clampVolume(volume);
@@ -34,6 +34,10 @@ export function hasConfiguredDeckMusic(): boolean {
 }
 
 export function resetDeckMusicPlayerForTest(): void {
+  clearDeckMusic();
+}
+
+function clearDeckMusic(): void {
   stopDeckMusic();
   audio = null;
   audioUrl = null;
