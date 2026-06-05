@@ -34,7 +34,7 @@ import { SlideTransition } from "@/components/slides/SlideTransition";
 import { getDisplayNumber, slideStepCount } from "@/components/slides/types";
 import { useFullscreen } from "@/components/slides/useFullscreen";
 import { emitSlidesEvent, installConsoleSink } from "@/components/slides/telemetry";
-import { useSlideNavigation } from "@/components/slides/useSlideNavigation";
+import { SLIDES_FULLSCREEN_URL_CHANGE_EVENT, useSlideNavigation } from "@/components/slides/useSlideNavigation";
 import { PresenterTools } from "@/components/slides/PresenterTools";
 
 const CommandPalette = lazy(() =>
@@ -47,20 +47,23 @@ const SettingsDrawer = lazy(() =>
   import("@/components/slides/SettingsDrawer").then((m) => ({ default: m.SettingsDrawer })),
 );
 
-const SLIDE_NAVIGATION_COOLDOWN_MS = 950;
+const SLIDE_NAVIGATION_COOLDOWN_MS = 150;
 
 export function SlidePresenterPage({ slideId }: { slideId: string }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const [fullscreenPathname, setFullscreenPathname] = useState<string | null>(null);
   const lastNavigationAtRef = useRef(0);
   const deck = useDeck((s) => s.deck);
   const allSlides = deck.slides;
   const { linearSlides, total, next, prev, jump, goTo } = useSlideNavigation();
-  const index = Math.max(0, (parseInt(slideId, 10) || 0) - 1);
+  const effectivePathname = fullscreenPathname ?? location.pathname;
+  const effectiveSlideId = getRouteSlideId(effectivePathname) ?? slideId;
+  const index = Math.max(0, (parseInt(effectiveSlideId, 10) || 0) - 1);
   const slide = index >= 0 && index < linearSlides.length ? linearSlides[index] : undefined;
   const current = index + 1;
   const stepCount = slide ? slideStepCount(slide) : 0;
-  const routeStep = getRouteStep(location.pathname);
+  const routeStep = getRouteStep(effectivePathname);
   const isStepRoute = routeStep !== null && stepCount > 0;
   const requestedStep = routeStep ?? 1;
   const stepNum = Math.max(0, Math.min(requestedStep - 1, Math.max(0, stepCount - 1)));
@@ -106,6 +109,33 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
   }, [scene]);
 
   useEffect(() => installConsoleSink(), []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const syncFullscreenPath = () => {
+      if (document.fullscreenElement) {
+        setFullscreenPathname(window.location.pathname);
+        return;
+      }
+      setFullscreenPathname(null);
+      if (location.pathname === window.location.pathname) return;
+      const slideId = getRouteSlideId(window.location.pathname);
+      if (!slideId) return;
+      const step = getRouteStep(window.location.pathname);
+      if (step && step > 1) {
+        void navigate({ to: "/slides/$slideId/$step", params: { slideId, step: String(step) }, search: location.search as never, replace: true });
+      } else {
+        void navigate({ to: "/slides/$slideId", params: { slideId }, search: location.search as never, replace: true });
+      }
+    };
+    syncFullscreenPath();
+    window.addEventListener(SLIDES_FULLSCREEN_URL_CHANGE_EVENT, syncFullscreenPath);
+    document.addEventListener("fullscreenchange", syncFullscreenPath);
+    return () => {
+      window.removeEventListener(SLIDES_FULLSCREEN_URL_CHANGE_EVENT, syncFullscreenPath);
+      document.removeEventListener("fullscreenchange", syncFullscreenPath);
+    };
+  }, [location.pathname, location.search, navigate]);
 
   useEffect(() => {
     if (!slide) return;
@@ -322,4 +352,9 @@ function getRouteStep(pathname: string) {
   if (!match) return null;
   const step = parseInt(match[1], 10);
   return Number.isFinite(step) ? step : null;
+}
+
+function getRouteSlideId(pathname: string) {
+  const match = pathname.match(/^\/slides\/(\d+)(?:\/\d+)?(?:\/)?$/);
+  return match?.[1] ?? null;
 }
