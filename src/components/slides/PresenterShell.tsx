@@ -1,21 +1,33 @@
-import { useRef, type ReactNode } from "react";
+import { useRef, type CSSProperties, type ReactNode } from "react";
 
 import { useCursorAutoHide } from "@/components/slides/useCursorAutoHide";
+import { useDeck } from "@/components/slides/store";
+import { DARK_PRESET_BG } from "@/components/slides/slideBackground";
 
 type Props = {
   isFullscreen: boolean;
   children: ReactNode;
 };
 
+function useShellBackground(): string {
+  const settings = useDeck((s) => s.deck.settings);
+  if (settings.backgroundMode === "dark") return DARK_PRESET_BG;
+  if (settings.backgroundColor) return settings.backgroundColor;
+  return DARK_PRESET_BG;
+}
+
 export function PresenterShell({ isFullscreen, children }: Props) {
   const rootRef = useRef<HTMLDivElement>(null);
   useCursorAutoHide(() => rootRef.current, isFullscreen);
+  const bg = useShellBackground();
+  const style = { ["--slide-bg" as string]: bg, backgroundColor: bg } as CSSProperties;
   return (
     <div
       ref={rootRef}
       data-slide-presenter-root
       data-fullscreen={isFullscreen ? "true" : "false"}
-      className="flex h-dvh w-full max-h-dvh max-w-[100vw] flex-col overflow-hidden overscroll-none bg-[color:var(--slide-bg)]"
+      style={style}
+      className="flex h-dvh w-full max-h-dvh max-w-[100vw] flex-col overflow-hidden overscroll-none"
     >
       {children}
     </div>
