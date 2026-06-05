@@ -60,7 +60,7 @@ describe("slide fullscreen target", () => {
     expect(getSlidesPortalRoot()).toBeNull();
   });
 
-  it("opens a top-level presenter window instead of iframe-scoped fullscreen when embedded", async () => {
+  it("tries native fullscreen before using the embedded presenter-window fallback", async () => {
     const stableRoot = document.createElement("div");
     stableRoot.setAttribute("data-slides-fullscreen-root", "");
     document.body.append(stableRoot);
@@ -73,12 +73,33 @@ describe("slide fullscreen target", () => {
       openPresenterWindow,
     });
 
-    expect(result).toEqual({ ok: true, mode: "presenter-window" });
-    expect(openPresenterWindow).toHaveBeenCalledOnce();
-    expect(stableRequest).not.toHaveBeenCalled();
+    expect(result).toEqual({ ok: true, mode: "native" });
+    expect(stableRequest).toHaveBeenCalledOnce();
+    expect(openPresenterWindow).not.toHaveBeenCalled();
   });
 
-  it("reports blocked presenter-window fallback when embedded popups are blocked", async () => {
+  it("uses the embedded presenter-window fallback only after native fullscreen fails", async () => {
+    const stableRoot = document.createElement("div");
+    stableRoot.setAttribute("data-slides-fullscreen-root", "");
+    document.body.append(stableRoot);
+    const openPresenterWindow = vi.fn(() => ({ focus: vi.fn() }) as unknown as Window);
+    Object.defineProperty(stableRoot, "requestFullscreen", { value: vi.fn().mockRejectedValue(new Error("denied")) });
+
+    const result = await enterFullscreen(stableRoot, {
+      isEmbeddedWindow: () => true,
+      openPresenterWindow,
+    });
+
+    expect(result).toEqual({ ok: true, mode: "presenter-window" });
+    expect(openPresenterWindow).toHaveBeenCalledOnce();
+  });
+
+  it("reports blocked presenter-window fallback when native fullscreen fails and embedded popups are blocked", async () => {
+    const stableRoot = document.createElement("div");
+    stableRoot.setAttribute("data-slides-fullscreen-root", "");
+    document.body.append(stableRoot);
+    Object.defineProperty(stableRoot, "requestFullscreen", { value: vi.fn().mockRejectedValue(new Error("denied")) });
+
     const result = await enterFullscreen(null, {
       isEmbeddedWindow: () => true,
       openPresenterWindow: () => null,
