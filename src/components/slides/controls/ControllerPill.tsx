@@ -124,13 +124,13 @@ export function ControllerPill(props: Props) {
           "backdrop-blur-md px-2 py-1 shadow-2xl",
         )}
       >
-        <PillButton onClick={onPrev} disabled={canPrev === undefined ? current <= 1 : !canPrev} ariaLabel="Previous slide">
+        <PillButton navAction="prev" onClick={onPrev} disabled={canPrev === undefined ? current <= 1 : !canPrev} ariaLabel="Previous slide">
               <ChevronLeft size={16} />
             </PillButton>
 
             <SlideIndicator current={current} total={total} onJump={onJump} />
 
-        <PillButton onClick={onNext} disabled={canNext === undefined ? current >= total : !canNext} ariaLabel="Next slide">
+        <PillButton navAction="next" onClick={onNext} disabled={canNext === undefined ? current >= total : !canNext} ariaLabel="Next slide">
               <ChevronRight size={16} />
             </PillButton>
 
@@ -183,18 +183,37 @@ function PillButton({
   disabled,
   ariaLabel,
   active,
+  navAction,
 }: {
   children: React.ReactNode;
   onClick: () => void;
   disabled?: boolean;
   ariaLabel: string;
   active?: boolean;
+  navAction?: "prev" | "next";
 }) {
   return (
     <button
       type="button"
+      data-slide-nav={navAction}
+      onKeyDown={(e) => {
+        if (!navAction) return;
+        if (e.key !== "Enter" && e.key !== " " && e.key !== "Spacebar") return;
+        e.preventDefault();
+        e.stopPropagation();
+        e.currentTarget.blur();
+        onClick();
+      }}
       onClick={(e) => {
         e.stopPropagation();
+        if (navAction) {
+          e.preventDefault();
+          const handledAt = Number(e.currentTarget.dataset.slideNavHandledAt ?? 0);
+          if (Date.now() - handledAt < 700) return;
+          e.currentTarget.blur();
+          onClick();
+          return;
+        }
         e.currentTarget.blur();
         onClick();
       }}
