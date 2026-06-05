@@ -2,17 +2,32 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 export type CameraAnchor = "top-left" | "top-right" | "bottom-left" | "bottom-right";
-export type CameraSize = "sm" | "md" | "lg";
+export type CameraSize = "S" | "M" | "L" | "XL";
 export type CameraShape = "circle" | "rect" | "squircle";
 export type Scene = "normal" | "cam-only" | "split" | "stage-fill";
+
+export const CAMERA_STAGE = { w: 1920, h: 1080 } as const;
+export const CAMERA_SIZE_STEPS: Record<CameraSize, { w: number; h: number }> = {
+  S: { w: 240, h: 135 },
+  M: { w: 320, h: 180 },
+  L: { w: 480, h: 270 },
+  XL: { w: 720, h: 405 },
+};
+export const CAMERA_FREE_MIN_W = 160;
+export const CAMERA_FREE_MAX_W = 960;
+const CAMERA_MARGIN = 32;
 
 export interface CameraState {
   visible: boolean;
   anchor: CameraAnchor;
+  /** 1920×1080 slide-stage coordinates for the camera's top-left corner. */
+  x: number;
+  y: number;
+  /** Legacy viewport offsets retained only for persisted-state migration/tests. */
   offsetX: number;
   offsetY: number;
   size: CameraSize;
-  /** When set, overrides the preset size (presenter-resized via corner handle). */
+  /** When set, overrides the preset width; height is always 16:9. */
   customSize: number | null;
   shape: CameraShape;
   mirror: boolean;
@@ -33,7 +48,7 @@ export interface MusicState {
   volume: number;
 }
 
-const SIZE_ORDER: CameraSize[] = ["sm", "md", "lg"];
+const SIZE_ORDER: CameraSize[] = ["S", "M", "L", "XL"];
 export const nextSize = (s: CameraSize): CameraSize =>
   SIZE_ORDER[(SIZE_ORDER.indexOf(s) + 1) % SIZE_ORDER.length];
 
@@ -49,12 +64,58 @@ const SHAPE_ORDER: CameraShape[] = ["circle", "squircle", "rect"];
 export const nextShape = (s: CameraShape): CameraShape =>
   SHAPE_ORDER[(SHAPE_ORDER.indexOf(s) + 1) % SHAPE_ORDER.length];
 
+export function cameraDimensions(camera: Pick<CameraState, "size" | "customSize">) {
+  const width = camera.customSize ?? CAMERA_SIZE_STEPS[camera.size].w;
+  const clampedWidth = Math.max(CAMERA_FREE_MIN_W, Math.min(CAMERA_FREE_MAX_W, Math.round(width)));
+  return { w: clampedWidth, h: Math.round(clampedWidth * 9 / 16) };
+}
+
+export function clampCameraPosition(pos: { x: number; y: number }, dims: { w: number; h: number }) {
+  return {
+    x: Math.max(0, Math.min(CAMERA_STAGE.w - dims.w, Math.round(pos.x))),
+    y: Math.max(0, Math.min(CAMERA_STAGE.h - dims.h, Math.round(pos.y))),
+  };
+}
+
+function anchoredCameraPosition(anchor: CameraAnchor, dims: { w: number; h: number }) {
+  if (anchor === "top-left") return { x: CAMERA_MARGIN, y: CAMERA_MARGIN };
+  if (anchor === "top-right") return { x: CAMERA_STAGE.w - dims.w - CAMERA_MARGIN, y: CAMERA_MARGIN };
+  if (anchor === "bottom-left") return { x: CAMERA_MARGIN, y: CAMERA_STAGE.h - dims.h - CAMERA_MARGIN };
+  return { x: CAMERA_STAGE.w - dims.w - CAMERA_MARGIN, y: CAMERA_STAGE.h - dims.h - CAMERA_MARGIN };
+}
+
+function normalizeCameraSize(value: unknown): CameraSize {
+  if (value === "S" || value === "M" || value === "L" || value === "XL") return value;
+  if (value === "sm") return "S";
+  if (value === "lg") return "L";
+  return "M";
+}
+
+function normalizeCamera(camera: Partial<CameraState>): CameraState {
+  const size = normalizeCameraSize(camera.size);
+  const customSize = typeof camera.customSize === "number"
+    ? Math.max(CAMERA_FREE_MIN_W, Math.min(CAMERA_FREE_MAX_W, Math.round(camera.customSize)))
+    : null;
+  const draft: CameraState = {
+    ...DEFAULT_CAMERA,
+    ...camera,
+    size,
+    customSize,
+  };
+  const fallback = anchoredCameraPosition(draft.anchor, cameraDimensions(draft));
+  const hasStagePos = typeof camera.x === "number" && typeof camera.y === "number";
+  const pos = clampCameraPosition(hasStagePos ? { x: camera.x!, y: camera.y! } : fallback, cameraDimensions(draft));
+  return { ...draft, ...pos };
+}
+
 const DEFAULT_CAMERA: CameraState = {
   visible: true,
   anchor: "bottom-right",
+  x: CAMERA_STAGE.w - CAMERA_SIZE_STEPS.M.w - CAMERA_MARGIN,
+  y: CAMERA_MARGIN,
   offsetX: 0,
   offsetY: 0,
-  size: "md",
+  size: "M",
   customSize: null,
   shape: "circle",
   mirror: true,
@@ -166,12 +227,22 @@ export const useChrome = create<ChromeStore>()(
         }),
       clearRecentJumps: () => set({ recentJumps: [] }),
       setRecentJumps: (jumps) => set({ recentJumps: jumps.slice(0, 8) }),
-      setCamera: (patch) => set((s) => ({ camera: { ...s.camera, ...patch } })),
+      setCamera: (patch) => set((s) => ({ camera: normalizeCamera({ ...s.camera, ...patch }) })),
       toggleCamera: () => set((s) => ({ camera: { ...s.camera, visible: !s.camera.visible } })),
-      cycleCameraSize: () => set((s) => ({ camera: { ...s.camera, size: nextSize(s.camera.size) } })),
-      cycleCameraAnchor: () => set((s) => ({ camera: { ...s.camera, anchor: nextAnchor(s.camera.anchor), offsetX: 0, offsetY: 0 } })),
+      cycleCameraSize: () => set((s) => {
+        const next = { ...s.camera, size: nextSize(s.camera.size), customSize: null };
+        return { camera: normalizeCamera({ ...next, ...clampCameraPosition({ x: next.x, y: next.y }, cameraDimensions(next)) }) };
+      }),
+      cycleCameraAnchor: () => set((s) => {
+        const anchor = nextAnchor(s.camera.anchor);
+        const next = { ...s.camera, anchor, offsetX: 0, offsetY: 0 };
+        return { camera: normalizeCamera({ ...next, ...anchoredCameraPosition(anchor, cameraDimensions(next)) }) };
+      }),
       cycleCameraShape: () => set((s) => ({ camera: { ...s.camera, shape: nextShape(s.camera.shape) } })),
-      setCameraCustomSize: (px) => set((s) => ({ camera: { ...s.camera, customSize: px } })),
+      setCameraCustomSize: (px) => set((s) => {
+        const next = { ...s.camera, customSize: px };
+        return { camera: normalizeCamera({ ...next, ...clampCameraPosition({ x: next.x, y: next.y }, cameraDimensions(next)) }) };
+      }),
       setMusic: (patch) => set((s) => ({ music: { ...s.music, ...patch } })),
       toggleMusic: () => set((s) => ({ music: { ...s.music, playing: !s.music.playing } })),
       setScene: (scene) => set({ scene, toast: { text: `Scene: ${scene}`, ts: Date.now() } }),
@@ -204,7 +275,7 @@ export const useChrome = create<ChromeStore>()(
         return {
           ...current,
           ...state,
-          camera: { ...DEFAULT_CAMERA, ...(state?.camera ?? current.camera), visible: state?.camera?.visible ?? DEFAULT_CAMERA.visible },
+          camera: normalizeCamera({ ...(state?.camera ?? current.camera), visible: state?.camera?.visible ?? DEFAULT_CAMERA.visible }),
           music: { ...current.music, ...(state?.music ?? current.music), playing: false },
         };
       },

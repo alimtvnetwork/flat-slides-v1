@@ -1,6 +1,9 @@
 import { beforeEach, describe, expect, it } from "vitest";
 
 import {
+  CAMERA_SIZE_STEPS,
+  cameraDimensions,
+  clampCameraPosition,
   nextAnchor,
   nextScene,
   nextShape,
@@ -14,16 +17,17 @@ beforeEach(() => {
   // Restore the initial store snapshot so each test starts clean.
   useChrome.setState({
     ...RESET,
-    camera: { ...RESET.camera, visible: false, offsetX: 0, offsetY: 0, customSize: null, size: "md", anchor: "bottom-right", shape: "circle", mirror: true, greenScreen: false },
+    camera: { ...RESET.camera, visible: false, offsetX: 0, offsetY: 0, customSize: null, size: "M", anchor: "bottom-right", shape: "circle", mirror: true, greenScreen: false },
     scene: "normal",
   });
 });
 
 describe("camera cycle helpers", () => {
-  it("nextSize cycles sm → md → lg → sm", () => {
-    expect(nextSize("sm")).toBe("md");
-    expect(nextSize("md")).toBe("lg");
-    expect(nextSize("lg")).toBe("sm");
+  it("nextSize cycles S → M → L → XL → S", () => {
+    expect(nextSize("S")).toBe("M");
+    expect(nextSize("M")).toBe("L");
+    expect(nextSize("L")).toBe("XL");
+    expect(nextSize("XL")).toBe("S");
   });
 
   it("nextAnchor cycles through 4 corners", () => {
@@ -70,6 +74,13 @@ describe("chrome-store camera reducers", () => {
     expect(useChrome.getState().camera.customSize).toBe(320);
     useChrome.getState().setCameraCustomSize(null);
     expect(useChrome.getState().camera.customSize).toBe(null);
+  });
+
+  it("uses 16:9 stepped camera sizes and clamps free stage geometry", () => {
+    expect(CAMERA_SIZE_STEPS).toMatchObject({ S: { w: 240, h: 135 }, XL: { w: 720, h: 405 } });
+    expect(cameraDimensions({ size: "M", customSize: null })).toEqual({ w: 320, h: 180 });
+    expect(cameraDimensions({ size: "M", customSize: 9999 })).toEqual({ w: 960, h: 540 });
+    expect(clampCameraPosition({ x: 3000, y: -20 }, { w: 320, h: 180 })).toEqual({ x: 1600, y: 0 });
   });
 
   it("cycleCameraShape advances the shape", () => {

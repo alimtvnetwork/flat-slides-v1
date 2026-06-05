@@ -6,7 +6,14 @@ import { createPortal } from "react-dom";
 import squircleMask from "@/assets/camera-2026/02-squircle-mask-black.png";
 import whitePlate from "@/assets/camera-2026/03-squircle-plate-white-shadow.png";
 import goldPlate from "@/assets/camera-2026/04-squircle-plate-gold-shadow.png";
-import { useChrome, type CameraShape } from "@/components/slides/chrome-store";
+import {
+  CAMERA_FREE_MAX_W,
+  CAMERA_FREE_MIN_W,
+  cameraDimensions,
+  clampCameraPosition,
+  useChrome,
+  type CameraShape,
+} from "@/components/slides/chrome-store";
 import { getSlidesPortalRoot } from "@/components/slides/fullscreenTarget";
 import { useCamera } from "@/components/slides/useCamera";
 import { useFullscreen } from "@/components/slides/useFullscreen";
@@ -18,14 +25,24 @@ import { CameraPlate } from "./CameraPlate";
 
 const CAMERA_BUTTON_CLASS = "flex h-6 w-6 items-center justify-center rounded-full bg-black/85 text-white shadow-md ring-1 ring-white/35 hover:bg-black hover:ring-white";
 
-// "split" blows the bubble up next to the slide; "stage-fill" takes over the entire viewport.
-const SIZES = { sm: 144, md: 200, lg: 280 } as const;
-const SCENE_SCALE: Record<string, number> = { normal: 1, split: 1.6, "cam-only": 2.4, "stage-fill": 1 };
-const MIN_SIZE = 96;
-const MAX_SIZE = 720;
-const RECT_ASPECT = 16 / 9;
 const SQUIRCLE_RADIUS = "38% / 34%";
 const SHAPE_RADIUS = { circle: "9999px", squircle: SQUIRCLE_RADIUS, rect: "18px" } as const;
+
+function readStageScale() {
+  if (typeof document === "undefined") return 1;
+  const cssScale = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--stage-scale"));
+  if (Number.isFinite(cssScale) && cssScale > 0) return cssScale;
+  const stage = document.querySelector<HTMLElement>(".slide-wrapper");
+  const rect = stage?.getBoundingClientRect();
+  return rect && rect.width > 0 ? rect.width / 1920 : 1;
+}
+
+function readStageFrame() {
+  if (typeof document === "undefined") return { left: 0, top: 0, scale: 1 };
+  const stage = document.querySelector<HTMLElement>(".slide-wrapper");
+  const rect = stage?.getBoundingClientRect();
+  return rect && rect.width > 0 ? { left: rect.left, top: rect.top, scale: rect.width / 1920 } : { left: 0, top: 0, scale: readStageScale() };
+}
 
 function ShapeIcon({ shape }: { shape: CameraShape }) {
   if (shape === "circle") return <Circle size={12} />;
@@ -46,24 +63,42 @@ export function CameraBubble() {
   const cycleAnchor = useChrome((s) => s.cycleCameraAnchor);
   const cycleShape = useChrome((s) => s.cycleCameraShape);
   const setCameraCustomSize = useChrome((s) => s.setCameraCustomSize);
-  const { status, errorMessage, start, stop, attach, togglePiP } = useCamera();
+  const { status, errorMessage, start, hide, close, attach, togglePiP } = useCamera();
   const { isFs } = useFullscreen();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const shapeFrameRef = useRef<HTMLDivElement | null>(null);
   const firstShapeRef = useRef(true);
   const dragState = useRef<{ x: number; y: number; ox: number; oy: number } | null>(null);
-  const resizeState = useRef<{ x: number; y: number; size: number } | null>(null);
+  const resizeState = useRef<{ x: number; y: number; width: number; baseX: number; baseY: number } | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [stageFrame, setStageFrame] = useState(() => readStageFrame());
   const reducedMotion = useReducedMotion();
   const autoFrame = useAutoFrame(videoRef, camera.visible && camera.autoFrame && status === "active");
 
   useEffect(() => setMounted(true), []);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const update = () => setStageFrame(readStageFrame());
+    update();
+    const frame = requestAnimationFrame(update);
+    const ro = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(update);
+    const stage = document.querySelector<HTMLElement>(".slide-wrapper");
+    if (stage) ro?.observe(stage);
+    window.addEventListener("resize", update);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("resize", update);
+      ro?.disconnect();
+    };
+  }, []);
+
   // Auto-start whenever the bubble is opened from chrome state.
   useEffect(() => {
-    if (camera.visible && status === "idle") void start();
-    if (!camera.visible && (status === "active" || status === "requesting")) stop();
-  }, [camera.visible, status, start, stop]);
+    if (camera.visible && (status === "idle" || status === "tray")) void start();
+    if (!camera.visible && status === "active") hide();
+    if (!camera.visible && status === "requesting") close();
+  }, [camera.visible, status, start, hide, close]);
 
   // Camera keyboard shortcuts (active only when bubble is visible).
   // - Shift+Arrow: nudge by 16px
@@ -77,20 +112,21 @@ export function CameraBubble() {
       if (tag === "INPUT" || tag === "TEXTAREA" || (e.target as HTMLElement)?.isContentEditable) return;
       if (e.shiftKey) {
         const step = 16;
-        if (e.key === "ArrowLeft")  { e.preventDefault(); setCamera({ offsetX: camera.offsetX - step }); return; }
-        if (e.key === "ArrowRight") { e.preventDefault(); setCamera({ offsetX: camera.offsetX + step }); return; }
-        if (e.key === "ArrowUp")    { e.preventDefault(); setCamera({ offsetY: camera.offsetY - step }); return; }
-        if (e.key === "ArrowDown")  { e.preventDefault(); setCamera({ offsetY: camera.offsetY + step }); return; }
+        const dims = cameraDimensions(camera);
+        if (e.key === "ArrowLeft")  { e.preventDefault(); setCamera(clampCameraPosition({ x: camera.x - step, y: camera.y }, dims)); return; }
+        if (e.key === "ArrowRight") { e.preventDefault(); setCamera(clampCameraPosition({ x: camera.x + step, y: camera.y }, dims)); return; }
+        if (e.key === "ArrowUp")    { e.preventDefault(); setCamera(clampCameraPosition({ x: camera.x, y: camera.y - step }, dims)); return; }
+        if (e.key === "ArrowDown")  { e.preventDefault(); setCamera(clampCameraPosition({ x: camera.x, y: camera.y + step }, dims)); return; }
       }
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (e.key === "+" || e.key === "=") {
         e.preventDefault();
-        const base = camera.customSize ?? SIZES[camera.size];
-        setCameraCustomSize(Math.min(MAX_SIZE, base + 32));
+        cycleSize();
       } else if (e.key === "-" || e.key === "_") {
         e.preventDefault();
-        const base = camera.customSize ?? SIZES[camera.size];
-        setCameraCustomSize(Math.max(MIN_SIZE, base - 32));
+        const order = ["S", "M", "L", "XL"] as const;
+        const idx = Math.max(0, order.indexOf(camera.size));
+        setCamera({ size: order[(idx + order.length - 1) % order.length], customSize: null });
       } else if (e.key === "m" || e.key === "M") {
         e.preventDefault();
         setCamera({ mirror: !camera.mirror });
@@ -104,7 +140,7 @@ export function CameraBubble() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [camera.visible, camera.offsetX, camera.offsetY, camera.mirror, camera.greenScreen, camera.customSize, camera.size, setCamera, setCameraCustomSize, cycleShape]);
+  }, [camera, setCamera, cycleSize, cycleShape]);
 
   // Respect "show only in fullscreen" preference.
   // External `P` shortcut dispatched from route handler.
@@ -137,12 +173,9 @@ export function CameraBubble() {
   if (camera.fullscreenOnly && !isFs) return null;
 
   const stageFill = scene === "stage-fill";
-  const scale = SCENE_SCALE[scene] ?? 1;
-  const baseSize = camera.customSize ?? SIZES[camera.size];
-  const size = Math.max(MIN_SIZE, Math.min(MAX_SIZE, Math.round(baseSize * scale)));
-  const shapeAspect = camera.shape === "circle" ? 1 : camera.shape === "squircle" ? 772 / 480 : RECT_ASPECT;
-  const visualWidth = Math.round(size * shapeAspect);
-  const visualHeight = size;
+  const dims = cameraDimensions(camera);
+  const visualWidth = stageFill ? 1920 : Math.round(dims.w * stageFrame.scale);
+  const visualHeight = stageFill ? 1080 : Math.round(dims.h * stageFrame.scale);
   const radius = stageFill ? "0px" : SHAPE_RADIUS[camera.shape];
   const platePad = Math.round(Math.min(visualWidth, visualHeight) * 0.07);
   const showPlate = !stageFill && camera.shape === "squircle";
@@ -167,29 +200,21 @@ export function CameraBubble() {
   };
   const anchorStyle: React.CSSProperties = stageFill
     ? { top: 0, left: 0, right: 0, bottom: 0 }
-    : (() => {
-        const margin = 20;
-        switch (camera.anchor) {
-          case "top-left":     return { top: margin + camera.offsetY, left: margin + camera.offsetX };
-          case "top-right":    return { top: margin + camera.offsetY, right: margin - camera.offsetX };
-          case "bottom-left":  return { bottom: margin - camera.offsetY, left: margin + camera.offsetX };
-          case "bottom-right":
-          default:             return { bottom: margin - camera.offsetY, right: margin - camera.offsetX };
-        }
-      })();
+    : { left: stageFrame.left + camera.x * stageFrame.scale, top: stageFrame.top + camera.y * stageFrame.scale };
 
   function onPointerDown(e: React.PointerEvent) {
     if ((e.target as HTMLElement).closest("[data-camera-control]")) return;
     if ((e.target as HTMLElement).closest("[data-resize-handle]")) return;
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-    dragState.current = { x: e.clientX, y: e.clientY, ox: camera.offsetX, oy: camera.offsetY };
+    dragState.current = { x: e.clientX, y: e.clientY, ox: camera.x, oy: camera.y };
   }
   function onPointerMove(e: React.PointerEvent) {
     const d = dragState.current;
     if (!d) return;
-    const dx = e.clientX - d.x;
-    const dy = e.clientY - d.y;
-    setCamera({ offsetX: d.ox + dx, offsetY: d.oy + dy });
+    const scale = readStageScale();
+    const dx = (e.clientX - d.x) / scale;
+    const dy = (e.clientY - d.y) / scale;
+    setCamera(clampCameraPosition({ x: d.ox + dx, y: d.oy + dy }, dims));
   }
   function onPointerUp(e: React.PointerEvent) {
     (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
@@ -215,22 +240,24 @@ export function CameraBubble() {
   function onResizeDown(e: React.PointerEvent) {
     e.stopPropagation();
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-    resizeState.current = { x: e.clientX, y: e.clientY, size };
+    resizeState.current = { x: e.clientX, y: e.clientY, width: dims.w, baseX: camera.x, baseY: camera.y };
   }
   function onResizeMove(e: React.PointerEvent) {
     const r = resizeState.current;
     if (!r) return;
     // Distance from start, signed so the handle "pulls" outward away from the anchor.
-    const dx = e.clientX - r.x;
-    const dy = e.clientY - r.y;
+    const scale = readStageScale();
+    const dx = (e.clientX - r.x) / scale;
+    const dy = (e.clientY - r.y) / scale;
     const sign =
       resizeCorner === "br" ? 1
       : resizeCorner === "tl" ? -1
       : resizeCorner === "bl" ? Math.sign(-dx + dy) || 1
       : Math.sign(dx + -dy) || 1;
     const delta = sign * Math.max(Math.abs(dx), Math.abs(dy));
-    const nextRaw = Math.round((r.size + delta) / scale);
-    const next = Math.max(MIN_SIZE, Math.min(MAX_SIZE, nextRaw));
+    const next = Math.max(CAMERA_FREE_MIN_W, Math.min(CAMERA_FREE_MAX_W, Math.round(r.width + delta)));
+    const nextDims = { w: next, h: Math.round(next * 9 / 16) };
+    setCamera(clampCameraPosition({ x: r.baseX, y: r.baseY }, nextDims));
     setCameraCustomSize(next);
   }
   function onResizeUp(e: React.PointerEvent) {
@@ -430,9 +457,9 @@ export function CameraBubble() {
         <button
           data-camera-control
           type="button"
-          title="Hide"
-          aria-label="Hide camera"
-          onClick={() => setCamera({ visible: false })}
+          title="Close camera"
+          aria-label="Close camera"
+          onClick={() => { close(); setCamera({ visible: false }); }}
           className={CAMERA_BUTTON_CLASS}
         >
           <X size={12} />
@@ -444,9 +471,9 @@ export function CameraBubble() {
           data-resize-handle
           role="slider"
           aria-label="Resize camera"
-          aria-valuemin={MIN_SIZE}
-          aria-valuemax={MAX_SIZE}
-          aria-valuenow={size}
+          aria-valuemin={CAMERA_FREE_MIN_W}
+          aria-valuemax={CAMERA_FREE_MAX_W}
+          aria-valuenow={dims.w}
           title="Drag to resize · double-click to reset"
           onPointerDown={onResizeDown}
           onPointerMove={onResizeMove}
