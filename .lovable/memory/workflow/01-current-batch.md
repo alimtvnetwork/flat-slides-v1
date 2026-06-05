@@ -5,7 +5,7 @@
 - B17 — 9 advanced lint rules + CLI `--json`
 - B18 (partial 6/10) — audio overhaul, `.hl` text-shadow, step clicks, LintPanel severity filter + group-by-slide, glob CLI, music-url-not-https + music-volume-out-of-range
 - B19 / B19A — settings/fullscreen/camera repair + theme contrast + export-zip + CI + per-slide `sound` schema + LintPanel Copy-as-JSON
-- **B21 (steps 1–28)** — Fullscreen, Settings, Music, Controller hardening. See `.lovable/memory/diagnostics/02-fullscreen-and-settings-rca.md` and `features/01-presenter-controller-pill.md`.
+- **B21 (steps 1–30)** — Fullscreen, Settings, Music, Controller hardening. See `.lovable/memory/diagnostics/02-fullscreen-and-settings-rca.md` and `features/01-presenter-controller-pill.md`.
 
 ## B21 highlights
 - PresenterShell hoisted into `slides.$slideId.tsx` (survives route-param nav).
