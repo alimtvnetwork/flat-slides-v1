@@ -20,7 +20,11 @@ export function PresenterInspectorView({
         className="grid h-dvh min-h-0 gap-4 bg-background p-4 text-foreground md:grid-cols-[minmax(0,3fr)_minmax(320px,2fr)] md:grid-rows-[minmax(0,1fr)_minmax(180px,24dvh)]"
         style={inspectorMotionStyle(isReducedMotion)}
       >
-        <SlidePanel label={`Current slide: ${model.slide.title}`} slide={model.slide} stepIndex={model.stepIndex} />
+        <SlidePanel
+          label={`Current slide: ${model.slide.title}`}
+          slide={model.slide}
+          stepIndex={model.stepIndex}
+        />
         <SlidePanel label={nextSlideLabel(model.nextSlide)} slide={model.nextSlide} stepIndex={0} />
         <NotesPanel notes={model.notes} title={model.slide.title} />
         <InspectorFooter model={model} />
@@ -42,9 +46,20 @@ export function MissingSlide({ slideId }: { slideId: string }) {
   );
 }
 
-function SlidePanel({ label, slide, stepIndex }: { label: string; slide?: Slide; stepIndex: number }) {
+function SlidePanel({
+  label,
+  slide,
+  stepIndex,
+}: {
+  label: string;
+  slide?: Slide;
+  stepIndex: number;
+}) {
   return (
-    <section aria-label={label} className="relative min-h-0 overflow-hidden rounded-md border border-border bg-card">
+    <section
+      aria-label={label}
+      className="relative min-h-0 overflow-hidden rounded-md border border-border bg-card"
+    >
       {slide ? <RenderedSlide slide={slide} stepIndex={stepIndex} /> : <EmptyNextSlide />}
     </section>
   );
@@ -59,12 +74,17 @@ function RenderedSlide({ slide, stepIndex }: { slide: Slide; stepIndex: number }
 }
 
 function EmptyNextSlide() {
-  return <p className="grid h-full place-items-center text-sm text-muted-foreground">End of deck</p>;
+  return (
+    <p className="grid h-full place-items-center text-sm text-muted-foreground">End of deck</p>
+  );
 }
 
 function NotesPanel({ notes, title }: { notes: string; title: string }) {
   return (
-    <section aria-label="Speaker notes" className="min-h-0 overflow-y-auto rounded-md border border-border bg-card p-4">
+    <section
+      aria-label="Speaker notes"
+      className="min-h-0 overflow-y-auto rounded-md border border-border bg-card p-4"
+    >
       <h1 className="text-base font-semibold text-card-foreground">{title}</h1>
       <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-muted-foreground">
         {notes || "No speaker notes for this slide."}
