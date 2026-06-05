@@ -32,6 +32,10 @@ describe("ScaledSlide", () => {
       expect(document.documentElement.style.getPropertyValue("--stage-scale")).toBe(String(1024 / 1920));
     });
     expect(document.documentElement.style.getPropertyValue("--presenter-frame-bottom")).toBe("96px");
+    expect(document.documentElement.style.getPropertyValue("--presenter-frame-width")).toBe("1024px");
+    expect(document.documentElement.style.getPropertyValue("--presenter-frame-height")).toBe("576px");
+    expect(document.documentElement.style.getPropertyValue("--presenter-frame-center-x")).toBe("512px");
+    expect(document.documentElement.style.getPropertyValue("--presenter-frame-center-y")).toBe("288px");
   });
 });
 
