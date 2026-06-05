@@ -35,6 +35,7 @@ export function resolveSlideBgVariable(background: ResolvedSlideBackground): str
 }
 
 export function resolveSlideBackground(slide: Slide, settings: BackgroundSettings): ResolvedSlideBackground {
+  if (settings.backgroundMode === "dark") return colorOverride(DARK_PRESET_BG);
   if (settings.backgroundMode === "color" && settings.backgroundColor) return colorOverride(settings.backgroundColor);
   if (settings.backgroundMode === "image") return resolveImageMode(slide.background, settings);
   return resolveAuthoredBackground(slide.background);
