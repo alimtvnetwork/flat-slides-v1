@@ -5,6 +5,13 @@ import { Rich } from "./Rich";
 import { SlideLayout } from "./SlideLayout";
 import { CodeJourneyDecor, shouldAutoEnableCodeDecor } from "./decor/CodeJourneyDecor";
 import { getRegisteredSlideType } from "./registry";
+import {
+  clampBackgroundBlurPx,
+  clampDarkenPercent,
+  resolveBackgroundLayerStyle,
+  resolveSlideBackground,
+  resolveSlideBgVariable,
+} from "./slideBackground";
 import { getTheme, themeStyle } from "./themes";
 import { useDeck } from "./store";
 import { useReducedMotion } from "./useReducedMotion";
@@ -42,54 +49,20 @@ function positionStyle(pos: TextPosition | undefined, padding = 120): CSSPropert
   };
 }
 
-/**
- * Resolve the final background for a slide:
- *   per-slide `slide.background` > deck `settings` (image|color) > theme.
- * Returns either a CSS color OR an image URL (or neither → theme fallback).
- */
-function resolveBackground(
-  slide: Slide,
-  settings: { backgroundMode: "color" | "image"; backgroundColor: string; backgroundImage?: string },
-): { color?: string; image?: string } {
-  const sb = slide.background;
-  if (sb) {
-    if (sb.startsWith("url(")) return { image: sb.slice(4, -1).replace(/^['"]|['"]$/g, "") };
-    if (sb.includes("://") || sb.startsWith("/") || /\.(png|jpe?g|webp|gif|svg)($|\?)/i.test(sb)) return { image: sb };
-    return { color: sb };
-  }
-  if (settings.backgroundMode === "image") {
-    if (settings.backgroundImage) return { image: settings.backgroundImage };
-    if (settings.backgroundColor) return { color: settings.backgroundColor };
-  }
-  if (settings.backgroundMode === "color" && settings.backgroundColor) return { color: settings.backgroundColor };
-  return {};
-}
-
 function ThemeWrap({ slide, children }: { slide: Slide; children: React.ReactNode }) {
   const deckThemeId = useDeck((s) => s.deck.themeId);
   const settings = useDeck((s) => s.deck.settings);
   const theme = getTheme(slide.themeId ?? deckThemeId);
   const style: React.CSSProperties = { ...themeStyle(theme), position: "absolute", inset: 0 };
-  const { color, image } = resolveBackground(slide, settings);
-  // Make slide-content transparent so the unified background layer below shows through.
-  (style as Record<string, string>)["--slide-bg"] = "transparent";
-  const darken = Math.max(0, Math.min(100, settings.darken ?? 0));
-  const blur = Math.max(0, Math.min(20, settings.blur ?? 0));
-  const themeBg = (theme as { bg?: string }).bg ?? "oklch(0.16 0 0)";
-  const bgStyle: React.CSSProperties = image
-    ? {
-        backgroundImage: `url(${image})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        filter: blur > 0 ? `blur(${blur}px)` : undefined,
-      }
-    : {
-        background: color ?? themeBg,
-        filter: blur > 0 ? `blur(${blur}px)` : undefined,
-      };
+  const background = resolveSlideBackground(slide, settings);
+  const darken = clampDarkenPercent(settings.darken);
+  const blur = clampBackgroundBlurPx(settings.blur);
+  (style as Record<string, string>)["--slide-bg"] = resolveSlideBgVariable(background);
+  (style as Record<string, string>)["--slide-content-bg"] = "transparent";
+  const bgStyle = resolveBackgroundLayerStyle(background, theme, blur);
   return (
     <div style={style}>
-      <div className="absolute inset-0" aria-hidden style={bgStyle} />
+      <div className="absolute inset-0" aria-hidden data-slide-bg-layer style={bgStyle} />
       {darken > 0 ? (
         <div
           className="absolute inset-0 pointer-events-none"
