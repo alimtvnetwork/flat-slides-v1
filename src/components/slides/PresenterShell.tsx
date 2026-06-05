@@ -19,7 +19,7 @@ export function PresenterShell({ isFullscreen, children }: Props) {
       className={cn(
         "flex overflow-hidden flex-col bg-[color:var(--slide-bg)]",
         "max-h-dvh max-w-[100vw] overscroll-none",
-        isFullscreen ? "fixed inset-0 z-[200] h-dvh w-screen" : "h-dvh w-full",
+        isFullscreen ? "fixed inset-0 z-[200] h-dvh w-full" : "h-dvh w-full",
       )}
     >
       {children}
