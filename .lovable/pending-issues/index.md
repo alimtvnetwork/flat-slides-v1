@@ -94,3 +94,4 @@
 - [x] Scoped inspector keymap: `ShortcutScope` + `INSPECTOR_KEY_ACTIONS` + `dispatchInspectorKey`; arrows/Space/Enter, R, P, Esc; parity test enforces drift (`presenterActions.test.ts`, `inspectorKeyboard.test.ts`).
 - [x] Memory card `mem://features/presenter-inspector` + index updated.
 - [ ] Manual cross-browser validation of inspector view (Chrome / Safari / Firefox, second-display use case) post-publish.
+- [x] Discoverability: presenter `I` shortcut opens `/slides/inspector/N` in a new window via `open-inspector` registry action (test: `presenterActions.test.ts`).
