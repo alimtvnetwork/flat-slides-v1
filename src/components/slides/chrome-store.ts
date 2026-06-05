@@ -286,7 +286,12 @@ export const useChrome = create<ChromeStore>()(
         set((s) => {
           const anchor = nextAnchor(s.camera.anchor);
           const next = { ...s.camera, anchor, offsetX: 0, offsetY: 0 };
-          return { camera: normalizeCamera({ ...next, ...anchoredCameraPosition(anchor, cameraDimensions(next)) }) };
+          return {
+            camera: normalizeCamera({
+              ...next,
+              ...anchoredCameraPosition(anchor, cameraDimensions(next)),
+            }),
+          };
         }),
       cycleCameraShape: () =>
         set((s) => ({ camera: { ...s.camera, shape: nextShape(s.camera.shape) } })),
@@ -320,10 +325,13 @@ export const useChrome = create<ChromeStore>()(
         }),
       resetInspectorTimer: (now) => {
         persistInspectorStartedAt(now);
-        set({ inspectorTimerStartedAt: now, inspectorTimerPausedAt: null, inspectorTimerPausedMs: 0 });
+        set({
+          inspectorTimerStartedAt: now,
+          inspectorTimerPausedAt: null,
+          inspectorTimerPausedMs: 0,
+        });
       },
-      toggleInspectorTimerPause: (now) =>
-        set((s) => resolveInspectorPausePatch(s, now)),
+      toggleInspectorTimerPause: (now) => set((s) => resolveInspectorPausePatch(s, now)),
     }),
     {
       name: "slides-chrome-v2",
@@ -363,10 +371,17 @@ function resolveInspectorPausePatch(state: ChromeStore, now: number): Partial<Ch
 
 function startInspectorTimerPatch(now: number): Partial<ChromeStore> {
   persistInspectorStartedAt(now);
-  return { inspectorTimerStartedAt: now, inspectorTimerPausedAt: null, inspectorTimerPausedMs: 0 };
+  return {
+    inspectorTimerStartedAt: now,
+    inspectorTimerPausedAt: null,
+    inspectorTimerPausedMs: 0,
+  };
 }
 
 function resumeInspectorTimerPatch(state: ChromeStore, now: number): Partial<ChromeStore> {
   const pausedDelta = Math.max(0, now - (state.inspectorTimerPausedAt ?? now));
-  return { inspectorTimerPausedAt: null, inspectorTimerPausedMs: state.inspectorTimerPausedMs + pausedDelta };
+  return {
+    inspectorTimerPausedAt: null,
+    inspectorTimerPausedMs: state.inspectorTimerPausedMs + pausedDelta,
+  };
 }

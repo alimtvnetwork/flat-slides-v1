@@ -2,11 +2,7 @@ import { Link } from "@tanstack/react-router";
 
 import { PresenterShell } from "./PresenterShell";
 import { InspectorFooter } from "./PresenterInspectorFooter";
-import {
-  CurrentSlidePanel,
-  NextSlidePanel,
-  NotesPanel,
-} from "./PresenterInspectorPanels";
+import { CurrentSlidePanel, NextSlidePanel, NotesPanel } from "./PresenterInspectorPanels";
 import type { PresenterInspectorModel } from "./presenterInspectorModel";
 import { useInspectorTimer } from "./useInspectorTimer";
 
