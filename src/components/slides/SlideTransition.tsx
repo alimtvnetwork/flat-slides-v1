@@ -67,7 +67,7 @@ export function SlideTransition({ transitionKey, transitionKind = "fade", slide,
 
   return (
     <div className="absolute inset-0 overflow-hidden">
-      <AnimatePresence mode="wait" initial={false}>
+      <AnimatePresence initial={false}>
         <motion.div
           key={transitionKey}
           variants={variants}
