@@ -21,8 +21,16 @@ const baseProps = {
 
 afterEach(() => cleanup());
 
+function createSlidesRoot() {
+  const root = document.createElement("div");
+  root.setAttribute("data-slides-fullscreen-root", "");
+  document.body.appendChild(root);
+  return root;
+}
+
 describe("ControllerPill mount audit (B21/step 22)", () => {
   it("renders exactly one toolbar with position:fixed", () => {
+    createSlidesRoot();
     render(<ControllerPill current={1} {...baseProps} />);
     const toolbars = document.querySelectorAll('[aria-label="Slide controller"]');
     expect(toolbars).toHaveLength(1);
@@ -30,6 +38,7 @@ describe("ControllerPill mount audit (B21/step 22)", () => {
   });
 
   it("does not multiply across slide/step prop changes (simulated /N ↔ /N/S)", () => {
+    createSlidesRoot();
     const { rerender } = render(<ControllerPill current={1} {...baseProps} />);
     rerender(<ControllerPill current={2} {...baseProps} />);
     rerender(<ControllerPill current={2} {...baseProps} canPrev={true} canNext={false} />);
@@ -37,9 +46,7 @@ describe("ControllerPill mount audit (B21/step 22)", () => {
   });
 
   it("portals into the slides fullscreen root when present", () => {
-    const root = document.createElement("div");
-    root.setAttribute("data-slides-fullscreen-root", "");
-    document.body.appendChild(root);
+    const root = createSlidesRoot();
     render(<ControllerPill current={1} {...baseProps} />);
     expect(root.querySelector('[aria-label="Slide controller"]')).not.toBeNull();
     root.remove();
