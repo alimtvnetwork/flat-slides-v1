@@ -56,3 +56,27 @@ export const SHORTCUTS: ShortcutDef[] = [
 export function matchesShortcut(event: KeyboardEvent, def: ShortcutDef): boolean {
   return def.keys.some((k) => k.toLowerCase() === event.key.toLowerCase());
 }
+
+/**
+ * camera-2026 task 10 — explicit camera shortcut catalogue.
+ *
+ * Reconciled with existing deck shortcuts above to avoid silent collisions:
+ *   - `m` (Music) and `f` (Focus regions) keep their current meanings.
+ *     Camera soft-hide / auto-frame use Alt-modified variants so both
+ *     features remain reachable from the keyboard.
+ *   - `1`–`5` are claimed by the ink-color picker only while an ink tool
+ *     is active; outside annotation mode, the camera handler may consume
+ *     `1` to enter stage-fill. The presenter dispatcher decides priority.
+ *
+ * The handler in `SlidePresenterPage` should iterate this list AFTER its
+ * input-guard check and AFTER ink/annotation tools have first refusal.
+ */
+export const CAMERA_SHORTCUTS: ShortcutDef[] = [
+  { display: "I",        keys: ["i"],                     label: "Show camera info / status", group: "Camera" },
+  { display: "Alt+M",    keys: [],                        label: "Soft-hide camera to tray",  group: "Camera" },
+  { display: "Alt+F",    keys: [],                        label: "Toggle camera auto-frame",  group: "Camera" },
+  { display: "H",        keys: ["h"],                     label: "Toggle camera halo",        group: "Camera" },
+  { display: "[",        keys: ["["],                     label: "Camera size step down",     group: "Camera" },
+  { display: "]",        keys: ["]"],                     label: "Camera size step up",       group: "Camera" },
+  { display: "1",        keys: ["1"],                     label: "Camera fill stage",         group: "Camera" },
+];

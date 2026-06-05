@@ -220,6 +220,22 @@ export interface PresenterWebcamCtx {
   setStepSize: (id: SizeStep) => void;
   /** Free 16:9 resize driven by width in stage px. */
   setFreeSize: (width: number) => void;
+
+  /** Task 8 — enter camera CSS fullscreen, snapshotting current phase/pos/size. */
+  enterFullscreen: () => void;
+  /** Task 8 — fill the slide stage rect (cover), snapshotting prior state. */
+  enterStage: () => void;
+  /** Task 8 — restore the snapshot taken by enterFullscreen/enterStage. Idempotent. */
+  restoreFromOverlay: () => void;
+  /** Task 9 — convenience: dispatch a `riseup:webcam-passthrough` next/prev event. */
+  emitPassthrough: (direction: "next" | "prev") => void;
+}
+
+/** Task 9 — event name for nav keys forwarded by the camera while fullscreen/stage owns focus. */
+export const WEBCAM_PASSTHROUGH_EVENT = "riseup:webcam-passthrough" as const;
+
+export interface WebcamPassthroughDetail {
+  direction: "next" | "prev";
 }
 
 const WebcamCtx = createContext<PresenterWebcamCtx | null>(null);
@@ -354,6 +370,56 @@ export function PresenterWebcamProvider({ children }: { children: ReactNode }) {
     [setState],
   );
 
+  // ─── Task 8: fullscreen / stage round-trip with exact restore ───
+  type OverlaySnapshot = {
+    phase: WebcamPhase;
+    position: { x: number; y: number };
+    sizeCfg: SizeConfig;
+  };
+  const snapshotRef = useRef<OverlaySnapshot | null>(null);
+
+  const enterOverlay = useCallback(
+    (target: "fullscreen" | "stage") => {
+      const current = stateRef.current;
+      // Only meaningful when a live stream exists; ignore silently otherwise so
+      // callers can wire a single shortcut without branching on phase.
+      if (!current.stream || current.phase === "off" || current.phase === "denied") return;
+      // First enter snapshots; a subsequent enter does NOT re-snapshot (so
+      // toggling fullscreen → stage and back still restores the original bubble).
+      if (!snapshotRef.current) {
+        snapshotRef.current = { phase: current.phase, position, sizeCfg };
+      }
+      setState({ phase: target, stream: current.stream, error: null });
+    },
+    [position, sizeCfg, setState],
+  );
+
+  const enterFullscreen = useCallback(() => enterOverlay("fullscreen"), [enterOverlay]);
+  const enterStage = useCallback(() => enterOverlay("stage"), [enterOverlay]);
+
+  const restoreFromOverlay = useCallback(() => {
+    const snap = snapshotRef.current;
+    snapshotRef.current = null;
+    setState((prev) => {
+      // Only restore from overlay phases — leave non-overlay states alone.
+      if (prev.phase !== "fullscreen" && prev.phase !== "stage") return prev;
+      const targetPhase: WebcamPhase = snap?.phase ?? "on";
+      return { phase: targetPhase, stream: prev.stream, error: null };
+    });
+    if (snap) {
+      // Restore geometry atomically with the phase change.
+      setPositionState(clampPos(snap.position, resolveSize(snap.sizeCfg)));
+      setSizeCfgState(snap.sizeCfg);
+    }
+  }, [setState]);
+
+  // ─── Task 9: nav passthrough for fullscreen / stage ───
+  const emitPassthrough = useCallback((direction: "next" | "prev") => {
+    if (typeof window === "undefined") return;
+    const detail: WebcamPassthroughDetail = { direction };
+    window.dispatchEvent(new CustomEvent(WEBCAM_PASSTHROUGH_EVENT, { detail }));
+  }, []);
+
   const value = useMemo<PresenterWebcamCtx>(
     () => ({
       state,
@@ -368,6 +434,10 @@ export function PresenterWebcamProvider({ children }: { children: ReactNode }) {
       stepSize,
       setStepSize,
       setFreeSize,
+      enterFullscreen,
+      enterStage,
+      restoreFromOverlay,
+      emitPassthrough,
     }),
     [
       state,
@@ -382,6 +452,10 @@ export function PresenterWebcamProvider({ children }: { children: ReactNode }) {
       stepSize,
       setStepSize,
       setFreeSize,
+      enterFullscreen,
+      enterStage,
+      restoreFromOverlay,
+      emitPassthrough,
     ],
   );
 

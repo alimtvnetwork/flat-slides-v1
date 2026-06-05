@@ -127,3 +127,60 @@ describe("usePresenterWebcam context actions (tasks 5–6)", () => {
     expect(result.current.sizeCfg).toEqual({ kind: "free", w: 500, h: 281 });
   });
 });
+
+describe("usePresenterWebcam overlay round-trip (task 8) + passthrough (task 9)", () => {
+  beforeEach(() => localStorage.clear());
+
+  function mountWithStream() {
+    const fakeStream = { getTracks: () => [{ stop: vi.fn() }] } as unknown as MediaStream;
+    // @ts-expect-error test stub
+    globalThis.navigator.mediaDevices = { getUserMedia: vi.fn().mockResolvedValue(fakeStream) };
+    return fakeStream;
+  }
+
+  it("enterFullscreen + restoreFromOverlay returns to exact prior phase/pos/size", async () => {
+    mountWithStream();
+    const { result } = renderHook(() => usePresenterWebcam(), { wrapper });
+    await act(async () => { await result.current.show(); });
+    act(() => result.current.setPosition({ x: 200, y: 100 }));
+    act(() => result.current.setStepSize("L"));
+
+    const priorPos = result.current.position;
+    const priorSize = result.current.sizeCfg;
+
+    act(() => result.current.enterFullscreen());
+    expect(result.current.state.phase).toBe("fullscreen");
+
+    act(() => result.current.restoreFromOverlay());
+    expect(result.current.state.phase).toBe("on");
+    expect(result.current.position).toEqual(priorPos);
+    expect(result.current.sizeCfg).toEqual(priorSize);
+  });
+
+  it("enterStage and toggling fullscreen ↔ stage preserves the original snapshot", async () => {
+    mountWithStream();
+    const { result } = renderHook(() => usePresenterWebcam(), { wrapper });
+    await act(async () => { await result.current.show(); });
+    act(() => result.current.setStepSize("S"));
+    const priorSize = result.current.sizeCfg;
+
+    act(() => result.current.enterStage());
+    expect(result.current.state.phase).toBe("stage");
+    act(() => result.current.enterFullscreen()); // no re-snapshot
+    expect(result.current.state.phase).toBe("fullscreen");
+    act(() => result.current.restoreFromOverlay());
+    expect(result.current.state.phase).toBe("on");
+    expect(result.current.sizeCfg).toEqual(priorSize);
+  });
+
+  it("emitPassthrough dispatches a riseup:webcam-passthrough CustomEvent", async () => {
+    const { result } = renderHook(() => usePresenterWebcam(), { wrapper });
+    const handler = vi.fn();
+    window.addEventListener("riseup:webcam-passthrough", handler as EventListener);
+    act(() => result.current.emitPassthrough("next"));
+    expect(handler).toHaveBeenCalledTimes(1);
+    const ev = handler.mock.calls[0][0] as CustomEvent;
+    expect(ev.detail).toEqual({ direction: "next" });
+    window.removeEventListener("riseup:webcam-passthrough", handler as EventListener);
+  });
+});
