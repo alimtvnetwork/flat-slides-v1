@@ -30,6 +30,7 @@ describe("settings persistence", () => {
       transition: "camera-zoom",
       soundEnabled: false,
       volume: 0.25,
+      musicVolume: 75,
     }));
 
     expect(storedSettings()).toMatchObject({
@@ -41,6 +42,7 @@ describe("settings persistence", () => {
       transition: "camera-zoom",
       soundEnabled: false,
       volume: 0.25,
+      musicVolume: 75,
     });
   });
 
