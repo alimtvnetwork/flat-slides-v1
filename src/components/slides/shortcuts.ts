@@ -10,7 +10,15 @@
  * fails fast if a presenter-group key has no registered action.
  */
 
-export type ShortcutGroup = "Navigation" | "Steps" | "Surfaces" | "Presenter" | "Camera" | "Annotate" | "Timer" | "Audience";
+export type ShortcutGroup =
+  | "Navigation"
+  | "Steps"
+  | "Surfaces"
+  | "Presenter"
+  | "Camera"
+  | "Annotate"
+  | "Timer"
+  | "Audience";
 
 export type ShortcutScope = "presenter" | "inspector";
 
@@ -80,7 +88,9 @@ export function matchesShortcut(event: KeyboardEvent, def: ShortcutDef): boolean
  * (e.g. modifier combos, mouse-only shortcuts, unmapped keys).
  */
 export function matchShortcut(event: KeyboardEvent, scope: ShortcutScope = "presenter"): ShortcutDef | undefined {
-  return SHORTCUTS.find((def) => hasScope(def, scope) && def.keys.length > 0 && matchesShortcut(event, def));
+  return SHORTCUTS.find(
+    (def) => hasScope(def, scope) && def.keys.length > 0 && matchesShortcut(event, def),
+  );
 }
 
 function hasScope(def: ShortcutDef, scope: ShortcutScope): boolean {
