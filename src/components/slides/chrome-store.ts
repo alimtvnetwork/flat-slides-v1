@@ -184,7 +184,11 @@ export interface ChromeStore {
   /** Brief toast text — used by routes to flash a scene/preset notice. */
   toast: { text: string; ts: number } | null;
   /** Persistent manual fallback shown when the browser blocks scripted presenter popups. */
-  presenterFallback: { url: string; reason: "popup-blocked" | "fullscreen-blocked"; ts: number } | null;
+  presenterFallback: {
+    url: string;
+    reason: "popup-blocked" | "fullscreen-blocked";
+    ts: number;
+  } | null;
   /** Dedicated presenter-inspector timer start, persisted under riseup.inspector.startedAt. */
   inspectorTimerStartedAt: number | null;
   inspectorTimerPausedAt: number | null;
@@ -266,20 +270,24 @@ export const useChrome = create<ChromeStore>()(
       setRecentJumps: (jumps) => set({ recentJumps: jumps.slice(0, 8) }),
       setCamera: (patch) => set((s) => ({ camera: normalizeCamera({ ...s.camera, ...patch }) })),
       toggleCamera: () => set((s) => ({ camera: { ...s.camera, visible: !s.camera.visible } })),
-      cycleCameraSize: () => set((s) => {
-        const next = { ...s.camera, size: nextSize(s.camera.size), customSize: null };
-        return { camera: normalizeCamera({ ...next, ...clampCameraPosition({ x: next.x, y: next.y }, cameraDimensions(next)) }) };
-      }),
-      cycleCameraAnchor: () => set((s) => {
-        const anchor = nextAnchor(s.camera.anchor);
-        const next = { ...s.camera, anchor, offsetX: 0, offsetY: 0 };
-        return { camera: normalizeCamera({ ...next, ...anchoredCameraPosition(anchor, cameraDimensions(next)) }) };
-      }),
-      cycleCameraShape: () => set((s) => ({ camera: { ...s.camera, shape: nextShape(s.camera.shape) } })),
-      setCameraCustomSize: (px) => set((s) => {
-        const next = { ...s.camera, customSize: px };
-        return { camera: normalizeCamera({ ...next, ...clampCameraPosition({ x: next.x, y: next.y }, cameraDimensions(next)) }) };
-      }),
+      cycleCameraSize: () =>
+        set((s) => {
+          const next = { ...s.camera, size: nextSize(s.camera.size), customSize: null };
+          return { camera: normalizeCamera(cameraPatchWithClampedPosition(next)) };
+        }),
+      cycleCameraAnchor: () =>
+        set((s) => {
+          const anchor = nextAnchor(s.camera.anchor);
+          const next = { ...s.camera, anchor, offsetX: 0, offsetY: 0 };
+          return { camera: normalizeCamera({ ...next, ...anchoredCameraPosition(anchor, cameraDimensions(next)) }) };
+        }),
+      cycleCameraShape: () =>
+        set((s) => ({ camera: { ...s.camera, shape: nextShape(s.camera.shape) } })),
+      setCameraCustomSize: (px) =>
+        set((s) => {
+          const next = { ...s.camera, customSize: px };
+          return { camera: normalizeCamera(cameraPatchWithClampedPosition(next)) };
+        }),
       setMusic: (patch) => set((s) => ({ music: { ...s.music, ...patch } })),
       toggleMusic: () => set((s) => ({ music: { ...s.music, playing: !s.music.playing } })),
       setSlideMusic: (override) => set({ slideMusic: override }),
@@ -297,7 +305,11 @@ export const useChrome = create<ChromeStore>()(
         set((s) => {
           if (s.inspectorTimerStartedAt !== null) return {};
           persistInspectorStartedAt(now);
-          return { inspectorTimerStartedAt: now, inspectorTimerPausedAt: null, inspectorTimerPausedMs: 0 };
+          return {
+            inspectorTimerStartedAt: now,
+            inspectorTimerPausedAt: null,
+            inspectorTimerPausedMs: 0,
+          };
         }),
       resetInspectorTimer: (now) => {
         persistInspectorStartedAt(now);
@@ -325,7 +337,10 @@ export const useChrome = create<ChromeStore>()(
         return {
           ...current,
           ...state,
-          camera: normalizeCamera({ ...(state?.camera ?? current.camera), visible: state?.camera?.visible ?? DEFAULT_CAMERA.visible }),
+          camera: normalizeCamera({
+            ...(state?.camera ?? current.camera),
+            visible: state?.camera?.visible ?? DEFAULT_CAMERA.visible,
+          }),
           music: { ...current.music, ...(state?.music ?? current.music), playing: false },
         };
       },
