@@ -74,6 +74,8 @@ describe("CameraBubble shape surfaces", () => {
 
   it("keeps stage-fill camera inside the scaled slide frame", async () => {
     document.documentElement.style.setProperty("--stage-scale", "0.5");
+    document.documentElement.style.setProperty("--presenter-frame-left", "100px");
+    document.documentElement.style.setProperty("--presenter-frame-top", "50px");
     document.body.innerHTML = '<div class="slide-wrapper"></div>';
     const rectSpy = vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function (this: HTMLElement) {
       if (this.classList.contains("slide-wrapper")) {
@@ -94,5 +96,20 @@ describe("CameraBubble shape surfaces", () => {
     expect(region.style.right).toBe("");
     expect(region.style.bottom).toBe("");
     rectSpy.mockRestore();
+  });
+
+  it("clamps free camera chrome to the measured presenter frame", async () => {
+    document.documentElement.style.setProperty("--stage-scale", "0.5");
+    document.documentElement.style.setProperty("--presenter-frame-left", "100px");
+    document.documentElement.style.setProperty("--presenter-frame-top", "50px");
+    useChrome.setState({
+      camera: { ...useChrome.getState().camera, x: 1900, y: 1070, customSize: 320, shape: "circle" },
+    });
+
+    render(<CameraBubble />);
+
+    const region = screen.getByRole("region", { name: /presenter camera/i });
+    await waitFor(() => expect(region.style.left).toBe("740px"));
+    expect(region.style.top).toBe("410px");
   });
 });
