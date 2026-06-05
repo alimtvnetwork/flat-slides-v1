@@ -76,4 +76,12 @@ describe("ThemeWrap background pipeline", () => {
 
     expect(container.querySelectorAll('div[aria-hidden]').length).toBe(1);
   });
+
+  it("clamps background blur to the supported 0–20px range", () => {
+    act(() => useDeck.getState().setSettings({ backgroundMode: "image", backgroundImage: "/fallback.png", blur: 80 }));
+    const { container } = render(<RenderSlide slide={SLIDE} />);
+
+    const layer = container.querySelector("[data-slide-bg-layer]") as HTMLElement;
+    expect(layer.style.filter).toBe("blur(20px)");
+  });
 });
