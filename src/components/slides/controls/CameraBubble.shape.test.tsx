@@ -6,6 +6,14 @@ import { CameraBubble } from "./CameraBubble";
 
 const RESET_CAMERA = useChrome.getState().camera;
 
+function setFullscreenElement(element: Element | null) {
+  Object.defineProperty(document, "fullscreenElement", {
+    configurable: true,
+    get: () => element,
+  });
+  document.dispatchEvent(new Event("fullscreenchange"));
+}
+
 describe("CameraBubble shape surfaces", () => {
   beforeEach(() => {
     vi.stubGlobal("navigator", {
@@ -19,6 +27,7 @@ describe("CameraBubble shape surfaces", () => {
 
   afterEach(() => {
     cleanup();
+    setFullscreenElement(null);
     vi.unstubAllGlobals();
     useChrome.setState({ camera: { ...RESET_CAMERA, visible: false }, scene: "normal" });
   });
@@ -111,5 +120,18 @@ describe("CameraBubble shape surfaces", () => {
     const region = screen.getByRole("region", { name: /presenter camera/i });
     await waitFor(() => expect(region.style.left).toBe("900px"));
     expect(region.style.top).toBe("500px");
+  });
+
+  it("clips camera controls to the bubble surface in fullscreen", async () => {
+    const root = document.createElement("div");
+    document.body.appendChild(root);
+    setFullscreenElement(root);
+
+    render(<CameraBubble />);
+
+    const region = screen.getByRole("region", { name: /presenter camera/i });
+    await waitFor(() => expect(region.style.overflow).toBe("hidden"));
+    expect(region.className).toContain("overflow-hidden");
+    root.remove();
   });
 });
