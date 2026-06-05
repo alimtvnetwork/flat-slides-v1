@@ -169,7 +169,7 @@ export const SlideSchema = z.discriminatedUnion("type", [
 ]);
 
 export const DeckSettingsSchema = z.object({
-  backgroundMode: z.enum(["color", "image"]),
+  backgroundMode: z.enum(["color", "image", "dark"]),
   backgroundColor: z.string().min(1).max(64),
   backgroundImage: z.string().max(4096).optional(),
   darken: z.number().min(0).max(100),
