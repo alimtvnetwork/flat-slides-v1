@@ -126,42 +126,48 @@ export function ControllerPill(props: Props) {
               <>
                 <span className="mx-1 h-4 w-px bg-white/15" aria-hidden />
 
-                <PillButton onClick={onOpenGrid} ariaLabel="Deck overview">
-                  <Grid3x3 size={15} />
-                </PillButton>
                 <PillButton onClick={onToggleFullscreen} ariaLabel={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}>
                   {isFullscreen ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
                 </PillButton>
-                <PillButton
-                  onClick={toggleCamera}
-                  ariaLabel={cameraVisible ? "Hide camera" : "Show camera"}
-                  active={cameraVisible}
-                >
-                  <Camera size={15} />
-                </PillButton>
-                <ShareMenu current={current} />
-                {narrow ? (
-                  <ControllerOverflowMenu onOpenSettings={onOpenSettings} onOpenHelp={onOpenHelp} />
-                ) : (
+                {isFullscreen && (
                   <>
-                    <MusicToggle compact />
-                    <ThemeChip />
-                    <PillButton onClick={onOpenSettings} ariaLabel="Settings">
-                      <Settings size={15} />
+                    <PillButton onClick={onOpenGrid} ariaLabel="Deck overview">
+                      <Grid3x3 size={15} />
                     </PillButton>
-                    <PillButton onClick={onOpenHelp} ariaLabel="Keyboard shortcuts">
-                      <HelpCircle size={15} />
+                    <PillButton
+                      onClick={toggleCamera}
+                      ariaLabel={cameraVisible ? "Hide camera" : "Show camera"}
+                      active={cameraVisible}
+                    >
+                      <Camera size={15} />
                     </PillButton>
+                    <ShareMenu current={current} />
+                    {narrow ? (
+                      <ControllerOverflowMenu onOpenSettings={onOpenSettings} onOpenHelp={onOpenHelp} />
+                    ) : (
+                      <>
+                        <MusicToggle compact />
+                        <ThemeChip />
+                        <PillButton onClick={onOpenSettings} ariaLabel="Settings">
+                          <Settings size={15} />
+                        </PillButton>
+                        <PillButton onClick={onOpenHelp} ariaLabel="Keyboard shortcuts">
+                          <HelpCircle size={15} />
+                        </PillButton>
+                      </>
+                    )}
                   </>
                 )}
 
-                <span
-                  className="ml-1 hidden text-[10px] uppercase tracking-wider text-white/35 md:inline"
-                  aria-hidden
-                  title="Right-click anywhere on the pill to move it"
-                >
-                  right-click to move
-                </span>
+                {isFullscreen && (
+                  <span
+                    className="ml-1 hidden text-[10px] uppercase tracking-wider text-white/35 md:inline"
+                    aria-hidden
+                    title="Right-click anywhere on the pill to move it"
+                  >
+                    right-click to move
+                  </span>
+                )}
               </>
             )}
       </motion.div>
