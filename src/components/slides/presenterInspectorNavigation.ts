@@ -19,7 +19,9 @@ export function moveInspectorNext(
   goTo: (n: number, step?: number) => void,
 ) {
   const stepCount = slideStepCount(model.slide);
-  if (stepCount > 1 && model.stepIndex < stepCount - 1) return goTo(model.slideNumber, model.stepIndex + 2);
+  if (stepCount > 1 && model.stepIndex < stepCount - 1) {
+    return goTo(model.slideNumber, model.stepIndex + 2);
+  }
   return goTo(model.slideNumber + 1);
 }
 

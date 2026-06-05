@@ -31,7 +31,10 @@ export function usePresenterInspectorKeyboard(model: PresenterInspectorModel) {
     },
     [linearSlides, location.search, navigate],
   );
-  const goPrev = useCallback(() => moveInspectorPrev(model, goTo, linearSlides), [goTo, linearSlides, model]);
+  const goPrev = useCallback(
+    () => moveInspectorPrev(model, goTo, linearSlides),
+    [goTo, linearSlides, model],
+  );
   const goNext = useCallback(() => moveInspectorNext(model, goTo), [goTo, model]);
   const exit = useCallback(
     () => exitInspector(navigate, location.search, model.slideNumber),
