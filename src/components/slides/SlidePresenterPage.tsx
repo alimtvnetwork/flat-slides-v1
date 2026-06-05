@@ -36,7 +36,6 @@ import { useFullscreen } from "@/components/slides/useFullscreen";
 import { emitSlidesEvent, installConsoleSink } from "@/components/slides/telemetry";
 import { useSlideNavigation } from "@/components/slides/useSlideNavigation";
 import { PresenterTools } from "@/components/slides/PresenterTools";
-import { SLIDES_FULLSCREEN_NAVIGATION_EVENT, type SlidesFullscreenNavigationDetail } from "@/components/slides/fullscreenNavigation";
 
 const CommandPalette = lazy(() =>
   import("@/components/slides/CommandPalette").then((m) => ({ default: m.CommandPalette })),
@@ -51,16 +50,14 @@ const SettingsDrawer = lazy(() =>
 export function SlidePresenterPage({ slideId }: { slideId: string }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const [fullscreenRoute, setFullscreenRoute] = useState<{ slideId: string; step?: number } | null>(null);
   const deck = useDeck((s) => s.deck);
   const allSlides = deck.slides;
   const { linearSlides, total, next, prev, jump, goTo } = useSlideNavigation();
-  const activeSlideId = fullscreenRoute?.slideId ?? slideId;
-  const index = Math.max(0, (parseInt(activeSlideId, 10) || 0) - 1);
+  const index = Math.max(0, (parseInt(slideId, 10) || 0) - 1);
   const slide = index >= 0 && index < linearSlides.length ? linearSlides[index] : undefined;
   const current = index + 1;
   const stepCount = slide ? slideStepCount(slide) : 0;
-  const routeStep = fullscreenRoute ? fullscreenRoute.step ?? null : getRouteStep(location.pathname);
+  const routeStep = getRouteStep(location.pathname);
   const isStepRoute = routeStep !== null && stepCount > 0;
   const requestedStep = routeStep ?? 1;
   const stepNum = Math.max(0, Math.min(requestedStep - 1, Math.max(0, stepCount - 1)));
@@ -77,20 +74,6 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
   const cycleScene = useChrome((s) => s.cycleScene);
   const scene = useChrome((s) => s.scene);
   const focusEditorOpen = useChrome((s) => s.focusEditorOpen);
-
-  useEffect(() => {
-    setFullscreenRoute(null);
-  }, [slideId, location.pathname]);
-
-  useEffect(() => {
-    const onFullscreenNavigation = (event: Event) => {
-      const detail = (event as CustomEvent<SlidesFullscreenNavigationDetail>).detail;
-      if (!detail?.slideId) return;
-      setFullscreenRoute({ slideId: detail.slideId, step: detail.step });
-    };
-    window.addEventListener(SLIDES_FULLSCREEN_NAVIGATION_EVENT, onFullscreenNavigation);
-    return () => window.removeEventListener(SLIDES_FULLSCREEN_NAVIGATION_EVENT, onFullscreenNavigation);
-  }, []);
 
   usePresentationTimer();
   useAudienceSync({
