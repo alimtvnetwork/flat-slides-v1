@@ -23,11 +23,15 @@ function Reactions({ trigger }: { trigger: number; }) {
   }, [trigger]);
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-24 z-40" data-app-chrome>
+    <div
+      className="pointer-events-none fixed z-40"
+      data-presenter-frame-bound="true"
+      data-app-chrome
+    >
       {items.map((i) => (
         <span
           key={i.id}
-          className="absolute text-4xl animate-[reactionRise_2.4s_ease-out_forwards]"
+          className="absolute bottom-0 text-4xl animate-[reactionRise_2.4s_ease-out_forwards]"
           style={{ left: `${i.x}%` }}
         >
           {i.emoji}
@@ -106,7 +110,9 @@ export function PresenterTools({ targetMinutes = 10, index, total, deck }: Props
       {!open ? (
         <button
           onClick={() => setOpen(true)}
-          className="fixed bottom-20 right-4 z-40 rounded-full bg-neutral-900/90 px-3 py-1.5 text-xs text-neutral-200 ring-1 ring-neutral-700 hover:bg-neutral-800"
+          data-presenter-frame-anchor="bottom-right"
+          style={{ ["--presenter-safe-inset" as string]: "80px" }}
+          className="fixed z-40 rounded-full bg-neutral-900/90 px-3 py-1.5 text-xs text-neutral-200 ring-1 ring-neutral-700 hover:bg-neutral-800"
           data-app-chrome
           title="Presenter tools (T)"
         >
@@ -114,7 +120,9 @@ export function PresenterTools({ targetMinutes = 10, index, total, deck }: Props
         </button>
       ) : (
         <div
-          className="fixed bottom-20 right-4 z-40 w-64 rounded-lg bg-neutral-900/95 p-3 text-xs text-neutral-200 ring-1 ring-neutral-700"
+          data-presenter-frame-anchor="bottom-right"
+          style={{ ["--presenter-safe-inset" as string]: "80px" }}
+          className="fixed z-40 w-64 rounded-lg bg-neutral-900/95 p-3 text-xs text-neutral-200 ring-1 ring-neutral-700"
           data-app-chrome
         >
           <div className="mb-2 flex items-center justify-between">

@@ -25,7 +25,8 @@ const DrawerOverlay = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DrawerPrimitive.Overlay
     ref={ref}
-    className={cn("fixed inset-0 z-50 bg-black/80", className)}
+    data-presenter-frame-bound="true"
+    className={cn("fixed z-50 bg-black/80", className)}
     {...props}
   />
 ));
@@ -34,16 +35,17 @@ DrawerOverlay.displayName = DrawerPrimitive.Overlay.displayName;
 const DrawerContent = React.forwardRef<
   React.ElementRef<typeof DrawerPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Content>
->(({ className, children, ...props }, ref) => (
+>(({ className, children, style, ...props }, ref) => (
   <DrawerPortal container={getSlidesPortalRoot() ?? undefined}>
     <DrawerOverlay />
     <DrawerPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col rounded-t-[10px] border bg-background",
+        "fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col rounded-t-[10px] border bg-background [--drawer-frame-bottom:var(--presenter-frame-bottom)] [--drawer-frame-left:var(--presenter-frame-left)] [--drawer-frame-right:var(--presenter-frame-right)]",
         className,
       )}
       {...props}
+      style={{ left: "var(--drawer-frame-left)", right: "var(--drawer-frame-right)", bottom: "var(--drawer-frame-bottom)", ...style }}
     >
       <div className="mx-auto mt-4 h-2 w-[100px] rounded-full bg-muted" />
       {children}

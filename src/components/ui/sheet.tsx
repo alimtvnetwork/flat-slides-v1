@@ -21,8 +21,9 @@ const SheetOverlay = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof SheetPrimitive.Overlay>
 >(({ className, ...props }, ref) => (
   <SheetPrimitive.Overlay
+    data-presenter-frame-bound="true"
     className={cn(
-      "fixed inset-0 z-50 bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+      "fixed z-50 bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
       className,
     )}
     {...props}
@@ -55,13 +56,24 @@ interface SheetContentProps
     React.ComponentPropsWithoutRef<typeof SheetPrimitive.Content>,
     VariantProps<typeof sheetVariants> {}
 
+type SheetSide = "top" | "bottom" | "left" | "right";
+
+function sheetFrameStyle(side: SheetSide): React.CSSProperties {
+  if (side === "left") return { left: "var(--presenter-frame-left)", top: "var(--presenter-frame-top)", bottom: "var(--presenter-frame-bottom)", height: "var(--presenter-frame-height)" };
+  if (side === "right") return { right: "var(--presenter-frame-right)", top: "var(--presenter-frame-top)", bottom: "var(--presenter-frame-bottom)", height: "var(--presenter-frame-height)" };
+  if (side === "top") return { left: "var(--presenter-frame-left)", right: "var(--presenter-frame-right)", top: "var(--presenter-frame-top)" };
+  return { left: "var(--presenter-frame-left)", right: "var(--presenter-frame-right)", bottom: "var(--presenter-frame-bottom)" };
+}
+
 const SheetContent = React.forwardRef<
   React.ElementRef<typeof SheetPrimitive.Content>,
   SheetContentProps
->(({ side = "right", className, children, ...props }, ref) => (
+>(({ side = "right", className, children, style, ...props }, ref) => {
+  const resolvedSide = side ?? "right";
+  return (
   <SheetPortal container={getSlidesPortalRoot() ?? undefined}>
     <SheetOverlay />
-    <SheetPrimitive.Content ref={ref} className={cn(sheetVariants({ side }), className)} {...props}>
+    <SheetPrimitive.Content ref={ref} className={cn(sheetVariants({ side: resolvedSide }), className)} {...props} style={{ ...sheetFrameStyle(resolvedSide), ...style }}>
       <SheetPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background cursor-pointer transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
         <X className="h-4 w-4" />
         <span className="sr-only">Close</span>
@@ -69,7 +81,8 @@ const SheetContent = React.forwardRef<
       {children}
     </SheetPrimitive.Content>
   </SheetPortal>
-));
+  );
+});
 SheetContent.displayName = SheetPrimitive.Content.displayName;
 
 const SheetHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
