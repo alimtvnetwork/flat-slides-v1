@@ -6,7 +6,9 @@ import { ScaledSlide } from "./ScaledSlide";
 describe("ScaledSlide", () => {
   afterEach(() => {
     vi.restoreAllMocks();
-    document.documentElement.style.removeProperty("--stage-scale");
+    for (const name of ["--stage-scale", "--presenter-frame-left", "--presenter-frame-top", "--presenter-frame-right", "--presenter-frame-bottom"]) {
+      document.documentElement.style.removeProperty(name);
+    }
   });
 
   it("falls back to the parent rect when the stage initially measures at zero", async () => {
@@ -27,6 +29,7 @@ describe("ScaledSlide", () => {
     await waitFor(() => {
       expect(document.documentElement.style.getPropertyValue("--stage-scale")).toBe(String(1024 / 1920));
     });
+    expect(document.documentElement.style.getPropertyValue("--presenter-frame-bottom")).toBe("96px");
   });
 });
 
