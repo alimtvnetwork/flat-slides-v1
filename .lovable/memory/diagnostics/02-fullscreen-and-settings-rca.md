@@ -350,3 +350,33 @@ the original inline layout is preserved. Share stays inline at all sizes.
 Verified: `bunx vitest run src/components/slides/controls/ControllerOverflowMenu.test.tsx
 src/components/slides/controls/ControllerPill.mount.test.tsx
 src/components/slides/controls/useHoverReveal.test.ts` — 10/10.
+
+### Step 26 — Single keymap from SHORTCUTS (B21)
+
+Root cause: `SHORTCUTS` (in `shortcuts.ts`) existed as a catalogue but the
+presenter still hand-rolled a tall `if` ladder for plain-key shortcuts.
+Catalogue and handler drifted silently — e.g. `N` (toggle notes) was in
+the catalogue with no handler, and adding a new shortcut required edits
+in two files with no enforcement.
+
+Fix:
+- Added stable `id` to every `ShortcutDef` (and to `CAMERA_SHORTCUTS`).
+- New `matchShortcut(event)` helper returns the matched def, if any.
+- New `src/components/slides/presenterActions.ts` owns the side-effects:
+  `PRESENTER_KEY_ACTIONS: Record<id, (ctx) => void>` plus a
+  `MODIFIER_SHORTCUT_IDS` allow-list for combos that don't fit the
+  per-key shape (nav arrows, Cmd+K, Shift+Space, etc.).
+- `SlidePresenterPage` keyHandler now calls `dispatchPresenterKey(ctx)`
+  for plain keys; the legacy `if` ladder shrank to just modifier combos
+  and arrow navigation.
+- Side effect fix: `N` (toggle presenter notes) now actually works.
+- Parity test in `presenterActions.test.ts` fails the build if a
+  plain-key SHORTCUTS entry has no registered action and isn't in
+  `MODIFIER_SHORTCUT_IDS`. Catalogue and handler can no longer drift.
+
+Verified: `bunx vitest run src/components/slides/presenterActions.test.ts
+src/components/slides/shortcuts.test.ts
+src/components/slides/shortcuts-catalogue.test.ts
+src/components/slides/shortcuts-additions.test.ts
+src/components/slides/controls/controller-anchor.test.ts` — 19/19.
+
