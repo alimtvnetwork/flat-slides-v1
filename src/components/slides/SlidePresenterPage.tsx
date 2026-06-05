@@ -113,7 +113,20 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
   useEffect(() => {
     if (typeof window === "undefined") return;
     const syncFullscreenPath = () => {
-      setFullscreenPathname(document.fullscreenElement ? window.location.pathname : null);
+      if (document.fullscreenElement) {
+        setFullscreenPathname(window.location.pathname);
+        return;
+      }
+      setFullscreenPathname(null);
+      if (location.pathname === window.location.pathname) return;
+      const slideId = getRouteSlideId(window.location.pathname);
+      if (!slideId) return;
+      const step = getRouteStep(window.location.pathname);
+      if (step && step > 1) {
+        void navigate({ to: "/slides/$slideId/$step", params: { slideId, step: String(step) }, search: location.search as never, replace: true });
+      } else {
+        void navigate({ to: "/slides/$slideId", params: { slideId }, search: location.search as never, replace: true });
+      }
     };
     syncFullscreenPath();
     window.addEventListener(SLIDES_FULLSCREEN_URL_CHANGE_EVENT, syncFullscreenPath);
@@ -122,7 +135,7 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
       window.removeEventListener(SLIDES_FULLSCREEN_URL_CHANGE_EVENT, syncFullscreenPath);
       document.removeEventListener("fullscreenchange", syncFullscreenPath);
     };
-  }, []);
+  }, [location.pathname, location.search, navigate]);
 
   useEffect(() => {
     if (!slide) return;
