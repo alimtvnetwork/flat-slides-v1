@@ -61,3 +61,8 @@
 - RC4 (transition zoom + focus camera layering) → ✅ Both routes gate `allowZoom` by `(slide.focus?.length ?? 0) === 0`; camera-zoom transition and per-step CameraStage never stack.
 - RC5 (off-by-one step focus indexing) → ✅ Step route now passes `stepNum + 1` to CameraStage; `getActiveFocusRegion` receives 1-based step as documented.
 - RC6 (no right-side image proposal example) → ✅ Seed deck adds `sajida-visual` (left + media on right) and `focus-demo` (steps slide with per-step focus regions) to prove the camera path.
+
+## Resolution (B21 step 1)
+- Home (`/`) advertised `F5 present` but had no fullscreen/presenter owner mounted; `PresenterAutoStart`, controller, and slide navigation only exist under `/slides/*`.
+- Fix: add a home `Present deck` gesture that opens `/slides/1?present=1` in embedded preview or fullscreen-navigates to slide 1 in top-level mode.
+- Follow-up found TanStack search serializes string values as JSON (`present=%221%22`), so the fallback navigation must pass numeric `present: 1` to produce the literal `?present=1` that `PresenterAutoStart` consumes.

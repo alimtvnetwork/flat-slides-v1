@@ -41,7 +41,7 @@ function Index() {
   const presentDeck = useCallback(async () => {
     const result = await enterFullscreen(null, { openPresenterWindow: openHomePresenterWindow });
     if (result.ok && result.mode === "presenter-window") return;
-    await navigate({ to: "/slides/$slideId", params: { slideId: HOME_PRESENT_SLIDE_ID }, search: { present: "1" } as never });
+    await navigate({ to: "/slides/$slideId", params: { slideId: HOME_PRESENT_SLIDE_ID }, search: { present: 1 } as never });
   }, [navigate]);
 
   useEffect(() => {
