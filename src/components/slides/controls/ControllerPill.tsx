@@ -196,6 +196,7 @@ function PillButton({
       onClick={(e) => {
         e.stopPropagation();
         e.currentTarget.blur();
+        if (import.meta.env.DEV) console.debug("[slides-next-debug] pill-click", ariaLabel);
         onClick();
       }}
       disabled={disabled}

@@ -276,6 +276,7 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
   }
 
   function moveNextStepAware() {
+    if (import.meta.env.DEV) console.debug("[slides-next-debug] move-next", { current, stepCount, isStepRoute, stepNum });
     if (!isStepRoute && stepCount > 1) goTo(current, "forward", 2);
     else if (isStepRoute && stepNum < stepCount - 1) goTo(current, "forward", stepNum + 2);
     else next(current);
