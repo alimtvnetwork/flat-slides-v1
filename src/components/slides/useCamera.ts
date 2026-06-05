@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
-export type CameraStatus = "idle" | "requesting" | "active" | "denied" | "error";
+export type CameraStatus = "idle" | "requesting" | "active" | "tray" | "denied" | "error";
 
 /**
  * Webcam capture state machine. Presenter-local — the stream is never
@@ -21,7 +21,11 @@ export function useCamera() {
     }
   }, []);
 
-  const stop = useCallback(() => {
+  const hide = useCallback(() => {
+    if (streamRef.current && status === "active") setStatus("tray");
+  }, [status]);
+
+  const close = useCallback(() => {
     if (streamRef.current) {
       for (const t of streamRef.current.getTracks()) t.stop();
       streamRef.current = null;
@@ -33,6 +37,15 @@ export function useCamera() {
 
   const start = useCallback(async () => {
     if (status === "requesting" || status === "active") return;
+    if (status === "tray" && streamRef.current) {
+      if (videoRef.current) {
+        videoRef.current.srcObject = streamRef.current;
+        void videoRef.current.play().catch(() => {});
+      }
+      setStatus("active");
+      setErrorMessage(null);
+      return;
+    }
     if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
       setStatus("error");
       setErrorMessage("Camera API unavailable in this browser.");
@@ -42,7 +55,7 @@ export function useCamera() {
     setErrorMessage(null);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: "user" },
+        video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: "user" },
         audio: false,
       });
       streamRef.current = stream;
@@ -55,7 +68,16 @@ export function useCamera() {
       const name = (err as DOMException)?.name ?? "";
       if (name === "NotAllowedError" || name === "PermissionDeniedError") {
         setStatus("denied");
-        setErrorMessage("Camera permission denied.");
+        setErrorMessage("Camera permission denied. Enable it in your browser site settings.");
+      } else if (name === "NotFoundError" || name === "DevicesNotFoundError") {
+        setStatus("denied");
+        setErrorMessage("No camera found on this device.");
+      } else if (name === "NotReadableError" || name === "TrackStartError") {
+        setStatus("error");
+        setErrorMessage("Camera is already in use by another application.");
+      } else if (name === "OverconstrainedError" || name === "ConstraintNotSatisfiedError") {
+        setStatus("error");
+        setErrorMessage("No camera matched the requested resolution.");
       } else {
         setStatus("error");
         setErrorMessage((err as Error)?.message ?? "Unable to start camera.");
@@ -86,5 +108,5 @@ export function useCamera() {
     }
   }, [status]);
 
-  return { status, errorMessage, start, stop, attach, togglePiP } as const;
+  return { status, errorMessage, start, hide, close, attach, togglePiP } as const;
 }
