@@ -49,11 +49,6 @@ function positionStyle(pos: TextPosition | undefined, padding = 120): CSSPropert
   };
 }
 
-/**
- * Resolve the final background for a slide:
- *   per-slide `slide.background` > deck `settings` (image|color) > theme.
- * Returns either a CSS color OR an image URL (or neither → theme fallback).
- */
 function resolveBackground(
   slide: Slide,
   settings: { backgroundMode: "color" | "image"; backgroundColor: string; backgroundImage?: string },
