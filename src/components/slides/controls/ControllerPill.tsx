@@ -140,7 +140,7 @@ export function ControllerPill(props: Props) {
                 <span
                   className="ml-1 hidden text-[10px] uppercase tracking-wider text-white/35 md:inline"
                   aria-hidden
-                  title="Right-click anywhere on the pill to cycle through 8 positions"
+                  title="Right-click anywhere on the pill to move it"
                 >
                   right-click to move
                 </span>
