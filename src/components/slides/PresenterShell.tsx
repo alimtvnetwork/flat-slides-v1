@@ -1,6 +1,5 @@
 import { useRef, type ReactNode } from "react";
 
-import { cn } from "@/lib/utils";
 import { useCursorAutoHide } from "@/components/slides/useCursorAutoHide";
 
 type Props = {
@@ -16,11 +15,7 @@ export function PresenterShell({ isFullscreen, children }: Props) {
       ref={rootRef}
       data-slide-presenter-root
       data-fullscreen={isFullscreen ? "true" : "false"}
-      className={cn(
-        "flex overflow-hidden flex-col bg-[color:var(--slide-bg)]",
-        "max-h-dvh max-w-[100vw] overscroll-none",
-        isFullscreen ? "fixed inset-0 z-[200] h-dvh w-full" : "h-dvh w-full",
-      )}
+      className="flex h-dvh w-full max-h-dvh max-w-[100vw] flex-col overflow-hidden overscroll-none bg-[color:var(--slide-bg)]"
     >
       {children}
     </div>

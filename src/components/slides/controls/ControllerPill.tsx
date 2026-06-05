@@ -126,7 +126,7 @@ export function ControllerPill(props: Props) {
   );
 
   const portalRoot = getSlidesPortalRoot();
-  if (!portalRoot) return null;
+  if (!portalRoot) return node;
   return createPortal(node, portalRoot);
 }
 
