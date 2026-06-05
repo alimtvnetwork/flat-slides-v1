@@ -19,7 +19,9 @@ export function PollResultsOverlay({ slide }: { slide: Slide }) {
   return (
     <div
       data-print-hide
-      className="pointer-events-none absolute bottom-24 left-6 z-[55] w-[280px] rounded-xl border border-white/10 bg-black/60 px-4 py-3 text-white backdrop-blur-md"
+      data-presenter-frame-anchor="bottom-left"
+      style={{ ["--presenter-safe-inset" as string]: "96px" }}
+      className="pointer-events-none fixed z-[55] w-[280px] rounded-xl border border-white/10 bg-black/60 px-4 py-3 text-white backdrop-blur-md"
       aria-label="Live poll results"
     >
       <div className="mb-2 flex items-center justify-between text-[11px] uppercase tracking-[0.18em] text-white/60">
