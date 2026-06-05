@@ -40,9 +40,11 @@ export function SharePill({ current, step }: { current: number; step?: number })
   return (
     <button
       data-print-hide
+      data-presenter-frame-anchor="top-right"
+      style={{ ["--presenter-safe-inset" as string]: "20px" }}
       type="button"
       onClick={onClick}
-      className="absolute right-6 top-6 z-[60] rounded-full border border-white/15 bg-black/55 px-3 py-1.5 text-[11px] uppercase tracking-[0.18em] text-white/80 backdrop-blur-md transition hover:bg-black/75"
+      className="fixed z-[60] rounded-full border border-white/15 bg-black/55 px-3 py-1.5 text-[11px] uppercase tracking-[0.18em] text-white/80 backdrop-blur-md transition hover:bg-black/75"
       title="Copy deep link to this slide (Y)"
       aria-label="Copy share link to current slide"
     >
