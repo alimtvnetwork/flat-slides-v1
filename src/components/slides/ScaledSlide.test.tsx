@@ -6,7 +6,7 @@ import { ScaledSlide } from "./ScaledSlide";
 describe("ScaledSlide", () => {
   afterEach(() => {
     vi.restoreAllMocks();
-    for (const name of ["--stage-scale", "--presenter-frame-left", "--presenter-frame-top", "--presenter-frame-right", "--presenter-frame-bottom"]) {
+    for (const name of ["--stage-scale", "--presenter-frame-left", "--presenter-frame-top", "--presenter-frame-right", "--presenter-frame-bottom", "--presenter-frame-width", "--presenter-frame-height", "--presenter-frame-center-x", "--presenter-frame-center-y"]) {
       document.documentElement.style.removeProperty(name);
     }
   });
