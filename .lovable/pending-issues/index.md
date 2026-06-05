@@ -84,3 +84,13 @@
 - [x] Reduced-motion + a11y audit (`useHoverReveal` honours `prefers-reduced-motion`; ControllerPill gates framer-motion; ControllerOverflowMenu uses Radix labelled triggers).
 - [ ] Manual cross-browser validation of controller hover-reveal + anchor cycling on Chrome / Safari / Firefox (post-publish).
 
+
+## Active: Presenter Inspector (B22 — spec: `docs/slides/spec/presenter-inspector.spec.md`, feature card: `mem://features/presenter-inspector`)
+
+- [x] Routes: `slides.inspector.$slideId.tsx` (Outlet parent) + `.index.tsx` / `.$step.tsx` leaves, 1-based slide/step numbers.
+- [x] `resolveInspectorModel` clamps step into range, skips disabled slides, returns null for OOB (unit tests in `presenterInspectorModel.test.ts`).
+- [x] 4-pane view: current slide (ScaledSlide + RenderSlide), next slide, speaker notes, footer; honours `useReducedMotion()`.
+- [x] Persistent timer on `chrome-store` (`riseup.inspector.startedAt`) with pause/reset (unit tests in `inspectorTimer.test.ts`).
+- [x] Scoped inspector keymap: `ShortcutScope` + `INSPECTOR_KEY_ACTIONS` + `dispatchInspectorKey`; arrows/Space/Enter, R, P, Esc; parity test enforces drift (`presenterActions.test.ts`, `inspectorKeyboard.test.ts`).
+- [x] Memory card `mem://features/presenter-inspector` + index updated.
+- [ ] Manual cross-browser validation of inspector view (Chrome / Safari / Firefox, second-display use case) post-publish.
