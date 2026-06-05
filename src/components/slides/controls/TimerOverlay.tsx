@@ -38,7 +38,9 @@ export function TimerOverlay({ slide }: Props) {
   return (
     <div
       data-print-hide="true"
-      className="fixed left-5 top-5 z-30 flex items-center gap-2 rounded-full border border-white/15 bg-black/55 px-3 py-1 text-xs text-white shadow-md backdrop-blur-md"
+      data-presenter-frame-anchor="top-left"
+      style={{ ["--presenter-safe-inset" as string]: "20px" }}
+      className="fixed z-30 flex items-center gap-2 rounded-full border border-white/15 bg-black/55 px-3 py-1 text-xs text-white shadow-md backdrop-blur-md"
     >
       <button
         type="button"
