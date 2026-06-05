@@ -1,12 +1,13 @@
 import { motion } from "framer-motion";
 import { Camera, ChevronLeft, ChevronRight, Grid3x3, HelpCircle, Maximize2, Minimize2, Settings } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 import { useChrome } from "@/components/slides/chrome-store";
 import { getSlidesPortalRoot } from "@/components/slides/fullscreenTarget";
 import { useReducedMotion } from "@/components/slides/useReducedMotion";
 import { cn } from "@/lib/utils";
+import { useHoverReveal } from "./useHoverReveal";
 
 import { anchorStyles, type ControllerAnchor } from "./controller-anchor";
 import { useControllerAnchor } from "./controller-anchor-store";
