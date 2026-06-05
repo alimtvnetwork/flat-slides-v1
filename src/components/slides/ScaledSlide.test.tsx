@@ -6,7 +6,7 @@ import { ScaledSlide } from "./ScaledSlide";
 describe("ScaledSlide", () => {
   afterEach(() => {
     vi.restoreAllMocks();
-    for (const name of ["--stage-scale", "--presenter-frame-left", "--presenter-frame-top", "--presenter-frame-right", "--presenter-frame-bottom"]) {
+    for (const name of ["--stage-scale", "--presenter-frame-left", "--presenter-frame-top", "--presenter-frame-right", "--presenter-frame-bottom", "--presenter-frame-width", "--presenter-frame-height", "--presenter-frame-center-x", "--presenter-frame-center-y"]) {
       document.documentElement.style.removeProperty(name);
     }
   });
@@ -32,6 +32,10 @@ describe("ScaledSlide", () => {
       expect(document.documentElement.style.getPropertyValue("--stage-scale")).toBe(String(1024 / 1920));
     });
     expect(document.documentElement.style.getPropertyValue("--presenter-frame-bottom")).toBe("96px");
+    expect(document.documentElement.style.getPropertyValue("--presenter-frame-width")).toBe("1024px");
+    expect(document.documentElement.style.getPropertyValue("--presenter-frame-height")).toBe("576px");
+    expect(document.documentElement.style.getPropertyValue("--presenter-frame-center-x")).toBe("512px");
+    expect(document.documentElement.style.getPropertyValue("--presenter-frame-center-y")).toBe("384px");
   });
 });
 

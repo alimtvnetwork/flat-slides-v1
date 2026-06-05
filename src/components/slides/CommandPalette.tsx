@@ -79,13 +79,14 @@ export function CommandPalette({ open, onClose, slides, onJump, onOpenOverview, 
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-start justify-center bg-black/60 pt-[12vh]"
+      data-presenter-frame-bound="true"
+      className="fixed z-[60] flex items-start justify-center bg-black/60 pt-[min(12dvh,calc(var(--presenter-frame-height)*0.12))]"
       onClick={onClose}
       data-app-chrome
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-[min(640px,92vw)] overflow-hidden rounded-xl bg-neutral-900 shadow-2xl ring-1 ring-neutral-700"
+        className="w-[min(640px,calc(var(--presenter-frame-width)_-_32px),92vw)] overflow-hidden rounded-xl bg-neutral-900 shadow-2xl ring-1 ring-neutral-700"
       >
         <input
           autoFocus
@@ -100,7 +101,7 @@ export function CommandPalette({ open, onClose, slides, onJump, onOpenOverview, 
           placeholder="Jump to slide or run a command…"
           className="w-full bg-transparent px-4 py-3 text-base text-white placeholder:text-neutral-500 outline-none"
         />
-        <div className="max-h-[50vh] overflow-y-auto border-t border-neutral-800">
+        <div className="max-h-[min(50dvh,calc(var(--presenter-frame-height)*0.5))] overflow-y-auto border-t border-neutral-800">
           {items.length === 0 ? (
             <div className="px-4 py-6 text-center text-sm text-neutral-500">No matches</div>
           ) : (

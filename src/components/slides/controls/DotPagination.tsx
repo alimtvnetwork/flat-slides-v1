@@ -26,10 +26,12 @@ export function DotPagination({ current, total, slides, onJump, className }: Pro
   return (
     <nav
       data-print-hide="true"
+      data-presenter-frame-anchor="bottom-center"
+      style={{ ["--presenter-safe-inset" as string]: "80px" }}
       aria-label="Slide pagination"
       className={cn(
-        "fixed bottom-20 left-1/2 -translate-x-1/2 z-30",
-        "max-w-[min(90vw,1200px)]",
+        "fixed -translate-x-1/2 z-30",
+        "max-w-[min(var(--presenter-frame-width),90vw,1200px)]",
         className,
       )}
     >

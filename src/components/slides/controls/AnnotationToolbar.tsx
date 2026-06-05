@@ -44,7 +44,9 @@ export function AnnotationToolbar({ slideId }: Props) {
   return (
     <div
       data-print-hide="true"
-      className="fixed bottom-16 left-1/2 z-30 -translate-x-1/2 rounded-full border border-white/15 bg-black/70 px-3 py-1.5 text-xs text-white shadow-lg backdrop-blur-md flex items-center gap-2"
+      data-presenter-frame-anchor="bottom-center"
+      style={{ ["--presenter-safe-inset" as string]: "64px" }}
+      className="fixed z-30 -translate-x-1/2 rounded-full border border-white/15 bg-black/70 px-3 py-1.5 text-xs text-white shadow-lg backdrop-blur-md flex items-center gap-2"
     >
       <span className="font-medium uppercase tracking-wide opacity-80">{MODE_LABEL[mode]}</span>
       <span className="mx-1 h-3 w-px bg-white/20" />

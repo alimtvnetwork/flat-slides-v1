@@ -28,9 +28,11 @@ export function SlideNumberBadge({ current, total, display, className }: Props) 
   return (
     <div
       data-print-hide="true"
+      data-presenter-frame-anchor="bottom-right"
+      style={{ ["--presenter-safe-inset" as string]: "20px" }}
       aria-live="polite"
       className={cn(
-        "fixed bottom-4 right-5 z-30 pointer-events-none select-none",
+        "fixed z-30 pointer-events-none select-none",
         "rounded-full border border-white/15 bg-black/40 backdrop-blur-md",
         "px-3 py-1 text-[12px] font-medium text-white/70 tabular-nums shadow-md",
         className,

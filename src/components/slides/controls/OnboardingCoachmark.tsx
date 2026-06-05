@@ -39,7 +39,8 @@ export function OnboardingCoachmark() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[90] flex items-center justify-center bg-black/60 backdrop-blur-sm"
+        data-presenter-frame-bound="true"
+        className="fixed z-[90] flex items-center justify-center bg-black/60 backdrop-blur-sm"
         onClick={markSeen}
         data-print-hide="true"
         role="dialog"
@@ -52,7 +53,7 @@ export function OnboardingCoachmark() {
           exit={reduced ? { opacity: 0 } : { opacity: 0, y: 12 }}
           transition={reduced ? { duration: 0.12 } : { type: "spring", stiffness: 380, damping: 30 }}
           onClick={(e) => e.stopPropagation()}
-          className="relative w-[min(92vw,520px)] rounded-2xl border border-white/15 bg-neutral-950/95 p-6 text-white shadow-2xl"
+          className="relative w-[min(92vw,520px,calc(var(--presenter-frame-width)_-_32px))] rounded-2xl border border-white/15 bg-neutral-950/95 p-6 text-white shadow-2xl"
         >
           <button
             type="button"
