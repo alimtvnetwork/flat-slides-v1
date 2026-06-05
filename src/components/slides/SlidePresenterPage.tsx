@@ -338,6 +338,8 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
             open={paletteOpen}
             onClose={() => setPaletteOpen(false)}
             slides={allSlides}
+            onJump={jump}
+            onOpenOverview={openDeckOverview}
             onOpenSettings={() => setSettingsOpen(true)}
             onPresent={toggleFs}
             onOpenLint={() => setLintOpen(true)}
