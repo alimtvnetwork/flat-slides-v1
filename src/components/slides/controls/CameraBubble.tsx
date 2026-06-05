@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Camera, CameraOff, Circle, Crosshair, FlipHorizontal2, Maximize, PictureInPicture2, RectangleHorizontal, Shapes, Sparkles, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 import squircleMask from "@/assets/camera-2026/02-squircle-mask-black.png";
@@ -78,21 +78,26 @@ export function CameraBubble() {
 
   useEffect(() => setMounted(true), []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (typeof window === "undefined") return;
     const update = () => setStageFrame(readStageFrame());
     update();
-    const frame = requestAnimationFrame(update);
+    const frames = Array.from({ length: 8 }, (_, index) => requestAnimationFrame(() => {
+      update();
+      if (index === 7 && stageFill) setStageFrame(readStageFrame());
+    }));
     const ro = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(update);
     const stage = document.querySelector<HTMLElement>(".slide-wrapper");
     if (stage) ro?.observe(stage);
     window.addEventListener("resize", update);
+    document.addEventListener("fullscreenchange", update);
     return () => {
-      cancelAnimationFrame(frame);
+      for (const frame of frames) cancelAnimationFrame(frame);
       window.removeEventListener("resize", update);
+      document.removeEventListener("fullscreenchange", update);
       ro?.disconnect();
     };
-  }, []);
+  }, [isFs, scene, stageFill]);
 
   // Auto-start whenever the bubble is opened from chrome state.
   useEffect(() => {
