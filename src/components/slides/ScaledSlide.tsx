@@ -23,8 +23,8 @@ export function ScaledSlide({ children, className, fitPadding = 0 }: Props) {
       const safeWidth = Math.max(1, width - fitPadding * 2);
       const safeHeight = Math.max(1, height - fitPadding * 2);
       const nextScale = Math.min(safeWidth / CANVAS_WIDTH, safeHeight / CANVAS_HEIGHT);
-      document.documentElement.style.setProperty("--stage-scale", String(nextScale));
-      writePresenterFrameVars(rect, nextScale);
+      el.style.setProperty("--stage-scale", String(nextScale));
+      if (isPresenterStage(el)) writePresenterFrameVars(rect, nextScale);
     };
     const scheduleRecompute = () => scheduleSettledFrames(recompute, frames);
     recompute();
@@ -40,13 +40,13 @@ export function ScaledSlide({ children, className, fitPadding = 0 }: Props) {
       window.removeEventListener("resize", scheduleRecompute);
       window.visualViewport?.removeEventListener("resize", scheduleRecompute);
       document.removeEventListener("fullscreenchange", scheduleRecompute);
-      clearPresenterFrameVars();
+      if (isPresenterStage(el)) clearPresenterFrameVars();
       ro?.disconnect();
     };
   }, [fitPadding]);
 
   return (
-    <div ref={stageRef} className={`slide-stage ${className ?? ""}`} style={{ ["--fit-padding" as string]: `${fitPadding}px` }}>
+    <div ref={stageRef} className={`slide-stage ${className ?? ""}`} style={{ ["--fit-padding" as string]: `${fitPadding}px`, ["--stage-scale" as string]: "0.1" }}>
       <div className="slide-wrapper">
         {children}
       </div>
@@ -75,6 +75,10 @@ function writePresenterFrameVars(rect: ContainerRect, scale: number) {
   document.documentElement.style.setProperty("--presenter-frame-top", `${Math.round(top)}px`);
   document.documentElement.style.setProperty("--presenter-frame-right", `${Math.round(Math.max(0, width - left - frameWidth))}px`);
   document.documentElement.style.setProperty("--presenter-frame-bottom", `${Math.round(Math.max(0, height - top - frameHeight))}px`);
+}
+
+function isPresenterStage(el: HTMLElement) {
+  return Boolean(el.closest("[data-slide-presenter-root]"));
 }
 
 function readViewportSize() {
