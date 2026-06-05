@@ -6,6 +6,13 @@ import { CameraBubble } from "./CameraBubble";
 
 const RESET_CAMERA = useChrome.getState().camera;
 
+function createSlidesRoot() {
+  const root = document.createElement("div");
+  root.setAttribute("data-slides-fullscreen-root", "");
+  document.body.appendChild(root);
+  return root;
+}
+
 function setFullscreenElement(element: Element | null) {
   Object.defineProperty(document, "fullscreenElement", {
     configurable: true,
@@ -33,6 +40,7 @@ describe("CameraBubble shape surfaces", () => {
   });
 
   it("uses the supplied squircle mask and two image plates for squircle mode", () => {
+    createSlidesRoot();
     render(<CameraBubble />);
 
     const region = screen.getByRole("region", { name: /presenter camera/i });
@@ -45,6 +53,7 @@ describe("CameraBubble shape surfaces", () => {
   });
 
   it("does not show squircle plates for circle mode", () => {
+    createSlidesRoot();
     useChrome.setState({ camera: { ...useChrome.getState().camera, shape: "circle" } });
     render(<CameraBubble />);
 
@@ -56,6 +65,7 @@ describe("CameraBubble shape surfaces", () => {
   });
 
   it("applies camera background color and image settings to the shaped frame", () => {
+    createSlidesRoot();
     useChrome.setState({
       camera: {
         ...useChrome.getState().camera,
@@ -73,6 +83,7 @@ describe("CameraBubble shape surfaces", () => {
   });
 
   it("cycles camera shape with the spec shortcut O", () => {
+    createSlidesRoot();
     useChrome.setState({ camera: { ...useChrome.getState().camera, shape: "circle" } });
     render(<CameraBubble />);
 
@@ -85,7 +96,8 @@ describe("CameraBubble shape surfaces", () => {
     document.documentElement.style.setProperty("--stage-scale", "0.5");
     document.documentElement.style.setProperty("--presenter-frame-left", "100px");
     document.documentElement.style.setProperty("--presenter-frame-top", "50px");
-    document.body.innerHTML = '<div class="slide-wrapper"></div>';
+    const root = createSlidesRoot();
+    root.innerHTML = '<div class="slide-wrapper"></div>';
     const rectSpy = vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function (this: HTMLElement) {
       if (this.classList.contains("slide-wrapper")) {
         return { left: 100, top: 50, width: 960, height: 540, right: 1060, bottom: 590, x: 100, y: 50, toJSON: () => ({}) } as DOMRect;
@@ -108,6 +120,7 @@ describe("CameraBubble shape surfaces", () => {
   });
 
   it("clamps free camera chrome to the measured presenter frame", async () => {
+    createSlidesRoot();
     document.documentElement.style.setProperty("--stage-scale", "0.5");
     document.documentElement.style.setProperty("--presenter-frame-left", "100px");
     document.documentElement.style.setProperty("--presenter-frame-top", "50px");
@@ -123,8 +136,7 @@ describe("CameraBubble shape surfaces", () => {
   });
 
   it("clips camera controls to the bubble surface in fullscreen", async () => {
-    const root = document.createElement("div");
-    document.body.appendChild(root);
+    const root = createSlidesRoot();
     setFullscreenElement(root);
 
     render(<CameraBubble />);
