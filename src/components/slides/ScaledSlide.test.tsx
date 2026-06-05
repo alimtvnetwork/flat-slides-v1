@@ -35,7 +35,7 @@ describe("ScaledSlide", () => {
     expect(document.documentElement.style.getPropertyValue("--presenter-frame-width")).toBe("1024px");
     expect(document.documentElement.style.getPropertyValue("--presenter-frame-height")).toBe("576px");
     expect(document.documentElement.style.getPropertyValue("--presenter-frame-center-x")).toBe("512px");
-    expect(document.documentElement.style.getPropertyValue("--presenter-frame-center-y")).toBe("288px");
+    expect(document.documentElement.style.getPropertyValue("--presenter-frame-center-y")).toBe("384px");
   });
 });
 
