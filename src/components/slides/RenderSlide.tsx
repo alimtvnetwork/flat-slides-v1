@@ -77,26 +77,14 @@ function ThemeWrap({ slide, children }: { slide: Slide; children: React.ReactNod
   const settings = useDeck((s) => s.deck.settings);
   const theme = getTheme(slide.themeId ?? deckThemeId);
   const style: React.CSSProperties = { ...themeStyle(theme), position: "absolute", inset: 0 };
-  const { color, image } = resolveBackground(slide, settings);
-  // Make slide-content transparent so the unified background layer below shows through.
-  (style as Record<string, string>)["--slide-bg"] = "transparent";
-  const darken = Math.max(0, Math.min(100, settings.darken ?? 0));
-  const blur = Math.max(0, Math.min(20, settings.blur ?? 0));
-  const themeBg = (theme as { bg?: string }).bg ?? "oklch(0.16 0 0)";
-  const bgStyle: React.CSSProperties = image
-    ? {
-        backgroundImage: `url(${image})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        filter: blur > 0 ? `blur(${blur}px)` : undefined,
-      }
-    : {
-        background: color ?? themeBg,
-        filter: blur > 0 ? `blur(${blur}px)` : undefined,
-      };
+  const background = resolveSlideBackground(slide, settings);
+  const darken = clampDarkenPercent(settings.darken);
+  const blur = clampBackgroundBlurPx(settings.blur);
+  (style as Record<string, string>)["--slide-bg"] = resolveSlideBgVariable(background);
+  const bgStyle = resolveBackgroundLayerStyle(background, theme, blur);
   return (
     <div style={style}>
-      <div className="absolute inset-0" aria-hidden style={bgStyle} />
+      <div className="absolute inset-0" aria-hidden data-slide-bg-layer style={bgStyle} />
       {darken > 0 ? (
         <div
           className="absolute inset-0 pointer-events-none"
