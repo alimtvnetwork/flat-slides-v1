@@ -297,16 +297,20 @@ function TimelineSlide({ slide, step }: { slide: TimelineSlideProps; step: numbe
 
       <div
         className="absolute left-1/2 -translate-x-1/2 text-center"
-        style={{ top: 205, width: 1320 }}
+        style={{ top: 205, width: 1320, height: 460, position: "absolute" }}
       >
-        <AnimatePresence mode="wait" initial={false}>
+        <AnimatePresence initial={false}>
           <motion.div
             key={focus}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: reducedMotion ? 0 : 0.25, ease: "easeOut" }}
-            style={{ overflowWrap: "break-word" }}
+            transition={{ duration: reducedMotion ? 0 : 0.45, ease: "easeOut" }}
+            style={{
+              position: "absolute",
+              inset: 0,
+              overflowWrap: "break-word",
+            }}
           >
             <div className="slide-kicker slide-heading mb-[22px]" style={{ color: "var(--slide-hl)" }}>
               {focused?.label ?? ""}
