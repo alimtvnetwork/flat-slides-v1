@@ -286,3 +286,18 @@ src/components/slides/deckMusicPlayer.test.ts
 src/components/slides/settingsStore.test.ts` passes 10/10, including:
 crossfade volume math at `CROSSFADE_MS`, no crossfade when paused, and
 clean revert to deck music when the override clears.
+
+## Step 22 — Controller mount audit
+
+Audit: `ControllerPill` is mounted exactly once in `SlidePresenterPage`,
+which itself is hoisted into the `slides.$slideId.tsx` layout (step 8). The
+pill renders with `position: fixed` and portals into the slides fullscreen
+root (`getSlidesPortalRoot()`), so it survives both `/N` ↔ `/N/S` route-param
+transitions and native fullscreen target swaps. `slides.tsx` is deliberately
+NOT the mount point — handout/print/overview routes share that layout and
+must not render the presenter controller.
+
+Regression: added `controls/ControllerPill.mount.test.tsx` asserting
+exactly one `[aria-label="Slide controller"]` after rerenders simulating
+`/N ↔ /N/S` prop changes, that the toolbar is `position: fixed`, and that
+it portals into the slides fullscreen root when present. 3/3 pass.
