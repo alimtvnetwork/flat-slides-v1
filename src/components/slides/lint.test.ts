@@ -11,6 +11,7 @@ const baseSettings: Deck["settings"] = {
   transition: "fade",
   soundEnabled: true,
   volume: 0.6,
+  musicVolume: 40,
 };
 
 const deckOf = (slides: Slide[], overrides: Partial<Deck> = {}): Deck => ({
