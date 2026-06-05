@@ -104,9 +104,9 @@ export async function enterFullscreen(target?: HTMLElement | null, environment: 
   // Fullscreen the stable `/slides` layout root, not the slide/step leaf.
   // It stays mounted across `/slides/N` ↔ `/slides/N/S`, and native fullscreen
   // clips every presenter portal to the same visual surface.
-  const fullscreenTarget = getSlidesFullscreenRoot() ?? document.documentElement;
+  const fullscreenTarget = getSlidesFullscreenRoot();
   if (document.fullscreenEnabled === false) return { ok: false, reason: "unsupported" };
-  if (!fullscreenTarget.requestFullscreen) return { ok: false, reason: "unsupported" };
+  if (!fullscreenTarget?.requestFullscreen) return { ok: false, reason: "unsupported" };
 
   try {
     await fullscreenTarget.requestFullscreen();
