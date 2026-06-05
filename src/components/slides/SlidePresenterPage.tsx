@@ -80,6 +80,7 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
   const toggleCamera = useChrome((s) => s.toggleCamera);
   const cycleCameraSize = useChrome((s) => s.cycleCameraSize);
   const toggleMusic = useChrome((s) => s.toggleMusic);
+  const setSlideMusic = useChrome((s) => s.setSlideMusic);
   const cycleScene = useChrome((s) => s.cycleScene);
   const scene = useChrome((s) => s.scene);
   const focusEditorOpen = useChrome((s) => s.focusEditorOpen);
