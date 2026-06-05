@@ -14,7 +14,7 @@ import {
 import { useCallback, useEffect } from "react";
 
 import { PresenterFallbackLink } from "@/components/slides/controls/PresenterFallbackLink";
-import { HOME_PRESENT_SLIDE_ID, getHomePresentUrl, openHomePresenterWindow } from "@/components/slides/home-present";
+import { HOME_PRESENT_SLIDE_ID, getHomePresentUrl, openHomePresenterWindow, shouldNavigateHomeAfterPresent } from "@/components/slides/home-present";
 import { enterFullscreen, reportFullscreenFailure } from "@/components/slides/useFullscreen";
 
 export const Route = createFileRoute("/")({
@@ -42,8 +42,7 @@ function Index() {
   const presentDeck = useCallback(async () => {
     const result = await enterFullscreen(null, { openPresenterWindow: openHomePresenterWindow });
     reportFullscreenFailure(result, { fallbackUrl: getHomePresentUrl(window.location.origin) });
-    if (result.ok && result.mode === "presenter-window") return;
-    if (!result.ok && result.reason === "embedded-popup-blocked") return;
+    if (!shouldNavigateHomeAfterPresent(result)) return;
     await navigate({ to: "/slides/$slideId", params: { slideId: HOME_PRESENT_SLIDE_ID }, search: { present: 1 } as never });
   }, [navigate]);
 
