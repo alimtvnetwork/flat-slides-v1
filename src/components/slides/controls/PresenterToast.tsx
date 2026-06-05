@@ -34,7 +34,9 @@ export function PresenterToast() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 8 }}
           transition={{ duration: 0.18 }}
-          className="pointer-events-none fixed bottom-24 left-1/2 z-[70] -translate-x-1/2 rounded-full border border-white/15 bg-black/80 px-4 py-1.5 text-xs uppercase tracking-wide text-white shadow-lg backdrop-blur"
+          data-presenter-frame-anchor="bottom-center"
+          style={{ ["--presenter-safe-inset" as string]: "96px" }}
+          className="pointer-events-none fixed z-[70] -translate-x-1/2 rounded-full border border-white/15 bg-black/80 px-4 py-1.5 text-xs uppercase tracking-wide text-white shadow-lg backdrop-blur"
         >
           {visible.text}
         </motion.div>
