@@ -14,7 +14,7 @@ test.describe("controller happy path", () => {
     await page.evaluate(() => localStorage.removeItem("riseup.controller.anchor"));
     await page.reload();
 
-    const pill = page.locator('[data-controller-pill]').first();
+    const pill = page.getByRole("toolbar", { name: "Slide controller" });
     await expect(pill).toBeVisible();
 
     await page.keyboard.press("b");
