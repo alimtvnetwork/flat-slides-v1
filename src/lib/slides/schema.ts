@@ -187,6 +187,7 @@ export const DeckSettingsSchema = z.object({
   backgroundMode: z.enum(["color", "image", "dark"]),
   backgroundColor: z.string().min(1).max(64),
   backgroundImage: z.string().max(4096).optional(),
+  textColor: z.string().min(1).max(64).optional(),
   darken: z.number().min(0).max(100),
   blur: z.number().min(0).max(20),
   transition: z.enum(["fade", "camera-zoom"]),
