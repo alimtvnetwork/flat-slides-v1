@@ -139,15 +139,21 @@ export function ControllerPill(props: Props) {
                 >
                   <Camera size={15} />
                 </PillButton>
-                <MusicToggle compact />
-                <ThemeChip />
                 <ShareMenu current={current} />
-                <PillButton onClick={onOpenSettings} ariaLabel="Settings">
-                  <Settings size={15} />
-                </PillButton>
-                <PillButton onClick={onOpenHelp} ariaLabel="Keyboard shortcuts">
-                  <HelpCircle size={15} />
-                </PillButton>
+                {narrow ? (
+                  <ControllerOverflowMenu onOpenSettings={onOpenSettings} onOpenHelp={onOpenHelp} />
+                ) : (
+                  <>
+                    <MusicToggle compact />
+                    <ThemeChip />
+                    <PillButton onClick={onOpenSettings} ariaLabel="Settings">
+                      <Settings size={15} />
+                    </PillButton>
+                    <PillButton onClick={onOpenHelp} ariaLabel="Keyboard shortcuts">
+                      <HelpCircle size={15} />
+                    </PillButton>
+                  </>
+                )}
 
                 <span
                   className="ml-1 hidden text-[10px] uppercase tracking-wider text-white/35 md:inline"
