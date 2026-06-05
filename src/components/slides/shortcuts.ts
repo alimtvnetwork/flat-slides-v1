@@ -105,11 +105,11 @@ export const SHORTCUTS: ShortcutDef[] = [
     "Inspector next slide or step",
     "Navigation",
   ),
-  inspectorShortcut("inspector-reset-timer", "R", ["r"], "Reset inspector timer", "Timer"),
+  inspectorShortcut("inspector-reset-timer", "R", ["r", "KeyR"], "Reset inspector timer", "Timer"),
   inspectorShortcut(
     "inspector-toggle-timer-pause",
     "P",
-    ["p"],
+    ["p", "KeyP"],
     "Pause / resume inspector timer",
     "Timer",
   ),
