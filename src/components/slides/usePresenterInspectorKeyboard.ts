@@ -41,8 +41,8 @@ export function usePresenterInspectorKeyboard(model: PresenterInspectorModel) {
 
 function listenForInspectorKeys(input: InspectorKeyInput) {
   const onKeyDown = (event: KeyboardEvent) => handleInspectorKey(event, input);
-  window.addEventListener("keydown", onKeyDown, { capture: true });
-  return () => window.removeEventListener("keydown", onKeyDown, true);
+  document.addEventListener("keydown", onKeyDown, { capture: true });
+  return () => document.removeEventListener("keydown", onKeyDown, true);
 }
 
 function handleInspectorKey(event: KeyboardEvent, input: InspectorKeyInput) {
