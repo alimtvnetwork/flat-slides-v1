@@ -23,3 +23,6 @@
 ## Avoid
 - [01-no-camera-zoom-default.md](avoid/01-no-camera-zoom-default.md) — never default to camera-zoom on lists/steps/timeline
 - [02-no-hl-glow.md](avoid/02-no-hl-glow.md) — never add blur/glow layers to `.hl`
+
+## Features
+- [01-presenter-controller-pill.md](features/01-presenter-controller-pill.md) — B21 controller pill: 4 anchors (`riseup.controller.anchor`, `B` shortcut), hover-reveal w/ reduced-motion, <1280px overflow menu, single keymap via SHORTCUTS + presenterActions
