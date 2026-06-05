@@ -24,6 +24,7 @@ import {
   parseSlideJson,
   pickJsonFile,
 } from "@/lib/slides/io";
+import { MAX_MUSIC_VOLUME, MIN_MUSIC_VOLUME, MUSIC_VOLUME_STEP } from "@/lib/slides/musicVolume";
 // Inline-loaded LLM spec sample deck (see docs/slides/spec/llm-json-guideline.md).
 import sampleDeckJson from "../../../docs/slides/spec/sample-deck.json?raw";
 
@@ -307,6 +308,14 @@ export function SettingsDrawer({
             onChange={(e) => setSettings({ volume: Number(e.target.value) })}
             className="w-full"
             disabled={!settings.soundEnabled}
+          />
+          <label className="text-xs uppercase tracking-wider text-neutral-400">
+            Music volume ({settings.musicVolume}%)
+          </label>
+          <input
+            type="range" min={MIN_MUSIC_VOLUME} max={MAX_MUSIC_VOLUME} step={MUSIC_VOLUME_STEP} value={settings.musicVolume}
+            onChange={(e) => setSettings({ musicVolume: Number(e.target.value) })}
+            className="w-full"
           />
           <button
             type="button"
