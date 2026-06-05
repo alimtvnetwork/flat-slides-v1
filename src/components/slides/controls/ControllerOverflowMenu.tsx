@@ -1,4 +1,6 @@
-import { HelpCircle, MoreHorizontal, Settings } from "lucide-react";
+import { HelpCircle, MonitorPlay, MoreHorizontal, Settings } from "lucide-react";
+
+import { useSlideNumber } from "./useSlideNumber";
 
 import {
   DropdownMenu,
