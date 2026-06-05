@@ -147,3 +147,17 @@ passes 2/2 tests.
 
 - Q2 (dark preset overrides per-slide bg?) — pending user.
 - Q3 (per-slide music override in B21?) — pending user.
+
+## Step 13 — Dark background preset
+
+Added a third `backgroundMode: "dark"` to `DeckSettings`, the deck schema,
+and the SettingsDrawer mode toggle. `resolveSlideBackground` returns the
+dark color override for the new mode, and `ThemeWrap` additionally rewrites
+`--slide-fg`, `--slide-muted`, and `--slide-text-shadow` to a fixed light
+preset so dark mode is authoritative regardless of the active theme (Snow,
+Paper, etc.). Dark tokens live as module constants in `slideBackground.ts`
+(`DARK_PRESET_BG = #0a0a0a`, `DARK_PRESET_FG = #fafafa`,
+`DARK_PRESET_MUTED = #a3a3a3`) per guideline 8.
+
+Verified: `bunx vitest run src/components/slides/themeWrap.test.tsx` passes
+3/3 tests, including a `themeId: "paper"` slide rendered with dark mode.
