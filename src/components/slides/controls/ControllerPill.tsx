@@ -8,6 +8,8 @@ import { getSlidesPortalRoot } from "@/components/slides/fullscreenTarget";
 import { useReducedMotion } from "@/components/slides/useReducedMotion";
 import { cn } from "@/lib/utils";
 import { useHoverReveal } from "./useHoverReveal";
+import { useNarrowViewport } from "./useNarrowViewport";
+import { ControllerOverflowMenu } from "./ControllerOverflowMenu";
 
 import { anchorStyles, type ControllerAnchor } from "./controller-anchor";
 import { useControllerAnchor } from "./controller-anchor-store";
