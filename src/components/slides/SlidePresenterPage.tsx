@@ -156,8 +156,11 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
 
   keyHandlerRef.current = (e: KeyboardEvent) => {
       if (!slide) return;
-      const tag = (e.target as HTMLElement)?.tagName;
-      if (tag === "INPUT" || tag === "TEXTAREA" || (e.target as HTMLElement)?.isContentEditable) return;
+      const target = e.target as HTMLElement | null;
+      const tag = target?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || target?.isContentEditable) return;
+      const targetUsesNativeActivation = Boolean(target?.closest("button,a,select,[role='button'],[role='menuitem'],[role='slider']"));
+      if (targetUsesNativeActivation && (e.key === "Enter" || e.key === " " || e.code === "Space" || e.key === "Spacebar")) return;
       if (settingsOpen || paletteOpen || lintOpen || helpOpen) return;
       if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === "l") {
         e.preventDefault(); setLintOpen((o) => !o); return;
