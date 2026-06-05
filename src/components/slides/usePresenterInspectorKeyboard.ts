@@ -48,7 +48,22 @@ function listenForInspectorKeys(input: InspectorKeyInput) {
 function handleInspectorKey(event: KeyboardEvent, input: InspectorKeyInput) {
   if (event.repeat || event.metaKey || event.ctrlKey || event.altKey) return;
   if (isTextEntryTarget(event.target)) return;
+  if (handleDirectInspectorKey(event, input)) return;
   dispatchInspectorKey(toInspectorCtx(event, input));
+}
+
+function handleDirectInspectorKey(event: KeyboardEvent, input: InspectorKeyInput) {
+  const key = keyName(event);
+  if (key === "r") return runInspectorAction(event, () => input.resetTimer(Date.now()));
+  if (key === "p") return runInspectorAction(event, () => input.togglePause(Date.now()));
+  if (key === "escape") return runInspectorAction(event, input.exit);
+  return false;
+}
+
+function runInspectorAction(event: KeyboardEvent, action: () => void) {
+  event.preventDefault();
+  action();
+  return true;
 }
 
 function toInspectorCtx(event: KeyboardEvent, input: InspectorKeyInput) {
@@ -127,6 +142,12 @@ function isTextEntryTarget(target: EventTarget | null) {
   return (
     tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || Boolean(element?.isContentEditable)
   );
+}
+
+function keyName(event: KeyboardEvent) {
+  const key = event.key.toLowerCase();
+  if (key.length === 1) return key;
+  return event.code.toLowerCase().replace(/^key/, "") || key;
 }
 
 function clampSlideNumber(value: number, total: number) {
