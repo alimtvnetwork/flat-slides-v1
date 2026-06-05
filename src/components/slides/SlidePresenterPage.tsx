@@ -226,7 +226,6 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
         goPrevStepAware();
       }
     };
-  };
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => keyHandlerRef.current(event);
