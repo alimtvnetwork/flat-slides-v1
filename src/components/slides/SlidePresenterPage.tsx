@@ -364,7 +364,7 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
         </div>
         {surfaces}
       </SlideStageShell>
-      {controller}
+      {!isFs && controller}
       <PresenterToast />
       <PresenterFallbackLink />
       <PresenterAutoStart />
