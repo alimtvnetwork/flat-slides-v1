@@ -227,6 +227,7 @@ export interface DeckSettings {
   transition: TransitionKind;
   soundEnabled: boolean;
   volume: number; // 0-1
+  musicVolume: number; // 0-100
 }
 
 export interface DeckMusic {
