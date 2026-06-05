@@ -80,6 +80,12 @@ export interface BaseSlide {
     url?: string;
     /** 0..1 gain multiplier. */
     volume?: number;
+    /**
+     * Per-slide background-music override. While this slide is active the
+     * presenter cross-fades from the deck's music (or previous override) to
+     * this URL. Reverts to deck music when the slide is no longer active.
+     */
+    music?: { url: string; loop?: boolean; volume?: number };
   };
 }
 
