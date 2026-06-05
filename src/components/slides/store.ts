@@ -5,19 +5,10 @@ import { DeckSchema } from "@/lib/slides/schema";
 import { DECK_SCHEMA_VERSION } from "@/lib/slides/version";
 
 import { useChrome } from "./chrome-store";
+import { getDefaultDeckSettings, persistDeckSettings, readPersistedDeckSettings, resetPersistedDeckSettings } from "./settingsPersistence";
 import { emitSlidesEvent } from "./telemetry";
 import { DEFAULT_THEME_ID } from "./themes";
 import type { Deck, DeckSettings, Slide } from "./types";
-
-const defaultSettings: DeckSettings = {
-  backgroundMode: "color",
-  backgroundColor: "#101010",
-  darken: 0,
-  blur: 0,
-  transition: "fade",
-  soundEnabled: true,
-  volume: 0.6,
-};
 
 const seedSlides: Slide[] = [
   {
@@ -137,7 +128,7 @@ const defaultDeck: Deck = {
   title: "Sample Deck",
   themeId: DEFAULT_THEME_ID,
   slides: seedSlides,
-  settings: defaultSettings,
+  settings: getDefaultDeckSettings(),
   version: DECK_SCHEMA_VERSION,
 };
 
@@ -145,6 +136,10 @@ export function forceFadeTransition(deck: Deck): Deck {
   const safeDeck = repairBundledFocusDemo(deck);
   if (safeDeck.settings.transition === "fade" || safeDeck.settings.transition === "camera-zoom") return safeDeck;
   return { ...safeDeck, settings: { ...safeDeck.settings, transition: "fade" } };
+}
+
+function applyPersistedSettings(deck: Deck): Deck {
+  return { ...deck, settings: readPersistedDeckSettings(deck.settings) };
 }
 
 function repairBundledFocusDemo(deck: Deck): Deck {
@@ -177,7 +172,7 @@ function getUsablePersistedDeck(value: unknown): Pick<DeckStore, "deck" | "theme
   if ((parsed.data.version ?? 1) !== DECK_SCHEMA_VERSION) return null;
 
   return {
-    deck: forceFadeTransition(parsed.data as Deck),
+    deck: applyPersistedSettings(forceFadeTransition(parsed.data as Deck)),
     themeId: state.themeId ?? parsed.data.themeId ?? DEFAULT_THEME_ID,
   };
 }
@@ -205,7 +200,11 @@ export const useDeck = create<DeckStore>()(
       deck: defaultDeck,
       themeId: DEFAULT_THEME_ID,
       setSettings: (patch) =>
-        set((s) => ({ deck: forceFadeTransition({ ...s.deck, settings: { ...s.deck.settings, ...patch } }) })),
+        set((s) => {
+          const settings = { ...s.deck.settings, ...patch };
+          persistDeckSettings(settings);
+          return { deck: forceFadeTransition({ ...s.deck, settings }) };
+        }),
       setThemeId: (id) => {
         set((s) => ({ themeId: id, deck: { ...s.deck, themeId: id } }));
         // Remember the user's most-recent theme choice so future scratch decks
@@ -217,6 +216,7 @@ export const useDeck = create<DeckStore>()(
       setDeck: (deck) =>
         set(() => {
           const safeDeck = forceFadeTransition(deck);
+          persistDeckSettings(safeDeck.settings);
           emitSlidesEvent({
             type: "deck-load",
             slideCount: safeDeck.slides.length,
@@ -244,7 +244,8 @@ export const useDeck = create<DeckStore>()(
         set((s) => ({ deck: { ...s.deck, slides: s.deck.slides.filter((x) => x.id !== id) } })),
       resetDeck: () => {
         const preferred = useChrome.getState().lastUsedThemeId ?? DEFAULT_THEME_ID;
-        set({ deck: { ...defaultDeck, themeId: preferred }, themeId: preferred });
+        const settings = resetPersistedDeckSettings();
+        set({ deck: { ...defaultDeck, settings, themeId: preferred }, themeId: preferred });
       },
       setLastVisited: (id) => set({ lastVisitedSlideId: id }),
       getSlideIndex: (id) => get().deck.slides.findIndex((s) => s.id === id),
