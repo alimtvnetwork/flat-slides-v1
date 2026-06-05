@@ -12,12 +12,12 @@ import { useDeck } from "./store";
  */
 export function useDeckMusic() {
   const music = useDeck((s) => s.deck.music);
+  const musicVolume = useDeck((s) => s.deck.settings.musicVolume);
   const playing = useChrome((s) => s.music.playing);
-  const volume = useChrome((s) => s.music.volume);
 
   useEffect(() => {
-    configureDeckMusic(music, volume);
-  }, [music?.url, music?.loop, volume]);
+    configureDeckMusic(music, musicVolume);
+  }, [music?.url, music?.loop, musicVolume]);
 
   useEffect(() => () => stopDeckMusic(), []);
 
