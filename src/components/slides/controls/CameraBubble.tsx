@@ -75,6 +75,7 @@ export function CameraBubble() {
   const [stageFrame, setStageFrame] = useState(() => readStageFrame());
   const reducedMotion = useReducedMotion();
   const autoFrame = useAutoFrame(videoRef, camera.visible && camera.autoFrame && status === "active");
+  const stageFill = scene === "stage-fill";
 
   useEffect(() => setMounted(true), []);
 
@@ -178,7 +179,6 @@ export function CameraBubble() {
   if (!camera.visible) return null;
   if (camera.fullscreenOnly && !isFs) return null;
 
-  const stageFill = scene === "stage-fill";
   const dims = cameraDimensions(camera);
   const visualWidth = Math.round((stageFill ? CAMERA_STAGE.w : dims.w) * stageFrame.scale);
   const visualHeight = Math.round((stageFill ? CAMERA_STAGE.h : dims.h) * stageFrame.scale);
