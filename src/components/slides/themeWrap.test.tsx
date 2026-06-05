@@ -59,4 +59,21 @@ describe("ThemeWrap background pipeline", () => {
     expect(root.style.getPropertyValue("--slide-fg")).toBe("#fafafa");
     expect(root.style.getPropertyValue("--slide-text-shadow")).toBe("none");
   });
+
+  it("renders a darken overlay above the bg layer with opacity = darken/100", () => {
+    act(() => useDeck.getState().setSettings({ backgroundMode: "color", backgroundColor: "#224466", darken: 40 }));
+    const { container } = render(<RenderSlide slide={SLIDE} />);
+
+    const overlays = container.querySelectorAll('div[aria-hidden]');
+    expect(overlays.length).toBe(2);
+    const overlay = overlays[1] as HTMLElement;
+    expect(overlay.style.background).toContain("rgba(0, 0, 0, 0.4)");
+  });
+
+  it("omits the darken overlay when darken is 0", () => {
+    act(() => useDeck.getState().setSettings({ backgroundMode: "color", backgroundColor: "#224466", darken: 0 }));
+    const { container } = render(<RenderSlide slide={SLIDE} />);
+
+    expect(container.querySelectorAll('div[aria-hidden]').length).toBe(1);
+  });
 });
