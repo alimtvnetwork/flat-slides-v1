@@ -255,6 +255,7 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
       event.preventDefault();
       event.stopPropagation();
       button.blur();
+      button.dataset.slideNavHandledAt = String(Date.now());
       if (action === "next") moveNextStepAware();
       else movePrevStepAware();
     };

@@ -208,6 +208,10 @@ function PillButton({
         e.stopPropagation();
         if (navAction) {
           e.preventDefault();
+          const handledAt = Number(e.currentTarget.dataset.slideNavHandledAt ?? 0);
+          if (Date.now() - handledAt < 700) return;
+          e.currentTarget.blur();
+          onClick();
           return;
         }
         e.currentTarget.blur();
