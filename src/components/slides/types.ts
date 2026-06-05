@@ -219,7 +219,7 @@ export function getActiveFocusRegion(slide: Slide, step: number): FocusRegion | 
 export type TransitionKind = "fade" | "camera-zoom";
 
 export interface DeckSettings {
-  backgroundMode: "color" | "image";
+  backgroundMode: "color" | "image" | "dark";
   backgroundColor: string;
   backgroundImage?: string;
   darken: number; // 0-100
