@@ -178,3 +178,24 @@ only in image mode and paste/change both immediately apply image mode.
 
 Verified: `bunx vitest run src/components/slides/themeWrap.test.tsx` passes
 4/4 tests, including settings image priority and bg layer sizing/positioning.
+
+## Step 15 — Darken overlay
+
+Root cause/status: `ThemeWrap` already rendered a pointer-events-none darken
+overlay between the background layer and slide content, using
+`clampDarkenPercent(settings.darken) / 100` for opacity. The missing piece was
+regression coverage proving the overlay exists only when darken is above zero.
+
+Verified: `themeWrap.test.tsx` covers `darken: 40` → `rgba(..., 0.4)` and
+`darken: 0` → no overlay. The background pipeline remains single-path because
+the overlay lives inside `ThemeWrap`.
+
+## Step 16 — Blur clamp
+
+Root cause/status: `clampBackgroundBlurPx()` already limited Settings blur to
+the documented 0–20px range before `resolveBackgroundLayerStyle()` writes the
+CSS `filter`. The missing piece was regression coverage proving oversized
+settings cannot push unsupported blur values into the slide background layer.
+
+Verified: `themeWrap.test.tsx` covers `blur: 80` in image mode and asserts the
+rendered background layer filter is exactly `blur(20px)`.
