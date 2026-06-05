@@ -214,15 +214,23 @@ function StepsSlide({ slide, step }: { slide: StepsSlideProps; step: number }) {
           })}
         </ol>
         </div>
-        <div className="min-w-0 flex items-center justify-center text-center">
-          <AnimatePresence mode="wait" initial={false}>
+        <div className="min-w-0 relative flex items-center justify-center text-center" style={{ minHeight: 360 }}>
+          <AnimatePresence initial={false}>
             <motion.div
               key={focus}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: reducedMotion ? 0 : 0.25, ease: "easeOut" }}
-              style={{ width: "100%", maxWidth: 700, overflowWrap: "break-word" }}
+              transition={{ duration: reducedMotion ? 0 : 0.45, ease: "easeOut" }}
+              style={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                width: "100%",
+                maxWidth: 700,
+                overflowWrap: "break-word",
+              }}
             >
               <div className="slide-kicker slide-heading mb-[22px]" style={{ color: "var(--slide-hl)" }}>
                 {focused?.label ?? ""}
@@ -250,7 +258,7 @@ function StepsSlide({ slide, step }: { slide: StepsSlideProps; step: number }) {
         </div>
       </div>
       <div
-        className="slide-chrome absolute right-[60px] bottom-[44px]"
+        className="slide-chrome absolute left-[60px] bottom-[44px]"
         style={{ color: "var(--slide-muted)" }}
       >
         Step {focus + 1} / {slide.steps.length}
@@ -289,16 +297,20 @@ function TimelineSlide({ slide, step }: { slide: TimelineSlideProps; step: numbe
 
       <div
         className="absolute left-1/2 -translate-x-1/2 text-center"
-        style={{ top: 205, width: 1320 }}
+        style={{ top: 205, width: 1320, height: 460, position: "absolute" }}
       >
-        <AnimatePresence mode="wait" initial={false}>
+        <AnimatePresence initial={false}>
           <motion.div
             key={focus}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: reducedMotion ? 0 : 0.25, ease: "easeOut" }}
-            style={{ overflowWrap: "break-word" }}
+            transition={{ duration: reducedMotion ? 0 : 0.45, ease: "easeOut" }}
+            style={{
+              position: "absolute",
+              inset: 0,
+              overflowWrap: "break-word",
+            }}
           >
             <div className="slide-kicker slide-heading mb-[22px]" style={{ color: "var(--slide-hl)" }}>
               {focused?.label ?? ""}
@@ -435,7 +447,7 @@ function TimelineSlide({ slide, step }: { slide: TimelineSlideProps; step: numbe
       })}
 
       <div
-        className="slide-chrome absolute right-[60px] bottom-[44px]"
+        className="slide-chrome absolute left-[60px] bottom-[44px]"
         style={{ color: "var(--slide-muted)" }}
       >
         Step {focus + 1} / {items.length}
