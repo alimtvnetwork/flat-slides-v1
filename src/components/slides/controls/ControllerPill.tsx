@@ -100,7 +100,7 @@ export function ControllerPill(props: Props) {
       <motion.div
         key="expanded"
         initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
+        animate={{ opacity: isExpanded ? 1 : 0.28 }}
         exit={{ opacity: 0 }}
         transition={motionPreset}
         className={cn(
