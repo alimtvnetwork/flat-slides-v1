@@ -34,7 +34,7 @@ import { SlideTransition } from "@/components/slides/SlideTransition";
 import { getDisplayNumber, slideStepCount } from "@/components/slides/types";
 import { useFullscreen } from "@/components/slides/useFullscreen";
 import { emitSlidesEvent, installConsoleSink } from "@/components/slides/telemetry";
-import { SLIDES_FULLSCREEN_URL_CHANGE_EVENT, useSlideNavigation } from "@/components/slides/useSlideNavigation";
+import { SLIDES_FULLSCREEN_URL_CHANGE_EVENT, type SlidesFullscreenUrlChangeDetail, useSlideNavigation } from "@/components/slides/useSlideNavigation";
 import { PresenterTools } from "@/components/slides/PresenterTools";
 
 const CommandPalette = lazy(() =>
@@ -47,13 +47,16 @@ const SettingsDrawer = lazy(() =>
   import("@/components/slides/SettingsDrawer").then((m) => ({ default: m.SettingsDrawer })),
 );
 
-const SLIDE_NAVIGATION_COOLDOWN_MS = 150;
+const SLIDE_NAVIGATION_COOLDOWN_MS = 650;
 
 export function SlidePresenterPage({ slideId }: { slideId: string }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [fullscreenPathname, setFullscreenPathname] = useState<string | null>(null);
+  const fullscreenPathnameRef = useRef<string | null>(null);
   const lastNavigationAtRef = useRef(0);
+  const pressedNavigationKeysRef = useRef<Set<string>>(new Set());
+  const keyHandlerRef = useRef<(event: KeyboardEvent) => void>(() => {});
   const deck = useDeck((s) => s.deck);
   const allSlides = deck.slides;
   const { linearSlides, total, next, prev, jump, goTo } = useSlideNavigation();
@@ -112,36 +115,53 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const syncFullscreenPath = () => {
-      if (document.fullscreenElement) {
-        setFullscreenPathname(window.location.pathname);
-        return;
-      }
-      setFullscreenPathname(null);
-      if (location.pathname === window.location.pathname) return;
-      const slideId = getRouteSlideId(window.location.pathname);
+    const syncFullscreenRoute = (pathname: string) => {
+      const slideId = getRouteSlideId(pathname);
       if (!slideId) return;
-      const step = getRouteStep(window.location.pathname);
+      const step = getRouteStep(pathname);
       if (step && step > 1) {
         void navigate({ to: "/slides/$slideId/$step", params: { slideId, step: String(step) }, search: location.search as never, replace: true });
       } else {
         void navigate({ to: "/slides/$slideId", params: { slideId }, search: location.search as never, replace: true });
       }
     };
-    syncFullscreenPath();
-    window.addEventListener(SLIDES_FULLSCREEN_URL_CHANGE_EVENT, syncFullscreenPath);
-    document.addEventListener("fullscreenchange", syncFullscreenPath);
+    const onFullscreenUrlChange = (event: Event) => {
+      const pathname = (event as CustomEvent<SlidesFullscreenUrlChangeDetail>).detail?.pathname;
+      if (!pathname) return;
+      if (document.fullscreenElement) {
+        fullscreenPathnameRef.current = pathname;
+        setFullscreenPathname(pathname);
+        return;
+      }
+      syncFullscreenRoute(pathname);
+    };
+    const onFullscreenChange = () => {
+      if (document.fullscreenElement) {
+        fullscreenPathnameRef.current = fullscreenPathnameRef.current ?? location.pathname;
+        setFullscreenPathname(fullscreenPathnameRef.current);
+        return;
+      }
+      const pathname = fullscreenPathnameRef.current;
+      fullscreenPathnameRef.current = null;
+      setFullscreenPathname(null);
+      if (pathname && pathname !== location.pathname) syncFullscreenRoute(pathname);
+    };
+    onFullscreenChange();
+    window.addEventListener(SLIDES_FULLSCREEN_URL_CHANGE_EVENT, onFullscreenUrlChange);
+    document.addEventListener("fullscreenchange", onFullscreenChange);
     return () => {
-      window.removeEventListener(SLIDES_FULLSCREEN_URL_CHANGE_EVENT, syncFullscreenPath);
-      document.removeEventListener("fullscreenchange", syncFullscreenPath);
+      window.removeEventListener(SLIDES_FULLSCREEN_URL_CHANGE_EVENT, onFullscreenUrlChange);
+      document.removeEventListener("fullscreenchange", onFullscreenChange);
     };
   }, [location.pathname, location.search, navigate]);
 
-  useEffect(() => {
-    if (!slide) return;
-    const onKey = (e: KeyboardEvent) => {
-      const tag = (e.target as HTMLElement)?.tagName;
-      if (tag === "INPUT" || tag === "TEXTAREA" || (e.target as HTMLElement)?.isContentEditable) return;
+  keyHandlerRef.current = (e: KeyboardEvent) => {
+      if (!slide) return;
+      const target = e.target as HTMLElement | null;
+      const tag = target?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || target?.isContentEditable) return;
+      const targetUsesNativeActivation = Boolean(target?.closest("button,a,select,[role='button'],[role='menuitem'],[role='slider']"));
+      if (targetUsesNativeActivation && (e.key === "Enter" || e.key === " " || e.code === "Space" || e.key === "Spacebar")) return;
       if (settingsOpen || paletteOpen || lintOpen || helpOpen) return;
       if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === "l") {
         e.preventDefault(); setLintOpen((o) => !o); return;
@@ -202,17 +222,27 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
       const isForwardKey = e.key === "ArrowRight" || e.key === " " || e.code === "Space" || e.key === "Spacebar" || e.key === "Enter";
       if (isForwardKey) {
         e.preventDefault();
-        if (e.repeat) return;
+        if (!claimNavigationKey(e)) return;
         goNextStepAware();
       } else if (e.key === "ArrowLeft") {
         e.preventDefault();
-        if (e.repeat) return;
+        if (!claimNavigationKey(e)) return;
         goPrevStepAware();
       }
     };
+
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => keyHandlerRef.current(event);
+    const onKeyUp = (event: KeyboardEvent) => {
+      pressedNavigationKeysRef.current.delete(getNavigationKeyId(event));
+    };
     window.addEventListener("keydown", onKey, { capture: true });
-    return () => window.removeEventListener("keydown", onKey, true);
-  }, [slide, current, next, goTo, toggleFs, toggleTopJumper, toggleCamera, cycleCameraSize, toggleMusic, cycleScene, navigate, settingsOpen, paletteOpen, lintOpen, helpOpen, deck.title, isStepRoute, stepCount, stepNum]);
+    window.addEventListener("keyup", onKeyUp, { capture: true });
+    return () => {
+      window.removeEventListener("keydown", onKey, true);
+      window.removeEventListener("keyup", onKeyUp, true);
+    };
+  }, []);
 
   if (!slide) {
     return (
@@ -247,6 +277,14 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
     const now = typeof performance === "undefined" ? Date.now() : performance.now();
     if (now - lastNavigationAtRef.current < SLIDE_NAVIGATION_COOLDOWN_MS) return false;
     lastNavigationAtRef.current = now;
+    return true;
+  }
+
+  function claimNavigationKey(event: KeyboardEvent) {
+    if (event.repeat) return false;
+    const keyId = getNavigationKeyId(event);
+    if (pressedNavigationKeysRef.current.has(keyId)) return false;
+    pressedNavigationKeysRef.current.add(keyId);
     return true;
   }
 
@@ -367,4 +405,8 @@ function getRouteStep(pathname: string) {
 function getRouteSlideId(pathname: string) {
   const match = pathname.match(/^\/slides\/(\d+)(?:\/\d+)?(?:\/)?$/);
   return match?.[1] ?? null;
+}
+
+function getNavigationKeyId(event: KeyboardEvent) {
+  return event.code || event.key;
 }

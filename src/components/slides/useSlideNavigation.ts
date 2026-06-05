@@ -7,14 +7,15 @@ import { slideStepCount, type Slide } from "./types";
 
 export type NavDirection = "forward" | "backward";
 export const SLIDES_FULLSCREEN_URL_CHANGE_EVENT = "slides:fullscreen-url-change";
+export type SlidesFullscreenUrlChangeDetail = { pathname: string };
 
-function replaceUrlWithoutRouterNavigation(pathname: string, search: unknown) {
+function updateFullscreenRouteState(pathname: string) {
   if (typeof window === "undefined") return;
-  const url = new URL(window.location.href);
-  url.pathname = pathname;
-  if (typeof search === "string") url.search = search;
-  window.history.replaceState(window.history.state, "", url.toString());
-  window.dispatchEvent(new CustomEvent(SLIDES_FULLSCREEN_URL_CHANGE_EVENT));
+  window.dispatchEvent(
+    new CustomEvent<SlidesFullscreenUrlChangeDetail>(SLIDES_FULLSCREEN_URL_CHANGE_EVENT, {
+      detail: { pathname },
+    }),
+  );
 }
 
 /**
@@ -51,7 +52,7 @@ export function useSlideNavigation() {
         : `/slides/${clamped}`;
 
       if (typeof document !== "undefined" && document.fullscreenElement) {
-        replaceUrlWithoutRouterNavigation(targetPath, search);
+        updateFullscreenRouteState(targetPath);
         return;
       }
 
