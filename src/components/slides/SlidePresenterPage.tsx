@@ -47,7 +47,7 @@ const SettingsDrawer = lazy(() =>
   import("@/components/slides/SettingsDrawer").then((m) => ({ default: m.SettingsDrawer })),
 );
 
-const SLIDE_NAVIGATION_COOLDOWN_MS = 280;
+const SLIDE_NAVIGATION_COOLDOWN_MS = 650;
 
 export function SlidePresenterPage({ slideId }: { slideId: string }) {
   const navigate = useNavigate();
@@ -55,6 +55,7 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
   const [fullscreenPathname, setFullscreenPathname] = useState<string | null>(null);
   const fullscreenPathnameRef = useRef<string | null>(null);
   const lastNavigationAtRef = useRef(0);
+  const pressedNavigationKeysRef = useRef<Set<string>>(new Set());
   const keyHandlerRef = useRef<(event: KeyboardEvent) => void>(() => {});
   const deck = useDeck((s) => s.deck);
   const allSlides = deck.slides;
@@ -221,19 +222,26 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
       const isForwardKey = e.key === "ArrowRight" || e.key === " " || e.code === "Space" || e.key === "Spacebar" || e.key === "Enter";
       if (isForwardKey) {
         e.preventDefault();
-        if (e.repeat) return;
+        if (!claimNavigationKey(e)) return;
         goNextStepAware();
       } else if (e.key === "ArrowLeft") {
         e.preventDefault();
-        if (e.repeat) return;
+        if (!claimNavigationKey(e)) return;
         goPrevStepAware();
       }
     };
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => keyHandlerRef.current(event);
+    const onKeyUp = (event: KeyboardEvent) => {
+      pressedNavigationKeysRef.current.delete(getNavigationKeyId(event));
+    };
     window.addEventListener("keydown", onKey, { capture: true });
-    return () => window.removeEventListener("keydown", onKey, true);
+    window.addEventListener("keyup", onKeyUp, { capture: true });
+    return () => {
+      window.removeEventListener("keydown", onKey, true);
+      window.removeEventListener("keyup", onKeyUp, true);
+    };
   }, []);
 
   if (!slide) {
@@ -269,6 +277,14 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
     const now = typeof performance === "undefined" ? Date.now() : performance.now();
     if (now - lastNavigationAtRef.current < SLIDE_NAVIGATION_COOLDOWN_MS) return false;
     lastNavigationAtRef.current = now;
+    return true;
+  }
+
+  function claimNavigationKey(event: KeyboardEvent) {
+    if (event.repeat) return false;
+    const keyId = getNavigationKeyId(event);
+    if (pressedNavigationKeysRef.current.has(keyId)) return false;
+    pressedNavigationKeysRef.current.add(keyId);
     return true;
   }
 
