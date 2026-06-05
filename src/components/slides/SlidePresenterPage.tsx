@@ -318,8 +318,6 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
   const focusStep = Math.max(1, cameraStep || 1);
   const surfaces = (
     <>
-      {isFs && <PresenterTopBar current={current} total={total} onPrev={movePrevStepAware} onNext={moveNextStepAware} />}
-      {isFs && <DotPagination current={current} total={total} slides={linearSlides} onJump={jump} />}
       <SlideNumberBadge current={current} total={total} display={getDisplayNumber(slide, current)} />
       <AnnotationLayer slideId={slide.id} />
       <FocusEditor
@@ -337,10 +335,6 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
         }}
         onClose={() => useChrome.getState().setFocusEditorOpen(false)}
       />
-      {isFs && <AnnotationToolbar slideId={slide.id} />}
-      {isFs && <TimerOverlay slide={slide} />}
-      {isFs && <PollResultsOverlay slide={slide} />}
-      {isFs && <SharePill current={current} step={isStepRoute ? stepNum + 1 : undefined} />}
       <QrOverlay />
     </>
   );
@@ -377,8 +371,7 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
         </div>
         {surfaces}
       </SlideStageShell>
-      {!isFs && controller}
-      {isFs && <CameraBubble />}
+      {controller}
       <PresenterToast />
       <PresenterFallbackLink />
       <PresenterAutoStart />
@@ -388,7 +381,6 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
         </Suspense>
       )}
       <SlideAriaAnnouncer current={current} total={total} step={isStepRoute ? stepNum + 1 : undefined} stepCount={isStepRoute ? stepCount : undefined} title={slide.title} />
-      {isFs && <PresenterNotesPeek notes={slide.notes} />}
       {paletteOpen && (
         <Suspense fallback={null}>
           <CommandPalette
