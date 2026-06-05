@@ -47,6 +47,8 @@ const SettingsDrawer = lazy(() =>
   import("@/components/slides/SettingsDrawer").then((m) => ({ default: m.SettingsDrawer })),
 );
 
+const SLIDE_NAVIGATION_COOLDOWN_MS = 950;
+
 export function SlidePresenterPage({ slideId }: { slideId: string }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -213,7 +215,7 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
 
   function claimNavigationSlot() {
     const now = typeof performance === "undefined" ? Date.now() : performance.now();
-    if (now - lastNavigationAtRef.current < 360) return false;
+    if (now - lastNavigationAtRef.current < SLIDE_NAVIGATION_COOLDOWN_MS) return false;
     lastNavigationAtRef.current = now;
     return true;
   }
