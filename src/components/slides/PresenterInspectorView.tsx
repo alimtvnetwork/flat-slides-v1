@@ -64,10 +64,7 @@ function SlidePanel({
   variant: "current" | "next";
 }) {
   return (
-    <section
-      aria-label={label}
-      className={slidePanelClassName(variant)}
-    >
+    <section aria-label={label} className={slidePanelClassName(variant)}>
       {slide ? <RenderedSlide slide={slide} stepIndex={stepIndex} /> : <EmptyNextSlide />}
     </section>
   );
