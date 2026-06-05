@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { useLayoutEffect, useRef, type ReactNode } from "react";
 
 type Props = { children: ReactNode; className?: string; fitPadding?: number };
 const CANVAS_WIDTH = 1920;
@@ -11,10 +11,10 @@ const SETTLE_FRAMES = 12;
  */
 export function ScaledSlide({ children, className, fitPadding = 0 }: Props) {
   const stageRef = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(0.1);
 
   useLayoutEffect(() => {
     const el = stageRef.current;
+    const frames = new Set<number>();
     if (!el) return;
     const recompute = () => {
       const rect = readContainerRect(el);
@@ -23,31 +23,31 @@ export function ScaledSlide({ children, className, fitPadding = 0 }: Props) {
       const safeWidth = Math.max(1, width - fitPadding * 2);
       const safeHeight = Math.max(1, height - fitPadding * 2);
       const nextScale = Math.min(safeWidth / CANVAS_WIDTH, safeHeight / CANVAS_HEIGHT);
-      setScale(nextScale);
       document.documentElement.style.setProperty("--stage-scale", String(nextScale));
       writePresenterFrameVars(rect, nextScale);
     };
+    const scheduleRecompute = () => scheduleSettledFrames(recompute, frames);
     recompute();
-    const frames = scheduleSettledFrames(recompute);
+    scheduleRecompute();
     const ro = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(recompute);
     ro?.observe(el);
     if (el.parentElement) ro?.observe(el.parentElement);
-    window.addEventListener("resize", recompute);
-    window.visualViewport?.addEventListener("resize", recompute);
-    document.addEventListener("fullscreenchange", recompute);
+    window.addEventListener("resize", scheduleRecompute);
+    window.visualViewport?.addEventListener("resize", scheduleRecompute);
+    document.addEventListener("fullscreenchange", scheduleRecompute);
     return () => {
       for (const frame of frames) cancelAnimationFrame(frame);
-      window.removeEventListener("resize", recompute);
-      window.visualViewport?.removeEventListener("resize", recompute);
-      document.removeEventListener("fullscreenchange", recompute);
+      window.removeEventListener("resize", scheduleRecompute);
+      window.visualViewport?.removeEventListener("resize", scheduleRecompute);
+      document.removeEventListener("fullscreenchange", scheduleRecompute);
       clearPresenterFrameVars();
       ro?.disconnect();
     };
   }, [fitPadding]);
 
   return (
-    <div ref={stageRef} className={`slide-stage ${className ?? ""}`}>
-      <div className="slide-wrapper" style={{ ["--scale" as string]: String(scale) }}>
+    <div ref={stageRef} className={`slide-stage ${className ?? ""}`} style={{ ["--fit-padding" as string]: `${fitPadding}px` }}>
+      <div className="slide-wrapper">
         {children}
       </div>
     </div>
@@ -88,14 +88,14 @@ function clearPresenterFrameVars() {
   }
 }
 
-function scheduleSettledFrames(callback: () => void) {
-  const frames: number[] = [];
+function scheduleSettledFrames(callback: () => void, frames: Set<number>) {
   const tick = (remaining: number) => {
-    frames.push(requestAnimationFrame(() => {
+    const frame = requestAnimationFrame(() => {
+      frames.delete(frame);
       callback();
       if (remaining > 1) tick(remaining - 1);
-    }));
+    });
+    frames.add(frame);
   };
   tick(SETTLE_FRAMES);
-  return frames;
 }
