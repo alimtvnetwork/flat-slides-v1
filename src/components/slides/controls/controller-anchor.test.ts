@@ -3,13 +3,11 @@ import { describe, expect, it } from "vitest";
 import {
   anchorStyles,
   CONTROLLER_ANCHOR_ORDER,
-  CONTROLLER_ANCHOR_STORAGE_KEY,
-  cycleControllerAnchor,
   isControllerAnchorShortcut,
   nextControllerAnchor,
   type ControllerAnchor,
 } from "./controller-anchor";
-import { useControllerAnchor } from "./controller-anchor-store";
+import { CONTROLLER_ANCHOR_STORAGE_KEY, cycleControllerAnchor, useControllerAnchor } from "./controller-anchor-store";
 
 describe("nextControllerAnchor", () => {
   it("wraps after the last anchor", () => {
