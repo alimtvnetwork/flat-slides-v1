@@ -623,3 +623,8 @@ html:fullscreen #main-content {
 
 /* Circle bypass — task 13 acceptance: circle mode renders neither plate nor mask. */
 [data-webcam-shape="circle"][data-webcam-plate]::before { content: none; }
+
+[data-slide-presenter-root][data-cursor-hidden="true"],
+[data-slide-presenter-root][data-cursor-hidden="true"] * {
+  cursor: none !important;
+}
