@@ -30,7 +30,7 @@ describe("presenter frame anchored overlays", () => {
   });
 
   it("anchors poll results inside the slide frame", () => {
-    useAudience.setState({ resultsVisible: true, polls: { "poll-1": { counts: [1, 0] } } });
+    useAudience.setState({ resultsVisible: true, polls: { "poll-1": { voters: { voter: 0 }, counts: [1, 0] } } });
 
     const { getByLabelText } = render(<PollResultsOverlay slide={pollSlide} />);
 
