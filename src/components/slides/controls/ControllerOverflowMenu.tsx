@@ -1,4 +1,6 @@
-import { HelpCircle, MoreHorizontal, Settings } from "lucide-react";
+import { HelpCircle, MonitorPlay, MoreHorizontal, Settings } from "lucide-react";
+
+import { useSlideNumber } from "./useSlideNumber";
 
 import {
   DropdownMenu,
@@ -20,6 +22,7 @@ interface Props {
  * popover so their own popovers still work.
  */
 export function ControllerOverflowMenu({ onOpenSettings, onOpenHelp }: Props) {
+  const slideNumber = useSlideNumber();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -38,6 +41,9 @@ export function ControllerOverflowMenu({ onOpenSettings, onOpenHelp }: Props) {
           <ThemeChip />
           <MusicToggle compact />
         </div>
+        <DropdownMenuItem onSelect={() => openInspectorWindow(slideNumber)} className="gap-2">
+          <MonitorPlay size={14} /> Open inspector
+        </DropdownMenuItem>
         <DropdownMenuItem onSelect={onOpenSettings} className="gap-2">
           <Settings size={14} /> Settings
         </DropdownMenuItem>
@@ -47,4 +53,10 @@ export function ControllerOverflowMenu({ onOpenSettings, onOpenHelp }: Props) {
       </DropdownMenuContent>
     </DropdownMenu>
   );
+}
+
+function openInspectorWindow(slideNumber: number) {
+  if (typeof window === "undefined") return;
+  const url = `${window.location.origin}/slides/inspector/${slideNumber}`;
+  window.open(url, "riseup-presenter-inspector", "noopener,noreferrer");
 }

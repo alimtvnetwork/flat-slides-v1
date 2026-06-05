@@ -55,6 +55,26 @@
 - `P` — toggle pause.
 - `Esc` — exit to `/slides/$slideId`.
 
+## Entry points
+
+The inspector is launched from the main presenter — never from a deep link
+the user has to memorise. Two paths share the same contract:
+
+- **Keyboard**: `I` (SHORTCUTS id `open-inspector`, group `Presenter`).
+  Registered in `PRESENTER_KEY_ACTIONS`; parity test in
+  `presenterActions.test.ts` enforces the wiring and asserts the URL
+  format.
+- **Mouse**: "Open inspector" item in `ControllerOverflowMenu` (the `⋯`
+  menu). Uses the shared `useSlideNumber()` hook so the URL stays in sync
+  with the current `/slides/N` route.
+
+Both call `window.open(`${origin}/slides/inspector/${current}`,
+"riseup-presenter-inspector", "noopener,noreferrer")`. The named target is
+load-bearing: subsequent launches reuse the same OS window instead of
+spawning a tab per keypress, which is essential for the second-display
+workflow.
+
+
 ## Reduced motion
 
 - All transitions consult `useReducedMotion()` per Core memory rule.
