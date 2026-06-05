@@ -262,3 +262,27 @@ settings persistence defaults. `useDeckMusic()` now reads
 `deck.settings.musicVolume`, and `deckMusicPlayer` converts the percentage to
 `HTMLAudioElement.volume`. SettingsDrawer exposes the music volume slider while
 leaving `settings.volume` as the existing whoosh/click SFX gain.
+
+## Step 21 — Per-slide music override + 300ms crossfade
+
+Root cause: `useDeckMusic` only knew about `deck.music`, and `deckMusicPlayer`
+swapped `audio.src` on the same element — there was no per-slide override and
+no way to cross-fade between two URLs.
+
+Fix: extended `BaseSlide.sound` with optional `music: { url, loop?, volume? }`
+in `types.ts` and `schema.ts`. Added transient `slideMusic` + `setSlideMusic`
+to `chrome-store` (non-persisted). `SlidePresenterPage` writes the active
+slide's override on slide change. `useDeckMusic` resolves
+`override ?? deck.music` and feeds that to `configureDeckMusic`.
+
+`deckMusicPlayer` was refactored to a two-`Audio` model: when the URL changes
+while `isPlaying`, a fresh `Audio` is created at `volume: 0`, started, and a
+`setInterval` ramps the old element from `targetGain → 0` and the new from
+`0 → targetGain` over `CROSSFADE_MS = 300` (6 ticks). When `!isPlaying`, the
+swap is silent and just replaces `active`.
+
+Verified: `bunx vitest run src/components/slides/musicPlayback.test.ts
+src/components/slides/deckMusicPlayer.test.ts
+src/components/slides/settingsStore.test.ts` passes 10/10, including:
+crossfade volume math at `CROSSFADE_MS`, no crossfade when paused, and
+clean revert to deck music when the override clears.
