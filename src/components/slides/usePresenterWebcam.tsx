@@ -280,6 +280,48 @@ export function PresenterWebcamProvider({ children }: { children: ReactNode }) {
   }));
   const [position, setPositionState] = useState(() => readStoredPos());
   const [sizeCfg, setSizeCfgState] = useState<SizeConfig>(() => readStoredSize());
+  const [autoFrame, setAutoFrameState] = useState(() => readStoredFlag(AUTOFRAME_KEY, false));
+  const [halo, setHaloState] = useState(() => readStoredFlag(HALO_KEY, true));
+  const [circle, setCircleState] = useState(() => readStoredFlag(CIRCLE_KEY, false));
+  const [plateVariant, setPlateVariantState] = useState<PlateVariant>(() => readStoredPlate());
+
+  const setAutoFrame = useCallback((v: boolean) => {
+    setAutoFrameState(v);
+    writeStoredFlag(AUTOFRAME_KEY, v);
+  }, []);
+  const toggleAutoFrame = useCallback(() => setAutoFrameState((v) => {
+    writeStoredFlag(AUTOFRAME_KEY, !v);
+    return !v;
+  }), []);
+
+  const setHalo = useCallback((v: boolean) => {
+    setHaloState(v);
+    writeStoredFlag(HALO_KEY, v);
+  }, []);
+  const toggleHalo = useCallback(() => setHaloState((v) => {
+    writeStoredFlag(HALO_KEY, !v);
+    return !v;
+  }), []);
+
+  const setCircle = useCallback((v: boolean) => {
+    setCircleState(v);
+    writeStoredFlag(CIRCLE_KEY, v);
+  }, []);
+  const toggleCircle = useCallback(() => setCircleState((v) => {
+    writeStoredFlag(CIRCLE_KEY, !v);
+    return !v;
+  }), []);
+
+  const setPlateVariant = useCallback((v: PlateVariant) => {
+    setPlateVariantState(v);
+    writeStoredPlate(v);
+  }, []);
+  const cyclePlateVariant = useCallback(() => setPlateVariantState((prev) => {
+    const idx = PLATE_VARIANTS.indexOf(prev);
+    const next = PLATE_VARIANTS[(idx + 1) % PLATE_VARIANTS.length];
+    writeStoredPlate(next);
+    return next;
+  }), []);
 
   const stateRef = useRef(state);
   useEffect(() => {
