@@ -75,8 +75,8 @@ describe("CameraBubble shape surfaces", () => {
   it("keeps stage-fill camera inside the scaled slide frame", async () => {
     document.documentElement.style.setProperty("--stage-scale", "0.5");
     document.body.innerHTML = '<div class="slide-wrapper"></div>';
-    const rectSpy = vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function () {
-      if ((this as HTMLElement).classList.contains("slide-wrapper")) {
+    const rectSpy = vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function (this: HTMLElement) {
+      if (this.classList.contains("slide-wrapper")) {
         return { left: 100, top: 50, width: 960, height: 540, right: 1060, bottom: 590, x: 100, y: 50, toJSON: () => ({}) } as DOMRect;
       }
       return { left: 0, top: 0, width: 0, height: 0, right: 0, bottom: 0, x: 0, y: 0, toJSON: () => ({}) } as DOMRect;
