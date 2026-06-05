@@ -56,32 +56,60 @@ export type InspectorAction = (ctx: InspectorActionCtx) => void;
 const INK_COLORS = ["#ef4444", "#facc15", "#22d3ee", "#a3e635", "#ffffff"];
 
 export const PRESENTER_KEY_ACTIONS: Record<string, PresenterAction> = {
-  "fullscreen-toggle":  ({ event, toggleFullscreen }) => { event.preventDefault(); toggleFullscreen(); },
-  "move-controller":    ({ event }) => { event.preventDefault(); event.stopImmediatePropagation(); cycleControllerAnchor(); },
-  "open-overview":      ({ event, openOverview }) => { event.preventDefault(); openOverview(); },
-  "open-help":          ({ event, openHelp }) => { event.preventDefault(); openHelp(); },
-  "toggle-top-jumper":  ({ toggleTopJumper }) => toggleTopJumper(),
-  "toggle-camera":      ({ toggleCamera }) => toggleCamera(),
-  "cycle-camera-shape": () => { if (!useChrome.getState().camera.visible) useChrome.getState().cycleCameraShape(); },
-  "camera-pip":         () => { window.dispatchEvent(new CustomEvent("slides:camera-pip")); },
-  "toggle-music":       ({ toggleMusic }) => toggleMusic(),
-  "cycle-scene":        ({ cycleScene }) => cycleScene(),
-  "toggle-pointer":     () => useAnnotations.setState((st) => ({ mode: st.mode === "pointer" ? "off" : "pointer" })),
-  "toggle-ink":         () => useAnnotations.setState((st) => ({ mode: st.mode === "ink" ? "off" : "ink" })),
-  "clear-ink":          ({ slideId }) => useAnnotations.getState().clear(slideId),
-  "annotate-clear-mode":({ event }) => { event.preventDefault(); useAnnotations.setState({ mode: "off" }); },
-  "ink-color":          ({ event }) => useAnnotations.setState({ color: INK_COLORS[Number(event.key) - 1] }),
-  "toggle-timer":       ({ event }) => {
-    if (event.shiftKey) { useTimer.getState().reset(); return; }
+  "fullscreen-toggle": ({ event, toggleFullscreen }) => {
+    event.preventDefault();
+    toggleFullscreen();
+  },
+  "move-controller": ({ event }) => {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    cycleControllerAnchor();
+  },
+  "open-overview": ({ event, openOverview }) => {
+    event.preventDefault();
+    openOverview();
+  },
+  "open-help": ({ event, openHelp }) => {
+    event.preventDefault();
+    openHelp();
+  },
+  "toggle-top-jumper": ({ toggleTopJumper }) => toggleTopJumper(),
+  "toggle-camera": ({ toggleCamera }) => toggleCamera(),
+  "cycle-camera-shape": () => {
+    if (!useChrome.getState().camera.visible) useChrome.getState().cycleCameraShape();
+  },
+  "camera-pip": () => {
+    window.dispatchEvent(new CustomEvent("slides:camera-pip"));
+  },
+  "toggle-music": ({ toggleMusic }) => toggleMusic(),
+  "cycle-scene": ({ cycleScene }) => cycleScene(),
+  "toggle-pointer": () =>
+    useAnnotations.setState((st) => ({ mode: st.mode === "pointer" ? "off" : "pointer" })),
+  "toggle-ink": () =>
+    useAnnotations.setState((st) => ({ mode: st.mode === "ink" ? "off" : "ink" })),
+  "clear-ink": ({ slideId }) => useAnnotations.getState().clear(slideId),
+  "annotate-clear-mode": ({ event }) => {
+    event.preventDefault();
+    useAnnotations.setState({ mode: "off" });
+  },
+  "ink-color": ({ event }) => useAnnotations.setState({ color: INK_COLORS[Number(event.key) - 1] }),
+  "toggle-timer": ({ event }) => {
+    if (event.shiftKey) {
+      useTimer.getState().reset();
+      return;
+    }
     useChrome.getState().toggleTimerVisible();
   },
-  "toggle-rehearsal":   ({ event }) => {
-    if (event.shiftKey) { useTimer.getState().resetRehearsal(); return; }
+  "toggle-rehearsal": ({ event }) => {
+    if (event.shiftKey) {
+      useTimer.getState().resetRehearsal();
+      return;
+    }
     useTimer.getState().toggleRehearsal();
   },
-  "toggle-qr":          () => useAudience.getState().toggleQr(),
-  "toggle-poll":        () => useAudience.getState().toggleResults(),
-  "copy-share-link":    ({ current, isStepRoute, stepNum }) => {
+  "toggle-qr": () => useAudience.getState().toggleQr(),
+  "toggle-poll": () => useAudience.getState().toggleResults(),
+  "copy-share-link": ({ current, isStepRoute, stepNum }) => {
     const sid = useAudience.getState().sessionId;
     const url = `${window.location.origin}/slides/${current}${isStepRoute ? `/${stepNum + 1}` : ""}?session=${sid}`;
     navigator.clipboard?.writeText(url).then(
@@ -90,15 +118,30 @@ export const PRESENTER_KEY_ACTIONS: Record<string, PresenterAction> = {
     );
   },
   "toggle-focus-editor": () => useChrome.getState().toggleFocusEditor(),
-  "toggle-notes":        () => useChrome.getState().toggleNotesPeek(),
+  "toggle-notes": () => useChrome.getState().toggleNotesPeek(),
 };
 
 export const INSPECTOR_KEY_ACTIONS: Record<string, InspectorAction> = {
-  "inspector-nav-prev": ({ event, goPrev }) => { event.preventDefault(); goPrev(); },
-  "inspector-nav-next": ({ event, goNext }) => { event.preventDefault(); goNext(); },
-  "inspector-reset-timer": ({ event, resetTimer }) => { event.preventDefault(); resetTimer(); },
-  "inspector-toggle-timer-pause": ({ event, toggleTimerPause }) => { event.preventDefault(); toggleTimerPause(); },
-  "inspector-exit": ({ event, exitInspector }) => { event.preventDefault(); exitInspector(); },
+  "inspector-nav-prev": ({ event, goPrev }) => {
+    event.preventDefault();
+    goPrev();
+  },
+  "inspector-nav-next": ({ event, goNext }) => {
+    event.preventDefault();
+    goNext();
+  },
+  "inspector-reset-timer": ({ event, resetTimer }) => {
+    event.preventDefault();
+    resetTimer();
+  },
+  "inspector-toggle-timer-pause": ({ event, toggleTimerPause }) => {
+    event.preventDefault();
+    toggleTimerPause();
+  },
+  "inspector-exit": ({ event, exitInspector }) => {
+    event.preventDefault();
+    exitInspector();
+  },
 };
 
 /**
@@ -106,12 +149,19 @@ export const INSPECTOR_KEY_ACTIONS: Record<string, InspectorAction> = {
  * modifier-combo branching, repeat-debounce, or are mouse/menu only.
  */
 export const MODIFIER_SHORTCUT_IDS: ReadonlySet<string> = new Set([
-  "nav-prev", "nav-next",
-  "command-palette", "click-jump",
-  "cycle-camera-size", "nudge-camera",
+  "nav-prev",
+  "nav-next",
+  "command-palette",
+  "click-jump",
+  "cycle-camera-size",
+  "nudge-camera",
   "undo-stroke",
-  "reset-timer", "reset-rehearsal", "toggle-timer-run",
-  "export-rehearsal", "export-annotations", "toggle-lint",
+  "reset-timer",
+  "reset-rehearsal",
+  "toggle-timer-run",
+  "export-rehearsal",
+  "export-annotations",
+  "toggle-lint",
   "esc-close-panel",
 ]);
 
