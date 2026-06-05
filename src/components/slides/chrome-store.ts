@@ -160,6 +160,12 @@ export interface ChromeStore {
   camera: CameraState;
   /** Deck background music presenter state (never exported). */
   music: MusicState;
+  /**
+   * Active slide's per-slide music override (transient). Set by the
+   * presenter on slide change so `useDeckMusic` can cross-fade between
+   * deck-level music and the slide's override.
+   */
+  slideMusic: SlideMusicOverride | null;
   /** Active stage layout — drives bubble size and slide opacity. */
   scene: Scene;
   /** Brief toast text — used by routes to flash a scene/preset notice. */
