@@ -6,6 +6,16 @@ import { useDeck } from "./store";
 import { slideStepCount, type Slide } from "./types";
 
 export type NavDirection = "forward" | "backward";
+export const SLIDES_FULLSCREEN_URL_CHANGE_EVENT = "slides:fullscreen-url-change";
+
+function replaceUrlWithoutRouterNavigation(pathname: string, search: unknown) {
+  if (typeof window === "undefined") return;
+  const url = new URL(window.location.href);
+  url.pathname = pathname;
+  if (typeof search === "string") url.search = search;
+  window.history.replaceState(window.history.state, "", url.toString());
+  window.dispatchEvent(new CustomEvent(SLIDES_FULLSCREEN_URL_CHANGE_EVENT));
+}
 
 /**
  * Source of truth for slide navigation.
@@ -36,6 +46,15 @@ export function useSlideNavigation() {
       const slide = linearSlides[clamped - 1];
       if (!slide) return;
       triggerClick();
+      const targetPath = step && step > 1 && slideStepCount(slide) >= step
+        ? `/slides/${clamped}/${step}`
+        : `/slides/${clamped}`;
+
+      if (typeof document !== "undefined" && document.fullscreenElement) {
+        replaceUrlWithoutRouterNavigation(targetPath, search);
+        return;
+      }
+
       if (step && step > 1 && slideStepCount(slide) >= step) {
         navigate({
           to: "/slides/$slideId/$step",
