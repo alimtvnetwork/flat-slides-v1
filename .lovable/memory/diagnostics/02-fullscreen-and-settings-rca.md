@@ -126,6 +126,23 @@ and home navigation decision.
 Verified: `bunx vitest run src/components/slides/home-present.test.ts src/components/slides/fullscreenTarget.test.ts src/components/slides/controls/PresenterFallbackLink.test.tsx`
 passes 11/11 tests.
 
+## Step 12 — Background color single-pipeline resolution
+
+Root cause: `RenderSlide` still resolved authored `slide.background` before
+deck settings, so Settings → Background Color was not authoritative on
+slides that already carried a per-slide background. That made the control
+look broken even though `SettingsDrawer` and the deck store were updating.
+
+Fix: move background resolution into `slideBackground.ts` and make
+`backgroundMode: "color"` an explicit deck-level override. `ThemeWrap`
+now writes `--slide-bg` to the selected color for color mode, while image
+mode keeps content transparent so the unified background layer remains
+visible. `RenderSlide` is still the only slide entrypoint, so presenter,
+overview, handout, 3-up, and print routes all share the same pipeline.
+
+Verified: `bunx vitest run src/components/slides/themeWrap.test.tsx`
+passes 2/2 tests.
+
 ## Open questions still blocking later phases
 
 - Q2 (dark preset overrides per-slide bg?) — pending user.
