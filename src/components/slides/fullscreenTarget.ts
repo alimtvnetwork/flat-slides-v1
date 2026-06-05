@@ -7,5 +7,5 @@ export function getSlidesFullscreenRoot() {
 
 export function getSlidesPortalRoot() {
   if (typeof document === "undefined") return null;
-  return getSlidesFullscreenRoot() ?? (document.fullscreenElement as HTMLElement | null) ?? null;
+  return getSlidesFullscreenRoot();
 }
