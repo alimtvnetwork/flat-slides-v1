@@ -193,9 +193,8 @@ function PillButton({
   return (
     <button
       type="button"
-      onPointerDown={(e) => e.preventDefault()}
-      onMouseDown={(e) => e.preventDefault()}
       onClick={(e) => {
+        e.stopPropagation();
         e.currentTarget.blur();
         onClick();
       }}
