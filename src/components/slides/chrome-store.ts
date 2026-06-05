@@ -1,6 +1,11 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+import {
+  persistInspectorStartedAt,
+  readPersistedInspectorStartedAt,
+} from "./inspectorTimerPersistence";
+
 export type CameraAnchor = "top-left" | "top-right" | "bottom-left" | "bottom-right";
 export type CameraSize = "S" | "M" | "L" | "XL";
 export type CameraShape = "circle" | "rect" | "squircle";
@@ -73,7 +78,7 @@ export const nextShape = (s: CameraShape): CameraShape =>
 export function cameraDimensions(camera: Pick<CameraState, "size" | "customSize">) {
   const width = camera.customSize ?? CAMERA_SIZE_STEPS[camera.size].w;
   const clampedWidth = Math.max(CAMERA_FREE_MIN_W, Math.min(CAMERA_FREE_MAX_W, Math.round(width)));
-  return { w: clampedWidth, h: Math.round(clampedWidth * 9 / 16) };
+  return { w: clampedWidth, h: Math.round((clampedWidth * 9) / 16) };
 }
 
 export function clampCameraPosition(pos: { x: number; y: number }, dims: { w: number; h: number }) {
@@ -85,8 +90,12 @@ export function clampCameraPosition(pos: { x: number; y: number }, dims: { w: nu
 
 function anchoredCameraPosition(anchor: CameraAnchor, dims: { w: number; h: number }) {
   if (anchor === "top-left") return { x: CAMERA_MARGIN, y: CAMERA_MARGIN };
-  if (anchor === "top-right") return { x: CAMERA_STAGE.w - dims.w - CAMERA_MARGIN, y: CAMERA_MARGIN };
-  if (anchor === "bottom-left") return { x: CAMERA_MARGIN, y: CAMERA_STAGE.h - dims.h - CAMERA_MARGIN };
+  if (anchor === "top-right") {
+    return { x: CAMERA_STAGE.w - dims.w - CAMERA_MARGIN, y: CAMERA_MARGIN };
+  }
+  if (anchor === "bottom-left") {
+    return { x: CAMERA_MARGIN, y: CAMERA_STAGE.h - dims.h - CAMERA_MARGIN };
+  }
   return { x: CAMERA_STAGE.w - dims.w - CAMERA_MARGIN, y: CAMERA_STAGE.h - dims.h - CAMERA_MARGIN };
 }
 
@@ -99,9 +108,10 @@ function normalizeCameraSize(value: unknown): CameraSize {
 
 function normalizeCamera(camera: Partial<CameraState>): CameraState {
   const size = normalizeCameraSize(camera.size);
-  const customSize = typeof camera.customSize === "number"
-    ? Math.max(CAMERA_FREE_MIN_W, Math.min(CAMERA_FREE_MAX_W, Math.round(camera.customSize)))
-    : null;
+  const customSize =
+    typeof camera.customSize === "number"
+      ? Math.max(CAMERA_FREE_MIN_W, Math.min(CAMERA_FREE_MAX_W, Math.round(camera.customSize)))
+      : null;
   const draft: CameraState = {
     ...DEFAULT_CAMERA,
     ...camera,
@@ -110,8 +120,18 @@ function normalizeCamera(camera: Partial<CameraState>): CameraState {
   };
   const fallback = anchoredCameraPosition(draft.anchor, cameraDimensions(draft));
   const hasStagePos = typeof camera.x === "number" && typeof camera.y === "number";
-  const pos = clampCameraPosition(hasStagePos ? { x: camera.x!, y: camera.y! } : fallback, cameraDimensions(draft));
+  const pos = clampCameraPosition(
+    hasStagePos ? { x: camera.x!, y: camera.y! } : fallback,
+    cameraDimensions(draft),
+  );
   return { ...draft, ...pos };
+}
+
+function cameraPatchWithClampedPosition(camera: CameraState): CameraState {
+  return {
+    ...camera,
+    ...clampCameraPosition({ x: camera.x, y: camera.y }, cameraDimensions(camera)),
+  };
 }
 
 const DEFAULT_CAMERA: CameraState = {
@@ -171,7 +191,15 @@ export interface ChromeStore {
   /** Brief toast text — used by routes to flash a scene/preset notice. */
   toast: { text: string; ts: number } | null;
   /** Persistent manual fallback shown when the browser blocks scripted presenter popups. */
-  presenterFallback: { url: string; reason: "popup-blocked" | "fullscreen-blocked"; ts: number } | null;
+  presenterFallback: {
+    url: string;
+    reason: "popup-blocked" | "fullscreen-blocked";
+    ts: number;
+  } | null;
+  /** Dedicated presenter-inspector timer start, persisted under riseup.inspector.startedAt. */
+  inspectorTimerStartedAt: number | null;
+  inspectorTimerPausedAt: number | null;
+  inspectorTimerPausedMs: number;
   toggleTopJumper: () => void;
   setTopJumperHidden: (v: boolean) => void;
   setDotPaginationVisible: (v: boolean) => void;
@@ -202,6 +230,9 @@ export interface ChromeStore {
   flashToast: (text: string) => void;
   showPresenterFallback: (url: string, reason?: "popup-blocked" | "fullscreen-blocked") => void;
   clearPresenterFallback: () => void;
+  ensureInspectorTimerStarted: (now: number) => void;
+  resetInspectorTimer: (now: number) => void;
+  toggleInspectorTimerPause: (now: number) => void;
 }
 
 export const useChrome = create<ChromeStore>()(
@@ -221,6 +252,9 @@ export const useChrome = create<ChromeStore>()(
       scene: "normal",
       toast: null,
       presenterFallback: null,
+      inspectorTimerStartedAt: readPersistedInspectorStartedAt(),
+      inspectorTimerPausedAt: null,
+      inspectorTimerPausedMs: 0,
       toggleTopJumper: () => set((s) => ({ topJumperHidden: !s.topJumperHidden })),
       setTopJumperHidden: (v) => set({ topJumperHidden: v }),
       setDotPaginationVisible: (v) => set({ dotPaginationVisible: v }),
@@ -243,20 +277,29 @@ export const useChrome = create<ChromeStore>()(
       setRecentJumps: (jumps) => set({ recentJumps: jumps.slice(0, 8) }),
       setCamera: (patch) => set((s) => ({ camera: normalizeCamera({ ...s.camera, ...patch }) })),
       toggleCamera: () => set((s) => ({ camera: { ...s.camera, visible: !s.camera.visible } })),
-      cycleCameraSize: () => set((s) => {
-        const next = { ...s.camera, size: nextSize(s.camera.size), customSize: null };
-        return { camera: normalizeCamera({ ...next, ...clampCameraPosition({ x: next.x, y: next.y }, cameraDimensions(next)) }) };
-      }),
-      cycleCameraAnchor: () => set((s) => {
-        const anchor = nextAnchor(s.camera.anchor);
-        const next = { ...s.camera, anchor, offsetX: 0, offsetY: 0 };
-        return { camera: normalizeCamera({ ...next, ...anchoredCameraPosition(anchor, cameraDimensions(next)) }) };
-      }),
-      cycleCameraShape: () => set((s) => ({ camera: { ...s.camera, shape: nextShape(s.camera.shape) } })),
-      setCameraCustomSize: (px) => set((s) => {
-        const next = { ...s.camera, customSize: px };
-        return { camera: normalizeCamera({ ...next, ...clampCameraPosition({ x: next.x, y: next.y }, cameraDimensions(next)) }) };
-      }),
+      cycleCameraSize: () =>
+        set((s) => {
+          const next = { ...s.camera, size: nextSize(s.camera.size), customSize: null };
+          return { camera: normalizeCamera(cameraPatchWithClampedPosition(next)) };
+        }),
+      cycleCameraAnchor: () =>
+        set((s) => {
+          const anchor = nextAnchor(s.camera.anchor);
+          const next = { ...s.camera, anchor, offsetX: 0, offsetY: 0 };
+          return {
+            camera: normalizeCamera({
+              ...next,
+              ...anchoredCameraPosition(anchor, cameraDimensions(next)),
+            }),
+          };
+        }),
+      cycleCameraShape: () =>
+        set((s) => ({ camera: { ...s.camera, shape: nextShape(s.camera.shape) } })),
+      setCameraCustomSize: (px) =>
+        set((s) => {
+          const next = { ...s.camera, customSize: px };
+          return { camera: normalizeCamera(cameraPatchWithClampedPosition(next)) };
+        }),
       setMusic: (patch) => set((s) => ({ music: { ...s.music, ...patch } })),
       toggleMusic: () => set((s) => ({ music: { ...s.music, playing: !s.music.playing } })),
       setSlideMusic: (override) => set({ slideMusic: override }),
@@ -270,6 +313,25 @@ export const useChrome = create<ChromeStore>()(
       showPresenterFallback: (url, reason = "popup-blocked") =>
         set({ presenterFallback: { url, reason, ts: Date.now() } }),
       clearPresenterFallback: () => set({ presenterFallback: null }),
+      ensureInspectorTimerStarted: (now) =>
+        set((s) => {
+          if (s.inspectorTimerStartedAt !== null) return {};
+          persistInspectorStartedAt(now);
+          return {
+            inspectorTimerStartedAt: now,
+            inspectorTimerPausedAt: null,
+            inspectorTimerPausedMs: 0,
+          };
+        }),
+      resetInspectorTimer: (now) => {
+        persistInspectorStartedAt(now);
+        set({
+          inspectorTimerStartedAt: now,
+          inspectorTimerPausedAt: null,
+          inspectorTimerPausedMs: 0,
+        });
+      },
+      toggleInspectorTimerPause: (now) => set((s) => resolveInspectorPausePatch(s, now)),
     }),
     {
       name: "slides-chrome-v2",
@@ -290,10 +352,36 @@ export const useChrome = create<ChromeStore>()(
         return {
           ...current,
           ...state,
-          camera: normalizeCamera({ ...(state?.camera ?? current.camera), visible: state?.camera?.visible ?? DEFAULT_CAMERA.visible }),
+          camera: normalizeCamera({
+            ...(state?.camera ?? current.camera),
+            visible: state?.camera?.visible ?? DEFAULT_CAMERA.visible,
+          }),
           music: { ...current.music, ...(state?.music ?? current.music), playing: false },
         };
       },
     },
   ),
 );
+
+function resolveInspectorPausePatch(state: ChromeStore, now: number): Partial<ChromeStore> {
+  if (state.inspectorTimerStartedAt === null) return startInspectorTimerPatch(now);
+  if (state.inspectorTimerPausedAt === null) return { inspectorTimerPausedAt: now };
+  return resumeInspectorTimerPatch(state, now);
+}
+
+function startInspectorTimerPatch(now: number): Partial<ChromeStore> {
+  persistInspectorStartedAt(now);
+  return {
+    inspectorTimerStartedAt: now,
+    inspectorTimerPausedAt: null,
+    inspectorTimerPausedMs: 0,
+  };
+}
+
+function resumeInspectorTimerPatch(state: ChromeStore, now: number): Partial<ChromeStore> {
+  const pausedDelta = Math.max(0, now - (state.inspectorTimerPausedAt ?? now));
+  return {
+    inspectorTimerPausedAt: null,
+    inspectorTimerPausedMs: state.inspectorTimerPausedMs + pausedDelta,
+  };
+}
