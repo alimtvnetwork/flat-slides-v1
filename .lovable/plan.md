@@ -2,6 +2,11 @@
 
 ## Active
 
+### B20 — Camera 2026 + Controller 2026 spec gap plan
+- ⏳ follow `.lovable/camera-controller-2026-gap-tasks.md`
+- ⏳ implement only after the user says `start implementing`
+- ⏳ source specs: `spec/old-slides/camera-2026/` and `spec/old-slides/controller-2026/`
+
 ### B19A — Settings / fullscreen / camera repair
 - ⏳ unify slide background rendering pipeline
 - ⏳ wire Settings darken + blur into actual slide rendering
