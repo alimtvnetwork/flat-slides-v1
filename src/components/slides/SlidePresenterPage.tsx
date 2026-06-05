@@ -53,6 +53,7 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [fullscreenPathname, setFullscreenPathname] = useState<string | null>(null);
+  const fullscreenPathnameRef = useRef<string | null>(null);
   const lastNavigationAtRef = useRef(0);
   const deck = useDeck((s) => s.deck);
   const allSlides = deck.slides;
@@ -126,6 +127,7 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
       const pathname = (event as CustomEvent<SlidesFullscreenUrlChangeDetail>).detail?.pathname;
       if (!pathname) return;
       if (document.fullscreenElement) {
+        fullscreenPathnameRef.current = pathname;
         setFullscreenPathname(pathname);
         return;
       }
@@ -133,13 +135,14 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
     };
     const onFullscreenChange = () => {
       if (document.fullscreenElement) {
-        setFullscreenPathname((pathname) => pathname ?? location.pathname);
+        fullscreenPathnameRef.current = fullscreenPathnameRef.current ?? location.pathname;
+        setFullscreenPathname(fullscreenPathnameRef.current);
         return;
       }
-      setFullscreenPathname((pathname) => {
-        if (pathname && pathname !== location.pathname) syncFullscreenRoute(pathname);
-        return null;
-      });
+      const pathname = fullscreenPathnameRef.current;
+      fullscreenPathnameRef.current = null;
+      setFullscreenPathname(null);
+      if (pathname && pathname !== location.pathname) syncFullscreenRoute(pathname);
     };
     onFullscreenChange();
     window.addEventListener(SLIDES_FULLSCREEN_URL_CHANGE_EVENT, onFullscreenUrlChange);
