@@ -49,7 +49,7 @@ function positionStyle(pos: TextPosition | undefined, padding = 120): CSSPropert
   };
 }
 
-function resolveBackground(
+function legacyResolveBackground(
   slide: Slide,
   settings: { backgroundMode: "color" | "image"; backgroundColor: string; backgroundImage?: string },
 ): { color?: string; image?: string } {
