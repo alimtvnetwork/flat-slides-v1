@@ -217,7 +217,7 @@ export function getActiveFocusRegion(slide: Slide, step: number): FocusRegion | 
   if (!regions || regions.length === 0) return null;
   const stepBound = regions.find((r) => r.step === step);
   if (stepBound) return stepBound;
-  if (slideStepCount(slide) > 0) return null;
+  // Unbound regions ("no step") fall through to every step per docstring.
   const unbound = regions.find((r) => r.step === undefined);
   return unbound ?? null;
 }
