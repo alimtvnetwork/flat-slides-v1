@@ -33,7 +33,7 @@ criteria for one defect. Status is updated when the fix lands.
 | 026 | [`026-themes-fg-mismatch-with-background-image.md`](./026-themes-fg-mismatch-with-background-image.md) | Theme `fg` is unreadable over user-supplied background image | open |
 | 027 | [`027-rich-component-renders-html-entities-literally.md`](./027-rich-component-renders-html-entities-literally.md) | `&amp;` and `&mdash;` render as literal text in slide bodies | fixed |
 | 028 | [`028-presenter-inspector-timer-resets-on-route-change.md`](./028-presenter-inspector-timer-resets-on-route-change.md) | Inspector timer resets when navigating between slides | fixed |
-| 029 | [`029-controller-pill-anchor-stuck-after-resize.md`](./029-controller-pill-anchor-stuck-after-resize.md) | Controller pill anchor sticks to old corner after the window is resized | open |
+| 029 | [`029-controller-pill-anchor-stuck-after-resize.md`](./029-controller-pill-anchor-stuck-after-resize.md) | Controller pill anchor sticks to old corner after the window is resized | fixed |
 | 030 | [`030-keyboard-shortcut-conflicts-with-browser.md`](./030-keyboard-shortcut-conflicts-with-browser.md) | `Cmd+P` (Print) is intercepted by the deck and breaks browser print | fixed |
 | 031 | [`031-node-render-script-missing.md`](./031-node-render-script-missing.md) | No headless Node renderer to produce PNG/PDF previews of slides | open |
 | 032 | [`032-import-button-accepts-any-file-extension.md`](./032-import-button-accepts-any-file-extension.md) | Import deck accepts `.txt`, `.png`, anything — fails late with cryptic JSON error | fixed |
