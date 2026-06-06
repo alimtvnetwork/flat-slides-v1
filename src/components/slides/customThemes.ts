@@ -31,7 +31,7 @@ export const ThemeSchema = z.object({
 const DEFAULT_FONTS = {
   fontHeading: '"Ubuntu", system-ui, sans-serif',
   fontBody: '"Poppins", system-ui, sans-serif',
-  fontDisplay: '"Instrument Serif", "Ubuntu", serif',
+  fontDisplay: '"Ubuntu", system-ui, sans-serif',
 };
 
 /** Accepts a single theme object or `{ themes: [...] }`. */

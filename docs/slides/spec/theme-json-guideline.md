@@ -70,7 +70,7 @@ The exporter writes a single object when exporting one theme, and a
 | `hlInk`        | yes      | hex color                         | Text color inside a `.hl-pill` chip. Must contrast strongly against `hl` (≥ 4.5:1).         |
 | `fontHeading`  | no       | CSS font-family string            | Defaults to `"Ubuntu", system-ui, sans-serif`. Quoted family names must keep quotes inside the JSON string. |
 | `fontBody`     | no       | CSS font-family string            | Defaults to `"Poppins", system-ui, sans-serif`.                                             |
-| `fontDisplay`  | no       | CSS font-family string            | Defaults to `"Instrument Serif", "Ubuntu", serif`. Used by `.slide-display` accent text.    |
+| `fontDisplay`  | no       | CSS font-family string            | Defaults to `"Ubuntu", system-ui, sans-serif`. Used by `.slide-display` accent text.    |
 
 Unknown fields are rejected by the Zod validator with a friendly error.
 
@@ -95,8 +95,8 @@ When asked to design a new theme, follow these rules:
    classic palette schemes: complementary, analogous, or triadic.
 7. **Stable ids.** Use lowercase, hyphenated, descriptive ids
    (`ocean-deep`, not `Theme_1`). The id is part of the public contract.
-8. **Leave fonts alone unless asked.** The defaults (Ubuntu / Poppins /
-   Instrument Serif) are already loaded by the app. Custom font families
+8. **Leave fonts alone unless asked.** The defaults (Ubuntu / Poppins)
+   are already loaded by the app. Custom font families
    only render if the browser has them — never invent obscure foundries.
 
 ### Example: light editorial theme

@@ -3,7 +3,7 @@ import { persist } from "zustand/middleware";
 
 import { DEFAULT_CONTROLLER_ANCHOR, nextControllerAnchor, type ControllerAnchor } from "./controller-anchor";
 
-export const CONTROLLER_ANCHOR_STORAGE_KEY = "riseup.controller.anchor.v2";
+export const CONTROLLER_ANCHOR_STORAGE_KEY = "riseup.controller.anchor.v3";
 
 interface ControllerAnchorStore {
   anchor: ControllerAnchor;
