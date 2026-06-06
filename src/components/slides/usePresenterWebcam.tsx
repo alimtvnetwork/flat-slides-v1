@@ -585,11 +585,60 @@ export function PresenterWebcamProvider({ children }: { children: ReactNode }) {
     }
   }, [setState]);
 
-  // ─── Task 9: nav passthrough for fullscreen / stage ───
+  // ─── Spec 01 §3 / §7 — toggles, action-stack, nav handler registry ───
+  const toggle = useCallback(async () => {
+    const current = stateRef.current;
+    if (current.phase === "on") { hide(); return; }
+    await show();
+  }, [hide, show]);
+
+  const toggleStage = useCallback(() => {
+    if (stateRef.current.phase === "stage") {
+      restoreFromOverlay();
+      return;
+    }
+    enterStage();
+  }, [enterStage, restoreFromOverlay]);
+
+  const exitFullscreen = useCallback(() => {
+    if (stateRef.current.phase === "fullscreen") restoreFromOverlay();
+  }, [restoreFromOverlay]);
+
+  const pushFullscreenAction = useCallback((action: FullscreenAction) => {
+    actionStackRef.current.push(action);
+  }, []);
+
+  const registerNavHandlers = useCallback((handlers: NavHandlers) => {
+    navHandlersRef.current = handlers;
+    return () => {
+      if (navHandlersRef.current === handlers) navHandlersRef.current = null;
+    };
+  }, []);
+
   const emitPassthrough = useCallback((direction: "next" | "prev") => {
+    const handlers = navHandlersRef.current;
+    if (handlers) {
+      direction === "next" ? handlers.goNext() : handlers.goPrev();
+    }
     if (typeof window === "undefined") return;
     const detail: WebcamPassthroughDetail = { direction };
     window.dispatchEvent(new CustomEvent(WEBCAM_PASSTHROUGH_EVENT, { detail }));
+  }, []);
+
+  const cinematicTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const runCinematicCycle = useCallback(() => {
+    if (cinematicTimerRef.current) clearTimeout(cinematicTimerRef.current);
+    pushFullscreenAction("cinematic");
+    setCinematicExiting(true);
+    const reduced =
+      typeof window !== "undefined" &&
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    const delay = reduced ? 0 : 800;
+    cinematicTimerRef.current = setTimeout(() => setCinematicExiting(false), delay);
+  }, [pushFullscreenAction]);
+
+  useEffect(() => () => {
+    if (cinematicTimerRef.current) clearTimeout(cinematicTimerRef.current);
   }, []);
 
   const value = useMemo<PresenterWebcamCtx>(
