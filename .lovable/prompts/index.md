@@ -1,6 +1,6 @@
 # Prompt Registry
 
-Latest: `42-next-task.md` (Step 1 already landed in 1.60.0. Step 2 black-frame requires live reproduction — root cause not yet provable from code alone; honest "unsure" per definition of done).
+Latest: `43-next-task.md` (Step 3 LANDED: removed `.hl-pill` 40px blur glow in src/styles.css per no-glow rule. Step 2 still needs live repro).
 
 | ID  | File                          | Title         | Trigger phrases                                            | Purpose                                  |
 | --- | ----------------------------- | ------------- | ---------------------------------------------------------- | ---------------------------------------- |

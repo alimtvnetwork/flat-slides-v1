@@ -2,6 +2,11 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.62.0 — 2026-06-06
+
+### Fixed
+- **Visual rule lock — `.hl-pill` no-glow (Plan step 3).** `src/styles.css:276-286` `.hl-pill` had `box-shadow: 0 18px 40px rgba(0,0,0,0.45)` — a 40px blur halo that violates `.lovable/memory/avoid/02-no-hl-glow.md`. Replaced with the crisp 2px ink-drop only and added the same `text-shadow` as `.hl` for legibility parity. Minimum correct change.
+
 ## 1.61.0 — 2026-06-06
 
 ### Planning
