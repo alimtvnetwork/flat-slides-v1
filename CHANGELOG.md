@@ -2,6 +2,30 @@
 
 All notable changes to Glasswing are documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [1.2.0] — 2026-06-06
+
+### Fixed
+- **SettingsDrawer z-index (issue 016)**: drawer is now `--z-drawer: 280`,
+  above the controller pill (`--z-controller: 260`) and camera bubble
+  (`--z-camera: 270`). Chrome layer scale documented in
+  `docs/slides/spec/z-index.spec.md`.
+- **Controller overflow parity (issue 015)**: parity test locks that the
+  overflow-menu Settings/Help items invoke their callbacks, so a future
+  id/callback rename can't silently turn them into no-ops.
+- **BroadcastChannel churn (issue 021)**: `useAudienceSync` keeps one
+  channel per `sessionId` instead of recreating it on every slide
+  navigation. Stable listener identity, no dropped messages mid-swap.
+- **Controller anchor stuck after resize (issue 029)**: new pure
+  `clampControllerAnchor` helper + resize listener in `ControllerPill`
+  snaps a corner anchor back to `bottom-center` when the viewport
+  shrinks below the pill's required width.
+
+### Added
+- `docs/slides/spec/z-index.spec.md` — single source of truth for the
+  chrome stacking order.
+- Regression locks: `SettingsDrawer.zindex.test.tsx`,
+  `ControllerOverflowMenu.parity.test.tsx`, `useAudienceSync.test.ts`,
+  new `clampControllerAnchor` cases in `controller-anchor.test.ts`.
 
 ## [1.1.0] — 2026-06-05
 
