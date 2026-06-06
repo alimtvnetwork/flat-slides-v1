@@ -31,6 +31,7 @@ import sampleDeckJson from "../../../docs/slides/spec/sample-deck.json?raw";
 import { useAnnotations } from "./annotations-store";
 import { nextBackgroundSettings } from "./backgroundMode";
 import { devResetCachedDeck } from "./devResetDeck";
+import { DevSlidesEventsPanel } from "./DevSlidesEventsPanel";
 import { useChrome } from "./chrome-store";
 import { EXPORT_PAPERS, exportUrl, type ExportPaper } from "./exportPaper";
 import { getDefaultDeckSettings } from "./settingsPersistence";
@@ -528,6 +529,7 @@ export function SettingsDrawer({
             <label className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wider text-neutral-400">
               <RotateCcw size={12} /> Dev
             </label>
+            <DevSlidesEventsPanel />
             <button
               type="button"
               data-testid="dev-reset-cached-deck"

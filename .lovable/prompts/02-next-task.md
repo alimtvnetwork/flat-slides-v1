@@ -4,7 +4,7 @@
 > each invocation (e.g. `next task 7`) so chat-history search can locate
 > the exact batch.
 
-**Latest invocation:** `next task 22` → v1.18.0 (added `window.__slidesEvents` dev ring buffer in `telemetry.ts` capped at 200 events; 2 new tests cover capture+timestamp and FIFO drop. Production builds remain no-op).
+**Latest invocation:** `next task 23` → v1.19.0 (mounted a dev-only Settings drawer `slides:event` buffer viewer backed by `window.__slidesEvents`; shows the latest 20 events, cap 200, with a Clear control. Production builds remain unchanged).
 
 ## What I want
 
