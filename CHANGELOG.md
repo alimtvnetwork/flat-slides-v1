@@ -2,6 +2,14 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.20.0 — 2026-06-06
+
+### Tests
+- **Launcher browser smoke.** Added `e2e/launcher-cases.spec.ts` covering `/` redirecting to `/slides/1`, the full visible launcher case set, expected link hrefs, and the Settings launcher click reaching the dev `window.__slidesEvents` buffer.
+
+### Verification
+- Playwright test discovery succeeds, but local execution is blocked by sandbox browser dependencies after Chromium install: `chrome-headless-shell: error while loading shared libraries: libglib-2.0.so.0`. The preview browser still confirms the Settings click opens the drawer and exposes the `slides:event buffer` panel.
+
 ## 1.19.0 — 2026-06-06
 
 ### Added

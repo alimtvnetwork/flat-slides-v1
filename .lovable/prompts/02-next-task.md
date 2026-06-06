@@ -4,7 +4,7 @@
 > each invocation (e.g. `next task 7`) so chat-history search can locate
 > the exact batch.
 
-**Latest invocation:** `next task 23` → v1.19.0 (mounted a dev-only Settings drawer `slides:event` buffer viewer backed by `window.__slidesEvents`; shows the latest 20 events, cap 200, with a Clear control. Production builds remain unchanged).
+**Latest invocation:** `next task 24` → v1.20.0 (added `e2e/launcher-cases.spec.ts` covering `/` → `/slides/1`, launcher cases, and Settings click telemetry landing in `window.__slidesEvents`; local Playwright execution is blocked by missing sandbox Chromium system library `libglib-2.0.so.0`).
 
 ## What I want
 
