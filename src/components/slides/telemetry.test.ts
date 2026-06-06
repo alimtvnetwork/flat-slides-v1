@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import {
   SLIDES_EVENT,
+  SLIDES_EVENT_BUFFER_CAP,
   emitSlidesEvent,
   installConsoleSink,
   onSlidesEvent,
