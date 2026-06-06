@@ -5,8 +5,8 @@ criteria for one defect. Status is updated when the fix lands.
 
 | # | File | Title | Status | Regression test |
 |---|------|-------|--------|-----------------|
-| 001 | [`001-preview-iframe-fullscreen.md`](./001-preview-iframe-fullscreen.md) | Present-from-preview-iframe is silently unsupported (no popup fallback) | fixed | `fullscreenTarget.test.ts` (11/11, embedded+disabled branch locked) |
-| 002 | [`002-step-transition-black-flash.md`](./002-step-transition-black-flash.md) | Slide-4 step→step shows a black flash instead of a text crossfade | fixed | `step-transition-no-black.test.tsx` (2/2) |
+| 001 | [`001-preview-iframe-fullscreen.md`](./001-preview-iframe-fullscreen.md) | Present-from-preview-iframe is silently unsupported (no popup fallback) | fixed | `fullscreenTarget.test.ts` (12/12, embedded+disabled branch locked) |
+| 002 | [`002-step-transition-black-flash.md`](./002-step-transition-black-flash.md) | Slide-4 step→step shows a black flash instead of a text crossfade | fixed | `step-transition-no-black.test.tsx` (3/3) + `highlight-style-guardrails.test.ts` (2/2 — white-fg + `.hl` no-glow lock) |
 
 ## Conventions
 
