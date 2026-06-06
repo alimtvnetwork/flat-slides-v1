@@ -7,7 +7,7 @@
  */
 import { z } from "zod";
 
-import type { Theme } from "./themes";
+import { _registerCustomThemesResolver, type Theme } from "./themes";
 
 export const CUSTOM_THEMES_KEY = "riseup.themes.custom";
 
