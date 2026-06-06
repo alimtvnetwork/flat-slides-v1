@@ -28,11 +28,11 @@ criteria for one defect. Status is updated when the fix lands.
 | 021 | [`021-broadcastchannel-leak-on-route-change.md`](./021-broadcastchannel-leak-on-route-change.md) | BroadcastChannel listeners accumulate on each slide navigation | open |
 | 022 | [`022-deck-music-autoplay-blocked-without-gesture.md`](./022-deck-music-autoplay-blocked-without-gesture.md) | Deck music never starts in the preview iframe | open |
 | 023 | [`023-rich-text-highlights-strip-on-import.md`](./023-rich-text-highlights-strip-on-import.md) | Imported decks lose `.hl` highlight spans authored as `<mark>` | open |
-| 024 | [`024-focus-region-svg-paths-not-validated.md`](./024-focus-region-svg-paths-not-validated.md) | Focus regions referencing missing SVG ids silently render no zoom | open |
+| 024 | [`024-focus-region-svg-paths-not-validated.md`](./024-focus-region-svg-paths-not-validated.md) | Focus regions referencing missing SVG ids silently render no zoom | fixed |
 | 025 | [`025-settings-persistence-throws-on-quota.md`](./025-settings-persistence-throws-on-quota.md) | SettingsDrawer changes are lost when localStorage quota is full | fixed |
 | 026 | [`026-themes-fg-mismatch-with-background-image.md`](./026-themes-fg-mismatch-with-background-image.md) | Theme `fg` is unreadable over user-supplied background image | open |
 | 027 | [`027-rich-component-renders-html-entities-literally.md`](./027-rich-component-renders-html-entities-literally.md) | `&amp;` and `&mdash;` render as literal text in slide bodies | fixed |
-| 028 | [`028-presenter-inspector-timer-resets-on-route-change.md`](./028-presenter-inspector-timer-resets-on-route-change.md) | Inspector timer resets when navigating between slides | open |
+| 028 | [`028-presenter-inspector-timer-resets-on-route-change.md`](./028-presenter-inspector-timer-resets-on-route-change.md) | Inspector timer resets when navigating between slides | fixed |
 | 029 | [`029-controller-pill-anchor-stuck-after-resize.md`](./029-controller-pill-anchor-stuck-after-resize.md) | Controller pill anchor sticks to old corner after the window is resized | open |
 | 030 | [`030-keyboard-shortcut-conflicts-with-browser.md`](./030-keyboard-shortcut-conflicts-with-browser.md) | `Cmd+P` (Print) is intercepted by the deck and breaks browser print | fixed |
 | 031 | [`031-node-render-script-missing.md`](./031-node-render-script-missing.md) | No headless Node renderer to produce PNG/PDF previews of slides | open |

@@ -24,3 +24,5 @@ Multi-step zoom slides advance steps but the camera never moves.
 ## Status log
 
 - 2026-06-06 — opened. RCA + fix plan ready. No code changes yet (per user request — fixes deferred).
+
+- 2026-06-06 — **fixed**. Added `src/components/slides/validateFocusRegions.ts` (rejects unbound regions on step-aware slides, out-of-range `step`, and non-positive `w`/`h`). `parseDeckJson` / `parseSlideJson` now log a grouped `console.warn` listing every region issue without failing the import. `CameraStage` warns in dev when a slide has authored focus regions but none match the active step. Regression: `src/components/slides/validateFocusRegions.test.ts` (5/5 green).
