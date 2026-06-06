@@ -58,14 +58,14 @@ export const SHORTCUTS: ShortcutDef[] = [
   shortcut("nav-prev", "←", ["ArrowLeft"], "Previous slide or step", "Navigation"),
   shortcut("nav-next", "→", ["ArrowRight", " ", "Enter"], "Next slide or step", "Navigation"),
   shortcut("annotate-clear-mode", "Esc", ["Escape"], "Clear annotation tool", "Annotate"),
-  shortcut("fullscreen-toggle", "F5", ["F5"], "Toggle fullscreen", "Presenter"),
+  shortcut("fullscreen-toggle", "F / F5", ["F5", "f"], "Toggle fullscreen", "Presenter"),
   shortcut("open-overview", "G", ["g"], "Open deck overview", "Surfaces"),
   shortcut("move-controller", "B", ["b"], "Move controller", "Presenter"),
   shortcut("toggle-top-jumper", "J", ["j"], "Toggle top jumper", "Surfaces"),
   shortcut("open-help", "?", ["/", "?"], "Show keyboard shortcuts", "Presenter"),
   shortcut("command-palette", "⌘K", [], "Command palette", "Presenter"),
   shortcut("click-jump", "Click N", [], "Jump to slide N", "Navigation"),
-  shortcut("webcam-hard-toggle", "I", [], "Hard toggle camera", "Camera"),
+  shortcut("webcam-hard-toggle", "Shift+I", ["shift+i"], "Hard toggle camera", "Camera"),
   shortcut("webcam-soft-minimize", "M", [], "Minimize camera to tray", "Camera"),
   shortcut("webcam-autoframe", "F (cam)", [], "Toggle camera auto-frame", "Camera"),
   shortcut("webcam-zoom-in", "+", [], "Zoom camera in", "Camera"),
@@ -93,7 +93,7 @@ export const SHORTCUTS: ShortcutDef[] = [
   shortcut("toggle-qr", "Q", ["q"], "Toggle audience QR", "Audience"),
   shortcut("toggle-poll", "V", ["v"], "Toggle live poll results", "Audience"),
   shortcut("copy-share-link", "Y", ["y"], "Copy share link", "Audience"),
-  shortcut("toggle-focus-editor", "F", ["f"], "Edit focus regions", "Presenter"),
+  shortcut("toggle-focus-editor", "Shift+F", ["shift+f"], "Edit focus regions", "Presenter"),
   shortcut("export-rehearsal", "⌘E", [], "Export rehearsal report", "Timer"),
   shortcut("export-annotations", "⌘⇧E", [], "Export annotations", "Annotate"),
   shortcut("toggle-lint", "⌘⇧L", [], "Toggle lint panel", "Presenter"),
@@ -137,6 +137,17 @@ export function matchesShortcut(event: KeyboardEvent, def: ShortcutDef): boolean
 
 function matchesKeyAlias(event: KeyboardEvent, alias: string): boolean {
   const normalized = alias.toLowerCase();
+  // Explicit "shift+x" alias: require Shift held and the remainder to match.
+  if (normalized.startsWith("shift+")) {
+    if (!event.shiftKey) return false;
+    const rest = normalized.slice("shift+".length);
+    return rest === event.key.toLowerCase() || rest === event.code.toLowerCase();
+  }
+  // Plain single-letter aliases must NOT fire when Shift is held — otherwise
+  // Shift+I would fire both "open-inspector" (i) and "webcam-hard-toggle" (shift+i).
+  // Non-letter aliases (e.g. "?", "/") are allowed regardless because shifted
+  // punctuation is the only way to type them.
+  if (event.shiftKey && /^[a-z]$/.test(normalized)) return false;
   return normalized === event.key.toLowerCase() || normalized === event.code.toLowerCase();
 }
 

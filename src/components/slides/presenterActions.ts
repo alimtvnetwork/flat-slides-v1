@@ -75,6 +75,10 @@ export const PRESENTER_KEY_ACTIONS: Record<string, PresenterAction> = {
   },
   "toggle-top-jumper": ({ toggleTopJumper }) => toggleTopJumper(),
   "toggle-camera": ({ toggleCamera }) => toggleCamera(),
+  "webcam-hard-toggle": ({ event, toggleCamera }) => {
+    event.preventDefault();
+    toggleCamera();
+  },
   "cycle-camera-shape": () => {
     if (!useChrome.getState().camera.visible) useChrome.getState().cycleCameraShape();
   },
