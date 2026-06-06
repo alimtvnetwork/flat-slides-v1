@@ -2,6 +2,11 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.16.0 — 2026-06-06
+
+### Fixed
+- **Schema-versioned deck persistence.** `useDeck` (zustand `persist`) now stamps `version: DECK_SCHEMA_VERSION` (currently `2`) on the persisted payload and registers a `migrate` callback. When `DECK_SCHEMA_VERSION` bumps, stale localStorage payloads are dropped observably with `[slides:persist] dropping v<N> payload (current v<M>); re-import the deck JSON to restore.` instead of silently crash-loading into the new shape. The `slides-deck-v1` localStorage key is preserved so existing user decks survive on same-version reloads.
+
 ## 1.15.0 — 2026-06-06
 
 ### Added
