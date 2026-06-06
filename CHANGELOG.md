@@ -2,6 +2,11 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.71.0 — 2026-06-06
+
+### Docs
+- **Plan 06 Phase A Step 7 (slide-types catalog).** Wrote `spec/old-slides/26-slide-definitions/00-catalog.md`: 35-type canonical id table (6 text + 7 media + 8 data/diagrams + 6 structure + 4 interactive + 4 comparison), shared `SlideEntry<TType, TContent>` shape, per-type stub file template, legacy `type` → catalog `slideType` migration plan (dual-field until Phase D Step 33), step-URL participation list (`steps`/`timeline`/`flow`/`quiz`/`decision`/`gallery`), and variety-guard input contract. Locks the surface for Steps 8–12 (per-type stubs) and Phase D renderers. Prompt 52 registered.
+
 ## 1.70.0 — 2026-06-06
 
 ### Docs
