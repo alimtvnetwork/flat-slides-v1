@@ -2,6 +2,11 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.50.0 — 2026-06-06
+
+### Planning
+- **Next-task triage (prompt 31).** Re-read guidelines, memory, active plan, route declarations, and recent dev-server logs for the repeated next-task request. No product code changed after prompt 30, so the next 3 remain: (1) reproduce and repair fullscreen persistence across navigation, (2) reproduce and repair slide-4 step 2→3 black-frame transition, (3) lock true-white/default text and no-highlight-glow regression coverage. No product code change.
+
 ## 1.49.0 — 2026-06-06
 
 ### Planning
