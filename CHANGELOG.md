@@ -2,6 +2,14 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.44.0 — 2026-06-06
+
+### Fixed
+- **Ubuntu Bold on hero/title slide (issue 05).** Root cause: `RenderSlide.tsx:157` rendered the title `<h1>` with `.slide-display .slide-title-lg` + inline `fontWeight: 400`, and `.slide-title-lg` in `src/styles.css:230` also forced `font-weight: 400` without a `font-family` override — hero rendered Ubuntu Regular at 176px instead of Ubuntu Bold. Fix: `<h1>` now always uses `slide-heading` + inline `fontWeight: 700` on both `display` and non-display branches; `.slide-title-lg` now sets `font-weight: 700` and `font-family: var(--slide-font-heading)` defensively. Minimum correct change per issue 05 + command 05 + spec `10-typography.md` "Titles only 700".
+
+### Planning
+- **Next-task triage (prompt 25).** Next 3 steps: (1) close plan 05 SS-02 white-balance-in-controller, (2) plan 06 Phase A specs steps 4–10 (typography addendum + ellipsis spec + 35 stub type files + themes addendum + palette doc), (3) Phase A remainder 11–20 + computed-style snapshot test (plan 06 step 24) to lock the Ubuntu fix shipped above against regression when 35 new type renderers land in Phase D.
+
 ## 1.43.0 — 2026-06-06
 
 ### Planning
