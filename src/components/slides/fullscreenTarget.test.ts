@@ -60,7 +60,7 @@ describe("slide fullscreen target", () => {
     expect(getSlidesPortalRoot()).toBeNull();
   });
 
-  it("tries native fullscreen before using the embedded presenter-window fallback", async () => {
+  it("opens a top-level presenter window immediately when embedded", async () => {
     const stableRoot = document.createElement("div");
     stableRoot.setAttribute("data-slides-fullscreen-root", "");
     document.body.append(stableRoot);
@@ -73,25 +73,25 @@ describe("slide fullscreen target", () => {
       openPresenterWindow,
     });
 
-    expect(result).toEqual({ ok: true, mode: "native" });
-    expect(stableRequest).toHaveBeenCalledOnce();
-    expect(openPresenterWindow).not.toHaveBeenCalled();
+    expect(result).toEqual({ ok: true, mode: "presenter-window" });
+    expect(stableRequest).not.toHaveBeenCalled();
+    expect(openPresenterWindow).toHaveBeenCalledOnce();
   });
 
-  it("uses the embedded presenter-window fallback only after native fullscreen fails", async () => {
+  it("reports popup-blocked without attempting iframe fullscreen when embedded", async () => {
     const stableRoot = document.createElement("div");
     stableRoot.setAttribute("data-slides-fullscreen-root", "");
     document.body.append(stableRoot);
-    const openPresenterWindow = vi.fn(() => ({ focus: vi.fn() }) as unknown as Window);
-    Object.defineProperty(stableRoot, "requestFullscreen", { value: vi.fn().mockRejectedValue(new Error("denied")) });
+    const stableRequest = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(stableRoot, "requestFullscreen", { value: stableRequest });
 
     const result = await enterFullscreen(stableRoot, {
       isEmbeddedWindow: () => true,
-      openPresenterWindow,
+      openPresenterWindow: () => null,
     });
 
-    expect(result).toEqual({ ok: true, mode: "presenter-window" });
-    expect(openPresenterWindow).toHaveBeenCalledOnce();
+    expect(result).toEqual({ ok: false, reason: "embedded-popup-blocked" });
+    expect(stableRequest).not.toHaveBeenCalled();
   });
 
   it("reports blocked presenter-window fallback when native fullscreen fails and embedded popups are blocked", async () => {
