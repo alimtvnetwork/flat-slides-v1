@@ -26,9 +26,56 @@ import {
  *      width-driven 16:9, clamped to [FREE_MIN_W, FREE_MAX_W].
  *
  * Spec sources:
- *   - spec/old-slides/camera-2026/01-state-machine-and-hook.md §1–§8
+ *   - spec/old-slides/camera-2026/01-state-machine-and-hook.md §1–§11
  *   - spec/old-slides/camera-2026/02-overlay-rendering-and-surfaces.md §2
  *   - spec/old-slides/camera-2026/06-implementation-steps-1-30.md steps 1–6
+ *
+ * ─────────────────────────────────────────────────────────────────────────
+ * STEP 1 AUDIT — spec 01 §3 (Ctx interface) vs this implementation.
+ * Plan ref: .lovable/plan.md → Phase A · Step 1.
+ *
+ *   Spec action / field            Status   Implementation notes
+ *   ─────────────────────────────  ───────  ───────────────────────────────
+ *   phase / stream / error          ✅      `WebcamState`
+ *   position                        ✅      `position` + clamped `setPosition`
+ *   size (live painted)             ✅      `computedSize` via `resolveSize`
+ *   sizeStep | null                 ⚠️      Exposed as `sizeCfg`; spec wants
+ *                                           a derived `sizeStep` (null when
+ *                                           free). Callers currently inspect
+ *                                           `sizeCfg.kind` — acceptable but
+ *                                           non-spec; flag for step 2.
+ *   minimized                       ❌      No state, no MINI_W/H, no MIN_KEY
+ *                                           wiring (constant declared only).
+ *   toggle()                        ❌      Missing convenience action.
+ *   show()                          ✅
+ *   hide()                          ✅
+ *   close()                         ✅      Spec also clears actionStackRef.
+ *   toggleMinimized()               ❌      Missing.
+ *   setPosition(x,y)                ✅      Signature differs (object arg).
+ *   setSizeStep(s)                  ✅      Named `setStepSize`.
+ *   growSize() / shrinkSize()       ✅      Folded into `stepSize(+1|-1)`.
+ *   resizeFree(w,h?)                ✅      Named `setFreeSize(width)`.
+ *   enterFullscreen()               ✅      Sync, not async; OK.
+ *   exitFullscreen()                ⚠️      Covered by `restoreFromOverlay`
+ *                                           (handles both fullscreen+stage);
+ *                                           add named alias in step 2.
+ *   pushFullscreenAction(a)         ❌      No `actionStackRef` / back stack.
+ *   registerNavHandlers(h)          ❌      Only `emitPassthrough` exists;
+ *                                           no handler registry for the deck
+ *                                           to subscribe to passthrough.
+ *   haloVisible / toggleHalo()      ✅      Named `halo` / `toggleHalo`.
+ *   toggleStage()                   ❌      Only one-way `enterStage`.
+ *   circleShape / toggleCircleShape ✅      Named `circle` / `toggleCircle`.
+ *   cinematicExiting                ❌      No state.
+ *   runCinematicCycle()             ❌      No `]` cycle + whoosh.
+ *
+ *   Out-of-spec extras kept (deliberate):
+ *     • autoFrame / setAutoFrame / toggleAutoFrame  — spec 04 task.
+ *     • plateVariant / setPlateVariant / cyclePlateVariant — spec 05 §6.
+ *     • emitPassthrough — spec 02 §6; pair with registerNavHandlers in step 2.
+ *
+ *   Step 2 will implement every ❌ row and reconcile the two ⚠️ rows.
+ * ─────────────────────────────────────────────────────────────────────────
  */
 
 // ─────────────────────────── Types (spec §1) ───────────────────────────
