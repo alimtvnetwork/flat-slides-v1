@@ -2,6 +2,14 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.30.0 — 2026-06-06
+
+### Fixed
+- **`matchesShortcut` no longer crashes on missing `def`.** `src/components/slides/shortcuts.ts:128–140` now returns `false` when `def?.keys` is undefined. Root cause: callers pass `SHORTCUTS.find(...)` directly; when an id is renamed `find` returns `undefined` and the keymap pipeline crashed silently with `TypeError: Cannot read properties of undefined (reading 'keys')`. The previous shortcut-test failure (`is case-insensitive on letter keys`) was the only signal of this latent bug.
+
+### Tests
+- **`shortcuts.test.ts` green again (5/5).** Lookups switched from brittle `display` strings (e.g. `"F"`, which became `"F / F5"`) to stable `id` (`"fullscreen-toggle"`). New regression test asserts `matchesShortcut(ev, undefined)` returns `false` so the keymap can never crash on a missing id.
+
 ## 1.29.0 — 2026-06-06
 
 ### Added

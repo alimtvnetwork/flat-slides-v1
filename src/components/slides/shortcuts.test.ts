@@ -13,14 +13,22 @@ describe("shortcuts", () => {
   });
 
   it("is case-insensitive on letter keys", () => {
-    const def = SHORTCUTS.find((s) => s.display === "F")!;
+    // Look up by stable id, not display string (display was renamed to "F / F5"
+    // when F5 was added as an alias). RCA: pre-existing crash on `def.keys`.
+    const def = SHORTCUTS.find((s) => s.id === "fullscreen-toggle")!;
     expect(matchesShortcut(ev("f"), def)).toBe(true);
     expect(matchesShortcut(ev("F"), def)).toBe(true);
   });
 
   it("does not match unrelated keys", () => {
-    const def = SHORTCUTS.find((s) => s.display === "G")!;
+    const def = SHORTCUTS.find((s) => s.id === "fullscreen-toggle")!;
     expect(matchesShortcut(ev("h"), def)).toBe(false);
+  });
+
+  it("guards against undefined defs so a missing SHORTCUT id can never crash the keymap", () => {
+    // Regression: shortcuts.ts:135 used to crash with "Cannot read 'keys' of undefined"
+    // when callers passed a `.find(...)` result without `!`. The guard returns false instead.
+    expect(matchesShortcut(ev("f"), undefined as unknown as (typeof SHORTCUTS)[number])).toBe(false);
   });
 
   it("exposes a stable Timer group containing ⌘E", () => {
