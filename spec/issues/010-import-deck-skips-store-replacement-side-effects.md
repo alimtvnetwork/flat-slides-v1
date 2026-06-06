@@ -24,3 +24,4 @@ After import, current slide URL still points to the old slide id and may 404. Au
 ## Status log
 
 - 2026-06-06 — opened. RCA + fix plan ready. No code changes yet (per user request — fixes deferred).
+- 2026-06-06 — confirmed fix shipped in `useDeck.setDeck` (clears `useAnnotations` + reseats `lastVisitedSlideId`). Added regression lock `src/components/slides/store-setdeck-side-effects.test.ts` in v1.3.0.
