@@ -5,8 +5,26 @@
 > If this doc disagrees with those files, the code wins — open a PR to fix the doc.
 
 A deck is a single JSON document validated by `DeckSchema`. It is imported via
-File → Import (or paste) and rejected wholesale if any field is invalid. Stay
-inside the schema; do not invent fields.
+**Settings → Import / Export → Import deck** (or paste) and rejected wholesale
+if any field is invalid. Stay inside the schema; do not invent fields.
+
+> ### ⚠️ One file, one shot — non-negotiable
+>
+> When asked to produce a deck, emit **a single JSON document** that contains
+> the root, `settings`, and **every slide** inline under `slides[]`. Do not:
+>
+> - split slides across multiple files,
+> - return a zip / multi-file response,
+> - reference external `$ref`s or "see file X",
+> - or stream partial decks expecting the user to stitch them together.
+>
+> The importer accepts exactly one `.json` file. Anything else fails. The
+> sample at [`sample-deck.json`](./sample-deck.json) is the canonical shape —
+> 1 file, N slides, fully self-contained.
+>
+> Sibling spec: [`theme-json-guideline.md`](./theme-json-guideline.md) (same
+> one-file rule for themes — one object, or one `{ "themes": [...] }` batch).
+
 
 ---
 
