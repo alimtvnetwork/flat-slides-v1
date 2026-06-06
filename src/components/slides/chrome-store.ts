@@ -239,7 +239,7 @@ export const useChrome = create<ChromeStore>()(
   persist(
     (set) => ({
       topJumperHidden: true,
-      dotPaginationVisible: true,
+      dotPaginationVisible: false,
       slideNumberBadgeVisible: true,
       timerVisible: true,
       focusEditorOpen: false,
@@ -334,7 +334,7 @@ export const useChrome = create<ChromeStore>()(
       toggleInspectorTimerPause: (now) => set((s) => resolveInspectorPausePatch(s, now)),
     }),
     {
-      name: "slides-chrome-v2",
+      name: "slides-chrome-v3",
       // Always pause music on reload — autoplay would be blocked anyway.
       partialize: (s) => ({
         topJumperHidden: s.topJumperHidden,
