@@ -40,6 +40,7 @@ interface Props {
 export function ControllerPill(props: Props) {
   const { current, total, onPrev, onNext, onJump, onToggleFullscreen, onOpenSettings, onOpenHelp, isFullscreen, canPrev, canNext } = props;
   const anchor = useControllerAnchor((s) => s.anchor);
+  const setAnchor = useControllerAnchor((s) => s.setAnchor);
   const cycleAnchor = useControllerAnchor((s) => s.cycleAnchor);
   const isNarrow = useNarrowViewport();
   const reduced = useReducedMotion();
