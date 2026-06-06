@@ -1,4 +1,4 @@
-# 37 — Next Task v5 (repeat-request version refresh)
+# 38 — Next Task v5 (heading font hardening + next 3) Next Task v5 (repeat-request version refresh)
 
 ## Files, functions, and signals read before selecting work
 
