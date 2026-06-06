@@ -83,11 +83,23 @@ export function SettingsDrawer({
   }, [open, onClose]);
   if (!open) return null;
 
+  const importErrorToast = (label: string, r: { error: string; errorFull: string; errorCount: number }) => {
+    console.warn(`[slides:${label}] full validation error:\n${r.errorFull}`);
+    toast.error(`${label}:\n${r.error}`, {
+      duration: 10000,
+      description: r.errorCount > 4 ? `${r.errorCount} issues — click Copy for full list` : undefined,
+      action: {
+        label: "Copy full error",
+        onClick: () => navigator.clipboard?.writeText(r.errorFull).catch((e) => console.warn("clipboard write failed", e)),
+      },
+    });
+  };
+
   const handleImportDeck = async () => {
     const text = await pickJsonFile(fileRef.current);
     if (!text) return;
     const r = parseDeckJson(text);
-    if (!r.ok) return toast.error(`Import failed:\n${r.error}`, { duration: 8000 });
+    if (!r.ok) return importErrorToast("Import failed", r);
     setDeck(r.value);
     goToFirstSlide();
     toast.success(`Imported deck "${r.value.title}" (${r.value.slides.length} slides)`);
@@ -97,14 +109,14 @@ export function SettingsDrawer({
     const text = await pickJsonFile(fileRef.current);
     if (!text) return;
     const r = parseSlideJson(text);
-    if (!r.ok) return toast.error(`Import failed:\n${r.error}`, { duration: 8000 });
+    if (!r.ok) return importErrorToast("Import failed", r);
     upsertSlide(r.value);
     toast.success(`Imported slide "${r.value.id}"`);
   };
 
   const handleLoadSpecSample = () => {
     const r = parseDeckJson(sampleDeckJson);
-    if (!r.ok) return toast.error(`Spec sample failed to parse:\n${r.error}`, { duration: 8000 });
+    if (!r.ok) return importErrorToast("Spec sample failed to parse", r);
     setDeck(r.value);
     goToFirstSlide();
     toast.success(`Loaded spec sample deck (${r.value.slides.length} slides)`);
