@@ -232,6 +232,7 @@ export interface DeckSettings {
   backgroundColor: string;
   backgroundImage?: string;
   textColor?: string;
+  hlColor?: string;
   darken: number; // 0-100
   blur: number;   // 0-20
   transition: TransitionKind;
