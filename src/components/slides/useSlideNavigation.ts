@@ -4,6 +4,7 @@ import { useCallback, useMemo } from "react";
 import { triggerClick } from "./audio";
 import { useDeck } from "./store";
 import { slideStepCount, type Slide } from "./types";
+import { isAppPresentationMode } from "./useFullscreen";
 
 export type NavDirection = "forward" | "backward";
 export const SLIDES_FULLSCREEN_URL_CHANGE_EVENT = "slides:fullscreen-url-change";
@@ -51,7 +52,10 @@ export function useSlideNavigation() {
         ? `/slides/${clamped}/${step}`
         : `/slides/${clamped}`;
 
-      if (typeof document !== "undefined" && document.fullscreenElement) {
+      const inFullscreenLike =
+        typeof document !== "undefined" &&
+        (Boolean(document.fullscreenElement) || isAppPresentationMode());
+      if (inFullscreenLike) {
         updateFullscreenRouteState(targetPath);
         return;
       }

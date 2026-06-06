@@ -2,6 +2,14 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.60.0 — 2026-06-06
+
+### Fixed
+- **Fullscreen persistence across slide navigation (Plan step 1).** `src/components/slides/useSlideNavigation.ts` `goTo()` previously short-circuited URL navigation only when `document.fullscreenElement` was set, so app-presentation mode (popup presenter window / `setAppPresentationMode(true)`) fell through to `navigate()` and forced a route remount — exiting the presentation shell on every slide advance. Fix: import `isAppPresentationMode` from `./useFullscreen` and gate the virtual-URL branch on `document.fullscreenElement || isAppPresentationMode()`, matching `useFullscreen.ts:126` `isFullscreenLike()` semantics. Minimum correct change; no symptom patch.
+
+### Planning
+- **Next-task triage (prompt 41).** Step 1 complete. Remaining next 2: (1) slide-4 step 2→3 black-frame in RenderSlide.tsx, (2) lock visual rules + regression coverage.
+
 ## 1.59.0 — 2026-06-06
 
 ### Planning
