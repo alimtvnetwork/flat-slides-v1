@@ -742,8 +742,8 @@ Whichever pattern from §10.1.4 you pick:
 ### 11.5 Focus regions — per-step rules
 
 - `focus: []` or omitted ⇒ full frame, no zoom. This is the default.
-- A region with no `step` applies to every step on the slide.
-- A region with `step: N` overrides the unbound region on that step.
+- On non-step slides, a region with no `step` applies whenever the slide is shown.
+- On `steps` slides, every focus region must use `step: N`; unbound regions are ignored so the overview route stays full-frame.
 - Up to 16 regions per slide.
 - **Never put `focus` on `bullets`, `quote`, or `timeline` slides.** The
   core memory: lists/timelines must never scale or zoom. The renderer
