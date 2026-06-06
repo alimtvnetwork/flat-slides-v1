@@ -162,3 +162,7 @@ Conclusion: no scale/zoom leak onto `steps`. Core memory rule ("lists/steps/time
 ## Background persistence (step 10)
 
 `StepsSlide` renders `<SlideLayout background={slide.background}>` ONCE (RenderSlide.tsx:181), outside the `<AnimatePresence>`. The background layer (`resolveBackgroundLayerStyle` inside `SlideLayout`) is therefore stable across step swaps and never unmounts. The dark frame seen pre-fix was the slide bg showing through the transparent overlap window — not a missing/remounting bg layer. With `mode="wait"` from step 8, no overlap window exists, so the bg can never bleed through. No code change required for step 10.
+
+## Status log
+- 2026-06-06 — opened, RCA + investigation logged.
+- 2026-06-06 — fixed at `RenderSlide.tsx:224–268`. Locked by `step-transition-no-black.test.tsx` (2/2).
