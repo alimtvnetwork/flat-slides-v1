@@ -137,6 +137,17 @@ export function matchesShortcut(event: KeyboardEvent, def: ShortcutDef): boolean
 
 function matchesKeyAlias(event: KeyboardEvent, alias: string): boolean {
   const normalized = alias.toLowerCase();
+  // Explicit "shift+x" alias: require Shift held and the remainder to match.
+  if (normalized.startsWith("shift+")) {
+    if (!event.shiftKey) return false;
+    const rest = normalized.slice("shift+".length);
+    return rest === event.key.toLowerCase() || rest === event.code.toLowerCase();
+  }
+  // Plain single-letter aliases must NOT fire when Shift is held — otherwise
+  // Shift+I would fire both "open-inspector" (i) and "webcam-hard-toggle" (shift+i).
+  // Non-letter aliases (e.g. "?", "/") are allowed regardless because shifted
+  // punctuation is the only way to type them.
+  if (event.shiftKey && /^[a-z]$/.test(normalized)) return false;
   return normalized === event.key.toLowerCase() || normalized === event.code.toLowerCase();
 }
 
