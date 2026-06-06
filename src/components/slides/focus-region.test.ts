@@ -15,9 +15,9 @@ describe("getActiveFocusRegion", () => {
     expect(getActiveFocusRegion(slide([]), 1)).toBeNull();
   });
 
-  it("returns the unbound region when no step matches", () => {
+  it("ignores unbound regions on step-aware slides", () => {
     const r = { x: 0, y: 0, w: 100, h: 100, label: "all" };
-    expect(getActiveFocusRegion(slide([r]), 5)?.label).toBe("all");
+    expect(getActiveFocusRegion(slide([r]), 5)).toBeNull();
   });
 
   it("step-bound region wins over unbound on the same step", () => {
@@ -26,7 +26,7 @@ describe("getActiveFocusRegion", () => {
       { x: 0, y: 0, w: 200, h: 200, label: "step-2", step: 2 },
     ];
     expect(getActiveFocusRegion(slide(regions), 2)?.label).toBe("step-2");
-    expect(getActiveFocusRegion(slide(regions), 1)?.label).toBe("all");
+    expect(getActiveFocusRegion(slide(regions), 1)).toBeNull();
   });
 
   it("returns null when only other steps are bound and there is no unbound fallback", () => {

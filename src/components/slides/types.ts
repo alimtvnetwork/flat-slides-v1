@@ -208,16 +208,16 @@ export function getDisplayNumber(slide: Slide, linearPosition: number): number {
 }
 
 /**
- * Resolve the focus region active for `step` (1-based). A region with no
- * `step` matches every step. Step-bound regions take priority over
- * unbound ones. Returns `null` for full-frame.
+ * Resolve the focus region active for `step` (1-based). Step-aware slides must
+ * opt into focus per step; unbound regions are only safe on non-step slides.
+ * Step-bound regions take priority over unbound ones. Returns `null` for full-frame.
  */
 export function getActiveFocusRegion(slide: Slide, step: number): FocusRegion | null {
   const regions = slide.focus;
   if (!regions || regions.length === 0) return null;
   const stepBound = regions.find((r) => r.step === step);
   if (stepBound) return stepBound;
-  // Unbound regions ("no step") fall through to every step per docstring.
+  if (slideStepCount(slide) > 0) return null;
   const unbound = regions.find((r) => r.step === undefined);
   return unbound ?? null;
 }
