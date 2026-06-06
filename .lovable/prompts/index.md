@@ -1,6 +1,6 @@
 # Prompt Registry
 
-Latest: `49-next-task.md` (Registry refresh — next 3 steps unchanged: ellipsis pagination spec, threshold setting spec, slide-types catalog draft).
+Latest: `50-next-task.md` (Plan 06 Phase A Step 5 landed — ellipsis pagination spec `27-slides-number/14-ellipsis-pagination.md` written; next 3 steps: threshold setting spec, slide-types catalog draft, then 35 per-type stubs kickoff).
 
 | ID  | File                          | Title         | Trigger phrases                                            | Purpose                                  |
 | --- | ----------------------------- | ------------- | ---------------------------------------------------------- | ---------------------------------------- |

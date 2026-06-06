@@ -2,6 +2,11 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.69.0 — 2026-06-06
+
+### Docs
+- **Plan 06 Phase A Step 5 (ellipsis pagination spec).** Wrote `spec/old-slides/27-slides-number/14-ellipsis-pagination.md`: pure `buildPaginationSlots(current, total, threshold, neighbors=2)` contract with first/last always visible, current ± neighbors window, gap-of-1 never becomes `…`, ellipsis carries inclusive `range` for popover scoping, `id: 'left' | 'right'` anchoring. Locks worked-examples table (12/5, 20/1/10/19/4/17, 30/15) for unit tests and pins shared `layoutId="dot-pagination-active"` to number slots only. Threshold key `riseup.controller.ellipsisThreshold` (default 15, range 5..50). Unblocks Step 6 (threshold setting spec) and Phase C Steps 26–32 (implementation). Prompt 50 registered.
+
 ## 1.68.0 — 2026-06-06
 
 ### Planning
