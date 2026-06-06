@@ -24,3 +24,4 @@ On a 993-px-wide preview viewport, clicking the Settings gear yields no drawer b
 ## Status log
 
 - 2026-06-06 — opened. RCA + fix plan ready. No code changes yet (per user request — fixes deferred).
+- 2026-06-06 — fixed. Added parity test `src/components/slides/controls/ControllerOverflowMenu.parity.test.tsx` asserting that the overflow menu's Settings and Keyboard-shortcuts items invoke their `onOpenSettings`/`onOpenHelp` callbacks. Locks the wiring so a future id/callback rename can't silently turn the menu items into no-ops.

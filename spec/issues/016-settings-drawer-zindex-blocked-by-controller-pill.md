@@ -24,3 +24,4 @@ Both surfaces use `z-[200]`. The pill mounts later and wins paint order.
 ## Status log
 
 - 2026-06-06 — opened. RCA + fix plan ready. No code changes yet (per user request — fixes deferred).
+- 2026-06-06 — fixed. Introduced `--z-drawer: 280` in `src/styles.css` (now above `--z-controller: 260` and `--z-camera: 270`), switched `SettingsDrawer` from `z-[200]` to the token, documented the chrome layer scale in `docs/slides/spec/z-index.spec.md`, and locked it with `src/components/slides/SettingsDrawer.zindex.test.tsx`.

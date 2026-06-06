@@ -165,8 +165,11 @@
   --ctrl-hover: oklch(1 0 0 / 0.1);
   --ctrl-accent: oklch(0.88 0.18 95);
   --ctrl-accent-ink: oklch(0.18 0 0);
+  /* Chrome layer scale — see docs/slides/spec/z-index.spec.md */
   --z-controller: 260;
   --z-camera: 270;
+  --z-drawer: 280;
+  --z-toast: 290;
 
   /* Subtle ink-drop under light text for legibility over busy / image backgrounds.
    * Per-theme override in themes.ts (Paper sets it to `none`). */

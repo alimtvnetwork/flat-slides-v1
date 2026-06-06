@@ -135,7 +135,12 @@ export function SettingsDrawer({
   };
 
   return (
-    <div className="fixed z-[200] flex" data-presenter-frame-bound="true" data-app-chrome>
+    <div
+      className="fixed flex"
+      style={{ zIndex: "var(--z-drawer)" as unknown as number }}
+      data-presenter-frame-bound="true"
+      data-app-chrome
+    >
       <div className="flex-1 bg-transparent" onClick={onClose} />
       <aside className="w-[min(400px,var(--presenter-frame-width))] bg-neutral-950 p-6 text-neutral-200 overflow-y-auto">
         <div className="mb-6 flex items-center justify-between">

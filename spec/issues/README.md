@@ -19,8 +19,8 @@ criteria for one defect. Status is updated when the fix lands.
 | 012 | [`012-node-build-deck-script-missing.md`](./012-node-build-deck-script-missing.md) | There is no Node.js script that compiles deck JSON into a deployable bundle | open |
 | 013 | [`013-sample-deck-json-not-validated-in-ci.md`](./013-sample-deck-json-not-validated-in-ci.md) | `docs/slides/spec/sample-deck.json` is not validated in CI | open |
 | 014 | [`014-preview-fullscreen-breaks-out-of-iframe.md`](./014-preview-fullscreen-breaks-out-of-iframe.md) | Pressing F/Present in preview iframe escapes to top window unexpectedly | open |
-| 015 | [`015-presenter-controller-settings-button-hidden-at-narrow-width.md`](./015-presenter-controller-settings-button-hidden-at-narrow-width.md) | Settings gear vanishes from controller pill below 1280 CSS px | open |
-| 016 | [`016-settings-drawer-zindex-blocked-by-controller-pill.md`](./016-settings-drawer-zindex-blocked-by-controller-pill.md) | SettingsDrawer can render under the controller pill on some routes | open |
+| 015 | [`015-presenter-controller-settings-button-hidden-at-narrow-width.md`](./015-presenter-controller-settings-button-hidden-at-narrow-width.md) | Settings gear vanishes from controller pill below 1280 CSS px | fixed |
+| 016 | [`016-settings-drawer-zindex-blocked-by-controller-pill.md`](./016-settings-drawer-zindex-blocked-by-controller-pill.md) | SettingsDrawer can render under the controller pill on some routes | fixed |
 | 017 | [`017-scaled-slide-zero-height-when-parent-flex.md`](./017-scaled-slide-zero-height-when-parent-flex.md) | ScaledSlide renders 0 px tall inside flex parents that don’t set `min-height` | fixed |
 | 018 | [`018-stale-deck-after-hmr.md`](./018-stale-deck-after-hmr.md) | HMR after editing slide content sometimes shows the previous slide JSON | open |
 | 019 | [`019-annotations-not-cleared-between-decks.md`](./019-annotations-not-cleared-between-decks.md) | Annotations from a previous deck render on the new deck after import | open |
