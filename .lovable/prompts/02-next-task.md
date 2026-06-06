@@ -4,7 +4,7 @@
 > each invocation (e.g. `next task 7`) so chat-history search can locate
 > the exact batch.
 
-**Latest invocation:** `next task 19` → v1.15.0 (added muted in-UI storage caption under Settings → Import / Export, naming the `slides-deck-v1` localStorage key and linking the spec).
+**Latest invocation:** `next task 20` → v1.16.0 (schema-versioned persist payload + `migrate` log in `useDeck` store; stale payloads now drop with a visible `[slides:persist] dropping vN payload` warning instead of crash-loading).
 
 ## What I want
 
