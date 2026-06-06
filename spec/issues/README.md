@@ -25,7 +25,7 @@ criteria for one defect. Status is updated when the fix lands.
 | 018 | [`018-stale-deck-after-hmr.md`](./018-stale-deck-after-hmr.md) | HMR after editing slide content sometimes shows the previous slide JSON | open |
 | 019 | [`019-annotations-not-cleared-between-decks.md`](./019-annotations-not-cleared-between-decks.md) | Annotations from a previous deck render on the new deck after import | open |
 | 020 | [`020-presenter-window-loses-deck-on-hard-refresh.md`](./020-presenter-window-loses-deck-on-hard-refresh.md) | Refreshing the popup presenter window resets to the default sample deck | open |
-| 021 | [`021-broadcastchannel-leak-on-route-change.md`](./021-broadcastchannel-leak-on-route-change.md) | BroadcastChannel listeners accumulate on each slide navigation | open |
+| 021 | [`021-broadcastchannel-leak-on-route-change.md`](./021-broadcastchannel-leak-on-route-change.md) | BroadcastChannel listeners accumulate on each slide navigation | fixed |
 | 022 | [`022-deck-music-autoplay-blocked-without-gesture.md`](./022-deck-music-autoplay-blocked-without-gesture.md) | Deck music never starts in the preview iframe | open |
 | 023 | [`023-rich-text-highlights-strip-on-import.md`](./023-rich-text-highlights-strip-on-import.md) | Imported decks lose `.hl` highlight spans authored as `<mark>` | fixed |
 | 024 | [`024-focus-region-svg-paths-not-validated.md`](./024-focus-region-svg-paths-not-validated.md) | Focus regions referencing missing SVG ids silently render no zoom | fixed |
