@@ -24,3 +24,5 @@ Deck JSON authored via the LLM spec uses `data:` URLs for images. Large (~2-3 MB
 ## Status log
 
 - 2026-06-06 — opened. RCA + fix plan ready. No code changes yet (per user request — fixes deferred).
+
+- 2026-06-06 — **fixed**. Added `ImageSrcSchema` (per-image cap `MAX_IMAGE_SRC_BYTES = 4_000_000`, friendly message pointing at hosted URLs) and replaced the inline `z.string().url().or(...data:)` unions in `LeftSlideSchema` and `ImageSlideSchema`. `parseDeckJson`/`parseSlideJson` short-circuit when `raw.length > MAX_DECK_JSON_BYTES (8 MB)` with a single readable error. Regression: `src/lib/slides/io-image-size.test.ts` (4/4 green).
