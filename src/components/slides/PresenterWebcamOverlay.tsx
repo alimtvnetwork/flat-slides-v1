@@ -44,6 +44,8 @@ export function PresenterWebcamOverlay() {
     toggleHalo,
     toggleCircle,
     runCinematicCycle,
+    pushFullscreenAction,
+    emitPassthrough,
   } = usePresenterWebcam();
 
   // ─── Step 9 — core keydown listener (spec 03 §2) ────────────────────────
