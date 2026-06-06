@@ -471,6 +471,7 @@ export function PresenterWebcamOverlay() {
             above remain visible around it. Stable DOM node (no remount on
             shape/plate toggles — spec 02 §4). */}
         <div
+          ref={shapeFrameRef}
           style={{
             position: "absolute",
             inset: 0,
