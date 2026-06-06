@@ -2,6 +2,11 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.15.0 — 2026-06-06
+
+### Added
+- **In-UI storage note for imports.** Settings → Import / Export now shows a muted caption clarifying that imported decks live in this browser's `localStorage` (`slides-deck-v1`) only — no cross-browser/device sync — and points at `docs/slides/spec/import-export.spec.md` for the full contract. Closes the recurring "is import even working / where do imports go?" question loop.
+
 ## 1.14.0 — 2026-06-06
 
 ### Docs

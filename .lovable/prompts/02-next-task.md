@@ -4,7 +4,7 @@
 > each invocation (e.g. `next task 7`) so chat-history search can locate
 > the exact batch.
 
-**Latest invocation:** `next task 18` → v1.14.0 (documented import surfaces, storage location, and multi-slide sample reference in `docs/slides/spec/import-export.spec.md`; confirmed deck/slide import path works end-to-end).
+**Latest invocation:** `next task 19` → v1.15.0 (added muted in-UI storage caption under Settings → Import / Export, naming the `slides-deck-v1` localStorage key and linking the spec).
 
 ## What I want
 
