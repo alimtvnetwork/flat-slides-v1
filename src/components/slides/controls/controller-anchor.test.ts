@@ -63,3 +63,23 @@ describe("controller anchor persistence", () => {
     expect(localStorage.getItem(CONTROLLER_ANCHOR_STORAGE_KEY)).toContain("bottom-right");
   });
 });
+
+import { clampControllerAnchor } from "./controller-anchor";
+
+describe("clampControllerAnchor (issue 029)", () => {
+  it("keeps the anchor when the pill fits at the corner", () => {
+    expect(clampControllerAnchor("bottom-right", 1280, 480)).toBe("bottom-right");
+    expect(clampControllerAnchor("top-right", 1024, 360)).toBe("top-right");
+  });
+
+  it("snaps to bottom-center when the corner anchor would overflow", () => {
+    // 480px pill + 16px inset on both sides = 512px required.
+    expect(clampControllerAnchor("bottom-right", 500, 480)).toBe("bottom-center");
+    expect(clampControllerAnchor("bottom-left", 320, 480)).toBe("bottom-center");
+    expect(clampControllerAnchor("top-right", 360, 480)).toBe("bottom-center");
+  });
+
+  it("is a no-op for bottom-center", () => {
+    expect(clampControllerAnchor("bottom-center", 320, 480)).toBe("bottom-center");
+  });
+});
