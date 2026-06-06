@@ -5,11 +5,13 @@ import { useChrome } from "../chrome-store";
 import { CameraBubble } from "./CameraBubble";
 
 const RESET_CAMERA = useChrome.getState().camera;
+let slidesRoots: HTMLElement[] = [];
 
 function createSlidesRoot() {
   const root = document.createElement("div");
   root.setAttribute("data-slides-fullscreen-root", "");
   document.body.appendChild(root);
+  slidesRoots.push(root);
   return root;
 }
 
@@ -27,7 +29,7 @@ describe("CameraBubble shape surfaces", () => {
       mediaDevices: { getUserMedia: vi.fn(() => new Promise(() => {})) },
     });
     useChrome.setState({
-      camera: { ...RESET_CAMERA, visible: true, shape: "squircle", autoFrame: false },
+      camera: { ...RESET_CAMERA, visible: true, shape: "squircle", autoFrame: false, fullscreenOnly: false },
       scene: "normal",
     });
   });
@@ -35,6 +37,11 @@ describe("CameraBubble shape surfaces", () => {
   afterEach(() => {
     cleanup();
     setFullscreenElement(null);
+    for (const root of slidesRoots) root.remove();
+    slidesRoots = [];
+    document.documentElement.style.removeProperty("--stage-scale");
+    document.documentElement.style.removeProperty("--presenter-frame-left");
+    document.documentElement.style.removeProperty("--presenter-frame-top");
     vi.unstubAllGlobals();
     useChrome.setState({ camera: { ...RESET_CAMERA, visible: false }, scene: "normal" });
   });
