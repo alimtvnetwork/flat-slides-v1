@@ -44,8 +44,12 @@ describe("annotation persistence flag", () => {
     expect(parsed.state.strokes["slide-2"]).toHaveLength(1);
     expect(parsed.state.strokes["slide-2"][0].points).toEqual([{ x: 5, y: 5 }]);
 
-    // Simulate a reload: wipe in-memory state, then rehydrate from storage.
+    // Simulate a reload: snapshot raw storage, wipe in-memory state without
+    // letting the persist middleware write the empty state back, restore the
+    // snapshot, then rehydrate.
+    const snapshot = raw!;
     useAnnotations.setState({ strokes: {}, persistStrokes: false });
+    localStorage.setItem(STORAGE_KEY, snapshot);
     await useAnnotations.persist.rehydrate();
 
     const after = useAnnotations.getState();
