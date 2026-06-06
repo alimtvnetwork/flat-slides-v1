@@ -6,24 +6,28 @@ import { unzipSync, strFromU8 } from "fflate";
 // the user can ever see a toast.error. Issue 03 / v1.29.0 download path.
 import sampleDeckJson from "../../../docs/slides/spec/sample-deck.json?raw";
 import llmGuidelineMd from "../../../docs/slides/spec/llm-json-guideline.md?raw";
+import themeGuidelineMd from "../../../docs/slides/spec/theme-json-guideline.md?raw";
 
 describe("LLM guide ZIP payload", () => {
   it("raw imports resolve to non-empty strings", () => {
     expect(typeof sampleDeckJson).toBe("string");
     expect(typeof llmGuidelineMd).toBe("string");
+    expect(typeof themeGuidelineMd).toBe("string");
     expect(sampleDeckJson.length).toBeGreaterThan(100);
     expect(llmGuidelineMd.length).toBeGreaterThan(100);
+    expect(themeGuidelineMd.length).toBeGreaterThan(100);
   });
 
   it("sample-deck.json is valid JSON", () => {
     expect(() => JSON.parse(sampleDeckJson)).not.toThrow();
   });
 
-  it("zip round-trips via fflate with the three expected entries", async () => {
+  it("zip round-trips via fflate with the four expected entries", async () => {
     const { zipSync, strToU8 } = await import("fflate");
     const zipped = zipSync({
       "README.txt": strToU8("test readme"),
       "llm-json-guideline.md": strToU8(llmGuidelineMd),
+      "theme-json-guideline.md": strToU8(themeGuidelineMd),
       "sample-deck.json": strToU8(sampleDeckJson),
     });
     expect(zipped.byteLength).toBeGreaterThan(0);
@@ -33,8 +37,10 @@ describe("LLM guide ZIP payload", () => {
       "README.txt",
       "llm-json-guideline.md",
       "sample-deck.json",
+      "theme-json-guideline.md",
     ]);
     expect(strFromU8(unzipped["sample-deck.json"])).toBe(sampleDeckJson);
     expect(strFromU8(unzipped["llm-json-guideline.md"])).toBe(llmGuidelineMd);
+    expect(strFromU8(unzipped["theme-json-guideline.md"])).toBe(themeGuidelineMd);
   });
 });
