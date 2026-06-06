@@ -2,6 +2,11 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.59.0 — 2026-06-06
+
+### Planning
+- **Next-task triage (prompt 40).** Confirmed `src/components/slides/useSlideNavigation.ts:54` only virtualizes on native `document.fullscreenElement`; no `app-presentation` flag exists yet in the slides tree (verified via grep), so step 1 requires introducing one before the route-skip can be widened. Next 3 unchanged.
+
 ## 1.58.0 — 2026-06-06
 
 ### Planning
