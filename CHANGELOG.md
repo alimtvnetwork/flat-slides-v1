@@ -2,6 +2,11 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.42.0 — 2026-06-06
+
+### Planning
+- **Plan 06 opened + next-task triage (prompt 23).** No product code change. New plan `.lovable/plans/pending/06-slide-types-themes-llm-controller.md` (100 steps) + 4 subtasks covers: Ubuntu-headers regression (issue 05), 35 new slide types (image/SVG/GIF/video/Lottie/team/comparison/code/chart/etc.), 10 new themes seeded from `assets/samples/*`, slide-indicator ellipsis pagination (threshold default 15, configurable), and a full LLM JSON guideline rewrite with Teams section + in-launcher download. Captured commands 05–08 under `.lovable/spec/commands/`. Next 3 steps pinned: close plan 05 (SS-02 white-bal-in-controller), then RCA the Ubuntu regression on slide 1, then ship the minimum-correct font fix with a computed-style snapshot test.
+
 ## 1.41.0 — 2026-06-06
 
 ### Fixed

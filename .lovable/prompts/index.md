@@ -1,6 +1,6 @@
 # Prompt Registry
 
-Latest: `22-next-task.md` (plan 05 — SS-03 antialiasing shipped 1.41.0; next SS-02 + plan closure).
+Latest: `23-next-task.md` (plan 06 opened, 100 steps; next 3 = close plan 05 SS-02, then RCA Ubuntu regression on slide 1, then ship minimum-correct font fix with computed-style snapshot).
 
 | ID  | File                          | Title         | Trigger phrases                                            | Purpose                                  |
 | --- | ----------------------------- | ------------- | ---------------------------------------------------------- | ---------------------------------------- |
