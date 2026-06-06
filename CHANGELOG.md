@@ -2,6 +2,15 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.14.0 — 2026-06-06
+
+### Docs
+- **Import/export spec coverage.** `docs/slides/spec/import-export.spec.md` now documents the two import surfaces (`Import deck`, `Import slide`) wired in `SettingsDrawer.tsx`, the validation/rejection contract, and a table of storage keys (`slides-deck-v1`, `slides-deck-settings-v1`, `riseup.*`) clarifying that imported decks live in browser `localStorage` only — no server, no cross-device sync.
+- Linked the 17-slide `sample-deck.json` (covers every slide `type`) from the spec as the canonical multi-slide reference, mirroring §12 of the LLM JSON guideline.
+
+### Confirmed (no code change)
+- Single-deck import path verified end-to-end: `handleImportDeck` → `parseDeckJson` (Zod `DeckSchema`) → `useDeck.setDeck` → clears annotations, restores `meta.runtime`, navigates to slide 1. Single-slide import via `upsertSlide` likewise functional.
+
 ## 1.13.0 — 2026-06-06
 
 ### Added
