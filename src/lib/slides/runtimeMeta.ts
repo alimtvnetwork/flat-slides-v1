@@ -15,10 +15,15 @@ const WEBCAM_KEYS = [POS_KEY, MIN_KEY, SIZE_KEY, HALO_KEY, CIRCLE_KEY, AUTOFRAME
 
 function readWebcamRuntime(): Record<string, string> {
   if (typeof window === "undefined") return {};
-  return Object.fromEntries(WEBCAM_KEYS.flatMap((key) => {
-    const value = window.localStorage.getItem(key);
-    return value === null ? [] : [[key, value]];
-  }));
+  try {
+    return Object.fromEntries(WEBCAM_KEYS.flatMap((key) => {
+      const value = window.localStorage.getItem(key);
+      return value === null ? [] : [[key, value]];
+    }));
+  } catch (error) {
+    console.warn("[slides:runtime-meta] webcam metadata snapshot failed", error);
+    return {};
+  }
 }
 
 export function snapshotDeckRuntimeMeta(): DeckRuntimeMeta {
