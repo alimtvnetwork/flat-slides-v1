@@ -214,37 +214,9 @@ export function SettingsDrawer({
             <label className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wider text-neutral-400">
               <Palette size={12} /> Theme
             </label>
-            <div className="flex items-center gap-1">
-              <button
-                type="button"
-                onClick={async () => {
-                  try {
-                    const incoming = await pickThemesFile();
-                    upsertCustomThemes(incoming);
-                    toast.success(`Imported ${incoming.length} theme${incoming.length === 1 ? "" : "s"}`);
-                  } catch (err) {
-                    toast.error((err as Error).message ?? "Import failed");
-                  }
-                }}
-                className="inline-flex items-center gap-1 rounded px-2 py-1 text-[11px] text-neutral-300 hover:bg-neutral-800"
-                title="Import theme JSON"
-              >
-                <Upload size={11} /> Import
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  const all = getAllThemes();
-                  downloadThemesJson(all, "themes.json");
-                  toast.success(`Exported ${all.length} themes`);
-                }}
-                className="inline-flex items-center gap-1 rounded px-2 py-1 text-[11px] text-neutral-300 hover:bg-neutral-800"
-                title="Export all themes as JSON"
-              >
-                <Download size={11} /> Export
-              </button>
-            </div>
+            <span className="text-[10px] text-neutral-500">Import / Export below ↓</span>
           </div>
+
           <div className="grid grid-cols-3 gap-2">
             {getAllThemes().map((t) => {
               const isCustom = !THEMES.some((b) => b.id === t.id);
