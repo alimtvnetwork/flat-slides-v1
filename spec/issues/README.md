@@ -7,8 +7,8 @@ criteria for one defect. Status is updated when the fix lands.
 |---|------|-------|--------|
 | 001 | [`001-preview-iframe-fullscreen.md`](./001-preview-iframe-fullscreen.md) | Present-from-preview-iframe is silently unsupported | fixed |
 | 002 | [`002-step-transition-black-flash.md`](./002-step-transition-black-flash.md) | Slide-4 step→step shows a black flash | fixed |
-| 003 | [`003-settings-text-color-not-applied.md`](./003-settings-text-color-not-applied.md) | Settings → Text color does not visibly update slide text | open |
-| 004 | [`004-settings-changes-no-preview-update.md`](./004-settings-changes-no-preview-update.md) | Editing any Settings drawer control sometimes does not re-render the slide | open |
+| 003 | [`003-settings-text-color-not-applied.md`](./003-settings-text-color-not-applied.md) | Settings → Text color does not visibly update slide text | fixed |
+| 004 | [`004-settings-changes-no-preview-update.md`](./004-settings-changes-no-preview-update.md) | Editing any Settings drawer control sometimes does not re-render the slide | fixed |
 | 005 | [`005-camera-bubble-never-mounted.md`](./005-camera-bubble-never-mounted.md) | Camera bubble does not appear even when “Show camera” is enabled | open |
 | 006 | [`006-camera-shape-test-uses-removed-prop.md`](./006-camera-shape-test-uses-removed-prop.md) | `CameraBubble.shape.test.tsx` exercises an API the component no longer exposes | open |
 | 007 | [`007-import-deck-input-not-clicked.md`](./007-import-deck-input-not-clicked.md) | “Import deck” button shows the file dialog inconsistently in Safari | open |
