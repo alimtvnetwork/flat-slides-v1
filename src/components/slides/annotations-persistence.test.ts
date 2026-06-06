@@ -22,7 +22,7 @@ describe("annotation persistence flag", () => {
   afterEach(resetStore);
 
   it("does NOT persist strokes when persistStrokes is false (default)", () => {
-    const id = useAnnotations.getState().beginStroke("slide-1", { x: 1, y: 1, t: 0 });
+    const id = useAnnotations.getState().beginStroke("slide-1", { x: 1, y: 1 });
     expect(id).toMatch(/^ink_/);
 
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -35,14 +35,14 @@ describe("annotation persistence flag", () => {
 
   it("persists strokes when persistStrokes is true and survives a store remount", () => {
     useAnnotations.getState().setPersist(true);
-    useAnnotations.getState().beginStroke("slide-2", { x: 5, y: 5, t: 0 });
+    useAnnotations.getState().beginStroke("slide-2", { x: 5, y: 5 });
 
     const raw = localStorage.getItem(STORAGE_KEY);
     expect(raw).not.toBeNull();
     const parsed = JSON.parse(raw!);
     expect(parsed.state.persistStrokes).toBe(true);
     expect(parsed.state.strokes["slide-2"]).toHaveLength(1);
-    expect(parsed.state.strokes["slide-2"][0].points).toEqual([{ x: 5, y: 5, t: 0 }]);
+    expect(parsed.state.strokes["slide-2"][0].points).toEqual([{ x: 5, y: 5 }]);
 
     // Simulate a reload: wipe in-memory state, then rehydrate from storage.
     useAnnotations.setState({ strokes: {}, persistStrokes: false });
