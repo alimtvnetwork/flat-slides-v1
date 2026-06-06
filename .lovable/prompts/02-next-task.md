@@ -4,7 +4,7 @@
 > each invocation (e.g. `next task 7`) so chat-history search can locate
 > the exact batch.
 
-**Latest invocation:** `next task 17` → v1.13.0 (executed launcher telemetry + unit-test lock: `home-launcher-click` events and `DeckLauncher.test.tsx`).
+**Latest invocation:** `next task 18` → v1.14.0 (documented import surfaces, storage location, and multi-slide sample reference in `docs/slides/spec/import-export.spec.md`; confirmed deck/slide import path works end-to-end).
 
 ## What I want
 
