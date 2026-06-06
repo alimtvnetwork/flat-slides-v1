@@ -2,6 +2,17 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.37.0 — 2026-06-06
+
+### Added
+- **"Open in new window" item in the controller overflow menu.** `src/components/slides/controls/ControllerOverflowMenu.tsx` now exposes a click affordance that calls `openPresenterWindow()` and surfaces `reportFullscreenFailure({ reason: "embedded-popup-blocked" })` on block — same contract as the `Shift+W` keyboard path. Closes the last UX gap from issue 014: mouse/touch users now have a discoverable path to the top-level presenter window.
+
+### Docs
+- **`docs/slides/spec/present-fullscreen.spec.md` rewritten.** Reflects the post-1.34/1.35 contract: F stays in-iframe (`mode: "app"`), popup is explicit via `Shift+W` or overflow item. Decision table updated, invariants section added (no auto-popup, single popup path, `data-slides-app-presenting` ownership), version history appended.
+
+### Tests
+- `ControllerOverflowMenu.test.tsx` 3/3 green — new case asserts the item is present in overflow and dispatches `window.open` with `_blank` when selected.
+
 ## 1.36.0 — 2026-06-06
 
 ### Planning
