@@ -24,3 +24,5 @@ Authors paste HTML-entity-encoded copy into deck JSON; viewers see raw ampersand
 ## Status log
 
 - 2026-06-06 — opened. RCA + fix plan ready. No code changes yet (per user request — fixes deferred).
+
+- 2026-06-06 — **fixed**. Added `src/components/slides/decodeEntities.ts` (named + numeric + hex refs, SSR-safe). `Rich` now decodes both plain string parts and `Highlight.text`. Regression: `src/components/slides/rich-entities.test.tsx` (5/5 green).

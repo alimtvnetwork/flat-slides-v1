@@ -24,3 +24,5 @@ User imports a deck with multiple issues; toast shows 4 lines and clips. User ca
 ## Status log
 
 - 2026-06-06 — opened. RCA + fix plan ready. No code changes yet (per user request — fixes deferred).
+
+- 2026-06-06 — **fixed**. `parseDeckJson`/`parseSlideJson` now return `{ error, errorFull, errorCount }`. `SettingsDrawer` shows a sonner toast with a `Copy full error` action and a `…and N more` suffix, plus `console.warn` of the full list. Regression: `src/lib/slides/io-zod-error.test.ts` (2/2 green).

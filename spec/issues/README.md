@@ -12,7 +12,7 @@ criteria for one defect. Status is updated when the fix lands.
 | 005 | [`005-camera-bubble-never-mounted.md`](./005-camera-bubble-never-mounted.md) | Camera bubble does not appear even when “Show camera” is enabled | open |
 | 006 | [`006-camera-shape-test-uses-removed-prop.md`](./006-camera-shape-test-uses-removed-prop.md) | `CameraBubble.shape.test.tsx` exercises an API the component no longer exposes | fixed |
 | 007 | [`007-import-deck-input-not-clicked.md`](./007-import-deck-input-not-clicked.md) | “Import deck” button shows the file dialog inconsistently in Safari | fixed |
-| 008 | [`008-import-deck-toast-truncates-zod-error.md`](./008-import-deck-toast-truncates-zod-error.md) | Import failure toast hides the offending JSON path past 4 errors | open |
+| 008 | [`008-import-deck-toast-truncates-zod-error.md`](./008-import-deck-toast-truncates-zod-error.md) | Import failure toast hides the offending JSON path past 4 errors | fixed |
 | 009 | [`009-export-deck-loses-runtime-state.md`](./009-export-deck-loses-runtime-state.md) | Exported deck JSON does not round-trip presenter annotations or camera prefs | open |
 | 010 | [`010-import-deck-skips-store-replacement-side-effects.md`](./010-import-deck-skips-store-replacement-side-effects.md) | Importing a deck does not reset slide index, annotations, or audience state | open |
 | 011 | [`011-schema-rejects-base64-images-over-1mb.md`](./011-schema-rejects-base64-images-over-1mb.md) | Importing a deck with embedded base64 images can silently fail validation | open |
@@ -31,7 +31,7 @@ criteria for one defect. Status is updated when the fix lands.
 | 024 | [`024-focus-region-svg-paths-not-validated.md`](./024-focus-region-svg-paths-not-validated.md) | Focus regions referencing missing SVG ids silently render no zoom | open |
 | 025 | [`025-settings-persistence-throws-on-quota.md`](./025-settings-persistence-throws-on-quota.md) | SettingsDrawer changes are lost when localStorage quota is full | open |
 | 026 | [`026-themes-fg-mismatch-with-background-image.md`](./026-themes-fg-mismatch-with-background-image.md) | Theme `fg` is unreadable over user-supplied background image | open |
-| 027 | [`027-rich-component-renders-html-entities-literally.md`](./027-rich-component-renders-html-entities-literally.md) | `&amp;` and `&mdash;` render as literal text in slide bodies | open |
+| 027 | [`027-rich-component-renders-html-entities-literally.md`](./027-rich-component-renders-html-entities-literally.md) | `&amp;` and `&mdash;` render as literal text in slide bodies | fixed |
 | 028 | [`028-presenter-inspector-timer-resets-on-route-change.md`](./028-presenter-inspector-timer-resets-on-route-change.md) | Inspector timer resets when navigating between slides | open |
 | 029 | [`029-controller-pill-anchor-stuck-after-resize.md`](./029-controller-pill-anchor-stuck-after-resize.md) | Controller pill anchor sticks to old corner after the window is resized | open |
 | 030 | [`030-keyboard-shortcut-conflicts-with-browser.md`](./030-keyboard-shortcut-conflicts-with-browser.md) | `Cmd+P` (Print) is intercepted by the deck and breaks browser print | open |

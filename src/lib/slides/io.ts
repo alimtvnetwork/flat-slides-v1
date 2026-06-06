@@ -36,41 +36,38 @@ export function exportSlide(slide: Slide): void {
 
 export type ImportResult<T> =
   | { ok: true; value: T }
-  | { ok: false; error: string };
+  | { ok: false; error: string; errorFull: string; errorCount: number };
+
+const MAX_TOAST_ISSUES = 4;
+
+function jsonFailure<T>(e: unknown): ImportResult<T> {
+  const msg = `Invalid JSON: ${(e as Error).message}`;
+  return { ok: false, error: msg, errorFull: msg, errorCount: 1 };
+}
+
+function zodFailure<T>(err: import("zod").ZodError): ImportResult<T> {
+  const lines = err.issues.map(
+    (i) => `${i.path.join(".") || "(root)"}: ${i.message}`,
+  );
+  const short = lines.slice(0, MAX_TOAST_ISSUES).join("\n");
+  const more = lines.length > MAX_TOAST_ISSUES ? `\n…and ${lines.length - MAX_TOAST_ISSUES} more` : "";
+  return { ok: false, error: short + more, errorFull: lines.join("\n"), errorCount: lines.length };
+}
 
 export function parseDeckJson(raw: string): ImportResult<Deck> {
   let json: unknown;
-  try {
-    json = JSON.parse(raw);
-  } catch (e) {
-    return { ok: false, error: `Invalid JSON: ${(e as Error).message}` };
-  }
+  try { json = JSON.parse(raw); } catch (e) { return jsonFailure(e); }
   const result = DeckSchema.safeParse(json);
-  if (!result.success) {
-    return { ok: false, error: formatZodError(result.error) };
-  }
+  if (!result.success) return zodFailure(result.error);
   return { ok: true, value: result.data as Deck };
 }
 
 export function parseSlideJson(raw: string): ImportResult<Slide> {
   let json: unknown;
-  try {
-    json = JSON.parse(raw);
-  } catch (e) {
-    return { ok: false, error: `Invalid JSON: ${(e as Error).message}` };
-  }
+  try { json = JSON.parse(raw); } catch (e) { return jsonFailure(e); }
   const result = SlideSchema.safeParse(json);
-  if (!result.success) {
-    return { ok: false, error: formatZodError(result.error) };
-  }
+  if (!result.success) return zodFailure(result.error);
   return { ok: true, value: result.data as Slide };
-}
-
-function formatZodError(err: import("zod").ZodError): string {
-  return err.issues
-    .slice(0, 4)
-    .map((i) => `${i.path.join(".") || "(root)"}: ${i.message}`)
-    .join("\n");
 }
 
 /** Trigger a mounted file input — returns the file's text contents. */
