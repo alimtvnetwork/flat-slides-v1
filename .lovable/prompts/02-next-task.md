@@ -4,7 +4,7 @@
 > each invocation (e.g. `next task 7`) so chat-history search can locate
 > the exact batch.
 
-**Latest invocation:** `next task 21` → v1.17.0 (extracted `migratePersistedDeck` as a pure export from `store.ts`; added `persist-migrate.test.ts` — 2 passing tests locking same-version keep vs off-version drop+warn).
+**Latest invocation:** `next task 22` → v1.18.0 (added `window.__slidesEvents` dev ring buffer in `telemetry.ts` capped at 200 events; 2 new tests cover capture+timestamp and FIFO drop. Production builds remain no-op).
 
 ## What I want
 
