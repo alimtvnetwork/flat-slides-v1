@@ -1,6 +1,6 @@
 # 010 — Importing a deck does not reset slide index, annotations, or audience state
 
-**Status:** open
+**Status:** fixed
 **Area:** useDeck.setDeck
 
 ## Symptom
