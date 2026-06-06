@@ -2,6 +2,14 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.57.0 — 2026-06-06
+
+### Fixed
+- **Heading font rendering.** `src/styles.css` h1–h6: dropped `letter-spacing: -0.01em` (crunched Ubuntu glyphs), switched `em` → `rem` for stable sizing (h1 3.5rem … h6 1.0625rem), added `font-synthesis: none` to stop browser-faked bold, and `transform: none` to guarantee no zoom/stress. `src/routes/__root.tsx` Google Fonts URL: `display=swap` → `display=block` to eliminate FOUT flash before Ubuntu loads.
+
+### Planning
+- **Next-task triage (prompt 38).** Next 3 unchanged: (1) fullscreen persistence, (2) slide-4 step 2→3 black-frame, (3) lock visual rules + regression coverage.
+
 ## 1.56.0 — 2026-06-06
 
 ### Planning
