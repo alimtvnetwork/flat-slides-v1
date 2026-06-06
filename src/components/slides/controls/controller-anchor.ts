@@ -43,3 +43,25 @@ export function anchorStyles(a: ControllerAnchor): React.CSSProperties {
     default:              return { bottom, right };
   }
 }
+
+/**
+ * Issue 029: persisted anchors can survive a window resize into a
+ * viewport where the pill (≈ 320–520 px wide) no longer fits at a corner.
+ * `clampControllerAnchor` snaps to `bottom-center` in that case so the
+ * pill remains reachable. Pure helper — no DOM reads, fully testable.
+ *
+ * `viewportWidth` is `window.innerWidth`; `pillWidth` is the measured
+ * pill rect width; `sideInset` is the visual padding (matches the 16 px
+ * in `anchorStyles`).
+ */
+export const CONTROLLER_PILL_MIN_SIDE_INSET = 16;
+export function clampControllerAnchor(
+  anchor: ControllerAnchor,
+  viewportWidth: number,
+  pillWidth: number,
+  sideInset: number = CONTROLLER_PILL_MIN_SIDE_INSET,
+): ControllerAnchor {
+  if (anchor === "bottom-center") return anchor;
+  const cornerFits = pillWidth + sideInset * 2 <= viewportWidth;
+  return cornerFits ? anchor : "bottom-center";
+}
