@@ -1,6 +1,8 @@
 import { toast } from "sonner";
 
 import type { Deck, Slide } from "@/components/slides/types";
+import { validateFocusRegions } from "@/components/slides/validateFocusRegions";
+
 
 import { DeckSchema, SlideSchema } from "./schema";
 import { DECK_SCHEMA_VERSION } from "./version";
