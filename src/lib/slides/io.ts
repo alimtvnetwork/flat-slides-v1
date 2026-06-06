@@ -73,14 +73,19 @@ function formatZodError(err: import("zod").ZodError): string {
     .join("\n");
 }
 
-/** Trigger a hidden file input — returns the file's text contents. */
-export function pickJsonFile(accept = ".json,application/json"): Promise<string | null> {
+/** Trigger a mounted file input — returns the file's text contents. */
+export function pickJsonFile(input?: HTMLInputElement | null, accept = ".json,application/json"): Promise<string | null> {
   return new Promise((resolve) => {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = accept;
-    input.onchange = async () => {
-      const f = input.files?.[0];
+    const fileInput = input ?? document.createElement("input");
+    const isTemporary = !input;
+    fileInput.type = "file";
+    fileInput.accept = accept;
+    fileInput.value = "";
+    if (isTemporary) document.body.appendChild(fileInput);
+    fileInput.onchange = async () => {
+      const f = fileInput.files?.[0];
+      fileInput.onchange = null;
+      if (isTemporary) fileInput.remove();
       if (!f) return resolve(null);
       // Reject non-JSON files early (issue 032) — the OS picker honors
       // `accept` loosely, so users can still pick `.txt`, images, etc.
@@ -100,6 +105,6 @@ export function pickJsonFile(accept = ".json,application/json"): Promise<string 
       }
       resolve(await f.text());
     };
-    input.click();
+    fileInput.click();
   });
 }

@@ -84,7 +84,7 @@ export function SettingsDrawer({
   if (!open) return null;
 
   const handleImportDeck = async () => {
-    const text = await pickJsonFile();
+    const text = await pickJsonFile(fileRef.current);
     if (!text) return;
     const r = parseDeckJson(text);
     if (!r.ok) return toast.error(`Import failed:\n${r.error}`, { duration: 8000 });
@@ -94,7 +94,7 @@ export function SettingsDrawer({
   };
 
   const handleImportSlide = async () => {
-    const text = await pickJsonFile();
+    const text = await pickJsonFile(fileRef.current);
     if (!text) return;
     const r = parseSlideJson(text);
     if (!r.ok) return toast.error(`Import failed:\n${r.error}`, { duration: 8000 });
@@ -439,7 +439,14 @@ export function SettingsDrawer({
             </Link>{" "}
             any LLM can write.
           </p>
-          <input ref={fileRef} type="file" className="hidden" accept="application/json" />
+          <input
+            ref={fileRef}
+            type="file"
+            aria-hidden="true"
+            tabIndex={-1}
+            accept=".json,application/json"
+            className="pointer-events-none fixed h-px w-px opacity-0"
+          />
         </section>
 
         {/* Presenter tools */}
