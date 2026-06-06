@@ -38,6 +38,8 @@ export function PresenterWebcamOverlay() {
     close,
     toggleMinimized,
     enterFullscreen,
+    exitFullscreen,
+    restoreFromOverlay,
   } = usePresenterWebcam();
 
   const floatingVideoRef = useRef<HTMLVideoElement | null>(null);
