@@ -4,7 +4,7 @@
  */
 import { describe, expect, it } from "vitest";
 
-import { expandMarkHighlights, parseDeckJson } from "./io";
+import { expandMarkHighlights, parseSlideJson } from "./io";
 
 describe("expandMarkHighlights (issue 023)", () => {
   it("splits a string segment containing <mark> into pre/highlight/post parts", () => {
@@ -17,25 +17,24 @@ describe("expandMarkHighlights (issue 023)", () => {
     expect(expandMarkHighlights(input)).toEqual(input);
   });
 
-  it("transforms <mark> inside an imported deck and the deck validates", () => {
-    const deck = {
-      id: "d",
-      title: "T",
-      version: 1,
-      settings: {},
-      slides: [
-        {
-          id: "s1",
-          title: "Slide One",
-          type: "center",
-          heading: ["Welcome <mark>back</mark>"],
-        },
-      ],
+  it("handles multiple marks and surrounding text", () => {
+    const result = expandMarkHighlights([
+      "a <mark>B</mark> c <mark>D</mark> e",
+    ]) as unknown[];
+    expect(result).toEqual(["a ", { text: "B" }, " c ", { text: "D" }, " e"]);
+  });
+
+  it("transforms <mark> inside an imported slide and the slide validates", () => {
+    const slide = {
+      id: "s1",
+      title: "Slide One",
+      type: "center",
+      heading: ["Welcome <mark>back</mark>"],
     };
-    const result = parseDeckJson(JSON.stringify(deck));
+    const result = parseSlideJson(JSON.stringify(slide));
     expect(result.ok || (result as { errorFull: string }).errorFull).toBe(true);
     if (!result.ok) return;
-    const heading = (result.value.slides[0] as { heading: unknown[] }).heading;
+    const heading = (result.value as { heading: unknown[] }).heading;
     expect(heading).toEqual(["Welcome ", { text: "back" }]);
   });
 });
