@@ -1,4 +1,4 @@
-# 44 — Next Task v5 (regression: hl-pill no-glow test added)
+# 46 — Next Task v5 (Plan 06 Phase A Step 1 landed: inputs confirmed, 5 open questions recorded)
 
 ## Files, functions, and signals read before selecting work
 
