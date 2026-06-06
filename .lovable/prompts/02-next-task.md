@@ -4,7 +4,7 @@
 > each invocation (e.g. `next task 7`) so chat-history search can locate
 > the exact batch.
 
-**Latest invocation:** `next task 20` → v1.16.0 (schema-versioned persist payload + `migrate` log in `useDeck` store; stale payloads now drop with a visible `[slides:persist] dropping vN payload` warning instead of crash-loading).
+**Latest invocation:** `next task 21` → v1.17.0 (extracted `migratePersistedDeck` as a pure export from `store.ts`; added `persist-migrate.test.ts` — 2 passing tests locking same-version keep vs off-version drop+warn).
 
 ## What I want
 
