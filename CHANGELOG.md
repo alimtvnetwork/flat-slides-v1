@@ -1,6 +1,14 @@
 # Changelog
 
 All notable changes to Glasswing are documented in this file.
+
+## 1.7.0 — 2026-06-06
+
+### Planning
+- Filed plan `.lovable/plans/pending/01-slides-first-preview.md` (30 steps) to flip `/` to a slides-first shell with a launcher exposing every spec-documented case (Present, Inspector, Handout, Handout-3up, Print, Audience, Import/Export, Settings).
+- Captured commands: `01-slides-first-preview` (slides-first IA) and `02-write-rca-before-implementing` (RCA before any multi-step implementation) under `.lovable/spec/commands/`.
+- Filed issue `.lovable/issues/01-root-not-slides-first.md` for the marketing-first regression on `/`.
+- Created 8 subtask specs under `.lovable/plans/subtasks/01-slides-first-preview/` (RCA, IA decision, launcher cases, visual contract, controller coexistence, settings alignment, test plan, verification matrix). No code changes this release — execution scheduled for v1.8.0.
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [1.6.0] — 2026-06-06
 
