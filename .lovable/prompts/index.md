@@ -1,6 +1,6 @@
 # Prompt Registry
 
-Latest: `21-next-task.md` (plan 05 re-audit — back-step nav + font rendering pinned).
+Latest: `22-next-task.md` (plan 05 — SS-03 antialiasing shipped 1.41.0; next SS-02 + plan closure).
 
 | ID  | File                          | Title         | Trigger phrases                                            | Purpose                                  |
 | --- | ----------------------------- | ------------- | ---------------------------------------------------------- | ---------------------------------------- |
