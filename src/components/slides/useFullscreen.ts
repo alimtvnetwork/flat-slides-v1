@@ -107,10 +107,12 @@ export async function enterFullscreen(target?: HTMLElement | null, environment: 
   // can never succeed, so skip it and route directly to the presenter popup
   // instead of returning a silent `unsupported`. Top-level windows still try
   // native fullscreen first and only fall back on failure (see catch below).
+  const openWindow = environment.openPresenterWindow ?? openPresenterWindow;
+
   if (document.fullscreenEnabled === false) {
     const embedded = (environment.isEmbeddedWindow ?? isEmbeddedWindow)();
-    if (embedded && environment.openPresenterWindow) {
-      const opened = environment.openPresenterWindow();
+    if (embedded) {
+      const opened = openWindow();
       return opened ? { ok: true, mode: "presenter-window" } : { ok: false, reason: "embedded-popup-blocked" };
     }
     return { ok: false, reason: "unsupported" };
@@ -124,8 +126,8 @@ export async function enterFullscreen(target?: HTMLElement | null, environment: 
     return { ok: true, mode: "native" };
   } catch (error) {
     const embedded = (environment.isEmbeddedWindow ?? isEmbeddedWindow)();
-    if (embedded && environment.openPresenterWindow) {
-      const opened = environment.openPresenterWindow();
+    if (embedded) {
+      const opened = openWindow();
       return opened ? { ok: true, mode: "presenter-window" } : { ok: false, reason: "embedded-popup-blocked" };
     }
     return { ok: false, reason: "native-failed", error };
