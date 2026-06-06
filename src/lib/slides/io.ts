@@ -69,7 +69,9 @@ export function parseDeckJson(raw: string): ImportResult<Deck> {
   try { json = JSON.parse(raw); } catch (e) { return jsonFailure(e); }
   const result = DeckSchema.safeParse(json);
   if (!result.success) return zodFailure(result.error);
-  return { ok: true, value: result.data as Deck };
+  const deck = result.data as Deck;
+  warnFocusRegionIssues(deck.slides);
+  return { ok: true, value: deck };
 }
 
 export function parseSlideJson(raw: string): ImportResult<Slide> {
@@ -78,8 +80,19 @@ export function parseSlideJson(raw: string): ImportResult<Slide> {
   try { json = JSON.parse(raw); } catch (e) { return jsonFailure(e); }
   const result = SlideSchema.safeParse(json);
   if (!result.success) return zodFailure(result.error);
-  return { ok: true, value: result.data as Slide };
+  const slide = result.data as Slide;
+  warnFocusRegionIssues([slide]);
+  return { ok: true, value: slide };
 }
+
+/** Issue 024: log a single grouped warning instead of failing import. */
+function warnFocusRegionIssues(slides: Slide[]) {
+  const all: string[] = [];
+  for (const s of slides) all.push(...validateFocusRegions(s));
+  if (all.length === 0) return;
+  console.warn(`[deck] ${all.length} focus-region issue(s):\n${all.join("\n")}`);
+}
+
 
 
 /** Trigger a mounted file input — returns the file's text contents. */
