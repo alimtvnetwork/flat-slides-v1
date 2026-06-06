@@ -2,6 +2,27 @@
 
 All notable changes to Glasswing are documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [1.4.0] — 2026-06-06
+
+### Fixed
+- **Annotations don't leak across decks (issue 019)**: confirmed
+  `setDeck` clears `useAnnotations` and locked the contract with
+  `annotations-cross-deck.test.ts` — the test specifically uses
+  overlapping slide ids between two decks (the original bug repro).
+  Chose "clear-on-replace" over `${deckId}:${slideId}` keying because
+  annotations are session-only by default; wiping on import matches
+  user intent and avoids a storage migration.
+- **Popup presenter window loses deck on refresh (issue 020)**: added
+  a cross-window `storage` event listener (`syncDeckAcrossWindows`) in
+  `store.ts` that re-runs `useDeck.persist.rehydrate()` when another
+  tab writes `slides-deck-v1`. Popup presenter and second editor tabs
+  now pick up imports from the opener tab without a manual reload.
+
+### Added
+- `src/components/slides/annotations-cross-deck.test.ts`
+- `src/components/slides/store-cross-window-sync.test.ts`
+- `syncDeckAcrossWindows()` export in `src/components/slides/store.ts`
+
 ## [1.3.0] — 2026-06-06
 
 ### Fixed
