@@ -20,6 +20,7 @@ function visibleNumbers(current: number, total: number, neighbors: number) {
 function collapsedSlot(left: number, right: number, current: number): PaginationSlot[] {
   const start = left + 1;
   const end = right - 1;
+  if (start > end) return [];
   if (start === end) return [numberSlot(start)];
   return [{ kind: "ellipsis", id: end < current ? "left" : "right", range: [start, end] }];
 }
