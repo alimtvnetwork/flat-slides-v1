@@ -27,7 +27,7 @@ import {
 import { MAX_MUSIC_VOLUME, MIN_MUSIC_VOLUME, MUSIC_VOLUME_STEP } from "@/lib/slides/musicVolume";
 // Inline-loaded LLM spec (see docs/slides/spec/llm-json-guideline.md).
 import sampleDeckJson from "../../../docs/slides/spec/sample-deck.json?raw";
-import llmGuidelineMd from "../../../docs/slides/spec/llm-json-guideline.md?raw";
+import llmGuidelineMd from "../../../docs/llm-json-guideline.md?raw";
 
 import { useAnnotations } from "./annotations-store";
 import { nextBackgroundSettings } from "./backgroundMode";
@@ -276,7 +276,7 @@ export function SettingsDrawer({
               href="https://github.com"
               onClick={(e) => {
                 e.preventDefault();
-                window.open("/docs/slides/spec/theme-json-guideline.md", "_blank");
+                window.open("/docs/theme-json-guideline.md", "_blank");
               }}
               className="underline hover:text-neutral-300"
             >
@@ -598,7 +598,7 @@ export function SettingsDrawer({
             <div className="flex items-center justify-between px-1">
               <span className="text-[10px] uppercase tracking-wider text-neutral-500">Theme (single or batch)</span>
               <a
-                href="/docs/slides/spec/theme-json-guideline.md"
+                href="/docs/theme-json-guideline.md"
                 target="_blank"
                 rel="noreferrer"
                 className="text-[10px] text-neutral-500 underline hover:text-neutral-300"
