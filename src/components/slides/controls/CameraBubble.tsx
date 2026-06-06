@@ -133,6 +133,34 @@ export function CameraBubble() {
     if (!camera.visible && status === "requesting") close();
   }, [camera.visible, status, start, hide, close]);
 
+  // Surface camera errors as a toast so users see why the bubble is empty
+  // (issue 005 follow-up #1). Without this, "denied" / "error" states are
+  // only visible inside the bubble — which the user usually can't see when
+  // permission was just denied.
+  const lastErrorRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!camera.visible) {
+      lastErrorRef.current = null;
+      return;
+    }
+    if (status === "denied") {
+      const key = "denied";
+      if (lastErrorRef.current === key) return;
+      lastErrorRef.current = key;
+      toast.error("Camera permission denied", {
+        description: "Allow camera access in your browser site settings, then toggle Show camera again.",
+        duration: 8000,
+      });
+    } else if (status === "error" && errorMessage) {
+      if (lastErrorRef.current === errorMessage) return;
+      lastErrorRef.current = errorMessage;
+      toast.error("Camera unavailable", { description: errorMessage, duration: 8000 });
+    } else if (status === "active") {
+      lastErrorRef.current = null;
+    }
+  }, [camera.visible, status, errorMessage]);
+
+
   // Camera keyboard shortcuts (active only when bubble is visible).
   // - Shift+Arrow: nudge by 16px
   // - "+" / "-": resize by 32px
