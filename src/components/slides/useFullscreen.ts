@@ -102,18 +102,19 @@ export async function enterFullscreen(target?: HTMLElement | null, environment: 
   // document first, then the route can change while fullscreen stays active.
   const fullscreenTarget = getSlidesFullscreenRoot() ?? target ?? document.documentElement;
 
-  // Embedded preview iframes (Lovable preview, story embeds) typically have
-  // `document.fullscreenEnabled === false` because the host iframe lacks
-  // `allow="fullscreen"`. Skip the native attempt and route straight to the
-  // presenter popup so the user is never left with a silent "unsupported".
-  const embeddedEnv = (environment.isEmbeddedWindow ?? isEmbeddedWindow)();
-  if (embeddedEnv && environment.openPresenterWindow) {
-    const opened = environment.openPresenterWindow();
-    if (opened) return { ok: true, mode: "presenter-window" };
-    if (document.fullscreenEnabled === false) return { ok: false, reason: "embedded-popup-blocked" };
+  // Embedded preview iframes without `allow="fullscreen"` set
+  // `document.fullscreenEnabled === false`. In that case `requestFullscreen`
+  // can never succeed, so skip it and route directly to the presenter popup
+  // instead of returning a silent `unsupported`. Top-level windows still try
+  // native fullscreen first and only fall back on failure (see catch below).
+  if (document.fullscreenEnabled === false) {
+    const embedded = (environment.isEmbeddedWindow ?? isEmbeddedWindow)();
+    if (embedded && environment.openPresenterWindow) {
+      const opened = environment.openPresenterWindow();
+      return opened ? { ok: true, mode: "presenter-window" } : { ok: false, reason: "embedded-popup-blocked" };
+    }
+    return { ok: false, reason: "unsupported" };
   }
-
-  if (document.fullscreenEnabled === false) return { ok: false, reason: "unsupported" };
   if (!fullscreenTarget?.requestFullscreen) return { ok: false, reason: "unsupported" };
 
   try {
