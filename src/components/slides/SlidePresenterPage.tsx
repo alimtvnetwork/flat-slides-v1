@@ -374,7 +374,7 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
     <>
       <PresenterTopBar current={current} total={total} onPrev={movePrevStepAware} onNext={moveNextStepAware} />
       <SlideNumberBadge current={current} total={total} display={getDisplayNumber(slide, current)} />
-      {isDotPaginationVisible && <DotPagination current={current} total={total} slides={linearSlides} onJump={jump} />}
+      {isDotPaginationVisible && isFs && <DotPagination current={current} total={total} slides={linearSlides} onJump={jump} />}
       <AnnotationLayer slideId={slide.id} />
       <FocusEditor
         slide={slide}
