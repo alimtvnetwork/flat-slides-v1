@@ -268,7 +268,12 @@ export function describeGetUserMediaError(err: unknown): string {
 // ─────────────────────────── Context shape ───────────────────────────
 
 /** spec 01 §3 — stack entry tracked so cinematic / fullscreen can undo cleanly. */
-export type FullscreenAction = "enter-fullscreen" | "enter-stage" | "cinematic";
+export type FullscreenAction =
+  | "enter-fullscreen"
+  | "enter-stage"
+  | "cinematic"
+  | "goNext"
+  | "goPrev";
 
 /** spec 06 step 20 — deck-side handlers the camera invokes on passthrough. */
 export interface NavHandlers {
