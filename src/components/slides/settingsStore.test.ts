@@ -20,7 +20,7 @@ describe("settings persistence", () => {
     act(() => useDeck.getState().resetDeck());
   });
 
-  it("persists all deck settings under riseup.settings.v2", () => {
+  it("persists all deck settings under the current settings storage key", () => {
     act(() => useDeck.getState().setSettings({
       backgroundMode: "image",
       backgroundColor: "#224466",
