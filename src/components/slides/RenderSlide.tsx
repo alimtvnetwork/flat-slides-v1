@@ -229,14 +229,21 @@ function StepDetailPane({ focus, focused, reducedMotion }: { focus: number; focu
   const [displayed, setDisplayed] = useState({ focus, step: focused });
   const [exiting, setExiting] = useState<typeof displayed | null>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const displayedRef = useRef(displayed);
   useEffect(() => {
-    if (displayed.focus === focus) return;
+    displayedRef.current = displayed;
+  }, [displayed]);
+  useEffect(() => {
+    const current = displayedRef.current;
+    if (current.focus === focus) return;
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    setExiting(reducedMotion ? null : displayed);
-    setDisplayed({ focus, step: focused });
+    setExiting(reducedMotion ? null : current);
+    const nextDisplayed = { focus, step: focused };
+    displayedRef.current = nextDisplayed;
+    setDisplayed(nextDisplayed);
     timeoutRef.current = setTimeout(() => setExiting(null), reducedMotion ? 0 : 240);
-    return () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); };
-  }, [displayed, focus, focused, reducedMotion]);
+  }, [focus, focused, reducedMotion]);
+  useEffect(() => () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); }, []);
 
   return (
     <motion.div data-testid="step-detail-pane" style={{ position: "absolute", top: "50%", left: "50%", x: "-50%", y: "-50%", width: "100%", maxWidth: 700, overflowWrap: "break-word" }}>
