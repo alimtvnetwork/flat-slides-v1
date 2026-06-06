@@ -51,7 +51,12 @@ async function mountOnPhase() {
 }
 
 describe("PresenterWebcamOverlay — two-plate shade (spec 05 §2/§8)", () => {
-  beforeEach(() => localStorage.clear());
+  beforeEach(() => {
+    localStorage.clear();
+    // jsdom doesn't implement HTMLMediaElement.play(); stub to a resolved promise.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (HTMLMediaElement.prototype as any).play = vi.fn().mockResolvedValue(undefined);
+  });
 
   it("renders white(z0) + gold(z1) plates sized to box + 2*platePad behind masked video(z2)", async () => {
     const { ctx } = await mountOnPhase();
