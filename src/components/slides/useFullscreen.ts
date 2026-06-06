@@ -11,7 +11,7 @@ type KeyboardLockNavigator = Navigator & {
 };
 
 export type FullscreenEnterResult =
-  | { ok: true; mode: "already-fullscreen" | "native" | "presenter-window" }
+  | { ok: true; mode: "already-fullscreen" | "native" | "app" | "presenter-window" }
   | { ok: false; reason: "unsupported" | "native-failed" | "embedded-popup-blocked"; error?: unknown };
 
 export type FullscreenEnvironment = {
@@ -25,6 +25,9 @@ const POPUP_BLOCKED_REASON = "embedded-popup-blocked";
 const POPUP_BLOCKED_MESSAGE = "Allow pop-ups to open presenter view";
 const FULLSCREEN_BLOCKED_MESSAGE = "Fullscreen blocked by browser";
 const SLIDES_FULLSCREEN_STATE_EVENT = "slides:fullscreen-state";
+const APP_PRESENTING_ATTR = "data-slides-app-presenting";
+
+let appPresentationMode = false;
 
 export function isEmbeddedWindow() {
   if (typeof window === "undefined") return false;
@@ -107,10 +110,31 @@ function notifyFullscreenStateChanged() {
   window.dispatchEvent(new Event(SLIDES_FULLSCREEN_STATE_EVENT));
 }
 
+export function isAppPresentationMode() {
+  return appPresentationMode || isPresenterWindowUrl();
+}
+
+export function setAppPresentationMode(active: boolean) {
+  appPresentationMode = active;
+  if (typeof document !== "undefined") {
+    document.documentElement.toggleAttribute(APP_PRESENTING_ATTR, active || isPresenterWindowUrl());
+  }
+  notifyFullscreenStateChanged();
+}
+
+function isFullscreenLike() {
+  return typeof document !== "undefined" && (Boolean(document.fullscreenElement) || isAppPresentationMode());
+}
+
 /** Tracks whether the document is currently in Fullscreen mode and provides toggles. */
 export async function enterFullscreen(target?: HTMLElement | null, environment: FullscreenEnvironment = {}): Promise<FullscreenEnterResult> {
   if (typeof document === "undefined") return { ok: false, reason: "unsupported" };
-  if (document.fullscreenElement) return { ok: true, mode: "already-fullscreen" };
+  if (isFullscreenLike()) return { ok: true, mode: "already-fullscreen" };
+
+  // Browser fullscreen and popups are often blocked in embedded previews. Flip
+  // into an in-app presentation surface first so Present/F always has an
+  // immediate, visible result; native fullscreen can still enhance it below.
+  setAppPresentationMode(true);
 
   // Fullscreen the stable `/slides` layout root, not the slide/step leaf.
   // It stays mounted across `/slides/N` ↔ `/slides/N/S`, and native fullscreen
@@ -119,22 +143,19 @@ export async function enterFullscreen(target?: HTMLElement | null, environment: 
   // document first, then the route can change while fullscreen stays active.
   const fullscreenTarget = getSlidesFullscreenRoot() ?? target ?? document.documentElement;
 
-  const openWindow = environment.openPresenterWindow ?? openPresenterWindow;
   const embedded = (environment.isEmbeddedWindow ?? isEmbeddedWindow)();
 
   // Lovable preview and other embedded frames must not try iframe fullscreen
-  // first: it looks like a no-op to the presenter. Open the same slide route
-  // as a top-level presenter window immediately; direct slide URLs still use
-  // native fullscreen below.
+  // first: it looks like a no-op to the presenter. The in-app presentation
+  // mode above is the reliable fallback inside the current preview surface.
   if (embedded) {
-    const opened = openWindow();
-    return opened ? { ok: true, mode: "presenter-window" } : { ok: false, reason: "embedded-popup-blocked" };
+    return { ok: true, mode: "app" };
   }
 
   if (document.fullscreenEnabled === false) {
-    return { ok: false, reason: "unsupported" };
+    return { ok: true, mode: "app" };
   }
-  if (!fullscreenTarget?.requestFullscreen) return { ok: false, reason: "unsupported" };
+  if (!fullscreenTarget?.requestFullscreen) return { ok: true, mode: "app" };
 
   try {
     await fullscreenTarget.requestFullscreen();
@@ -143,7 +164,8 @@ export async function enterFullscreen(target?: HTMLElement | null, environment: 
     notifyFullscreenStateChanged();
     return { ok: true, mode: "native" };
   } catch (error) {
-    return { ok: false, reason: "native-failed", error };
+    console.warn("[slides:fullscreen] native fullscreen failed; using in-app presentation mode", error);
+    return { ok: true, mode: "app" };
   }
 }
 
@@ -179,13 +201,14 @@ export function useFullscreen() {
       document.addEventListener("fullscreenchange", sync);
       document.addEventListener("visibilitychange", sync);
       window.addEventListener(SLIDES_FULLSCREEN_STATE_EVENT, sync);
+      setAppPresentationMode(appPresentationMode || isPresenterWindowUrl());
       return () => {
         document.removeEventListener("fullscreenchange", sync);
         document.removeEventListener("visibilitychange", sync);
         window.removeEventListener(SLIDES_FULLSCREEN_STATE_EVENT, sync);
       };
     },
-    () => (typeof document === "undefined" ? false : Boolean(document.fullscreenElement)),
+    () => (typeof document === "undefined" ? false : Boolean(document.fullscreenElement) || isAppPresentationMode()),
     () => false,
   );
 
@@ -197,12 +220,13 @@ export function useFullscreen() {
   const exit = async () => {
     try {
       if (document.fullscreenElement) await document.exitFullscreen();
+      setAppPresentationMode(false);
       unlockEscapeKey();
       blurActiveElement();
       notifyFullscreenStateChanged();
     } catch { /* ignore */ }
   };
-  const toggle = (target?: HTMLElement | null) => (document.fullscreenElement ? exit() : enter(target));
+  const toggle = (target?: HTMLElement | null) => (isFullscreenLike() ? exit() : enter(target));
 
   return { isFs, isPresenterContext: isFs || isPresenterWindowUrl(), enter, exit, toggle };
 }

@@ -54,7 +54,9 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
   const [fullscreenPathname, setFullscreenPathname] = useState<string | null>(null);
   const fullscreenPathnameRef = useRef<string | null>(null);
   const lastNavigationAtRef = useRef(0);
+  const lastFullscreenShortcutAtRef = useRef(0);
   const pressedNavigationKeysRef = useRef<Set<string>>(new Set());
+  const handledKeyEventsRef = useRef<WeakSet<KeyboardEvent>>(new WeakSet());
   const keyHandlerRef = useRef<(event: KeyboardEvent) => void>(() => {});
   const deck = useDeck((s) => s.deck);
   const allSlides = deck.slides;
@@ -165,9 +167,7 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
   keyHandlerRef.current = (e: KeyboardEvent) => {
       if (!slide) return;
       if (isPresenterFullscreenShortcut(e)) {
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        void toggleFs();
+        runFullscreenShortcut(e);
         return;
       }
       const target = e.target as HTMLElement | null;
@@ -227,15 +227,24 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
     };
 
   useEffect(() => {
-    const onKey = (event: KeyboardEvent) => keyHandlerRef.current(event);
+    const onKey = (event: KeyboardEvent) => {
+      if (handledKeyEventsRef.current.has(event)) return;
+      handledKeyEventsRef.current.add(event);
+      keyHandlerRef.current(event);
+    };
     const onKeyUp = (event: KeyboardEvent) => {
       pressedNavigationKeysRef.current.delete(getNavigationKeyId(event));
+      if (isPresenterFullscreenShortcut(event)) runFullscreenShortcut(event);
     };
     window.addEventListener("keydown", onKey, { capture: true });
+    document.addEventListener("keydown", onKey, { capture: true });
     window.addEventListener("keyup", onKeyUp, { capture: true });
+    document.addEventListener("keyup", onKeyUp, { capture: true });
     return () => {
       window.removeEventListener("keydown", onKey, true);
+      document.removeEventListener("keydown", onKey, true);
       window.removeEventListener("keyup", onKeyUp, true);
+      document.removeEventListener("keyup", onKeyUp, true);
     };
   }, []);
 
@@ -342,6 +351,15 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
     return true;
   }
 
+  function runFullscreenShortcut(event: KeyboardEvent) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    const now = typeof performance === "undefined" ? Date.now() : performance.now();
+    if (now - lastFullscreenShortcutAtRef.current < 350) return;
+    lastFullscreenShortcutAtRef.current = now;
+    void toggleFs();
+  }
+
   function openDeckOverview() {
     if (typeof document !== "undefined" && document.fullscreenElement) {
       void document.exitFullscreen().finally(() => navigate({ to: "/slides" }));
@@ -394,7 +412,7 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
   );
 
   return (
-    <PresenterShell isFullscreen={isFs}>
+    <PresenterShell isFullscreen={isFs} onKeyDownCapture={(event) => keyHandlerRef.current(event.nativeEvent)}>
       <SlideStageShell>
         <div
           style={{ opacity: scene === "cam-only" ? 0.05 : scene === "split" ? 0.75 : 1, transition: "opacity 300ms ease" }}
@@ -478,5 +496,5 @@ function isHiddenPresenterChromeShortcut(event: KeyboardEvent) {
 
 export function isPresenterFullscreenShortcut(event: KeyboardEvent) {
   if (event.metaKey || event.ctrlKey || event.altKey) return false;
-  return event.key.toLowerCase() === "f" || event.key === "F5" || event.code === "F5";
+  return event.key.toLowerCase() === "f" || event.code === "KeyF" || event.key === "F5" || event.code === "F5";
 }
