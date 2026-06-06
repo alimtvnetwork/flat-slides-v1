@@ -17,13 +17,13 @@ describe("nextControllerAnchor", () => {
 
   it("visits the B21 controller anchors in order without repeats", () => {
     const seen = new Set<ControllerAnchor>();
-    let cur: ControllerAnchor = "bottom-center";
+    let cur: ControllerAnchor = "top-right";
     for (let i = 0; i < CONTROLLER_ANCHOR_ORDER.length; i++) {
       seen.add(cur);
       cur = nextControllerAnchor(cur);
     }
-    expect([...seen]).toEqual(["bottom-center", "bottom-right", "bottom-left", "top-right"]);
-    expect(cur).toBe("bottom-center");
+    expect([...seen]).toEqual(["top-right", "bottom-right", "bottom-center", "bottom-left"]);
+    expect(cur).toBe("top-right");
   });
 });
 
