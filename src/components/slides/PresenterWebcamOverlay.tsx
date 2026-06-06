@@ -13,6 +13,7 @@ import squircleMaskUrl from "@/assets/camera-2026/02-squircle-mask-black.png";
 import plateWhiteUrl from "@/assets/camera-2026/03-squircle-plate-white-shadow.png";
 import plateGoldUrl from "@/assets/camera-2026/04-squircle-plate-gold-shadow.png";
 import { useAutoFrame } from "./useAutoFrame";
+import { useReducedMotion } from "./useReducedMotion";
 import {
   FREE_MAX_W,
   FREE_MIN_W,
@@ -216,14 +217,33 @@ export function PresenterWebcamOverlay() {
 
   const floatingVideoRef = useRef<HTMLVideoElement | null>(null);
   const fullscreenVideoRef = useRef<HTMLVideoElement | null>(null);
+  const shapeFrameRef = useRef<HTMLDivElement | null>(null);
   const dragRef = useRef<DragRef | null>(null);
   const resizeRef = useRef<ResizeRef | null>(null);
   const [dragging, setDragging] = useState(false);
+  const reducedMotion = useReducedMotion();
 
   // Spec 04 — auto-frame: track the largest face per video element and bias
   // object-position toward the face center. No-op without window.FaceDetector.
   const floatingAutoFrame = useAutoFrame(floatingVideoRef, autoFrame);
   const fullscreenAutoFrame = useAutoFrame(fullscreenVideoRef, autoFrame);
+
+  // Spec 02 §4 / spec 06 step 28 — shape-pop animation on circle toggle.
+  // WAAPI on the clipping wrapper only (never remount the <video>); skip
+  // under prefers-reduced-motion.
+  useEffect(() => {
+    if (reducedMotion) return;
+    const el = shapeFrameRef.current;
+    if (!el || typeof el.animate !== "function") return;
+    el.animate(
+      [
+        { transform: "scale(1)" },
+        { transform: "scale(1.06)" },
+        { transform: "scale(1)" },
+      ],
+      { duration: 320, easing: "cubic-bezier(0.34, 1.56, 0.64, 1)" },
+    );
+  }, [circle, reducedMotion]);
 
   // Spec 02 §3 — share one MediaStream across multiple <video> nodes.
   const attachStreamToVideo = useCallback(
@@ -451,6 +471,7 @@ export function PresenterWebcamOverlay() {
             above remain visible around it. Stable DOM node (no remount on
             shape/plate toggles — spec 02 §4). */}
         <div
+          ref={shapeFrameRef}
           style={{
             position: "absolute",
             inset: 0,
