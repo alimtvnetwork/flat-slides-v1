@@ -2,6 +2,17 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.35.0 — 2026-06-06
+
+### Added
+- **`Shift+W` opens the presenter in a new top-level window.** Spec issue 014 follow-up: F now stays in-iframe; `Shift+W` is the explicit, user-initiated path to a top-level popup. New `present-window` entry in `src/components/slides/shortcuts.ts:95` + action in `src/components/slides/presenterActions.ts:128–135` calls `openPresenterWindow()` and surfaces `reportFullscreenFailure({ reason: "embedded-popup-blocked" })` when the popup is blocked. Auto-discovered by the keyboard-shortcuts help dialog (`?`).
+
+### Docs
+- **Plan 01 closed.** `.lovable/plans/pending/01-slides-first-preview.md` → `completed/` with a status block listing what landed (slides-first redirect, `/about`, diagnostics 03/04/05, SettingsDrawer audit, controller pill, issue 03 + 014 closures) and what was intentionally dropped (`DeckLauncher`, `SlidesHomeShell`, `featureFlags.ts` rollback). `pending/` is now empty.
+
+### Tests
+- `presenterActions.test.ts` parity test green (8/8) — the new `present-window` id has its action and is not in `MODIFIER_SHORTCUT_IDS`. `shortcuts.test.ts` (5/5) green.
+
 ## 1.34.0 — 2026-06-06
 
 ### Fixed
