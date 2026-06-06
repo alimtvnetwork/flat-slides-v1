@@ -144,6 +144,36 @@ export function SettingsDrawer({
     window.open(exportUrl(path, paper), "_blank", "noopener,noreferrer");
   };
 
+  const handleDownloadGuide = async () => {
+    try {
+      const { zipSync, strToU8 } = await import("fflate");
+      const zipped = zipSync({
+        "README.txt": strToU8(
+          "Glasswing — LLM JSON deck guide\n\n" +
+            "1. llm-json-guideline.md — full spec (slide types, RichText, highlights, images, focus regions).\n" +
+            "2. sample-deck.json     — canonical deck JSON that validates against the spec.\n\n" +
+            "Feed both files to your LLM, ask it to emit a deck.json that matches the schema, then Import via Settings.\n",
+        ),
+        "llm-json-guideline.md": strToU8(llmGuidelineMd),
+        "sample-deck.json": strToU8(sampleDeckJson),
+      });
+      const blob = new Blob([zipped], { type: "application/zip" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "glasswing-llm-guide.zip";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      toast.success("Downloaded glasswing-llm-guide.zip");
+    } catch (error) {
+      console.error("[settings:guide] download failed", error);
+      toast.error("Guide download failed — see console for details");
+    }
+  };
+
+
   return (
     <div
       className="fixed flex"
