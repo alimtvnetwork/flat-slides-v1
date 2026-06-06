@@ -1,6 +1,6 @@
 # 001 — Present-from-preview-iframe is silently unsupported (no popup fallback)
 
-**Status:** open
+**Status:** closed (fixed `useFullscreen.ts:103–118`, locked by `fullscreenTarget.test.ts` 11/11)
 **Spec:** `docs/slides/spec/present-fullscreen.spec.md`
 **Code under suspicion:** `src/components/slides/useFullscreen.ts`,
 `src/components/slides/controls/PresenterFallbackLink.tsx`,
