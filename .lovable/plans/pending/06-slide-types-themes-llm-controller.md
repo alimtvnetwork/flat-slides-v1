@@ -100,6 +100,16 @@ eight-section template and consumes only channels declared in
 `01-theme-hooks.md`. Remaining Step 8 stubs start with `steps`/`timeline`, then
 the media group.
 
+### Phase C — Step 28 bottom dot pagination notes (2026-06-06)
+
+`src/components/slides/controls/DotPagination.tsx` now consumes
+`buildPaginationSlots(current, total, 15)` instead of rendering every slide
+number directly. The first rendered test failed because a 20-slide deck still
+showed all `1..20`; after wiring slot rendering and ellipsis buttons, the
+focused suite passes 12/12 across `DotPagination.test.tsx` and
+`pagination.test.ts`. Remaining Phase C work is the top `SlideIndicator`, the
+persisted threshold setting, and the `GoToInput` popover.
+
 Subtask files (depth-heavy steps link into these):
 - `./subtasks/06-slide-types-themes-llm-controller/SS-01-new-slide-types-catalog.md`
 - `./subtasks/06-slide-types-themes-llm-controller/SS-02-new-themes-catalog.md`
