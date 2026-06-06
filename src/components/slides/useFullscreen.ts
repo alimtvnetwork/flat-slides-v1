@@ -143,7 +143,6 @@ export async function enterFullscreen(target?: HTMLElement | null, environment: 
   // document first, then the route can change while fullscreen stays active.
   const fullscreenTarget = getSlidesFullscreenRoot() ?? target ?? document.documentElement;
 
-  const openWindow = environment.openPresenterWindow ?? openPresenterWindow;
   const embedded = (environment.isEmbeddedWindow ?? isEmbeddedWindow)();
 
   // Lovable preview and other embedded frames must not try iframe fullscreen
