@@ -103,6 +103,10 @@ export const FREE_MIN_W = 160;
 export const FREE_MAX_W = 960;
 export const ASPECT_H_OVER_W = 9 / 16;
 
+/** spec 01 §2 — minimized "puck" footprint. Independent of step/free sizes. */
+export const MINI_W = 96;
+export const MINI_H = 96;
+
 const STAGE_W = 1920;
 const STAGE_H = 1080;
 
@@ -263,16 +267,32 @@ export function describeGetUserMediaError(err: unknown): string {
 
 // ─────────────────────────── Context shape ───────────────────────────
 
+/** spec 01 §3 — stack entry tracked so cinematic / fullscreen can undo cleanly. */
+export type FullscreenAction = "enter-fullscreen" | "enter-stage" | "cinematic";
+
+/** spec 06 step 20 — deck-side handlers the camera invokes on passthrough. */
+export interface NavHandlers {
+  goNext: () => void;
+  goPrev: () => void;
+}
+
 export interface PresenterWebcamCtx {
   state: WebcamState;
   position: { x: number; y: number };
   size: { w: number; h: number };
   sizeCfg: SizeConfig;
+  /** Spec 01 §3 — null when free-resized or minimized; else the active preset. */
+  sizeStep: SizeStep | null;
+  /** Spec 01 §2 — 96×96 puck override; persisted under MIN_KEY. */
+  minimized: boolean;
 
+  /** Spec 01 §3 — convenience: on→hide, tray→show, else show. */
+  toggle: () => Promise<void>;
   show: () => Promise<void>;
   hide: () => void;
   close: () => void;
   setPhase: (phase: WebcamPhase) => void;
+  toggleMinimized: () => void;
 
   /** Set position in stage coordinates (callers convert pointer deltas via `/ --stage-scale`). */
   setPosition: (pos: { x: number; y: number }) => void;
@@ -287,10 +307,23 @@ export interface PresenterWebcamCtx {
   enterFullscreen: () => void;
   /** Task 8 — fill the slide stage rect (cover), snapshotting prior state. */
   enterStage: () => void;
+  /** Spec 01 §7 — toggle stage on/off (re-uses the same snapshot/restore path). */
+  toggleStage: () => void;
   /** Task 8 — restore the snapshot taken by enterFullscreen/enterStage. Idempotent. */
   restoreFromOverlay: () => void;
+  /** Spec 01 §6 — named alias for `restoreFromOverlay` when only fullscreen is meant. */
+  exitFullscreen: () => void;
+  /** Spec 01 §3 — push an action onto the fullscreen back-stack. */
+  pushFullscreenAction: (action: FullscreenAction) => void;
+  /** Spec 06 step 20 — deck subscribes its goNext/goPrev; returns an unsubscribe. */
+  registerNavHandlers: (handlers: NavHandlers) => () => void;
   /** Task 9 — convenience: dispatch a `riseup:webcam-passthrough` next/prev event. */
   emitPassthrough: (direction: "next" | "prev") => void;
+
+  /** Spec 01 §3 — true while `runCinematicCycle()` plays its 0.8s squish/whoosh. */
+  cinematicExiting: boolean;
+  /** Spec 03 §1 — `]`: whoosh + 0.8s squish; reduced-motion = instant. */
+  runCinematicCycle: () => void;
 
   /** Task 11 — persisted auto-frame enable flag. */
   autoFrame: boolean;
@@ -331,6 +364,10 @@ export function PresenterWebcamProvider({ children }: { children: ReactNode }) {
   const [halo, setHaloState] = useState(() => readStoredFlag(HALO_KEY, true));
   const [circle, setCircleState] = useState(() => readStoredFlag(CIRCLE_KEY, false));
   const [plateVariant, setPlateVariantState] = useState<PlateVariant>(() => readStoredPlate());
+  const [minimized, setMinimizedState] = useState(() => readStoredFlag(MIN_KEY, false));
+  const [cinematicExiting, setCinematicExiting] = useState(false);
+  const actionStackRef = useRef<FullscreenAction[]>([]);
+  const navHandlersRef = useRef<NavHandlers | null>(null);
 
   const setAutoFrame = useCallback((v: boolean) => {
     setAutoFrameState(v);
@@ -381,7 +418,21 @@ export function PresenterWebcamProvider({ children }: { children: ReactNode }) {
     );
   }, []);
 
-  const computedSize = useMemo(() => resolveSize(sizeCfg), [sizeCfg]);
+  const computedSize = useMemo(
+    () => (minimized ? { w: MINI_W, h: MINI_H } : resolveSize(sizeCfg)),
+    [minimized, sizeCfg],
+  );
+  const sizeStep = useMemo<SizeStep | null>(
+    () => (minimized || sizeCfg.kind !== "step" ? null : sizeCfg.id),
+    [minimized, sizeCfg],
+  );
+
+  const toggleMinimized = useCallback(() => {
+    setMinimizedState((v) => {
+      writeStoredFlag(MIN_KEY, !v);
+      return !v;
+    });
+  }, []);
 
   // Re-clamp position whenever the size shrinks/grows so the bubble can't drift off-stage.
   useEffect(() => {
@@ -534,11 +585,60 @@ export function PresenterWebcamProvider({ children }: { children: ReactNode }) {
     }
   }, [setState]);
 
-  // ─── Task 9: nav passthrough for fullscreen / stage ───
+  // ─── Spec 01 §3 / §7 — toggles, action-stack, nav handler registry ───
+  const toggle = useCallback(async () => {
+    const current = stateRef.current;
+    if (current.phase === "on") { hide(); return; }
+    await show();
+  }, [hide, show]);
+
+  const toggleStage = useCallback(() => {
+    if (stateRef.current.phase === "stage") {
+      restoreFromOverlay();
+      return;
+    }
+    enterStage();
+  }, [enterStage, restoreFromOverlay]);
+
+  const exitFullscreen = useCallback(() => {
+    if (stateRef.current.phase === "fullscreen") restoreFromOverlay();
+  }, [restoreFromOverlay]);
+
+  const pushFullscreenAction = useCallback((action: FullscreenAction) => {
+    actionStackRef.current.push(action);
+  }, []);
+
+  const registerNavHandlers = useCallback((handlers: NavHandlers) => {
+    navHandlersRef.current = handlers;
+    return () => {
+      if (navHandlersRef.current === handlers) navHandlersRef.current = null;
+    };
+  }, []);
+
   const emitPassthrough = useCallback((direction: "next" | "prev") => {
+    const handlers = navHandlersRef.current;
+    if (handlers) {
+      direction === "next" ? handlers.goNext() : handlers.goPrev();
+    }
     if (typeof window === "undefined") return;
     const detail: WebcamPassthroughDetail = { direction };
     window.dispatchEvent(new CustomEvent(WEBCAM_PASSTHROUGH_EVENT, { detail }));
+  }, []);
+
+  const cinematicTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const runCinematicCycle = useCallback(() => {
+    if (cinematicTimerRef.current) clearTimeout(cinematicTimerRef.current);
+    pushFullscreenAction("cinematic");
+    setCinematicExiting(true);
+    const reduced =
+      typeof window !== "undefined" &&
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    const delay = reduced ? 0 : 800;
+    cinematicTimerRef.current = setTimeout(() => setCinematicExiting(false), delay);
+  }, [pushFullscreenAction]);
+
+  useEffect(() => () => {
+    if (cinematicTimerRef.current) clearTimeout(cinematicTimerRef.current);
   }, []);
 
   const value = useMemo<PresenterWebcamCtx>(
@@ -547,18 +647,28 @@ export function PresenterWebcamProvider({ children }: { children: ReactNode }) {
       position,
       size: computedSize,
       sizeCfg,
+      sizeStep,
+      minimized,
+      toggle,
       show,
       hide,
       close,
       setPhase,
+      toggleMinimized,
       setPosition,
       stepSize,
       setStepSize,
       setFreeSize,
       enterFullscreen,
       enterStage,
+      toggleStage,
       restoreFromOverlay,
+      exitFullscreen,
+      pushFullscreenAction,
+      registerNavHandlers,
       emitPassthrough,
+      cinematicExiting,
+      runCinematicCycle,
       autoFrame,
       setAutoFrame,
       toggleAutoFrame,
@@ -573,34 +683,16 @@ export function PresenterWebcamProvider({ children }: { children: ReactNode }) {
       toggleCircle,
     }),
     [
-      state,
-      position,
-      computedSize,
-      sizeCfg,
-      show,
-      hide,
-      close,
-      setPhase,
-      setPosition,
-      stepSize,
-      setStepSize,
-      setFreeSize,
-      enterFullscreen,
-      enterStage,
-      restoreFromOverlay,
-      emitPassthrough,
-      autoFrame,
-      setAutoFrame,
-      toggleAutoFrame,
-      halo,
-      setHalo,
-      toggleHalo,
-      plateVariant,
-      setPlateVariant,
-      cyclePlateVariant,
-      circle,
-      setCircle,
-      toggleCircle,
+      state, position, computedSize, sizeCfg, sizeStep, minimized,
+      toggle, show, hide, close, setPhase, toggleMinimized,
+      setPosition, stepSize, setStepSize, setFreeSize,
+      enterFullscreen, enterStage, toggleStage, restoreFromOverlay, exitFullscreen,
+      pushFullscreenAction, registerNavHandlers, emitPassthrough,
+      cinematicExiting, runCinematicCycle,
+      autoFrame, setAutoFrame, toggleAutoFrame,
+      halo, setHalo, toggleHalo,
+      plateVariant, setPlateVariant, cyclePlateVariant,
+      circle, setCircle, toggleCircle,
     ],
   );
 
