@@ -1,6 +1,6 @@
 # Prompt Registry
 
-Latest: `29-next-task.md` (post-1.47.0 re-pin; same next 3 = Plan 06 Step 4 typography addendum, Step 24 Ubuntu Bold snapshot test pulled forward, Steps 5+6 ellipsis-pagination spec + threshold).
+Latest: `30-next-task.md` (active repair plan re-pin; next 3 = fullscreen persistence, slide-4 step black-frame repair, white/default text + highlight no-glow regression lock).
 
 | ID  | File                          | Title         | Trigger phrases                                            | Purpose                                  |
 | --- | ----------------------------- | ------------- | ---------------------------------------------------------- | ---------------------------------------- |

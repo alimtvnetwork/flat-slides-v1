@@ -2,6 +2,11 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.49.0 — 2026-06-06
+
+### Planning
+- **Next-task triage (prompt 30).** Corrected the stale prompt queue: prompt 29 kept re-pinning Plan 06, but `.lovable/plan.md` is now the active repair plan. Next 3 are now: (1) prove and repair fullscreen persistence across navigation, (2) prove and repair slide-4 step 2→3 black-frame transition, (3) lock visual rules for true-white default text and no highlight glow with regression coverage. No product code change.
+
 ## 1.48.0 — 2026-06-06
 
 ### Planning
