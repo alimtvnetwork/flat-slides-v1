@@ -69,6 +69,11 @@ export function SettingsDrawer({
   const cycleCameraAnchor = useChrome((s) => s.cycleCameraAnchor);
   const cycleCameraShape = useChrome((s) => s.cycleCameraShape);
   const fileRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
+  const goToFirstSlide = () => {
+    try { void navigate({ to: "/slides/$slideId", params: { slideId: "1" } }); }
+    catch { /* router may not be mounted in tests */ }
+  };
 
   useEffect(() => {
     if (!open) return;
