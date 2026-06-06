@@ -224,3 +224,88 @@ describe("usePresenterWebcam halo / plate / autoframe persistence (tasks 11–13
     expect(localStorage.getItem("riseup.webcam.circle")).toBe("1");
   });
 });
+
+describe("usePresenterWebcam step 2 — toggle / minimized / actions / nav handlers / cinematic", () => {
+  beforeEach(() => localStorage.clear());
+
+  function mountWithStream() {
+    const fakeStream = { getTracks: () => [{ stop: vi.fn() }] } as unknown as MediaStream;
+    // @ts-expect-error test stub
+    globalThis.navigator.mediaDevices = { getUserMedia: vi.fn().mockResolvedValue(fakeStream) };
+    return fakeStream;
+  }
+
+  it("toggle() shows when off and hides when on", async () => {
+    mountWithStream();
+    const { result } = renderHook(() => usePresenterWebcam(), { wrapper });
+    await act(async () => { await result.current.toggle(); });
+    expect(result.current.state.phase).toBe("on");
+    await act(async () => { await result.current.toggle(); });
+    expect(result.current.state.phase).toBe("tray");
+  });
+
+  it("toggleMinimized swaps to 96x96 puck and persists under riseup.webcam.min", () => {
+    const { result } = renderHook(() => usePresenterWebcam(), { wrapper });
+    expect(result.current.minimized).toBe(false);
+    expect(result.current.size).toEqual(SIZE_STEPS.M);
+    act(() => result.current.toggleMinimized());
+    expect(result.current.minimized).toBe(true);
+    expect(result.current.size).toEqual({ w: 96, h: 96 });
+    expect(result.current.sizeStep).toBeNull();
+    expect(localStorage.getItem("riseup.webcam.min")).toBe("1");
+  });
+
+  it("sizeStep exposes 'L' when stepped and null when free-resized", () => {
+    const { result } = renderHook(() => usePresenterWebcam(), { wrapper });
+    act(() => result.current.setStepSize("L"));
+    expect(result.current.sizeStep).toBe("L");
+    act(() => result.current.setFreeSize(500));
+    expect(result.current.sizeStep).toBeNull();
+  });
+
+  it("toggleStage cycles on → stage → on", async () => {
+    mountWithStream();
+    const { result } = renderHook(() => usePresenterWebcam(), { wrapper });
+    await act(async () => { await result.current.show(); });
+    act(() => result.current.toggleStage());
+    expect(result.current.state.phase).toBe("stage");
+    act(() => result.current.toggleStage());
+    expect(result.current.state.phase).toBe("on");
+  });
+
+  it("exitFullscreen is a named alias that only fires from fullscreen", async () => {
+    mountWithStream();
+    const { result } = renderHook(() => usePresenterWebcam(), { wrapper });
+    await act(async () => { await result.current.show(); });
+    act(() => result.current.exitFullscreen()); // no-op from `on`
+    expect(result.current.state.phase).toBe("on");
+    act(() => result.current.enterFullscreen());
+    act(() => result.current.exitFullscreen());
+    expect(result.current.state.phase).toBe("on");
+  });
+
+  it("registerNavHandlers + emitPassthrough invokes goNext/goPrev", () => {
+    const { result } = renderHook(() => usePresenterWebcam(), { wrapper });
+    const goNext = vi.fn();
+    const goPrev = vi.fn();
+    let unsub: () => void = () => {};
+    act(() => { unsub = result.current.registerNavHandlers({ goNext, goPrev }); });
+    act(() => result.current.emitPassthrough("next"));
+    act(() => result.current.emitPassthrough("prev"));
+    expect(goNext).toHaveBeenCalledTimes(1);
+    expect(goPrev).toHaveBeenCalledTimes(1);
+    act(() => unsub());
+    act(() => result.current.emitPassthrough("next"));
+    expect(goNext).toHaveBeenCalledTimes(1); // unsubscribed
+  });
+
+  it("runCinematicCycle flips cinematicExiting on then off after 800ms", () => {
+    vi.useFakeTimers();
+    const { result } = renderHook(() => usePresenterWebcam(), { wrapper });
+    act(() => result.current.runCinematicCycle());
+    expect(result.current.cinematicExiting).toBe(true);
+    act(() => { vi.advanceTimersByTime(800); });
+    expect(result.current.cinematicExiting).toBe(false);
+    vi.useRealTimers();
+  });
+});
