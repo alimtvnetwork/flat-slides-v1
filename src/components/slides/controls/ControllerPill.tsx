@@ -42,7 +42,6 @@ export function ControllerPill(props: Props) {
   const anchor = useControllerAnchor((s) => s.anchor);
   const setAnchor = useControllerAnchor((s) => s.setAnchor);
   const cycleAnchor = useControllerAnchor((s) => s.cycleAnchor);
-  const isNarrow = useNarrowViewport();
   const reduced = useReducedMotion();
   const [mounted, setMounted] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
