@@ -269,18 +269,7 @@ export const useDeck = create<DeckStore>()(
       // orphan existing user decks on every minor bump — versioning is
       // tracked inside the payload via zustand's `version` field.
       version: DECK_SCHEMA_VERSION,
-      migrate: (persisted, fromVersion) => {
-        // Same version → no-op, merge handles the read.
-        if (fromVersion === DECK_SCHEMA_VERSION) return persisted as never;
-        // Different version → surface the drop in logs and return undefined
-        // so `merge` falls back to the in-memory default deck. We do NOT
-        // try to coerce old payloads; the import flow is the supported
-        // migration path.
-        console.warn(
-          `[slides:persist] dropping v${fromVersion} payload (current v${DECK_SCHEMA_VERSION}); re-import the deck JSON to restore.`,
-        );
-        return undefined as never;
-      },
+      migrate: migratePersistedDeck,
       merge: (persisted, current) => {
         const usable = getUsablePersistedDeck(persisted);
         if (!usable) return current;
