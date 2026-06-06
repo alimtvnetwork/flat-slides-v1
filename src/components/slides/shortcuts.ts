@@ -126,6 +126,10 @@ export const SHORTCUTS: ShortcutDef[] = [
 ];
 
 export function matchesShortcut(event: KeyboardEvent, def: ShortcutDef): boolean {
+  // Defensive: callers sometimes pass `SHORTCUTS.find(...)` directly, which
+  // returns undefined when an id is renamed. Without this guard the keymap
+  // pipeline crashes silently with "Cannot read 'keys' of undefined".
+  if (!def?.keys) return false;
   // Issue 030: every alias in this catalogue is a single bare key. If the
   // user is holding a system modifier (Cmd/Ctrl/Alt) it's a browser/OS
   // shortcut (Cmd+P print, Ctrl+R reload, Alt+Tab, …) and we must not
