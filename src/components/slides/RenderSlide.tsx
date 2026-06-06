@@ -221,18 +221,23 @@ function StepsSlide({ slide, step }: { slide: StepsSlideProps; step: number }) {
         </ol>
         </div>
         <div className="min-w-0 relative flex items-center justify-center text-center" style={{ minHeight: 360 }}>
-          <AnimatePresence initial={false}>
+          <AnimatePresence initial={false} mode="wait">
             <motion.div
               key={focus}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: reducedMotion ? 0 : 0.45, ease: "easeOut" }}
+              data-testid="step-detail-pane"
+              initial={{ opacity: 0, y: reducedMotion ? 0 : 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: reducedMotion ? 0 : -8 }}
+              transition={{
+                opacity: { duration: reducedMotion ? 0 : 0.18, ease: "easeOut" },
+                y: { duration: reducedMotion ? 0 : 0.22, ease: "easeOut" },
+              }}
               style={{
                 position: "absolute",
                 top: "50%",
                 left: "50%",
-                transform: "translate(-50%, -50%)",
+                x: "-50%",
+                y: "-50%",
                 width: "100%",
                 maxWidth: 700,
                 overflowWrap: "break-word",
