@@ -7,7 +7,7 @@
  */
 import { z } from "zod";
 
-import { _registerCustomThemesResolver, type Theme } from "./themes";
+import type { Theme } from "./themes";
 
 export const CUSTOM_THEMES_KEY = "riseup.themes.custom";
 
@@ -119,6 +119,3 @@ export async function pickThemesFile(): Promise<Theme[]> {
   });
 }
 
-// Register the resolver so themes.ts can list/find custom themes without a
-// module-level import cycle.
-_registerCustomThemesResolver(loadCustomThemes);

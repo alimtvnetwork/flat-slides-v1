@@ -88,22 +88,33 @@ export const DEFAULT_THEME_ID = "snow";
 const THEME_INDEX: Map<string | undefined, Theme> = new Map();
 for (const t of THEMES) THEME_INDEX.set(t.id, t);
 
-// Resolver for user-imported custom themes. Wired by customThemes.ts at
-// import time to keep this module free of cycles.
-let customThemesResolver: () => Theme[] = () => [];
-export function _registerCustomThemesResolver(fn: () => Theme[]): void {
-  customThemesResolver = fn;
+// User-imported custom themes are persisted in localStorage under
+// `riseup.themes.custom` by ./customThemes. We read it inline here to keep
+// this module free of import cycles (themes.ts → customThemes.ts → themes.ts
+// would TDZ this file's exports).
+const CUSTOM_KEY = "riseup.themes.custom";
+function readCustomThemes(): Theme[] {
+  if (typeof localStorage === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(CUSTOM_KEY);
+    if (!raw) return [];
+    const arr = JSON.parse(raw);
+    if (!Array.isArray(arr)) return [];
+    return arr as Theme[];
+  } catch {
+    return [];
+  }
 }
 
 /** Built-ins + user-imported custom themes. */
 export function getAllThemes(): Theme[] {
-  const extras = customThemesResolver();
+  const extras = readCustomThemes();
   return extras.length ? [...THEMES, ...extras] : THEMES;
 }
 
 export function getTheme(id: string | undefined): Theme {
   if (id && THEME_INDEX.has(id)) return THEME_INDEX.get(id)!;
-  const custom = customThemesResolver().find((t) => t.id === id);
+  const custom = readCustomThemes().find((t) => t.id === id);
   return custom ?? THEMES[0];
 }
 
