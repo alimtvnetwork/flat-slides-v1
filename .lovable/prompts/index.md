@@ -1,6 +1,6 @@
 # Prompt Registry
 
-Latest: `25-next-task.md` (Ubuntu Bold fix SHIPPED on hero title; next 3 = close plan 05 SS-02, plan 06 Phase A steps 4–10, then Phase A 11–20 + computed-style snapshot).
+Latest: `26-next-task.md` (plan 05 CLOSED; next 3 = plan 06 typography addendum, ellipsis-pagination spec, Ubuntu Bold computed-style snapshot test).
 
 | ID  | File                          | Title         | Trigger phrases                                            | Purpose                                  |
 | --- | ----------------------------- | ------------- | ---------------------------------------------------------- | ---------------------------------------- |

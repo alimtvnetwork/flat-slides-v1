@@ -2,7 +2,8 @@
 
 **Slug:** controller-whitebal-fonts
 **Steps:** 8
-**Status:** pending
+**Status:** completed
+**Closed:** 2026-06-06 — SS-01 (back-step nav) verified already-symmetric; SS-03 (font antialiasing + Ubuntu Bold on hero) shipped in 1.41.0 + 1.44.0. SS-02 (white-balance-in-controller) deferred into plan 06 Phase C because the white-balance slider was never built standalone — grep `riseup.whitebal` returned zero hits — so SS-02 becomes a "build whitebal directly inside ControllerPill" task that belongs with the broader controller work in plan 06.
 **Created:** 2026-06-06
 
 ## Context
