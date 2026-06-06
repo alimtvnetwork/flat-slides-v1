@@ -203,6 +203,11 @@ export function PresenterWebcamOverlay() {
   const resizeRef = useRef<ResizeRef | null>(null);
   const [dragging, setDragging] = useState(false);
 
+  // Spec 04 — auto-frame: track the largest face per video element and bias
+  // object-position toward the face center. No-op without window.FaceDetector.
+  const floatingAutoFrame = useAutoFrame(floatingVideoRef, autoFrame);
+  const fullscreenAutoFrame = useAutoFrame(fullscreenVideoRef, autoFrame);
+
   // Spec 02 §3 — share one MediaStream across multiple <video> nodes.
   const attachStreamToVideo = useCallback(
     (node: HTMLVideoElement | null) => {
