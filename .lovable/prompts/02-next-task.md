@@ -4,7 +4,7 @@
 > each invocation (e.g. `next task 7`) so chat-history search can locate
 > the exact batch.
 
-**Latest invocation:** `next task 9` → v1.5.0 (issues 018 + 026).
+**Latest invocation:** `next task 10` → v1.6.0 (issues 005 + 009).
 
 ## What I want
 
