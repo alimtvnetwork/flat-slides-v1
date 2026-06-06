@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, type ReactNode } from "react";
 
-type Props = { children: ReactNode; className?: string; fitPadding?: number };
+type ScaleMode = "contain" | "cover";
+type Props = { children: ReactNode; className?: string; fitPadding?: number; scaleMode?: ScaleMode };
 const CANVAS_WIDTH = 1920;
 const CANVAS_HEIGHT = 1080;
 const SETTLE_FRAMES = 12;
@@ -9,7 +10,7 @@ const SETTLE_FRAMES = 12;
  * Renders children at a fixed 1920x1080 canvas, scaled to fit the parent.
  * Parent must have a non-zero size and `position: relative` (provided here).
  */
-export function ScaledSlide({ children, className, fitPadding = 0 }: Props) {
+export function ScaledSlide({ children, className, fitPadding = 0, scaleMode = "contain" }: Props) {
   const stageRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
@@ -33,11 +34,13 @@ export function ScaledSlide({ children, className, fitPadding = 0 }: Props) {
       el.removeAttribute("data-debug-zero-height");
       const safeWidth = Math.max(1, width - fitPadding * 2);
       const safeHeight = Math.max(1, height - fitPadding * 2);
-      const nextScale = Math.min(safeWidth / CANVAS_WIDTH, safeHeight / CANVAS_HEIGHT);
+      const nextScale = scaleMode === "cover"
+        ? Math.max(safeWidth / CANVAS_WIDTH, safeHeight / CANVAS_HEIGHT)
+        : Math.min(safeWidth / CANVAS_WIDTH, safeHeight / CANVAS_HEIGHT);
       el.style.setProperty("--stage-scale", String(nextScale));
       if (isPresenterStage(el)) {
         document.documentElement.style.setProperty("--stage-scale", String(nextScale));
-        writePresenterFrameVars(rect, nextScale);
+        writePresenterFrameVars(rect, nextScale, scaleMode);
       }
     };
     const scheduleRecompute = () => scheduleSettledFrames(recompute, frames);
@@ -57,7 +60,7 @@ export function ScaledSlide({ children, className, fitPadding = 0 }: Props) {
       if (isPresenterStage(el)) clearPresenterFrameVars();
       ro?.disconnect();
     };
-  }, [fitPadding]);
+  }, [fitPadding, scaleMode]);
 
   return (
     <div ref={stageRef} className={`slide-stage ${className ?? ""}`} style={{ ["--fit-padding" as string]: `${fitPadding}px` }}>
@@ -79,7 +82,21 @@ function readContainerRect(el: HTMLElement): ContainerRect {
   return { width: el.clientWidth || viewport?.width || window.innerWidth, height: el.clientHeight || viewport?.height || window.innerHeight, left: 0, top: 0 };
 }
 
-function writePresenterFrameVars(rect: ContainerRect, scale: number) {
+function writePresenterFrameVars(rect: ContainerRect, scale: number, scaleMode: ScaleMode) {
+  if (scaleMode === "cover") {
+    writePresenterVars({
+      "--stage-scale": String(scale),
+      "--presenter-frame-left": `${Math.round(rect.left)}px`,
+      "--presenter-frame-top": `${Math.round(rect.top)}px`,
+      "--presenter-frame-right": "0px",
+      "--presenter-frame-bottom": "0px",
+      "--presenter-frame-width": `${Math.round(rect.width)}px`,
+      "--presenter-frame-height": `${Math.round(rect.height)}px`,
+      "--presenter-frame-center-x": `${Math.round(rect.left + rect.width / 2)}px`,
+      "--presenter-frame-center-y": `${Math.round(rect.top + rect.height / 2)}px`,
+    });
+    return;
+  }
   const frameWidth = CANVAS_WIDTH * scale;
   const frameHeight = CANVAS_HEIGHT * scale;
   const left = rect.left + Math.max(0, (rect.width - frameWidth) / 2);
@@ -96,6 +113,10 @@ function writePresenterFrameVars(rect: ContainerRect, scale: number) {
     "--presenter-frame-center-x": `${Math.round(left + frameWidth / 2)}px`,
     "--presenter-frame-center-y": `${Math.round(top + frameHeight / 2)}px`,
   };
+  writePresenterVars(vars);
+}
+
+function writePresenterVars(vars: Record<string, string>) {
   for (const target of presenterVarTargets()) {
     for (const [name, value] of Object.entries(vars)) target.style.setProperty(name, value);
   }
