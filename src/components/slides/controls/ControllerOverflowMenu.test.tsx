@@ -73,5 +73,22 @@ describe("ControllerPill overflow menu", () => {
     fireEvent.pointerDown(screen.getByLabelText("More controls"));
     await waitFor(() => expect(screen.getByText("Settings")).toBeTruthy());
     expect(screen.getByText("Keyboard shortcuts")).toBeTruthy();
+    expect(screen.getByText("Open in new window")).toBeTruthy();
+  });
+
+  it("opens a presenter popup when 'Open in new window' is selected", async () => {
+    mockMatchMedia(1100);
+    createSlidesRoot();
+    const opened = { focus: vi.fn(), opener: {} } as unknown as Window;
+    const openSpy = vi.spyOn(window, "open").mockReturnValue(opened);
+    render(<ControllerPill {...baseProps} />);
+
+    fireEvent.pointerDown(screen.getByLabelText("More controls"));
+    await waitFor(() => expect(screen.getByText("Open in new window")).toBeTruthy());
+    fireEvent.click(screen.getByText("Open in new window"));
+
+    expect(openSpy).toHaveBeenCalledTimes(1);
+    const [, target] = openSpy.mock.calls[0]!;
+    expect(target).toBe("_blank");
   });
 });
