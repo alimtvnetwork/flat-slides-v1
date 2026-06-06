@@ -170,7 +170,8 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
         runFullscreenShortcut(e);
         return;
       }
-      const target = e.target as HTMLElement | null;
+      const rawTarget = e.target;
+      const target = rawTarget instanceof Element ? (rawTarget as HTMLElement) : null;
       const tag = target?.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA" || target?.isContentEditable) return;
       const targetUsesNativeActivation = Boolean(target?.closest("button,a,select,[role='button'],[role='menuitem'],[role='slider']"));
