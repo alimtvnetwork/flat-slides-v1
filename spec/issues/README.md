@@ -22,7 +22,7 @@ criteria for one defect. Status is updated when the fix lands.
 | 015 | [`015-presenter-controller-settings-button-hidden-at-narrow-width.md`](./015-presenter-controller-settings-button-hidden-at-narrow-width.md) | Settings gear vanishes from controller pill below 1280 CSS px | fixed |
 | 016 | [`016-settings-drawer-zindex-blocked-by-controller-pill.md`](./016-settings-drawer-zindex-blocked-by-controller-pill.md) | SettingsDrawer can render under the controller pill on some routes | fixed |
 | 017 | [`017-scaled-slide-zero-height-when-parent-flex.md`](./017-scaled-slide-zero-height-when-parent-flex.md) | ScaledSlide renders 0 px tall inside flex parents that don’t set `min-height` | fixed |
-| 018 | [`018-stale-deck-after-hmr.md`](./018-stale-deck-after-hmr.md) | HMR after editing slide content sometimes shows the previous slide JSON | open |
+| 018 | [`018-stale-deck-after-hmr.md`](./018-stale-deck-after-hmr.md) | HMR after editing slide content sometimes shows the previous slide JSON | fixed |
 | 019 | [`019-annotations-not-cleared-between-decks.md`](./019-annotations-not-cleared-between-decks.md) | Annotations from a previous deck render on the new deck after import | fixed |
 | 020 | [`020-presenter-window-loses-deck-on-hard-refresh.md`](./020-presenter-window-loses-deck-on-hard-refresh.md) | Refreshing the popup presenter window resets to the default sample deck | fixed |
 | 021 | [`021-broadcastchannel-leak-on-route-change.md`](./021-broadcastchannel-leak-on-route-change.md) | BroadcastChannel listeners accumulate on each slide navigation | fixed |
