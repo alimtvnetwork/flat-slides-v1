@@ -243,6 +243,17 @@ export interface DeckMusic {
   volume?: number; // initial 0..1
 }
 
+export interface DeckRuntimeMeta {
+  chrome?: Record<string, unknown>;
+  annotations?: Record<string, unknown>;
+  webcam?: Record<string, unknown>;
+}
+
+export interface DeckMeta {
+  exportedAt?: string;
+  runtime?: DeckRuntimeMeta;
+}
+
 export interface Deck {
   id: string;
   title: string;
@@ -252,6 +263,8 @@ export interface Deck {
   settings: DeckSettings;
   /** Optional deck-level background music. Playback is presenter-local. */
   music?: DeckMusic;
+  /** Optional export metadata; runtime entries restore presenter-only state. */
+  meta?: DeckMeta;
   /** Schema version for migration. */
   version?: number;
 }
