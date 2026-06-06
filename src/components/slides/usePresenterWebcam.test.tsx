@@ -6,8 +6,12 @@ import {
   usePresenterWebcam,
   readStoredPos,
   readStoredSize,
+  readStoredFlag,
+  readStoredPlate,
   writeStoredPos,
   writeStoredSize,
+  writeStoredFlag,
+  writeStoredPlate,
   describeGetUserMediaError,
   clampPos,
   freeSizeFromWidth,
@@ -15,8 +19,14 @@ import {
   SIZE_STEPS,
   DEFAULT_POS,
   DEFAULT_SIZE,
+  DEFAULT_PLATE,
   SIZE_KEY,
   POS_KEY,
+  MIN_KEY,
+  HALO_KEY,
+  CIRCLE_KEY,
+  AUTOFRAME_KEY,
+  PLATE_KEY,
 } from "./usePresenterWebcam";
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
