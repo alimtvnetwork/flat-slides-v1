@@ -98,7 +98,7 @@ export const SHORTCUTS: ShortcutDef[] = [
   shortcut("export-annotations", "⌘⇧E", [], "Export annotations", "Annotate"),
   shortcut("toggle-lint", "⌘⇧L", [], "Toggle lint panel", "Presenter"),
   shortcut("toggle-notes", "N", ["n"], "Toggle presenter notes", "Presenter"),
-  shortcut("open-inspector", "I", ["i"], "Open presenter inspector (new window)", "Presenter"),
+  shortcut("open-inspector", "Shift+I", ["shift+i"], "Open presenter inspector (new window)", "Presenter"),
   shortcut("esc-close-panel", "Esc", [], "Close open panel or dialog", "Surfaces"),
   inspectorShortcut(
     "inspector-nav-prev",
