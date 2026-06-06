@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Camera, CameraOff, Circle, Crosshair, FlipHorizontal2, Maximize, PictureInPicture2, RectangleHorizontal, Shapes, Sparkles, X } from "lucide-react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { toast } from "sonner";
 
 import squircleMask from "@/assets/camera-2026/02-squircle-mask-black.png";
 import whitePlate from "@/assets/camera-2026/03-squircle-plate-white-shadow.png";
@@ -133,6 +134,34 @@ export function CameraBubble() {
     if (!camera.visible && status === "requesting") close();
   }, [camera.visible, status, start, hide, close]);
 
+  // Surface camera errors as a toast so users see why the bubble is empty
+  // (issue 005 follow-up #1). Without this, "denied" / "error" states are
+  // only visible inside the bubble — which the user usually can't see when
+  // permission was just denied.
+  const lastErrorRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!camera.visible) {
+      lastErrorRef.current = null;
+      return;
+    }
+    if (status === "denied") {
+      const key = "denied";
+      if (lastErrorRef.current === key) return;
+      lastErrorRef.current = key;
+      toast.error("Camera permission denied", {
+        description: "Allow camera access in your browser site settings, then toggle Show camera again.",
+        duration: 8000,
+      });
+    } else if (status === "error" && errorMessage) {
+      if (lastErrorRef.current === errorMessage) return;
+      lastErrorRef.current = errorMessage;
+      toast.error("Camera unavailable", { description: errorMessage, duration: 8000 });
+    } else if (status === "active") {
+      lastErrorRef.current = null;
+    }
+  }, [camera.visible, status, errorMessage]);
+
+
   // Camera keyboard shortcuts (active only when bubble is visible).
   // - Shift+Arrow: nudge by 16px
   // - "+" / "-": resize by 32px
@@ -203,7 +232,12 @@ export function CameraBubble() {
 
   // Respect "show only in fullscreen" preference.
   if (!camera.visible) return null;
-  if (camera.fullscreenOnly && !isFs) return null;
+  // `fullscreenOnly` is satisfied by native fullscreen OR a dedicated
+  // presenter popup (URL carries `?present=1`). The popup is at top level
+  // but not in native fullscreen — still an explicit "I'm presenting" mode.
+  const isPresenterPopup = typeof window !== "undefined"
+    && new URLSearchParams(window.location.search).get("present") === "1";
+  if (camera.fullscreenOnly && !isFs && !isPresenterPopup) return null;
 
   const dims = cameraDimensions(camera);
   const visualWidth = Math.round((stageFill ? CAMERA_STAGE.w : dims.w) * stageFrame.scale);

@@ -1,6 +1,6 @@
 # 005 — Camera bubble does not appear even when “Show camera” is enabled
 
-**Status:** in-progress (mount landed; permission-denied toast + fullscreen-only handling still pending)
+**Status:** fixed
 **Area:** CameraBubble + usePresenterWebcam
 
 ## Symptom
