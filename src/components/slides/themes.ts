@@ -88,13 +88,28 @@ export const DEFAULT_THEME_ID = "snow";
 const THEME_INDEX: Map<string | undefined, Theme> = new Map();
 for (const t of THEMES) THEME_INDEX.set(t.id, t);
 
+// Resolver for user-imported custom themes. Wired by customThemes.ts at
+// import time to keep this module free of cycles.
+let customThemesResolver: () => Theme[] = () => [];
+export function _registerCustomThemesResolver(fn: () => Theme[]): void {
+  customThemesResolver = fn;
+}
+
+/** Built-ins + user-imported custom themes. */
+export function getAllThemes(): Theme[] {
+  const extras = customThemesResolver();
+  return extras.length ? [...THEMES, ...extras] : THEMES;
+}
+
 export function getTheme(id: string | undefined): Theme {
-  return THEME_INDEX.get(id) ?? THEMES[0];
+  if (id && THEME_INDEX.has(id)) return THEME_INDEX.get(id)!;
+  const custom = customThemesResolver().find((t) => t.id === id);
+  return custom ?? THEMES[0];
 }
 
 /** Lightweight `{id, name}` list — for pickers/UI that doesn't need full colors. */
 export function listThemes(): Array<{ id: string; name: string }> {
-  return THEMES.map((t) => ({ id: t.id, name: t.name }));
+  return getAllThemes().map((t) => ({ id: t.id, name: t.name }));
 }
 
 /** Relative perceived brightness 0..1 from a #rrggbb / #rgb hex. */
