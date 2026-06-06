@@ -2,6 +2,11 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.66.0 — 2026-06-06
+
+### Docs
+- **Plan 06 Phase A Steps 2 + 3 (RCA + font-link audit).** Issue 05 root cause confirmed and recorded at `.lovable/memory/diagnostics/06-issue-05-ubuntu-rca.md`: `.slide-title` (`src/styles.css:248`), `.slide-subtitle` (`:249`), and `.slide-kicker` (`:253`) omit `font-family`, so they inherit `var(--slide-font-body)` (Poppins) from `.slide-content` (`:223`). Only `.slide-title-lg` (`:247`) and `.slide-heading` (`:244`) set `var(--slide-font-heading)` (Ubuntu). Bug is shared CSS, not per-type rendering — `src/components/slides/types/` does not exist. Step 3 confirmed `src/routes/__root.tsx:101` loads Ubuntu `400;500;700` (sufficient for `font-weight: 700`); no italic weights loaded (only matters if a future spec needs italic headings). Phase B Step 21 fix is now a one-declaration-per-rule CSS change.
+
 ## 1.65.0 — 2026-06-06
 
 ### Docs

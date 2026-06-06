@@ -1,6 +1,6 @@
 # Prompt Registry
 
-Latest: `46-next-task.md` (Plan 06 Phase A Step 1 landed — all four command files / issue 05 / three sample images / four SS-0x subtasks confirmed present; 5 open questions appended to plan 06 Context).
+Latest: `47-next-task.md` (Plan 06 Phase A Steps 2+3 landed — issue 05 RCA at `src/styles.css:248-253` recorded in `.lovable/memory/diagnostics/06-issue-05-ubuntu-rca.md`; Ubuntu `<link>` weights 400/500/700 confirmed sufficient).
 
 | ID  | File                          | Title         | Trigger phrases                                            | Purpose                                  |
 | --- | ----------------------------- | ------------- | ---------------------------------------------------------- | ---------------------------------------- |
