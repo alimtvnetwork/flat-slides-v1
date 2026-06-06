@@ -1,6 +1,6 @@
 # Prompt Registry
 
-Latest: `45-next-task.md` (Plan step 10 partial: issue 001 closed, 002 updated to reflect AnimatePresence removal in StepsSlide — needs-live-repro).
+Latest: `46-next-task.md` (Plan 06 Phase A Step 1 landed — all four command files / issue 05 / three sample images / four SS-0x subtasks confirmed present; 5 open questions appended to plan 06 Context).
 
 | ID  | File                          | Title         | Trigger phrases                                            | Purpose                                  |
 | --- | ----------------------------- | ------------- | ---------------------------------------------------------- | ---------------------------------------- |
