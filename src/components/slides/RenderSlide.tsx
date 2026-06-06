@@ -173,6 +173,83 @@ function useStepJump(slide: Slide) {
   };
 }
 
+type StepPhase = "completed" | "active" | "future";
+
+const INK_SHADOW = "rgb(0 0 0) 1px 0.7px 0px";
+
+function stepPhase(index: number, focus: number): StepPhase {
+  if (index < focus) return "completed";
+  if (index === focus) return "active";
+  return "future";
+}
+
+function stepRowStyle(phase: StepPhase): CSSProperties {
+  const active = phase === "active";
+  return {
+    opacity: active ? 1 : phase === "completed" ? 0.54 : 0.42,
+    filter: phase === "future" ? "blur(1.25px)" : "none",
+    transform: active ? "translateX(12px)" : "translateX(0)",
+    transition: "opacity 260ms ease, transform 260ms ease, filter 260ms ease, color 260ms ease",
+    color: active ? "var(--slide-fg)" : "color-mix(in oklab, var(--slide-fg) 82%, transparent)",
+  };
+}
+
+function stepNumberStyle(phase: StepPhase): CSSProperties {
+  const active = phase === "active";
+  return {
+    color: active ? "var(--slide-hl)" : "color-mix(in oklab, var(--slide-fg) 72%, transparent)",
+    fontWeight: 700,
+    minWidth: 72,
+    textShadow: active ? INK_SHADOW : "var(--slide-text-shadow)",
+  };
+}
+
+function StepDetailContent({ step }: { step?: StepItem }) {
+  return (
+    <>
+      <div className="slide-kicker slide-heading mb-[22px]" style={{ color: "var(--slide-hl)", textShadow: INK_SHADOW }}>
+        {step?.label ?? ""}
+      </div>
+      <div
+        className="slide-heading"
+        style={{ color: "var(--slide-fg)", fontSize: 72, lineHeight: 1.05, letterSpacing: 0, textWrap: "balance", overflowWrap: "anywhere" }}
+      >
+        {step?.title ?? ""}
+      </div>
+      {step?.detail ? (
+        <div className="slide-body slide-body-font mx-auto mt-[30px]" style={{ color: "var(--slide-fg)", maxWidth: 700 }}>
+          <Rich value={step.detail} />
+        </div>
+      ) : null}
+    </>
+  );
+}
+
+function StepDetailPane({ focus, focused, reducedMotion }: { focus: number; focused?: StepItem; reducedMotion: boolean }) {
+  const [displayed, setDisplayed] = useState({ focus, step: focused });
+  const [exiting, setExiting] = useState<typeof displayed | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (displayed.focus === focus) return;
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setExiting(reducedMotion ? null : displayed);
+    setDisplayed({ focus, step: focused });
+    timeoutRef.current = setTimeout(() => setExiting(null), reducedMotion ? 0 : 240);
+    return () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); };
+  }, [displayed, focus, focused, reducedMotion]);
+
+  return (
+    <motion.div data-testid="step-detail-pane" style={{ position: "absolute", top: "50%", left: "50%", x: "-50%", y: "-50%", width: "100%", maxWidth: 700, overflowWrap: "break-word" }}>
+      <StepDetailContent step={displayed.step} />
+      {exiting ? (
+        <motion.div data-testid="step-detail-exit" initial={{ opacity: 1, y: 0 }} animate={{ opacity: 0, y: reducedMotion ? 0 : -8 }} transition={{ duration: reducedMotion ? 0 : 0.22, ease: "easeOut" }} style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
+          <StepDetailContent step={exiting.step} />
+        </motion.div>
+      ) : null}
+    </motion.div>
+  );
+}
+
 function StepsSlide({ slide, step }: { slide: StepsSlideProps; step: number }) {
   const focus = Math.max(0, Math.min(step, slide.steps.length - 1));
   const focused = slide.steps[focus];
