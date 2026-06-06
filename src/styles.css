@@ -204,8 +204,8 @@
   background-color: var(--slide-content-bg, var(--slide-bg));
   text-shadow: var(--slide-text-shadow);
 
-  --slide-title-lg: 240px;
-  --slide-title: 150px;
+  --slide-title-lg: 210px;
+  --slide-title: 142px;
   --slide-subtitle: 64px;
   --slide-body-lg: 48px;
   --slide-body: 38px;
@@ -214,13 +214,13 @@
   --slide-chrome: 26px;
 }
 
-.slide-display  { font-family: var(--slide-font-display); font-weight: 700; }
+.slide-display  { font-family: var(--slide-font-display); font-weight: 500; }
 .slide-heading  { font-family: var(--slide-font-heading); font-weight: 700; }
 .slide-body-font { font-family: var(--slide-font-body); }
 
-.slide-title-lg { font-size: var(--slide-title-lg); line-height: 1.0;  letter-spacing: -0.04em; font-weight: 700; }
-.slide-title    { font-size: var(--slide-title);    line-height: 1.05; letter-spacing: -0.03em; font-weight: 700; }
-.slide-subtitle { font-size: var(--slide-subtitle); line-height: 1.15; letter-spacing: -0.02em; font-weight: 700; }
+.slide-title-lg { font-size: var(--slide-title-lg); line-height: 1.0;  letter-spacing: 0; font-weight: 500; }
+.slide-title    { font-size: var(--slide-title);    line-height: 1.05; letter-spacing: 0; font-weight: 700; }
+.slide-subtitle { font-size: var(--slide-subtitle); line-height: 1.15; letter-spacing: 0; font-weight: 700; }
 .slide-body-lg  { font-size: var(--slide-body-lg);  line-height: 1.22; }
 .slide-body     { font-size: var(--slide-body);     line-height: 1.3; }
 .slide-caption  { font-size: var(--slide-caption);  line-height: 1.25; }
