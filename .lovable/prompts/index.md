@@ -1,6 +1,6 @@
 # Prompt Registry
 
-Latest: `24-next-task.md` (plan 06 — re-pinned next 3 with fresh code signal: `.slide-display` Poppins/400 vs `.slide-heading` Ubuntu/700 in `src/styles.css:226-227` is likely Ubuntu regression root cause).
+Latest: `25-next-task.md` (Ubuntu Bold fix SHIPPED on hero title; next 3 = close plan 05 SS-02, plan 06 Phase A steps 4–10, then Phase A 11–20 + computed-style snapshot).
 
 | ID  | File                          | Title         | Trigger phrases                                            | Purpose                                  |
 | --- | ----------------------------- | ------------- | ---------------------------------------------------------- | ---------------------------------------- |
