@@ -24,6 +24,7 @@ type FullscreenFailureOptions = { fallbackUrl?: string };
 const POPUP_BLOCKED_REASON = "embedded-popup-blocked";
 const POPUP_BLOCKED_MESSAGE = "Allow pop-ups to open presenter view";
 const FULLSCREEN_BLOCKED_MESSAGE = "Fullscreen blocked by browser";
+const SLIDES_FULLSCREEN_STATE_EVENT = "slides:fullscreen-state";
 
 export function isEmbeddedWindow() {
   if (typeof window === "undefined") return false;
@@ -101,6 +102,11 @@ function blurActiveElement() {
   requestAnimationFrame(blur);
 }
 
+function notifyFullscreenStateChanged() {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new Event(SLIDES_FULLSCREEN_STATE_EVENT));
+}
+
 /** Tracks whether the document is currently in Fullscreen mode and provides toggles. */
 export async function enterFullscreen(target?: HTMLElement | null, environment: FullscreenEnvironment = {}): Promise<FullscreenEnterResult> {
   if (typeof document === "undefined") return { ok: false, reason: "unsupported" };
@@ -134,6 +140,7 @@ export async function enterFullscreen(target?: HTMLElement | null, environment: 
     await fullscreenTarget.requestFullscreen();
     await lockEscapeKey();
     blurActiveElement();
+    notifyFullscreenStateChanged();
     return { ok: true, mode: "native" };
   } catch (error) {
     return { ok: false, reason: "native-failed", error };
@@ -171,9 +178,11 @@ export function useFullscreen() {
       };
       document.addEventListener("fullscreenchange", sync);
       document.addEventListener("visibilitychange", sync);
+      window.addEventListener(SLIDES_FULLSCREEN_STATE_EVENT, sync);
       return () => {
         document.removeEventListener("fullscreenchange", sync);
         document.removeEventListener("visibilitychange", sync);
+        window.removeEventListener(SLIDES_FULLSCREEN_STATE_EVENT, sync);
       };
     },
     () => (typeof document === "undefined" ? false : Boolean(document.fullscreenElement)),
@@ -190,6 +199,7 @@ export function useFullscreen() {
       if (document.fullscreenElement) await document.exitFullscreen();
       unlockEscapeKey();
       blurActiveElement();
+      notifyFullscreenStateChanged();
     } catch { /* ignore */ }
   };
   const toggle = (target?: HTMLElement | null) => (document.fullscreenElement ? exit() : enter(target));

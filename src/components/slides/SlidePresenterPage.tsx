@@ -164,6 +164,12 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
 
   keyHandlerRef.current = (e: KeyboardEvent) => {
       if (!slide) return;
+      if (isPresenterFullscreenShortcut(e)) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        void toggleFs();
+        return;
+      }
       const target = e.target as HTMLElement | null;
       const tag = target?.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA" || target?.isContentEditable) return;
@@ -468,4 +474,9 @@ function isHiddenPresenterChromeShortcut(event: KeyboardEvent) {
     return true;
   }
   return false;
+}
+
+export function isPresenterFullscreenShortcut(event: KeyboardEvent) {
+  if (event.metaKey || event.ctrlKey || event.altKey) return false;
+  return event.key.toLowerCase() === "f" || event.key === "F5" || event.code === "F5";
 }
