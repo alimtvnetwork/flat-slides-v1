@@ -17,6 +17,13 @@ interface Props {
 export function CameraStage({ slide, step = 1, children }: Props) {
   const reducedMotion = useReducedMotion();
   const focus = slide ? getActiveFocusRegion(slide, step) : null;
+  // Issue 024: surface the silent "no zoom" case when an author wrote a focus
+  // array but no region matches the active step.
+  if (slide?.focus?.length && !focus && import.meta.env?.DEV) {
+    console.warn(
+      `[CameraStage] slide "${slide.id}" has focus regions but none match step ${step}; rendering identity transform.`,
+    );
+  }
   const frame = focus ? focusTransform(focus) : IDENTITY_FRAME;
   const cameraKey = focus
     ? `${slide?.id ?? "none"}:${step}:${focus.x}:${focus.y}:${focus.w}:${focus.h}`
@@ -24,6 +31,7 @@ export function CameraStage({ slide, step = 1, children }: Props) {
   const [cameraFrame, setCameraFrame] = useState({ key: cameraKey, transform: IDENTITY_FRAME.transform });
   const transform = cameraFrame.key === cameraKey ? cameraFrame.transform : IDENTITY_FRAME.transform;
   const duration = Math.max(0, Math.min(focus?.duration ?? 700, 1200));
+
 
   useEffect(() => {
     if (reducedMotion) {

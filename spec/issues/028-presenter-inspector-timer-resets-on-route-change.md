@@ -24,3 +24,5 @@ Timer state stored in component-local `useState`; persistence file exists but re
 ## Status log
 
 - 2026-06-06 — opened. RCA + fix plan ready. No code changes yet (per user request — fixes deferred).
+
+- 2026-06-06 — **fixed**. Verified the timer state already lives in the module-level Zustand `useChrome` slice with `ensureInspectorTimerStarted` as a no-op when `startedAt !== null`, and `readPersistedInspectorStartedAt` restores it from `riseup.inspector.startedAt` on cold mount. Added `src/components/slides/inspectorTimer.routeChange.test.tsx` to lock the survival contract across hook unmount/remount and hard refresh (2/2 green).
