@@ -427,11 +427,10 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
         </div>
         {surfaces}
       </SlideStageShell>
-      {/* Step 11 — controller/launcher coexistence: on the deck-home surface
-          (`/slides/1`, no step, non-fullscreen) the DeckLauncher owns the
-          bottom-center chrome. Keep ControllerPill mounted in fullscreen so
-          the presenter still has a visible minimize/fullscreen control. */}
-      {!(current === 1 && !isStepRoute && !isFs) && controller}
+      {/* Controller pill is always mounted (default anchor: top-right) so the
+          presenter has a visible fullscreen/help/settings control on every
+          slide, including the deck-home surface. */}
+      {controller}
       <PresenterToast />
       <PresenterFallbackLink />
       <PresenterAutoStart />
