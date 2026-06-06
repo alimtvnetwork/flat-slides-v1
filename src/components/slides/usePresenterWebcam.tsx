@@ -418,7 +418,21 @@ export function PresenterWebcamProvider({ children }: { children: ReactNode }) {
     );
   }, []);
 
-  const computedSize = useMemo(() => resolveSize(sizeCfg), [sizeCfg]);
+  const computedSize = useMemo(
+    () => (minimized ? { w: MINI_W, h: MINI_H } : resolveSize(sizeCfg)),
+    [minimized, sizeCfg],
+  );
+  const sizeStep = useMemo<SizeStep | null>(
+    () => (minimized || sizeCfg.kind !== "step" ? null : sizeCfg.id),
+    [minimized, sizeCfg],
+  );
+
+  const toggleMinimized = useCallback(() => {
+    setMinimizedState((v) => {
+      writeStoredFlag(MIN_KEY, !v);
+      return !v;
+    });
+  }, []);
 
   // Re-clamp position whenever the size shrinks/grows so the bubble can't drift off-stage.
   useEffect(() => {
