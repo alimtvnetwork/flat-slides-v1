@@ -46,4 +46,25 @@ describe("DotPagination keyboard nav", () => {
     fireEvent.keyDown(buttons[0], { key: "ArrowLeft" });
     expect(document.activeElement).toBe(buttons[0]);
   });
+
+  it("compacts long decks with ellipsis slots", () => {
+    const slides = makeSlides(20);
+    const { getAllByRole, queryByRole } = render(
+      <DotPagination current={10} total={20} slides={slides} onJump={vi.fn()} />,
+    );
+
+    expect(getAllByRole("button").map((button) => button.textContent)).toEqual([
+      "1",
+      "…",
+      "8",
+      "9",
+      "10",
+      "11",
+      "12",
+      "…",
+      "20",
+    ]);
+    expect(queryByRole("button", { name: "Slide 2: S2" })).toBeNull();
+    expect(queryByRole("button", { name: "Slides 2 to 7" })).not.toBeNull();
+  });
 });

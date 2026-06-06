@@ -1,6 +1,6 @@
 # Prompt Registry
 
-Latest: `55-next-task.md` (Plan 06 Phase A Step 8 — first per-type stub batch 02–05; next 3 steps: pagination UI wiring, indicator wiring, threshold control).
+Latest: `56-next-task.md` (Plan 06 Phase C Step 28 — bottom dot pagination ellipsis wiring; next 3 steps: top indicator wiring, threshold control, GoToInput popover).
 
 | ID  | File                          | Title         | Trigger phrases                                            | Purpose                                  |
 | --- | ----------------------------- | ------------- | ---------------------------------------------------------- | ---------------------------------------- |

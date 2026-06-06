@@ -2,6 +2,11 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.75.0 — 2026-06-06
+
+### Added
+- **Plan 06 Phase C Step 28 (bottom dot pagination ellipsis wiring).** `src/components/slides/controls/DotPagination.tsx` now consumes the verified `buildPaginationSlots(current, total, 15)` model instead of rendering `Array.from({ length: total })`, and renders focusable ellipsis buttons with the required range labels (for example `Slides 2 to 7`). Added a rendered UI regression in `DotPagination.test.tsx`; before the fix it failed by rendering all `1..20`, after the fix `bunx vitest run src/components/slides/controls/DotPagination.test.tsx src/components/slides/controls/pagination.test.ts` passes 12/12. Prompt 56 registered.
+
 ## 1.74.0 — 2026-06-06
 
 ### Docs
