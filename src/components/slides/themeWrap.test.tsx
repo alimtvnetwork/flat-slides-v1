@@ -56,8 +56,16 @@ describe("ThemeWrap background pipeline", () => {
 
     const root = container.firstElementChild as HTMLElement;
     expect(root.style.getPropertyValue("--slide-bg")).toBe("#0a0a0a");
-    expect(root.style.getPropertyValue("--slide-fg")).toBe("#fafafa");
+    expect(root.style.getPropertyValue("--slide-fg")).toBe("#ffffff");
     expect(root.style.getPropertyValue("--slide-text-shadow")).toBe("none");
+  });
+
+  it("uses true white as the default midnight foreground", () => {
+    act(() => useDeck.getState().setSettings({ backgroundMode: "color", backgroundColor: "#101010" }));
+    const { container } = render(<RenderSlide slide={{ ...SLIDE, themeId: "midnight" }} />);
+
+    const root = container.firstElementChild as HTMLElement;
+    expect(root.style.getPropertyValue("--slide-fg")).toBe("#ffffff");
   });
 
   it("renders a darken overlay above the bg layer with opacity = darken/100", () => {

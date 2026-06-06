@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "motion/react";
-import type { CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 
 import { Rich } from "./Rich";
 import { SlideLayout } from "./SlideLayout";
@@ -30,6 +30,7 @@ import type {
   LeftSlideProps,
   QuoteSlideProps,
   Slide,
+  StepItem,
   StepsSlideProps,
   TextPosition,
   TimelineSlideProps,
@@ -172,6 +173,90 @@ function useStepJump(slide: Slide) {
   };
 }
 
+type StepPhase = "completed" | "active" | "future";
+
+const INK_SHADOW = "rgb(0 0 0) 1px 0.7px 0px";
+
+function stepPhase(index: number, focus: number): StepPhase {
+  if (index < focus) return "completed";
+  if (index === focus) return "active";
+  return "future";
+}
+
+function stepRowStyle(phase: StepPhase): CSSProperties {
+  const active = phase === "active";
+  return {
+    opacity: active ? 1 : phase === "completed" ? 0.54 : 0.42,
+    filter: phase === "future" ? "blur(1.25px)" : "none",
+    transform: active ? "translateX(12px)" : "translateX(0)",
+    transition: "opacity 260ms ease, transform 260ms ease, filter 260ms ease, color 260ms ease",
+    color: active ? "var(--slide-fg)" : "color-mix(in oklab, var(--slide-fg) 82%, transparent)",
+  };
+}
+
+function stepNumberStyle(phase: StepPhase): CSSProperties {
+  const active = phase === "active";
+  return {
+    color: active ? "var(--slide-hl)" : "color-mix(in oklab, var(--slide-fg) 72%, transparent)",
+    fontWeight: 700,
+    minWidth: 72,
+    textShadow: active ? INK_SHADOW : "var(--slide-text-shadow)",
+  };
+}
+
+function StepDetailContent({ step }: { step?: StepItem }) {
+  return (
+    <>
+      <div className="slide-kicker slide-heading mb-[22px]" style={{ color: "var(--slide-hl)", textShadow: INK_SHADOW }}>
+        {step?.label ?? ""}
+      </div>
+      <div
+        className="slide-heading"
+        style={{ color: "var(--slide-fg)", fontSize: 72, lineHeight: 1.05, letterSpacing: 0, textWrap: "balance", overflowWrap: "anywhere" }}
+      >
+        {step?.title ?? ""}
+      </div>
+      {step?.detail ? (
+        <div className="slide-body slide-body-font mx-auto mt-[30px]" style={{ color: "var(--slide-fg)", maxWidth: 700 }}>
+          <Rich value={step.detail} />
+        </div>
+      ) : null}
+    </>
+  );
+}
+
+function StepDetailPane({ focus, focused, reducedMotion }: { focus: number; focused?: StepItem; reducedMotion: boolean }) {
+  const [displayed, setDisplayed] = useState({ focus, step: focused });
+  const [exiting, setExiting] = useState<typeof displayed | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const displayedRef = useRef(displayed);
+  useEffect(() => {
+    displayedRef.current = displayed;
+  }, [displayed]);
+  useEffect(() => {
+    const current = displayedRef.current;
+    if (current.focus === focus) return;
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setExiting(reducedMotion ? null : current);
+    const nextDisplayed = { focus, step: focused };
+    displayedRef.current = nextDisplayed;
+    setDisplayed(nextDisplayed);
+    timeoutRef.current = setTimeout(() => setExiting(null), reducedMotion ? 0 : 240);
+  }, [focus, focused, reducedMotion]);
+  useEffect(() => () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); }, []);
+
+  return (
+    <motion.div data-testid="step-detail-pane" style={{ position: "absolute", top: "50%", left: "50%", x: "-50%", y: "-50%", width: "100%", maxWidth: 700, overflowWrap: "break-word" }}>
+      <StepDetailContent step={displayed.step} />
+      {exiting ? (
+        <motion.div data-testid="step-detail-exit" initial={{ opacity: 1, y: 0 }} animate={{ opacity: 0, y: reducedMotion ? 0 : -8 }} transition={{ duration: reducedMotion ? 0 : 0.22, ease: "easeOut" }} style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
+          <StepDetailContent step={exiting.step} />
+        </motion.div>
+      ) : null}
+    </motion.div>
+  );
+}
+
 function StepsSlide({ slide, step }: { slide: StepsSlideProps; step: number }) {
   const focus = Math.max(0, Math.min(step, slide.steps.length - 1));
   const focused = slide.steps[focus];
@@ -183,13 +268,13 @@ function StepsSlide({ slide, step }: { slide: StepsSlideProps; step: number }) {
         <div className="min-w-0">
         <h2
           className="slide-heading slide-subtitle mb-[52px]"
-          style={{ color: "var(--slide-muted)" }}
+          style={{ color: "var(--slide-fg)" }}
         >
           {slide.heading}
         </h2>
         <ol className="flex flex-col gap-[24px]">
           {slide.steps.map((s, i) => {
-            const isFocus = i === focus;
+            const phase = stepPhase(i, focus);
             return (
               <li
                 key={i}
@@ -198,22 +283,18 @@ function StepsSlide({ slide, step }: { slide: StepsSlideProps; step: number }) {
                 onClick={() => jumpToStep(i)}
                 onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); jumpToStep(i); } }}
                 className="slide-body slide-body-font flex items-start gap-[24px] cursor-pointer rounded-[14px] px-[12px] py-[8px] -mx-[12px] -my-[8px] outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--slide-hl)]"
-                style={{
-                  opacity: isFocus ? 1 : 0.68,
-                  transform: isFocus ? "translateX(12px)" : "translateX(0)",
-                  transition: "opacity 350ms ease, transform 350ms ease, color 350ms ease",
-                  color: isFocus ? "var(--slide-fg)" : "color-mix(in oklab, var(--slide-fg) 64%, var(--slide-muted))",
-                }}
+                data-step-phase={phase}
+                style={stepRowStyle(phase)}
               >
                 <span
                   className="slide-heading"
-                  style={{ color: isFocus ? "var(--slide-hl)" : "color-mix(in oklab, var(--slide-fg) 54%, var(--slide-muted))", fontWeight: 700, minWidth: 72 }}
+                  style={stepNumberStyle(phase)}
                 >
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <span>
                   <span className="block slide-caption" style={{ color: "inherit" }}>{s.label}</span>
-                  {s.title ? <span className="block" style={{ fontWeight: isFocus ? 700 : 500 }}>{s.title}</span> : null}
+                  {s.title ? <span className="block" style={{ fontWeight: phase === "active" ? 700 : 500 }}>{s.title}</span> : null}
                 </span>
               </li>
             );
@@ -221,51 +302,7 @@ function StepsSlide({ slide, step }: { slide: StepsSlideProps; step: number }) {
         </ol>
         </div>
         <div className="min-w-0 relative flex items-center justify-center text-center" style={{ minHeight: 360 }}>
-          <AnimatePresence initial={false} mode="wait">
-            <motion.div
-              key={focus}
-              data-testid="step-detail-pane"
-              initial={{ opacity: 0, y: reducedMotion ? 0 : 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: reducedMotion ? 0 : -8 }}
-              transition={{
-                opacity: { duration: reducedMotion ? 0 : 0.18, ease: "easeOut" },
-                y: { duration: reducedMotion ? 0 : 0.22, ease: "easeOut" },
-              }}
-              style={{
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                x: "-50%",
-                y: "-50%",
-                width: "100%",
-                maxWidth: 700,
-                overflowWrap: "break-word",
-              }}
-            >
-              <div className="slide-kicker slide-heading mb-[22px]" style={{ color: "var(--slide-hl)" }}>
-                {focused?.label ?? ""}
-              </div>
-              <div
-                className="slide-heading"
-                style={{
-                  color: "var(--slide-fg)",
-                  fontSize: 72,
-                  lineHeight: 1.05,
-                  letterSpacing: 0,
-                  textWrap: "balance",
-                  overflowWrap: "anywhere",
-                }}
-              >
-                {focused?.title ?? ""}
-              </div>
-              {focused?.detail ? (
-                <div className="slide-body slide-body-font mx-auto mt-[30px]" style={{ color: "var(--slide-muted)", maxWidth: 700 }}>
-                  <Rich value={focused.detail} />
-                </div>
-              ) : null}
-            </motion.div>
-          </AnimatePresence>
+          <StepDetailPane focus={focus} focused={focused} reducedMotion={reducedMotion} />
         </div>
       </div>
       <div

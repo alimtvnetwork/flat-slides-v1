@@ -36,9 +36,19 @@ describe("steps slide transition (issue 002)", () => {
 
     rerender(<RenderSlide slide={stepsSlide} step={1} />);
     const paneAtStep1 = screen.getByTestId("step-detail-pane");
+    expect(paneAtStep1).toBe(paneAtStep0);
     expect(paneAtStep1).toBeTruthy();
     const transform1 = paneAtStep1.style.transform ?? "";
     expect(transform1).not.toMatch(/scale\(/);
+  });
+
+  it("marks completed, active, and future steps with distinct emphasis", () => {
+    const { container } = render(<RenderSlide slide={stepsSlide} step={1} />);
+    const rows = Array.from(container.querySelectorAll<HTMLElement>("[data-step-phase]"));
+    expect(rows.map((row) => row.dataset.stepPhase)).toEqual(["completed", "active", "future"]);
+    expect(rows[0].style.opacity).toBe("0.54");
+    expect(rows[1].style.opacity).toBe("1");
+    expect(rows[2].style.filter).toBe("blur(1.25px)");
   });
 
   it("keeps the slide background layer mounted across step changes", () => {
