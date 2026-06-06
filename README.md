@@ -7,8 +7,27 @@ A presentation engine where every deck is a JSON file. Three themes,
 six slide layouts, four transitions, full keyboard navigation,
 and import/export at both deck and single-slide granularity.
 
-Any LLM can author a deck — feed it `slides/README-LLM.md` and a
-topic, drop the output into **Settings → Import deck**.
+Any LLM can author a deck — feed it the guides below and a topic, then drop
+the output into **Settings → Import / Export → Import deck**.
+
+## Authoring guides for LLMs
+
+These two files are the canonical contracts. Pass them to ChatGPT / Claude /
+Gemini and the model can produce a working deck or theme **in one shot, in
+a single file** — no follow-ups, no multi-file output:
+
+- [`docs/slides/spec/llm-json-guideline.md`](./docs/slides/spec/llm-json-guideline.md) —
+  **Deck JSON.** A deck is **one file**: emit the entire deck (root +
+  settings + every slide) as a single JSON document. Never split slides
+  across files. Sample: [`docs/slides/spec/sample-deck.json`](./docs/slides/spec/sample-deck.json).
+- [`docs/slides/spec/theme-json-guideline.md`](./docs/slides/spec/theme-json-guideline.md) —
+  **Theme JSON.** A single theme is one object; a batch is
+  `{ "themes": [...] }`. Both shapes round-trip through Settings →
+  Theme → Import / Export.
+
+The drawer's **LLM guide → Download guide (.zip)** button bundles both into
+`glasswing-llm-guide.zip` for handing off to a model.
+
 
 ---
 
