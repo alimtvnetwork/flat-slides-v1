@@ -24,3 +24,5 @@ JSON that contains `<mark>` markup is rendered as plain text after import.
 ## Status log
 
 - 2026-06-06 — opened. RCA + fix plan ready. No code changes yet (per user request — fixes deferred).
+
+- 2026-06-06 — `expandMarkHighlights` added in `src/lib/slides/io.ts` (transforms `<mark>` segments before Zod). Locked with `src/lib/slides/io-mark-highlights.test.ts`. Status → fixed.
