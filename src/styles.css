@@ -696,3 +696,19 @@ html:fullscreen #main-content {
 [data-slide-presenter-root][data-cursor-hidden="true"] * {
   cursor: none !important;
 }
+
+/* Presenter webcam tray (Phase B step 7) */
+.cam-tray-pulse {
+  animation: cam-ember-pulse 2.2s ease-in-out infinite;
+}
+.cam-tray-pulse:hover .cam-tray-fan,
+.cam-tray-pulse:focus-visible .cam-tray-fan {
+  display: inline-flex !important;
+}
+@keyframes cam-ember-pulse {
+  0%, 100% { box-shadow: 0 0 0 2px hsl(var(--background) / 0.6), 0 0 18px hsl(var(--gold) / 0.4); }
+  50%      { box-shadow: 0 0 0 2px hsl(var(--background) / 0.6), 0 0 30px hsl(var(--gold) / 0.75); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cam-tray-pulse { animation: none; }
+}
