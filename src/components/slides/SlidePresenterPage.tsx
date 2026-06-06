@@ -171,7 +171,7 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
         return;
       }
       const rawTarget = e.target;
-      const target = rawTarget instanceof Element ? (rawTarget as HTMLElement) : null;
+      const target = resolveKeyEventElement(rawTarget);
       const tag = target?.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA" || target?.isContentEditable) return;
       const targetUsesNativeActivation = Boolean(target?.closest("button,a,select,[role='button'],[role='menuitem'],[role='slider']"));
@@ -498,4 +498,14 @@ function isHiddenPresenterChromeShortcut(event: KeyboardEvent) {
 export function isPresenterFullscreenShortcut(event: KeyboardEvent) {
   if (event.metaKey || event.ctrlKey || event.altKey) return false;
   return event.key.toLowerCase() === "f" || event.code === "KeyF" || event.key === "F5" || event.code === "F5";
+}
+
+/**
+ * Guard for `event.target`: keydown events bubbling to window/document set
+ * `target` to the Document (no `.closest`). Returning null in that case lets
+ * the handler skip element-only checks instead of crashing with a TypeError
+ * that aborts every registry-driven shortcut (I, M, T, G, J, ...).
+ */
+export function resolveKeyEventElement(target: EventTarget | null): HTMLElement | null {
+  return target instanceof Element ? (target as HTMLElement) : null;
 }
