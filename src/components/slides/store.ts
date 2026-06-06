@@ -4,6 +4,7 @@ import { persist } from "zustand/middleware";
 import { DeckSchema } from "@/lib/slides/schema";
 import { DECK_SCHEMA_VERSION } from "@/lib/slides/version";
 
+import { useAnnotations } from "./annotations-store";
 import { useChrome } from "./chrome-store";
 import { getDefaultDeckSettings, persistDeckSettings, readPersistedDeckSettings, resetPersistedDeckSettings } from "./settingsPersistence";
 import { emitSlidesEvent } from "./telemetry";
@@ -217,13 +218,21 @@ export const useDeck = create<DeckStore>()(
         set(() => {
           const safeDeck = forceFadeTransition(deck);
           persistDeckSettings(safeDeck.settings);
+          // Clear stale annotations and last-visited slide id so the new
+          // deck does not inherit ink from the previous deck and the route
+          // can resolve `/slides/1` cleanly (see issue 010).
+          try { useAnnotations.getState().clearAll(); } catch { /* noop */ }
           emitSlidesEvent({
             type: "deck-load",
             slideCount: safeDeck.slides.length,
             deckId: safeDeck.id,
             title: safeDeck.title,
           });
-          return { deck: safeDeck, themeId: safeDeck.themeId ?? DEFAULT_THEME_ID };
+          return {
+            deck: safeDeck,
+            themeId: safeDeck.themeId ?? DEFAULT_THEME_ID,
+            lastVisitedSlideId: safeDeck.slides[0]?.id,
+          };
         }),
       addSlide: (slide, index) =>
         set((s) => {

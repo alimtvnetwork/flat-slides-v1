@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeftRight,
   Download,
@@ -69,6 +69,11 @@ export function SettingsDrawer({
   const cycleCameraAnchor = useChrome((s) => s.cycleCameraAnchor);
   const cycleCameraShape = useChrome((s) => s.cycleCameraShape);
   const fileRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
+  const goToFirstSlide = () => {
+    try { void navigate({ to: "/slides/$slideId", params: { slideId: "1" } }); }
+    catch { /* router may not be mounted in tests */ }
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -84,6 +89,7 @@ export function SettingsDrawer({
     const r = parseDeckJson(text);
     if (!r.ok) return toast.error(`Import failed:\n${r.error}`, { duration: 8000 });
     setDeck(r.value);
+    goToFirstSlide();
     toast.success(`Imported deck "${r.value.title}" (${r.value.slides.length} slides)`);
   };
 
@@ -100,6 +106,7 @@ export function SettingsDrawer({
     const r = parseDeckJson(sampleDeckJson);
     if (!r.ok) return toast.error(`Spec sample failed to parse:\n${r.error}`, { duration: 8000 });
     setDeck(r.value);
+    goToFirstSlide();
     toast.success(`Loaded spec sample deck (${r.value.slides.length} slides)`);
   };
 

@@ -1,6 +1,6 @@
 # 032 — Import deck accepts `.txt`, `.png`, anything — fails late with cryptic JSON error
 
-**Status:** open
+**Status:** fixed
 **Area:** pickJsonFile
 
 ## Symptom
