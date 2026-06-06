@@ -2,6 +2,18 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.25.0 — 2026-06-06
+
+### Tests
+- **Regression lock for keydown target-guard.** Extracted `resolveKeyEventElement()` (exported from `SlidePresenterPage.tsx`) and added two tests in `SlidePresenterPage.keyboard.test.ts` proving Document/Window/null targets resolve to `null` (so `.closest` is never called on them) and real Elements pass through. This prevents the silent TypeError that killed `I`, `M`, `T`, `G`, `J` ever returning.
+
+### Closed
+- Plan `03-text-shadow-shortcuts-fix` moved to `.lovable/plans/completed/` with `Status: completed`. Text-shadow on dark preset (1.23.0) + registry-driven shortcut restoration (1.24.0) + regression lock (this release) close out the plan.
+
+### Verification
+- `bunx vitest run SlidePresenterPage.keyboard.test.ts presenterActions.test.ts themeWrap.test.tsx` → **18/18 passed** (4 keyboard + 8 presenter actions + 8 theme wrap).
+
+
 ## 1.24.0 — 2026-06-06
 
 ### Fixed
