@@ -1,4 +1,4 @@
-# 46 — Next Task v5 (Plan 06 Phase A Step 1 landed: inputs confirmed, 5 open questions recorded)
+# 47 — Next Task v5 (Plan 06 Phase A Steps 2+3 landed: issue 05 RCA = `.slide-title` family inheritance; Ubuntu link weights sufficient)
 
 ## Files, functions, and signals read before selecting work
 
