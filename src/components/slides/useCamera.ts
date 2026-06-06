@@ -23,8 +23,14 @@ export function useCamera() {
   }, []);
 
   const hide = useCallback(() => {
-    if (streamRef.current && status === "active") setStatus("tray");
-  }, [status]);
+    requestIdRef.current += 1;
+    if (streamRef.current) {
+      for (const t of streamRef.current.getTracks()) t.stop();
+      streamRef.current = null;
+    }
+    if (videoRef.current) videoRef.current.srcObject = null;
+    setStatus("idle");
+  }, []);
 
   const close = useCallback(() => {
     requestIdRef.current += 1;
@@ -39,15 +45,6 @@ export function useCamera() {
 
   const start = useCallback(async () => {
     if (status === "requesting" || status === "active") return;
-    if (status === "tray" && streamRef.current) {
-      if (videoRef.current) {
-        videoRef.current.srcObject = streamRef.current;
-        void videoRef.current.play().catch(() => {});
-      }
-      setStatus("active");
-      setErrorMessage(null);
-      return;
-    }
     if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
       setStatus("error");
       setErrorMessage("Camera API unavailable in this browser.");
