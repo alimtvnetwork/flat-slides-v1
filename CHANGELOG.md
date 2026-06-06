@@ -2,6 +2,11 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.65.0 — 2026-06-06
+
+### Docs
+- **Plan 06 Phase A — Step 1 kickoff.** Confirmed all four input command files (`05`/`06`/`07`/`08`), issue 05, the three `assets/samples/*` reference images, and the four SS-0x subtask files are present and in-scope. Appended a "Phase A Step 1 kickoff notes" block to `.lovable/plans/pending/06-slide-types-themes-llm-controller.md` Context recording 5 open questions to resolve before Steps 2–9: (1) themes registry path drift (`src/slides/themes.ts` vs real `src/components/slides/themes.ts`), (2) `SettingsDrawer` path drift, (3) missing `GoToInput` component, (4) `public/docs/*` mirror mechanism undecided, (5) issue 05 RCA hypothesis (per-type title class likely overrides `var(--font-display)`).
+
 ## 1.64.0 — 2026-06-06
 
 ### Docs

@@ -35,6 +35,42 @@ Captured input files:
 The user's structural directive: spend the first ~20 steps writing
 spec/docs, then ~80 steps implementing. That cadence is preserved below.
 
+### Phase A — Step 1 kickoff notes (2026-06-06)
+
+All four captured command files (`05-default-header-font-ubuntu.md`,
+`06-slide-indicator-ellipsis-pagination.md`,
+`07-llm-guideline-must-include-teams-and-be-downloadable.md`,
+`08-sample-images-as-theme-source.md`), issue 05, the three sample
+images, and the four SS-0x subtask files have all been read and
+confirmed present on disk. Scope matches Context items 1–5 above; no
+in-scope work is missing from the inputs.
+
+**Open questions surfaced while reading — resolve before Step 4:**
+
+1. **Themes registry path.** Command 08 names `src/slides/themes.ts`,
+   but the actual file is `src/components/slides/themes.ts` (with
+   tests at `themes.test.ts` and `theme-persistence.test.ts`). Step 9
+   spec must use the real path.
+2. **SettingsDrawer location.** Command 06 implies
+   `src/components/slides/controls/SettingsDrawer.tsx`, but the file
+   actually lives at `src/components/slides/SettingsDrawer.tsx`.
+   Steps 6 and 26–32 must reference the real path.
+3. **GoToInput component.** Command 06 says "reuse existing
+   `GoToInput`"; no file by that name exists yet. Decide in Step 5
+   whether to extract it from `SlideIndicator.tsx`/`DotPagination.tsx`
+   or author a new component.
+4. **`public/docs/` mirror mechanism.** Step 17 specifies the
+   `docs/slides/spec/*` → `public/docs/*` mirror but not the
+   technology. Default to a `prebuild` npm script (cross-platform
+   `cp`) unless a vite plugin is already in use; decide before
+   Phase F.
+5. **Issue 05 RCA — CSS vs HTML root cause.** Hypothesis to confirm
+   in Step 2: title slide variant in `src/components/slides/types/`
+   renders its `<h1>` without inheriting `var(--font-display)`
+   because the type-local class overrides `font-family`. Confirm by
+   computing `font-family` on `/slides/1` title before writing the
+   addendum in Step 4.
+
 Subtask files (depth-heavy steps link into these):
 - `./subtasks/06-slide-types-themes-llm-controller/SS-01-new-slide-types-catalog.md`
 - `./subtasks/06-slide-types-themes-llm-controller/SS-02-new-themes-catalog.md`
