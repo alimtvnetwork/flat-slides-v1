@@ -19,7 +19,18 @@ export function ScaledSlide({ children, className, fitPadding = 0 }: Props) {
     const recompute = () => {
       const rect = readContainerRect(el);
       const { width, height } = rect;
-      if (width === 0 || height === 0) return;
+      if (width === 0 || height === 0) {
+        // Issue 017: surface the collapsed-parent case instead of rendering blank.
+        el.setAttribute("data-debug-zero-height", "true");
+        if (import.meta.env?.DEV) {
+          console.warn(
+            "[ScaledSlide] parent reported 0px size — likely a flex parent missing `min-height: 0` or `min-width: 0`.",
+            el.parentElement,
+          );
+        }
+        return;
+      }
+      el.removeAttribute("data-debug-zero-height");
       const safeWidth = Math.max(1, width - fitPadding * 2);
       const safeHeight = Math.max(1, height - fitPadding * 2);
       const nextScale = Math.min(safeWidth / CANVAS_WIDTH, safeHeight / CANVAS_HEIGHT);
