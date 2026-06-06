@@ -351,6 +351,15 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
     return true;
   }
 
+  function runFullscreenShortcut(event: KeyboardEvent) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    const now = typeof performance === "undefined" ? Date.now() : performance.now();
+    if (now - lastFullscreenShortcutAtRef.current < 350) return;
+    lastFullscreenShortcutAtRef.current = now;
+    void toggleFs();
+  }
+
   function openDeckOverview() {
     if (typeof document !== "undefined" && document.fullscreenElement) {
       void document.exitFullscreen().finally(() => navigate({ to: "/slides" }));
