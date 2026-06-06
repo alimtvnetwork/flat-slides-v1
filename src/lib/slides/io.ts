@@ -5,6 +5,7 @@ import { validateFocusRegions } from "@/components/slides/validateFocusRegions";
 
 
 import { DeckSchema, SlideSchema } from "./schema";
+import { restoreDeckRuntimeMeta, snapshotDeckRuntimeMeta } from "./runtimeMeta";
 import { DECK_SCHEMA_VERSION } from "./version";
 
 /* ────────────────────────── EXPORT ────────────────────────── */
@@ -23,7 +24,11 @@ function downloadBlob(filename: string, data: string, mime = "application/json")
 
 /** Export the entire deck as a single `.deck.json`. */
 export function exportDeck(deck: Deck): void {
-  const payload = { ...deck, version: DECK_SCHEMA_VERSION };
+  const payload: Deck = {
+    ...deck,
+    version: DECK_SCHEMA_VERSION,
+    meta: { ...(deck.meta ?? {}), exportedAt: new Date().toISOString(), runtime: snapshotDeckRuntimeMeta() },
+  };
   const safeName = (deck.title || deck.id).replace(/[^a-z0-9_-]+/gi, "_").toLowerCase();
   downloadBlob(`${safeName}.deck.json`, JSON.stringify(payload, null, 2));
 }
@@ -74,6 +79,7 @@ export function parseDeckJson(raw: string): ImportResult<Deck> {
   if (!result.success) return zodFailure(result.error);
   const deck = result.data as Deck;
   warnFocusRegionIssues(deck.slides);
+  restoreDeckRuntimeMeta(deck.meta?.runtime);
   return { ok: true, value: deck };
 }
 
