@@ -2,6 +2,11 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.70.0 — 2026-06-06
+
+### Docs
+- **Plan 06 Phase A Step 6 (ellipsis threshold setting spec).** Wrote `spec/old-slides/27-slides-number/15-ellipsis-threshold-setting.md`: localStorage key `riseup.controller.ellipsisThreshold` (default 15, clamp 5..50), migration guard `…migrated.v1`, `getPresetSettings()` extension (single clamp site — renderers must NOT re-clamp), SettingsDrawer numeric stepper inside existing "Controller" group with hint, suffix "slides", and conditional "Reset to default (15)" ghost button. Locks accessibility labels and the test matrix (missing/invalid/in-range reads, single-write migration guard, snapshot on Reset visibility). Unblocks Phase C Step 28 (SettingsDrawer change) and Step 26 (`buildPaginationSlots` consumers). Prompt 51 registered.
+
 ## 1.69.0 — 2026-06-06
 
 ### Docs
