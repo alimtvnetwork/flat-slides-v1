@@ -89,6 +89,7 @@ export function SettingsDrawer({
     const r = parseDeckJson(text);
     if (!r.ok) return toast.error(`Import failed:\n${r.error}`, { duration: 8000 });
     setDeck(r.value);
+    goToFirstSlide();
     toast.success(`Imported deck "${r.value.title}" (${r.value.slides.length} slides)`);
   };
 
