@@ -2,9 +2,15 @@
 
 This document is the single source of truth for the **theme JSON** format
 that Riseup Slides imports and exports. Hand this file to any LLM and it
-will be able to generate new themes that work out of the box.
+will be able to generate new themes that work out of the box **in one shot,
+in a single file** — either one theme object, or one batch object with
+`{ "themes": [...] }`. Never split themes across multiple files.
 
-> Companion spec: [`llm-json-guideline.md`](./llm-json-guideline.md) describes the deck format. Themes are referenced from a deck via `themeId` (deck-level) or `slide.themeId` (per-slide override).
+> Companion spec: [`llm-json-guideline.md`](./llm-json-guideline.md) describes
+> the deck format (same one-file rule). Themes are referenced from a deck via
+> `themeId` (deck-level) or `slide.themeId` (per-slide override). Linked from
+> the root [`README.md`](../../../README.md) as the canonical theme contract.
+
 
 ## Where themes live in the UI
 
