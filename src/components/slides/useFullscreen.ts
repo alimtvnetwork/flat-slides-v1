@@ -101,6 +101,18 @@ export async function enterFullscreen(target?: HTMLElement | null, environment: 
   // On the home route that root does not exist yet, so enter fullscreen on the
   // document first, then the route can change while fullscreen stays active.
   const fullscreenTarget = getSlidesFullscreenRoot() ?? target ?? document.documentElement;
+
+  // Embedded preview iframes (Lovable preview, story embeds) typically have
+  // `document.fullscreenEnabled === false` because the host iframe lacks
+  // `allow="fullscreen"`. Skip the native attempt and route straight to the
+  // presenter popup so the user is never left with a silent "unsupported".
+  const embeddedEnv = (environment.isEmbeddedWindow ?? isEmbeddedWindow)();
+  if (embeddedEnv && environment.openPresenterWindow) {
+    const opened = environment.openPresenterWindow();
+    if (opened) return { ok: true, mode: "presenter-window" };
+    if (document.fullscreenEnabled === false) return { ok: false, reason: "embedded-popup-blocked" };
+  }
+
   if (document.fullscreenEnabled === false) return { ok: false, reason: "unsupported" };
   if (!fullscreenTarget?.requestFullscreen) return { ok: false, reason: "unsupported" };
 
