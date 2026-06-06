@@ -119,3 +119,22 @@ it("skips requestFullscreen entirely when embedded; uses openPresenterWindow", a
 ## Status log
 
 - 2026-06-06 — opened. RCA + fix plan ready for step 12 of `.lovable/plan.md`.
+
+---
+
+## Investigation log (step 5)
+
+Traced on 2026-06-06. Files read:
+- `src/components/slides/useFullscreen.ts` (lines 18–119)
+- `src/components/slides/fullscreenTarget.ts`
+- `src/components/slides/presenterWindowUrl.ts`
+- `src/components/slides/PresenterFallbackLink.tsx` mount sites: `src/routes/index.tsx:128`, `src/components/slides/SlidePresenterPage.tsx:400`
+
+Confirmed branches:
+- `isEmbeddedWindow()` defined at `useFullscreen.ts:28` (compares `window.self !== window.top`).
+- `openPresenterWindow()` defined at `useFullscreen.ts:46`, used only inside the `catch` block at line 113–115.
+- Bug: `document.fullscreenEnabled === false` short-circuits at line 104 BEFORE the embedded fallback can run. In Lovable's preview iframe (no `allow="fullscreen"`), this returns `{ ok: false, reason: "unsupported" }` and the popup path is never attempted.
+
+Fix target (Phase D, step 12): move an `isEmbeddedWindow()` check above the `unsupported` guard at line 104. If embedded, skip `requestFullscreen` entirely and call `environment.openPresenterWindow()` directly, returning `{ ok: true, mode: "presenter-window" }` or `{ ok: false, reason: "embedded-popup-blocked" }`. Keep the existing `catch` branch for top-level windows where `requestFullscreen` throws.
+
+Status: investigation complete. Awaiting code fix in step 12.

@@ -111,3 +111,23 @@ combined opacity ≈ 1.0 throughout:
 ## Status log
 
 - 2026-06-06 — opened. RCA + fix plan ready for plan steps 8–11.
+
+---
+
+## Investigation log (step 6)
+
+Traced on 2026-06-06. Files read:
+- `src/components/slides/RenderSlide.tsx` (StepsSlide, lines 175–264)
+- `src/components/slides/SlideTransition.tsx`
+- `src/components/slides/CameraStage.tsx`
+
+Confirmed root cause at `RenderSlide.tsx:223–263`:
+- `<AnimatePresence initial={false}>` defaults to sync mode (no `mode="wait"`).
+- Both exit (opacity 1→0) and enter (opacity 0→1) run concurrently for 450ms with `easeOut`.
+- At t≈225ms the summed opacity dips well below 1.0, exposing the dark slide background (`var(--slide-bg)`) underneath — visible as a "black flash".
+- No remount of the slide wrapper, no `scale`, no `camera-zoom` involvement. The outer `SlideTransition` is fade-only and the `CameraStage` correctly disables zoom on `steps` (per `canUseCameraZoom`).
+- The background layer is already persistent (rendered once by `SlideLayout`); the flash is purely an animation-curve issue inside the detail pane.
+
+Fix target (Phase C, step 8–10): replace `<AnimatePresence>` + `motion.div` keyed on `focus` with a single persistent `motion.div` using `mode="wait"` + sequenced 140ms fade-out / 220ms fade-in (+8px translateY), reduced-motion = instant. Within Core memory's "opacity + ≤16px translate" envelope. No scale.
+
+Status: investigation complete. Awaiting code fix in step 8.
