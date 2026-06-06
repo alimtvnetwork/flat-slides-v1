@@ -32,7 +32,7 @@ describe("expandMarkHighlights (issue 023)", () => {
       ],
     };
     const result = parseDeckJson(JSON.stringify(deck));
-    expect(result.ok).toBe(true);
+    expect(result.ok || (result as { errorFull: string }).errorFull).toBe(true);
     if (!result.ok) return;
     const heading = (result.value.slides[0] as { heading: unknown[] }).heading;
     expect(heading).toEqual(["Welcome ", { text: "back" }]);
