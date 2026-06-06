@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ControllerPill } from "./ControllerPill";
@@ -49,7 +49,7 @@ describe("ControllerPill overflow menu", () => {
     document.body.appendChild(root);
   }
 
-  it("keeps presenter mode to navigation plus fullscreen on wide viewports", () => {
+  it("shows settings directly on wide viewports", () => {
     mockMatchMedia(1440);
     createSlidesRoot();
     render(<ControllerPill {...baseProps} />);
@@ -58,20 +58,20 @@ describe("ControllerPill overflow menu", () => {
     expect(screen.getByLabelText("Jump to slide. Current 1 of 3")).toBeTruthy();
     expect(screen.getByLabelText("Next slide")).toBeTruthy();
     expect(screen.getByLabelText("Enter fullscreen")).toBeTruthy();
-    expect(screen.queryByLabelText("Settings")).not.toBeTruthy();
+    expect(screen.getByLabelText("Settings")).toBeTruthy();
     expect(screen.queryByLabelText("Keyboard shortcuts")).not.toBeTruthy();
     expect(screen.queryByLabelText("More controls")).not.toBeTruthy();
   });
 
-  it("does not add overflow chrome on narrow viewports", () => {
+  it("keeps settings reachable from overflow on narrow viewports", async () => {
     mockMatchMedia(1100);
     createSlidesRoot();
     render(<ControllerPill {...baseProps} />);
 
     expect(screen.getByLabelText("Previous slide")).toBeTruthy();
     expect(screen.getByLabelText("Next slide")).toBeTruthy();
-    expect(screen.queryByLabelText("More controls")).not.toBeTruthy();
-    expect(screen.queryByLabelText("Settings")).not.toBeTruthy();
-    expect(screen.queryByLabelText("Keyboard shortcuts")).not.toBeTruthy();
+    fireEvent.pointerDown(screen.getByLabelText("More controls"));
+    await waitFor(() => expect(screen.getByText("Settings")).toBeTruthy());
+    expect(screen.getByText("Keyboard shortcuts")).toBeTruthy();
   });
 });

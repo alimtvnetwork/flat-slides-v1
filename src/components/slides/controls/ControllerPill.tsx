@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, Maximize2, Minimize2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Maximize2, Minimize2, Settings } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
@@ -12,6 +12,8 @@ import { anchorStyles, type ControllerAnchor } from "./controller-anchor";
 import { useControllerAnchor } from "./controller-anchor-store";
 
 import { SlideIndicator } from "./SlideIndicator";
+import { ControllerOverflowMenu } from "./ControllerOverflowMenu";
+import { useNarrowViewport } from "./useNarrowViewport";
 
 export type { ControllerAnchor };
 
@@ -30,29 +32,16 @@ interface Props {
   canNext?: boolean;
 }
 
-function useCompactViewport() {
-  const [compact, setCompact] = useState(false);
-  useEffect(() => {
-    if (typeof window === "undefined" || !window.matchMedia) return;
-    const mql = window.matchMedia("(max-width: 640px)");
-    const sync = () => setCompact(mql.matches);
-    sync();
-    mql.addEventListener?.("change", sync);
-    return () => mql.removeEventListener?.("change", sync);
-  }, []);
-  return compact;
-}
-
 /**
  * Hover-reveal controller pill. Collapsed = faint chip, expanded = full
   * toolbar. Portaled to the clipped slides root, anchored at one of 8 positions (persisted),
  * grace-delay collapse so the user doesn't lose it on quick mouse-out.
  */
 export function ControllerPill(props: Props) {
-  const { current, total, onPrev, onNext, onJump, onToggleFullscreen, isFullscreen, canPrev, canNext } = props;
+  const { current, total, onPrev, onNext, onJump, onToggleFullscreen, onOpenSettings, onOpenHelp, isFullscreen, canPrev, canNext } = props;
   const anchor = useControllerAnchor((s) => s.anchor);
   const cycleAnchor = useControllerAnchor((s) => s.cycleAnchor);
-  const compact = useCompactViewport();
+  const isNarrow = useNarrowViewport();
   const reduced = useReducedMotion();
   const [mounted, setMounted] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -113,13 +102,17 @@ export function ControllerPill(props: Props) {
           <ChevronRight size={16} />
         </PillButton>
 
-        {!compact && (
-          <>
-            <span className="mx-1 h-4 w-px bg-white/15" aria-hidden />
-            <PillButton onClick={onToggleFullscreen} ariaLabel={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}>
-              {isFullscreen ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
-            </PillButton>
-          </>
+        <span className="mx-1 h-4 w-px bg-white/15" aria-hidden />
+        <PillButton onClick={onToggleFullscreen} ariaLabel={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}>
+          {isFullscreen ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
+        </PillButton>
+        <PillButton onClick={onOpenSettings} ariaLabel="Settings">
+          <Settings size={15} />
+        </PillButton>
+        {isNarrow ? (
+          <ControllerOverflowMenu onOpenSettings={onOpenSettings} onOpenHelp={onOpenHelp} />
+        ) : (
+          null
         )}
       </motion.div>
     </div>
