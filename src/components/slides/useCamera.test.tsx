@@ -79,4 +79,16 @@ describe("useCamera lifecycle", () => {
     expect(stop).toHaveBeenCalledTimes(1);
     expect(result.current.status).toBe("idle");
   });
+
+  it("logs denied getUserMedia failures with context", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const denied = Object.assign(new Error("nope"), { name: "NotAllowedError" });
+    stubGetUserMedia(vi.fn().mockRejectedValue(denied));
+
+    const { result } = renderHook(() => useCamera());
+    await act(async () => { await result.current.start(); });
+
+    expect(result.current.status).toBe("denied");
+    expect(warn).toHaveBeenCalledWith("[slides:camera] getUserMedia failed", { name: "NotAllowedError", error: denied });
+  });
 });
