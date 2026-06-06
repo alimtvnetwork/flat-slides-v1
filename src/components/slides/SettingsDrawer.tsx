@@ -418,6 +418,9 @@ export function SettingsDrawer({
           <label className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wider text-neutral-400">
             <Upload size={12} /> Import / Export
           </label>
+          <p className="text-[11px] leading-snug text-neutral-500">
+            Imported decks are stored in this browser only (<code className="font-mono text-neutral-400">localStorage: slides-deck-v1</code>). They do not sync across browsers or devices — re-export the JSON to share. Full contract: <code className="font-mono text-neutral-400">docs/slides/spec/import-export.spec.md</code>.
+          </p>
           <div className="grid grid-cols-2 gap-2">
             <button
               onClick={handleImportDeck}
