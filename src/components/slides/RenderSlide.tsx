@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "motion/react";
-import type { CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 
 import { Rich } from "./Rich";
 import { SlideLayout } from "./SlideLayout";
@@ -30,6 +30,7 @@ import type {
   LeftSlideProps,
   QuoteSlideProps,
   Slide,
+  StepItem,
   StepsSlideProps,
   TextPosition,
   TimelineSlideProps,
