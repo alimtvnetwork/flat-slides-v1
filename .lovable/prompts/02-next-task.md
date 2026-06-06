@@ -4,7 +4,7 @@
 > each invocation (e.g. `next task 7`) so chat-history search can locate
 > the exact batch.
 
-**Latest invocation:** `next task 24` → v1.20.0 (added `e2e/launcher-cases.spec.ts` covering `/` → `/slides/1`, launcher cases, and Settings click telemetry landing in `window.__slidesEvents`; local Playwright execution is blocked by missing sandbox Chromium system library `libglib-2.0.so.0`).
+**Latest invocation:** `next task 25` → v1.21.0 (added `scripts/check-playwright-host.mjs` and wired `test:e2e` through it so missing Chromium host libraries fail with `[e2e:preflight]` guidance instead of an opaque Playwright crash; `test:e2e:raw` remains for CI images with their own preflight).
 
 ## What I want
 
