@@ -120,7 +120,7 @@ describe("slide fullscreen target", () => {
     expect(useChrome.getState().presenterFallback?.url).toBe("http://localhost/slides/1?present=1");
   });
 
-  it("returns unsupported before calling requestFullscreen when the document disallows fullscreen", async () => {
+  it("falls back to in-app presentation when the document disallows fullscreen", async () => {
     const stableRoot = document.createElement("div");
     stableRoot.setAttribute("data-slides-fullscreen-root", "");
     const stableRequest = vi.fn().mockResolvedValue(undefined);
@@ -130,11 +130,11 @@ describe("slide fullscreen target", () => {
 
     const result = await enterFullscreen(stableRoot, { isEmbeddedWindow: () => false });
 
-    expect(result).toEqual({ ok: false, reason: "unsupported" });
+    expect(result).toEqual({ ok: true, mode: "app" });
     expect(stableRequest).not.toHaveBeenCalled();
   });
 
-  it("returns a native failure result instead of swallowing rejected fullscreen requests", async () => {
+  it("falls back to in-app presentation when native fullscreen rejects", async () => {
     const stableRoot = document.createElement("div");
     stableRoot.setAttribute("data-slides-fullscreen-root", "");
     document.body.append(stableRoot);
@@ -150,7 +150,7 @@ describe("slide fullscreen target", () => {
 
     const result = await enterFullscreen(stableRoot, { isEmbeddedWindow: () => false });
 
-    expect(result).toEqual({ ok: false, reason: "native-failed", error });
+    expect(result).toEqual({ ok: true, mode: "app" });
   });
 
   it("routes embedded preview iframes straight to in-app presentation when fullscreen is disabled", async () => {
