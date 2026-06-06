@@ -13,7 +13,6 @@ import { useControllerAnchor } from "./controller-anchor-store";
 
 import { SlideIndicator } from "./SlideIndicator";
 import { ControllerOverflowMenu } from "./ControllerOverflowMenu";
-import { useNarrowViewport } from "./useNarrowViewport";
 
 export type { ControllerAnchor };
 
