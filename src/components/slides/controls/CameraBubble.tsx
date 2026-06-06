@@ -232,7 +232,12 @@ export function CameraBubble() {
 
   // Respect "show only in fullscreen" preference.
   if (!camera.visible) return null;
-  if (camera.fullscreenOnly && !isFs) return null;
+  // `fullscreenOnly` is satisfied by native fullscreen OR a dedicated
+  // presenter popup (URL carries `?present=1`). The popup is at top level
+  // but not in native fullscreen — still an explicit "I'm presenting" mode.
+  const isPresenterPopup = typeof window !== "undefined"
+    && new URLSearchParams(window.location.search).get("present") === "1";
+  if (camera.fullscreenOnly && !isFs && !isPresenterPopup) return null;
 
   const dims = cameraDimensions(camera);
   const visualWidth = Math.round((stageFill ? CAMERA_STAGE.w : dims.w) * stageFrame.scale);
