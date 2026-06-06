@@ -155,7 +155,7 @@ function CenterSlide({ slide }: { slide: CenterSlideProps }) {
       <div style={positionStyle(slide.align ?? "center", slide.padding ?? 120)}>
         <h1
           className={`${slide.display ? "slide-display slide-title-lg" : "slide-heading slide-title"} relative z-[1]`}
-          style={{ color: "var(--slide-fg)", fontWeight: slide.display ? 500 : 700 }}
+          style={{ color: "var(--slide-fg)", fontWeight: slide.display ? 400 : 700 }}
         >
           <Rich value={slide.heading} />
         </h1>
