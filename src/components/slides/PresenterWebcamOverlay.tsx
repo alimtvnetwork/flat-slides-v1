@@ -408,9 +408,9 @@ export function PresenterWebcamOverlay() {
             ? null
             : {
                 WebkitMaskImage:
-                  "url(/src/assets/camera-2026/02-squircle-mask-black.png)",
+                  "url(${squircleMaskUrl})",
                 maskImage:
-                  "url(/src/assets/camera-2026/02-squircle-mask-black.png)",
+                  "url(${squircleMaskUrl})",
                 WebkitMaskSize: "100% 100%",
                 maskSize: "100% 100%",
                 WebkitMaskRepeat: "no-repeat",
