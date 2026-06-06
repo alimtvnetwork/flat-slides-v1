@@ -138,3 +138,11 @@ Confirmed branches:
 Fix target (Phase D, step 12): move an `isEmbeddedWindow()` check above the `unsupported` guard at line 104. If embedded, skip `requestFullscreen` entirely and call `environment.openPresenterWindow()` directly, returning `{ ok: true, mode: "presenter-window" }` or `{ ok: false, reason: "embedded-popup-blocked" }`. Keep the existing `catch` branch for top-level windows where `requestFullscreen` throws.
 
 Status: investigation complete. Awaiting code fix in step 12.
+
+---
+
+## Fix applied (step 12)
+
+`src/components/slides/useFullscreen.ts:103–118`: when `document.fullscreenEnabled === false` AND `isEmbeddedWindow()` is true, skip the (impossible) native attempt and call `environment.openPresenterWindow()` directly. Returns `presenter-window` on success, `embedded-popup-blocked` on popup block. Top-level windows still try native first and only fall back via the existing `catch` — preserving `fullscreenTarget.test.ts:63` ("tries native fullscreen before using the embedded presenter-window fallback").
+
+Validation: `bunx vitest run src/components/slides/fullscreenTarget.test.ts` → 9/9 pass.
