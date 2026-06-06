@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 import { DeckSchema } from "@/lib/slides/schema";
+import { restoreDeckRuntimeMeta } from "@/lib/slides/runtimeMeta";
 import { DECK_SCHEMA_VERSION } from "@/lib/slides/version";
 
 import { useAnnotations } from "./annotations-store";
@@ -222,6 +223,7 @@ export const useDeck = create<DeckStore>()(
           // deck does not inherit ink from the previous deck and the route
           // can resolve `/slides/1` cleanly (see issue 010).
           try { useAnnotations.getState().clearAll(); } catch { /* noop */ }
+          restoreDeckRuntimeMeta(safeDeck.meta?.runtime);
           emitSlidesEvent({
             type: "deck-load",
             slideCount: safeDeck.slides.length,

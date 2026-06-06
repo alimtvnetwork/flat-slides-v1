@@ -1,6 +1,6 @@
 # 009 — Exported deck JSON does not round-trip presenter annotations or camera prefs
 
-**Status:** open
+**Status:** fixed
 **Area:** exportDeck
 
 ## Symptom
@@ -24,3 +24,4 @@ User customizes camera shape/size, draws annotations, exports the deck, re-impor
 ## Status log
 
 - 2026-06-06 — opened. RCA + fix plan ready. No code changes yet (per user request — fixes deferred).
+- 2026-06-06 — fixed. `exportDeck` now writes `meta.exportedAt` and `meta.runtime`; `parseDeckJson` and `useDeck.setDeck` restore runtime metadata when present. Runtime snapshot/restore lives in `src/lib/slides/runtimeMeta.ts`, schema support in `src/lib/slides/schema.ts`, and the contract is documented in `docs/slides/spec/import-export.spec.md`. Regression: `src/lib/slides/io-runtime-meta.test.ts` (2/2 passing), included in focused validation run (19/19 passing).

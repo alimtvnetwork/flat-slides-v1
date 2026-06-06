@@ -9,11 +9,11 @@ criteria for one defect. Status is updated when the fix lands.
 | 002 | [`002-step-transition-black-flash.md`](./002-step-transition-black-flash.md) | Slide-4 step→step shows a black flash | fixed |
 | 003 | [`003-settings-text-color-not-applied.md`](./003-settings-text-color-not-applied.md) | Settings → Text color does not visibly update slide text | fixed |
 | 004 | [`004-settings-changes-no-preview-update.md`](./004-settings-changes-no-preview-update.md) | Editing any Settings drawer control sometimes does not re-render the slide | fixed |
-| 005 | [`005-camera-bubble-never-mounted.md`](./005-camera-bubble-never-mounted.md) | Camera bubble does not appear even when “Show camera” is enabled | open |
+| 005 | [`005-camera-bubble-never-mounted.md`](./005-camera-bubble-never-mounted.md) | Camera bubble does not appear even when “Show camera” is enabled | fixed |
 | 006 | [`006-camera-shape-test-uses-removed-prop.md`](./006-camera-shape-test-uses-removed-prop.md) | `CameraBubble.shape.test.tsx` exercises an API the component no longer exposes | fixed |
 | 007 | [`007-import-deck-input-not-clicked.md`](./007-import-deck-input-not-clicked.md) | “Import deck” button shows the file dialog inconsistently in Safari | fixed |
 | 008 | [`008-import-deck-toast-truncates-zod-error.md`](./008-import-deck-toast-truncates-zod-error.md) | Import failure toast hides the offending JSON path past 4 errors | fixed |
-| 009 | [`009-export-deck-loses-runtime-state.md`](./009-export-deck-loses-runtime-state.md) | Exported deck JSON does not round-trip presenter annotations or camera prefs | open |
+| 009 | [`009-export-deck-loses-runtime-state.md`](./009-export-deck-loses-runtime-state.md) | Exported deck JSON does not round-trip presenter annotations or camera prefs | fixed |
 | 010 | [`010-import-deck-skips-store-replacement-side-effects.md`](./010-import-deck-skips-store-replacement-side-effects.md) | Importing a deck does not reset slide index, annotations, or audience state | fixed |
 | 011 | [`011-schema-rejects-base64-images-over-1mb.md`](./011-schema-rejects-base64-images-over-1mb.md) | Importing a deck with embedded base64 images can silently fail validation | fixed |
 | 012 | [`012-node-build-deck-script-missing.md`](./012-node-build-deck-script-missing.md) | There is no Node.js script that compiles deck JSON into a deployable bundle | open |

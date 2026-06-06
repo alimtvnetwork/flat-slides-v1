@@ -213,6 +213,22 @@ export const DeckMusicSchema = z.object({
   volume: z.number().min(0).max(1).optional(),
 });
 
+export const DeckRuntimeMetaSchema = z
+  .object({
+    chrome: z.object({
+      camera: z.record(z.unknown()).optional(),
+      scene: z.enum(["normal", "cam-only", "split", "stage-fill"]).optional(),
+    }).optional(),
+    annotations: z.record(z.unknown()).optional(),
+    webcam: z.record(z.string()).optional(),
+  })
+  .optional();
+
+export const DeckMetaSchema = z.object({
+  exportedAt: z.string().datetime().optional(),
+  runtime: DeckRuntimeMetaSchema,
+}).optional();
+
 export const DeckSchema = z.object({
   id: z.string().min(1).max(64).regex(/^[a-zA-Z0-9_-]+$/),
   title: z.string().min(1).max(200),
@@ -221,6 +237,7 @@ export const DeckSchema = z.object({
   slides: z.array(SlideSchema).min(1).max(200),
   settings: DeckSettingsSchema,
   music: DeckMusicSchema.optional(),
+  meta: DeckMetaSchema,
 });
 
 export type ParsedDeck = z.infer<typeof DeckSchema>;

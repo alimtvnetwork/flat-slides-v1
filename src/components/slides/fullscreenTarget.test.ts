@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { useChrome } from "./chrome-store";
 import { getSlidesFullscreenRoot, getSlidesPortalRoot } from "./fullscreenTarget";
-import { enterFullscreen, reportFullscreenFailure } from "./useFullscreen";
+import { enterFullscreen, isPresenterWindowUrl, reportFullscreenFailure } from "./useFullscreen";
 
 describe("slide fullscreen target", () => {
   afterEach(() => {
@@ -197,5 +197,10 @@ describe("slide fullscreen target", () => {
     });
 
     expect(result).toEqual({ ok: false, reason: "embedded-popup-blocked" });
+  });
+
+  it("treats ?present=1 as a presenter context for fullscreen-only overlays", () => {
+    expect(isPresenterWindowUrl("http://localhost/slides/2?present=1")).toBe(true);
+    expect(isPresenterWindowUrl("http://localhost/slides/2?present=0")).toBe(false);
   });
 });

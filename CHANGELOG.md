@@ -2,6 +2,16 @@
 
 All notable changes to Glasswing are documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [1.6.0] — 2026-06-06
+
+### Fixed
+- **Camera bubble completion (issue 005)**: fullscreen-only camera visibility now uses a shared presenter-context helper, so `?present=1` popup windows satisfy the gate without duplicating URL parsing inside `CameraBubble`. `useCamera` now logs `[slides:camera] getUserMedia failed` with browser error context before surfacing denied/error states.
+- **Runtime export/import round-trip (issue 009)**: deck exports now include `meta.exportedAt` plus `meta.runtime` snapshots for camera chrome, annotations, and known `riseup.webcam.*` preferences. Imports restore that metadata through the same parse/setDeck flow and log `[slides:runtime-meta] restored deck runtime metadata` when it applies.
+
+### Added
+- `src/lib/slides/runtimeMeta.ts` + `src/lib/slides/io-runtime-meta.test.ts`
+- `docs/slides/spec/import-export.spec.md`
+
 ## [1.5.0] — 2026-06-06
 
 ### Fixed

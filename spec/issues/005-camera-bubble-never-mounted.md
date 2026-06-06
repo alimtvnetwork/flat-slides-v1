@@ -31,7 +31,15 @@ Toggling Settings → Camera → Show camera does nothing visible. There is no c
 - `src/components/slides/SlidePresenterPage.tsx`: imported `CameraBubble` and rendered `<CameraBubble />` alongside the other overlays (next to `PresenterFallbackLink` / `PresenterAutoStart`). The component already self-gates on `useChrome.camera.visible` and self-manages `getUserMedia`, so mounting it unconditionally is safe.
 - Regression test: `src/components/slides/camera-bubble-mount.test.ts` (2/2 passing) — asserts the import + `<CameraBubble />` JSX both exist in `SlidePresenterPage.tsx`. Will fail loudly if a future refactor removes the mount again.
 
-Remaining sub-tasks for full closure:
+Former remaining sub-tasks for full closure (closed below):
 1. Surface a friendly toast when `getUserMedia` is denied (currently silent).
 2. Treat the popup presenter window as "fullscreen-equivalent" so `camera.fullscreenOnly === true` does not hide the bubble there.
 3. `bunx vitest run` full-suite green check after the two follow-ups land.
+
+## Fixed (2026-06-06)
+
+- `src/components/slides/useFullscreen.ts`: added `isPresenterWindowUrl()` and exposed `isPresenterContext` from `useFullscreen()` so presenter popups satisfy fullscreen-only overlay gates through one shared helper.
+- `src/components/slides/controls/CameraBubble.tsx`: replaced inline `?present=1` parsing with `isPresenterContext`.
+- `src/components/slides/useCamera.ts`: logs `[slides:camera] getUserMedia failed` with the browser error name/object before setting denied/error state.
+- Regression tests: `src/components/slides/fullscreenTarget.test.ts` locks `?present=1`; `src/components/slides/useCamera.test.tsx` locks denied-error logging.
+- Validation: `bunx vitest run src/components/slides/fullscreenTarget.test.ts src/components/slides/useCamera.test.tsx src/lib/slides/io-runtime-meta.test.ts` → 19/19 passing.

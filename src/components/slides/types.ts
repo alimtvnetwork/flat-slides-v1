@@ -1,5 +1,8 @@
 import type { ReactNode } from "react";
 
+import type { AnnotationMode, InkStroke } from "./annotations-store";
+import type { CameraState, Scene } from "./chrome-store";
+
 export type SlideType =
   | "left" | "center" | "steps" | "timeline" | "quote" | "bullets" | "image"
   | "poll" | "qa" | "embed";
@@ -243,6 +246,23 @@ export interface DeckMusic {
   volume?: number; // initial 0..1
 }
 
+export interface DeckRuntimeMeta {
+  chrome?: { camera?: Partial<CameraState>; scene?: Scene };
+  annotations?: {
+    mode?: AnnotationMode;
+    color?: string;
+    width?: number;
+    persistStrokes?: boolean;
+    strokes?: Record<string, InkStroke[]>;
+  };
+  webcam?: Record<string, string>;
+}
+
+export interface DeckMeta {
+  exportedAt?: string;
+  runtime?: DeckRuntimeMeta;
+}
+
 export interface Deck {
   id: string;
   title: string;
@@ -252,6 +272,8 @@ export interface Deck {
   settings: DeckSettings;
   /** Optional deck-level background music. Playback is presenter-local. */
   music?: DeckMusic;
+  /** Optional export metadata; runtime entries restore presenter-only state. */
+  meta?: DeckMeta;
   /** Schema version for migration. */
   version?: number;
 }

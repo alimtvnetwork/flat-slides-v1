@@ -73,6 +73,7 @@ export function useCamera() {
       setStatus("active");
     } catch (err) {
       const name = (err as DOMException)?.name ?? "";
+      console.warn("[slides:camera] getUserMedia failed", { name, error: err });
       if (name === "NotAllowedError" || name === "PermissionDeniedError") {
         setStatus("denied");
         setErrorMessage("Camera permission denied. Enable it in your browser site settings.");
