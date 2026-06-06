@@ -1,6 +1,6 @@
 # Prompt Registry
 
-Latest: `20-next-task.md` (plan 05 next-two-step audit — back-step nav + font rendering).
+Latest: `21-next-task.md` (plan 05 re-audit — back-step nav + font rendering pinned).
 
 | ID  | File                          | Title         | Trigger phrases                                            | Purpose                                  |
 | --- | ----------------------------- | ------------- | ---------------------------------------------------------- | ---------------------------------------- |

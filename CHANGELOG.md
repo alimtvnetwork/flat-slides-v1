@@ -2,6 +2,11 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.40.0 — 2026-06-06
+
+### Planning
+- **Next-task triage (prompt 21).** No product code change. Re-confirmed plan 05 pending; next 2 steps pinned to SS-01 (symmetric back-step nav: `SlidePresenterPage.tsx` `goPrev()` decrements slide directly, skipping `step` decrement on `steps`/`timeline` slides) and SS-03 (Ubuntu loaded only at 400 in `index.html`, `.slide-canvas` lacks `-webkit-font-smoothing` in `src/styles.css`, causing faux-bold blurry headings). Remaining: SS-02 white-bal-in-controller, parity/docs, e2e verification, plan closure.
+
 ## 1.39.0 — 2026-06-06
 
 ### Planning
