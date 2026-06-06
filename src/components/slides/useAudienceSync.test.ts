@@ -43,8 +43,9 @@ describe("useAudienceSync (issue 021)", () => {
     const open = MockChannel.instances.filter((c) => !c.closed);
     expect(MockChannel.instances.length).toBe(1);
     expect(open.length).toBe(1);
-    // Initial publish + 100 navigation publishes.
-    expect(open[0].postedCount).toBe(101);
+    // Lifecycle effect publishes once on mount; publish effect fires on
+    // mount + each of the 100 rerenders.
+    expect(open[0].postedCount).toBe(102);
 
     unmount();
     expect(MockChannel.instances[0].closed).toBe(true);
