@@ -1,4 +1,4 @@
-# 39 — Next Task v5 (repeat-request version refresh)
+# 40 — Next Task v5 (repeat-request version refresh)
 
 ## Files, functions, and signals read before selecting work
 
