@@ -2,6 +2,15 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.12.0 — 2026-06-06
+
+### Fixed
+- **Settings drawer parity (plan step 12).** `SettingsDrawer` now exposes the spec-required Visibility rows for Presenter top bar, Slide number badge, and Dot pagination, plus a read-only Controller indicator note.
+- Mounted the previously orphaned `PresenterTopBar` and `DotPagination` surfaces in `SlidePresenterPage`; `J` now reaches the registered `toggle-top-jumper` action instead of being suppressed before dispatch.
+
+### Tests
+- Added `slide-number-surfaces.test.tsx` and verified the focused slide-control suite: 3 files / 12 tests passing.
+
 ## 1.11.0 — 2026-06-06
 
 ### Fixed
