@@ -2,6 +2,11 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.11.0 — 2026-06-06
+
+### Fixed
+- **Controller / launcher coexistence (plan step 11).** On `/slides/1` (deck home, no step, non-fullscreen) `ControllerPill` is now suppressed because `DeckLauncher` already owns the bottom-center chrome. Prevents the two toolbars from overlapping and double-claiming the same hover zone. Edit: `src/components/slides/SlidePresenterPage.tsx` (gate on `!(current === 1 && !isStepRoute)`).
+
 ## 1.10.0 — 2026-06-06
 
 ### Planning
