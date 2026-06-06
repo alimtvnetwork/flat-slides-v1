@@ -9,6 +9,7 @@
  *          and resize math divide pointer deltas by `--stage-scale` (§2).
  */
 import { useCallback, useEffect, useRef, useState } from "react";
+import squircleMaskUrl from "@/assets/camera-2026/02-squircle-mask-black.png";
 import { useAutoFrame } from "./useAutoFrame";
 import {
   FREE_MAX_W,
