@@ -1,5 +1,7 @@
 # Prompt Registry
 
+Latest: `19-next-task.md` (plan 05 triage — back-step nav + font rendering).
+
 | ID  | File                          | Title         | Trigger phrases                                            | Purpose                                  |
 | --- | ----------------------------- | ------------- | ---------------------------------------------------------- | ---------------------------------------- |
 | 01  | `01-write-memory.md`          | Write Memory  | `write memory`, `end memory`, `update memory`, batch end   | Persist session state under `.lovable/`. |

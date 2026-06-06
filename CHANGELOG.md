@@ -2,6 +2,11 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.38.0 — 2026-06-06
+
+### Planning
+- **Next-task triage (prompt 19).** No code change. New plan `.lovable/plans/pending/05-controller-whitebal-fonts.md` (8 steps) + 3 subtasks covers user-reported regressions: back-step nav broken on `steps`/`timeline` slides, white-balance slider must live inside ControllerPill, headings render as blurry faux-bold (Ubuntu only loaded at 400, no `-webkit-font-smoothing`). Issue captured at `.lovable/issues/04-controller-whitebal-step-back-fonts.md`. Next 2 implementation steps pinned: SS-01 symmetric `goPrevStep()` then SS-03 font weight + antialiasing.
+
 ## 1.37.0 — 2026-06-06
 
 ### Added
