@@ -57,7 +57,14 @@ describe("presenterActions — single keymap parity (Step 26)", () => {
     expect(dispatchPresenterKey(ctx)).toBeUndefined();
   });
 
-  it("open-inspector opens /slides/inspector/N in a new window", () => {
+  it("plain I toggles the camera", () => {
+    const ctx = { ...baseCtx(), event: new KeyboardEvent("keydown", { key: "i" }) };
+    const def = dispatchPresenterKey(ctx);
+    expect(def?.id).toBe("webcam-hard-toggle");
+    expect(ctx.toggleCamera).toHaveBeenCalledTimes(1);
+  });
+
+  it("Shift+I opens /slides/inspector/N in a new window", () => {
     const originalOpen = window.open;
     const openSpy = vi.fn();
     window.open = openSpy as unknown as typeof window.open;
@@ -65,7 +72,7 @@ describe("presenterActions — single keymap parity (Step 26)", () => {
       const ctx = {
         ...baseCtx(),
         current: 7,
-        event: new KeyboardEvent("keydown", { key: "i" }),
+        event: new KeyboardEvent("keydown", { key: "I", shiftKey: true }),
       };
       const def = dispatchPresenterKey(ctx);
       expect(def?.id).toBe("open-inspector");

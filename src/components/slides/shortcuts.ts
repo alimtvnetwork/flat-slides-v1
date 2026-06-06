@@ -65,7 +65,7 @@ export const SHORTCUTS: ShortcutDef[] = [
   shortcut("open-help", "?", ["/", "?"], "Show keyboard shortcuts", "Presenter"),
   shortcut("command-palette", "⌘K", [], "Command palette", "Presenter"),
   shortcut("click-jump", "Click N", [], "Jump to slide N", "Navigation"),
-  shortcut("webcam-hard-toggle", "Shift+I", ["shift+i"], "Hard toggle camera", "Camera"),
+  shortcut("webcam-hard-toggle", "I", ["i"], "Hard toggle camera", "Camera"),
   shortcut("webcam-soft-minimize", "M", [], "Minimize camera to tray", "Camera"),
   shortcut("webcam-autoframe", "F (cam)", [], "Toggle camera auto-frame", "Camera"),
   shortcut("webcam-zoom-in", "+", [], "Zoom camera in", "Camera"),
@@ -98,7 +98,7 @@ export const SHORTCUTS: ShortcutDef[] = [
   shortcut("export-annotations", "⌘⇧E", [], "Export annotations", "Annotate"),
   shortcut("toggle-lint", "⌘⇧L", [], "Toggle lint panel", "Presenter"),
   shortcut("toggle-notes", "N", ["n"], "Toggle presenter notes", "Presenter"),
-  shortcut("open-inspector", "I", ["i"], "Open presenter inspector (new window)", "Presenter"),
+  shortcut("open-inspector", "Shift+I", ["shift+i"], "Open presenter inspector (new window)", "Presenter"),
   shortcut("esc-close-panel", "Esc", [], "Close open panel or dialog", "Surfaces"),
   inspectorShortcut(
     "inspector-nav-prev",
