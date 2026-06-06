@@ -1,6 +1,6 @@
 # Prompt Registry
 
-Latest: `44-next-task.md` (regression test added: hl-pill-no-glow.test.ts pins crisp ink-drop. Step 2 black-frame still needs live repro).
+Latest: `45-next-task.md` (Plan step 10 partial: issue 001 closed, 002 updated to reflect AnimatePresence removal in StepsSlide — needs-live-repro).
 
 | ID  | File                          | Title         | Trigger phrases                                            | Purpose                                  |
 | --- | ----------------------------- | ------------- | ---------------------------------------------------------- | ---------------------------------------- |

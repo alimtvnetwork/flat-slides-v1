@@ -167,3 +167,17 @@ Conclusion: no scale/zoom leak onto `steps`. Core memory rule ("lists/steps/time
 - 2026-06-06 — opened, RCA + investigation logged.
 - 2026-06-06 — fixed at `RenderSlide.tsx:224–268`. Locked by `step-transition-no-black.test.tsx` (2/2).
 - 2026-06-06 — design-token guardrails added (`highlight-style-guardrails.test.ts`, 2/2): root `--slide-fg` locked to true white (oklch(1 0 0)) and `.hl` locked to ink-stamp shadow with no filter/blur/drop-shadow/box-shadow.
+
+## Investigation update — 2026-06-06 (prompt 45 triage)
+
+`StepsSlide` no longer uses `AnimatePresence`; the original lines 223–263 referenced in this issue are stale. Current path (`RenderSlide.tsx:236–266` `StepDetailPane`):
+- Single persistent `motion.div` hosts `<StepDetailContent step={displayed} />`.
+- On focus change, an `exiting` overlay fades opacity 1→0 over 220 ms (`reducedMotion` collapses to 0 ms).
+- Background never blanks; `SlideLayout` is shared across step changes.
+
+Static-source reading: there is no code path that produces a black frame between step 2→3 in `StepsSlide`. Candidate sources still possible and not provable from source alone:
+1. Slide-4's `transition` field overriding to `camera-zoom` (default is `fade` per memory but a deck override is possible).
+2. A theme background swap keyed by step.
+3. A media element on `steps[2]` that paints opaque before fade-in.
+
+Next action: live repro at `/slides/4/2 → /slides/4/3` with DevTools paint flashing on; record which DOM layer goes opaque. Until then, this issue is **needs-live-repro**, not actionable from source alone.

@@ -2,6 +2,11 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.64.0 — 2026-06-06
+
+### Docs
+- **Issue tracker sync (Plan step 10, partial).** Closed `spec/issues/001-preview-iframe-fullscreen.md` — already shipped and locked by `fullscreenTarget.test.ts` (11/11). Appended an investigation update to `spec/issues/002-step-transition-black-flash.md`: `StepsSlide` no longer uses `AnimatePresence` (only `TimelineSlide` does at `RenderSlide.tsx:358-396`); current `StepDetailPane` uses a persistent layer + opacity crossfade, so the original RCA hypothesis is stale and the issue moves to **needs-live-repro** with three candidate causes documented.
+
 ## 1.63.0 — 2026-06-06
 
 ### Added
