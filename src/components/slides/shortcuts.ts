@@ -65,7 +65,7 @@ export const SHORTCUTS: ShortcutDef[] = [
   shortcut("open-help", "?", ["/", "?"], "Show keyboard shortcuts", "Presenter"),
   shortcut("command-palette", "⌘K", [], "Command palette", "Presenter"),
   shortcut("click-jump", "Click N", [], "Jump to slide N", "Navigation"),
-  shortcut("webcam-hard-toggle", "Shift+I", ["shift+i"], "Hard toggle camera", "Camera"),
+  shortcut("webcam-hard-toggle", "I", ["i"], "Hard toggle camera", "Camera"),
   shortcut("webcam-soft-minimize", "M", [], "Minimize camera to tray", "Camera"),
   shortcut("webcam-autoframe", "F (cam)", [], "Toggle camera auto-frame", "Camera"),
   shortcut("webcam-zoom-in", "+", [], "Zoom camera in", "Camera"),
