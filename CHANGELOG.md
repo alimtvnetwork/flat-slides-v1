@@ -2,6 +2,11 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.74.0 — 2026-06-06
+
+### Docs
+- **Plan 06 Phase A Step 8 first per-type stub batch.** Added `spec/old-slides/26-slide-definitions/02-left.md`, `03-center.md`, `04-quote.md`, and `05-bullets.md` using the required eight-section template from `00-catalog.md`: purpose, future `content` schema, layout math, theme hooks from `01-theme-hooks.md`, step behaviour, sample targets, a11y/reduced-motion rules, and fixture names. Also corrected the next-task handoff by registering prompt 55 as the latest coherent follow-up.
+
 ## 1.73.0 — 2026-06-06
 
 ### Docs

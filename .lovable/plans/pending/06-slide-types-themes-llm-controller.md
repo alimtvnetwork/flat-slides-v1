@@ -91,6 +91,15 @@ failed because adjacent visible numbers produced invalid ellipsis ranges; the
 minimum fix was an empty-gap guard in `collapsedSlot()`. The isolated test now
 passes 8/8. Steps 27–32 remain open for UI wiring, settings, popover, and e2e.
 
+### Phase A — Step 8 first stub batch notes (2026-06-06)
+
+The first low-risk text-first per-type stubs are landed in
+`spec/old-slides/26-slide-definitions/02-left.md`, `03-center.md`,
+`04-quote.md`, and `05-bullets.md`. Each follows `00-catalog.md:43-54`'s
+eight-section template and consumes only channels declared in
+`01-theme-hooks.md`. Remaining Step 8 stubs start with `steps`/`timeline`, then
+the media group.
+
 Subtask files (depth-heavy steps link into these):
 - `./subtasks/06-slide-types-themes-llm-controller/SS-01-new-slide-types-catalog.md`
 - `./subtasks/06-slide-types-themes-llm-controller/SS-02-new-themes-catalog.md`
