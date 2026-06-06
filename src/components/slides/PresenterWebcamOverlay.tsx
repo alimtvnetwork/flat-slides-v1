@@ -47,6 +47,7 @@ export function PresenterWebcamOverlay() {
     restoreFromOverlay,
     toggleStage,
     toggleHalo,
+    halo,
     toggleCircle,
     runCinematicCycle,
     pushFullscreenAction,
