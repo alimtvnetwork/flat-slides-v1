@@ -158,3 +158,11 @@ Validation: `bunx vitest run src/components/slides/fullscreenTarget.test.ts` →
 - Mounted alongside `PresenterFallbackLink` at `SlidePresenterPage.tsx:401`, so it auto-arms on every slide step the popup lands on.
 
 Both behaviors required by the RCA are already shipped and mounted on the slide layout route — no code change for steps 13–14.
+
+## Regression test (step 15)
+
+Extended `src/components/slides/fullscreenTarget.test.ts` with two new cases:
+1. `routes embedded preview iframes straight to the presenter popup when fullscreen is disabled` — sets `document.fullscreenEnabled = false`, `isEmbeddedWindow: () => true`, expects `{ ok: true, mode: "presenter-window" }` and that `requestFullscreen` is NOT called.
+2. `reports embedded-popup-blocked when the iframe popup fallback is blocked` — same setup but `openPresenterWindow: () => null` expects `{ ok: false, reason: "embedded-popup-blocked" }`.
+
+Validation: `fullscreenTarget.test.ts` 11/11 pass. The existing "tries native fullscreen before using the embedded presenter-window fallback" case still passes — top-level windows (`fullscreenEnabled === true`) keep the native-first contract.
