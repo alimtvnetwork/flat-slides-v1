@@ -338,6 +338,26 @@
   background: var(--slide-bg);
 }
 
+html[data-slides-app-presenting],
+html[data-slides-app-presenting] body,
+html[data-slides-app-presenting] #main-content {
+  width: 100vw;
+  height: 100dvh;
+  margin: 0;
+  overflow: hidden;
+  background: var(--slide-bg);
+}
+
+html[data-slides-app-presenting] [data-slides-fullscreen-root] {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  width: 100vw;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--slide-bg);
+}
+
 html:fullscreen,
 html:fullscreen body,
 html:fullscreen #main-content {
