@@ -118,3 +118,7 @@ export async function pickThemesFile(): Promise<Theme[]> {
     input.click();
   });
 }
+
+// Register the resolver so themes.ts can list/find custom themes without a
+// module-level import cycle.
+_registerCustomThemesResolver(loadCustomThemes);
