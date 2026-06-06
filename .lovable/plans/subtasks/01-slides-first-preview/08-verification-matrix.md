@@ -28,7 +28,7 @@
 | 17 | A11y contract | written in subtask 04 |
 | 18 | Reduced-motion contract | written in subtask 04 |
 | 19 | `DeckLauncher.test.tsx` + `07-test-plan.md` progress | focused launcher test exists; 2 files / 6 tests passing |
-| 20 | e2e additions listed | in subtask 07 |
+| 20 | e2e additions listed | `e2e/launcher-cases.spec.ts` added; subtask 07 records sandbox Chromium host-lib blocker |
 | 21 | `home-launcher-click` telemetry event | `telemetry.ts` union includes event; launcher emits `{ case }`; focused tests passing |
 | 22 | Helper migration list | in plan |
 | 23 | SSR decision recorded | in plan |
