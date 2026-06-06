@@ -29,6 +29,8 @@ import { MAX_MUSIC_VOLUME, MIN_MUSIC_VOLUME, MUSIC_VOLUME_STEP } from "@/lib/sli
 import sampleDeckJson from "../../../docs/slides/spec/sample-deck.json?raw";
 
 import { useAnnotations } from "./annotations-store";
+import { nextBackgroundSettings } from "./backgroundMode";
+import { devResetCachedDeck } from "./devResetDeck";
 import { useChrome } from "./chrome-store";
 import { EXPORT_PAPERS, exportUrl, type ExportPaper } from "./exportPaper";
 import { getDefaultDeckSettings } from "./settingsPersistence";
