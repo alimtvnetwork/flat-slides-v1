@@ -1,6 +1,6 @@
 # Prompt Registry
 
-Latest: `52-next-task.md` (Plan 06 Phase A Step 7 landed — `26-slide-definitions/00-catalog.md` written; next 3 steps: `buildPaginationSlots` unit-test scaffold, theme-hooks addendum, first batch of per-type stubs).
+Latest: `53-next-task.md` (Plan 06 Phase C Step 26 pulled forward — `buildPaginationSlots` implemented/tested; next 3 steps: theme-hooks addendum, first per-type stubs, wire pagination surfaces).
 
 | ID  | File                          | Title         | Trigger phrases                                            | Purpose                                  |
 | --- | ----------------------------- | ------------- | ---------------------------------------------------------- | ---------------------------------------- |

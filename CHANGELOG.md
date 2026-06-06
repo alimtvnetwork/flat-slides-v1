@@ -2,6 +2,11 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.72.0 — 2026-06-06
+
+### Added
+- **Plan 06 Phase C Step 26 pulled forward (pagination slot builder).** Added `src/components/slides/controls/pagination.ts` with the pure `buildPaginationSlots(current, total, threshold, neighbors=2)` implementation from `spec/old-slides/27-slides-number/14-ellipsis-pagination.md`, plus `src/components/slides/controls/pagination.test.ts` locking every worked example and the gap-of-1 rule. Verification signal: first run failed 7/8 from an adjacent-gap off-by-one (`start > end` produced bogus ellipses); after the minimum fix, `bunx vitest run src/components/slides/controls/pagination.test.ts` passed 8/8. Prompt 53 registered.
+
 ## 1.71.0 — 2026-06-06
 
 ### Docs

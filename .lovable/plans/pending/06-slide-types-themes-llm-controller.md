@@ -82,6 +82,15 @@ The spec now requires `.slide-heading`, `.slide-title-lg`, `.slide-title`,
 `.slide-subtitle`, and `.slide-kicker` to declare Ubuntu via the live slide
 heading/display tokens directly.
 
+### Phase C — Step 26 pulled forward notes (2026-06-06)
+
+Step 26's pure slot builder is landed early in
+`src/components/slides/controls/pagination.ts`, with spec examples locked by
+`src/components/slides/controls/pagination.test.ts`. The first verification run
+failed because adjacent visible numbers produced invalid ellipsis ranges; the
+minimum fix was an empty-gap guard in `collapsedSlot()`. The isolated test now
+passes 8/8. Steps 27–32 remain open for UI wiring, settings, popover, and e2e.
+
 Subtask files (depth-heavy steps link into these):
 - `./subtasks/06-slide-types-themes-llm-controller/SS-01-new-slide-types-catalog.md`
 - `./subtasks/06-slide-types-themes-llm-controller/SS-02-new-themes-catalog.md`
