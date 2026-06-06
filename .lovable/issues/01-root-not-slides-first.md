@@ -1,7 +1,7 @@
 # Issue: Root route `/` shows a marketing/landing page instead of slides
 
 **Slug:** root-not-slides-first
-**Status:** open
+**Status:** fixed (v1.8.0 — `/` redirects to `/slides/1`; marketing moved to `/about`)
 **Created:** 2026-06-06
 **Severity:** high — violates the slides-first command
 

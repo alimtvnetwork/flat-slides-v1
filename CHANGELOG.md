@@ -2,6 +2,18 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.8.0 — 2026-06-06
+
+### Changed
+- **Slides-first preview.** `/` now redirects to `/slides/1` so the deck is the first surface (per `.lovable/spec/commands/01-slides-first-preview.md`). Marketing/landing content moved verbatim to `/about` (`src/routes/about.tsx`).
+- Updated `mem://index.md` Core with the slides-first guardrail.
+
+### Added
+- Diagnostic RCAs under `.lovable/memory/diagnostics/`: `03-root-not-slides-first-rca.md`, `04-controller-vs-spec-rca.md` (preliminary), `05-settings-vs-spec-rca.md` (preliminary).
+
+### Resolved
+- Issue `.lovable/issues/01-root-not-slides-first.md` — marked fixed by the redirect.
+
 ## 1.7.0 — 2026-06-06
 
 ### Planning
