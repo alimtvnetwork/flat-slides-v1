@@ -1,4 +1,4 @@
-# 48 — Next Task v5 (Plan 06 Phase A Step 4 landed: live Ubuntu heading contract codified)
+# 49 — Next Task v5 (registry refresh; Phase A Step 4 already landed at 1.67.0)
 
 ## Files, functions, and signals read before selecting work
 
