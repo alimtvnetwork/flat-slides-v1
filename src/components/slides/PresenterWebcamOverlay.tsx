@@ -126,6 +126,86 @@ export function PresenterWebcamOverlay() {
     return null;
   }
 
+  // Step 8 — fullscreen surface (spec 02 §1): fixed-position layer over the
+  // deck stage with minimal chrome. Key passthrough wiring lands in Phase C.
+  if (state.phase === "fullscreen") {
+    return (
+      <div
+        role="region"
+        aria-label="Presenter camera (fullscreen)"
+        data-testid="presenter-webcam-fullscreen"
+        style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: 60,
+          background: "hsl(var(--background))",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <video
+          ref={(node) => {
+            fullscreenVideoRef.current = node;
+            attachStreamToVideo(node);
+          }}
+          muted
+          playsInline
+          autoPlay
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            transform: "scaleX(-1)",
+          }}
+        />
+        <div style={{ position: "absolute", top: 12, right: 12, display: "flex", gap: 6 }}>
+          <ChromeBtn label="Exit fullscreen" onClick={exitFullscreen}>×</ChromeBtn>
+        </div>
+      </div>
+    );
+  }
+
+  // Step 8 — stage surface (spec 02 §1): absolute layer covering the full
+  // 1920×1080 stage (parent is the scaled slide).
+  if (state.phase === "stage") {
+    return (
+      <div
+        role="region"
+        aria-label="Presenter camera (stage)"
+        data-testid="presenter-webcam-stage"
+        style={{
+          position: "absolute",
+          inset: 0,
+          width: 1920,
+          height: 1080,
+          zIndex: 55,
+          background: "hsl(var(--background))",
+        }}
+      >
+        <video
+          ref={(node) => {
+            fullscreenVideoRef.current = node;
+            attachStreamToVideo(node);
+          }}
+          muted
+          playsInline
+          autoPlay
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            transform: "scaleX(-1)",
+          }}
+        />
+        <div style={{ position: "absolute", top: 12, right: 12, display: "flex", gap: 6 }}>
+          <ChromeBtn label="Exit stage" onClick={restoreFromOverlay}>×</ChromeBtn>
+        </div>
+      </div>
+    );
+  }
+
+
   // Step 6 — `on` card surface. Subsequent steps add tray / fullscreen / stage.
   if (state.phase === "on") {
     return (
