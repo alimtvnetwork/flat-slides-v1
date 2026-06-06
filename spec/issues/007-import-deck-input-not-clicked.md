@@ -1,6 +1,6 @@
 # 007 — “Import deck” button shows the file dialog inconsistently in Safari
 
-**Status:** open
+**Status:** fixed
 **Area:** pickJsonFile
 
 ## Symptom
@@ -24,3 +24,4 @@ On Safari (and some embedded iframes) clicking Import deck does nothing. Chrome 
 ## Status log
 
 - 2026-06-06 — opened. RCA + fix plan ready. No code changes yet (per user request — fixes deferred).
+- 2026-06-06 — fixed. Import handlers now reuse the mounted `SettingsDrawer` file input and trigger `click()` synchronously from the button handler; `pickJsonFile` still supports a temporary DOM-mounted fallback for non-drawer callers. Regression: `src/lib/slides/io.test.ts`.

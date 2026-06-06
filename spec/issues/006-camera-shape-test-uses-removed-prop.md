@@ -1,6 +1,6 @@
 # 006 — `CameraBubble.shape.test.tsx` exercises an API the component no longer exposes
 
-**Status:** open
+**Status:** fixed
 **Area:** CameraBubble shape contract
 
 ## Symptom
@@ -24,3 +24,4 @@ The test imports `CameraBubble` and passes `shape` directly as a prop, but produ
 ## Status log
 
 - 2026-06-06 — opened. RCA + fix plan ready. No code changes yet (per user request — fixes deferred).
+- 2026-06-06 — fixed. `CameraBubble.shape.test.tsx` now drives all shape assertions through `useChrome.camera.shape`, and `docs/slides/spec/camera.spec.md` locks the shape radius contract.
