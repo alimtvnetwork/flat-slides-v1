@@ -487,5 +487,5 @@ function isHiddenPresenterChromeShortcut(event: KeyboardEvent) {
 
 export function isPresenterFullscreenShortcut(event: KeyboardEvent) {
   if (event.metaKey || event.ctrlKey || event.altKey) return false;
-  return event.key.toLowerCase() === "f" || event.key === "F5" || event.code === "F5";
+  return event.key.toLowerCase() === "f" || event.code === "KeyF" || event.key === "F5" || event.code === "F5";
 }
