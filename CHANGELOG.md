@@ -2,6 +2,11 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.67.0 — 2026-06-06
+
+### Docs
+- **Plan 06 Phase A Step 4 (typography addendum).** Updated `spec/old-slides/21-slides-system/llm/10-typography.md` with the live slide heading contract: the current engine uses `src/styles.css` and centralized `RenderSlide.tsx`, not the stale `src/index.css` / `src/components/slides/types/*` references. The addendum codifies that `.slide-heading`, `.slide-title-lg`, `.slide-title`, `.slide-subtitle`, and `.slide-kicker` must directly declare Ubuntu through `--slide-font-heading` / `--slide-font-display`, preventing `.slide-content` body-font inheritance from re-breaking issue 05. Appended Step 4 notes to Plan 06 context and created prompt 48 with the next exact 3 steps.
+
 ## 1.66.0 — 2026-06-06
 
 ### Docs

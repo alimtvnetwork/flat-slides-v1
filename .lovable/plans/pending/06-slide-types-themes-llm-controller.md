@@ -71,6 +71,17 @@ in-scope work is missing from the inputs.
    computing `font-family` on `/slides/1` title before writing the
    addendum in Step 4.
 
+### Phase A — Step 4 typography addendum notes (2026-06-06)
+
+Step 4 is landed in `spec/old-slides/21-slides-system/llm/10-typography.md` as
+the "live slide heading contract" addendum. It resolves the stale RCA
+hypothesis above: `src/components/slides/types/` does not exist, rendering is
+centralized in `src/components/slides/RenderSlide.tsx`, and the live root cause
+is CSS inheritance from `.slide-content` (`font-family: var(--slide-font-body)`).
+The spec now requires `.slide-heading`, `.slide-title-lg`, `.slide-title`,
+`.slide-subtitle`, and `.slide-kicker` to declare Ubuntu via the live slide
+heading/display tokens directly.
+
 Subtask files (depth-heavy steps link into these):
 - `./subtasks/06-slide-types-themes-llm-controller/SS-01-new-slide-types-catalog.md`
 - `./subtasks/06-slide-types-themes-llm-controller/SS-02-new-themes-catalog.md`

@@ -1,6 +1,6 @@
 # Prompt Registry
 
-Latest: `47-next-task.md` (Plan 06 Phase A Steps 2+3 landed — issue 05 RCA at `src/styles.css:248-253` recorded in `.lovable/memory/diagnostics/06-issue-05-ubuntu-rca.md`; Ubuntu `<link>` weights 400/500/700 confirmed sufficient).
+Latest: `48-next-task.md` (Plan 06 Phase A Step 4 landed — typography addendum now codifies the live Ubuntu heading contract and the next exact 3 steps start at ellipsis pagination specs).
 
 | ID  | File                          | Title         | Trigger phrases                                            | Purpose                                  |
 | --- | ----------------------------- | ------------- | ---------------------------------------------------------- | ---------------------------------------- |
