@@ -29,7 +29,11 @@
 ### Remaining (tracked elsewhere)
 - [ ] Manual validation in published deployment of fullscreen Present across Chrome / Safari / Firefox popup blockers.
 - [ ] Run Playwright e2e (`e2e/fullscreen-present.spec.ts`) in a CI image with Chromium system deps.
-- [ ] In-app hint when `embedded-popup-blocked` is reported, with a right-click-friendly link. — **shipped** (`PresenterFallbackLink.tsx`, mounted on both slide routes).
+- [x] In-app hint when `embedded-popup-blocked` is reported, with a right-click-friendly link. — **shipped** (`PresenterFallbackLink.tsx`, mounted on both slide routes; re-verified 2026-06-06 at `routes/index.tsx:128` + `SlidePresenterPage.tsx:400`).
+
+### Issues 001 + 002 (spec: `spec/issues/`)
+- [x] **#001 Preview-iframe Present is silently unsupported** — fixed at `useFullscreen.ts:103–118`: when `document.fullscreenEnabled === false` and `isEmbeddedWindow()`, route directly to `openPresenterWindow()`. Locked by 2 new cases in `fullscreenTarget.test.ts` (11/11 pass).
+- [x] **#002 Slide-4 step→step black flash** — fixed at `RenderSlide.tsx:224–268`: `<AnimatePresence mode="wait">` + sequenced 180ms opacity / 220ms y-translate eliminates the sync-mode opacity dip that revealed the slide bg. Locked by `step-transition-no-black.test.tsx` (2/2 pass).
 
 ## Active: Deck PDF export (spec: `docs/slides/spec/print-mode.spec.md`)
 
