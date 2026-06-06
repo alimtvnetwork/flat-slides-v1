@@ -33,6 +33,7 @@ export function PresenterWebcamOverlay() {
     setPosition,
     setFreeSize,
     stepSize,
+    show,
     hide,
     close,
     toggleMinimized,
