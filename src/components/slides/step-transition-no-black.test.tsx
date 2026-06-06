@@ -1,5 +1,9 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("./useSlideNavigation", () => ({
+  useSlideNavigation: () => ({ goTo: vi.fn(), next: vi.fn(), prev: vi.fn() }),
+}));
 
 import { RenderSlide } from "./RenderSlide";
 import type { StepsSlideProps } from "./types";
