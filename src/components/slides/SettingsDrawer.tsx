@@ -586,43 +586,94 @@ export function SettingsDrawer({
           </button>
         </section>
 
-        {/* Import / Export */}
-        <section className="space-y-2 border-t border-neutral-800 pt-4">
+        {/* Import / Export — grouped by Deck · Slide · Theme · PDF */}
+        <section className="space-y-3 border-t border-neutral-800 pt-4">
           <label className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wider text-neutral-400">
-            <Upload size={12} /> Import / Export
+            <ArrowLeftRight size={12} /> Import / Export
           </label>
           <p className="text-[11px] leading-snug text-neutral-500">
-            Imported decks are stored in this browser only (<code className="font-mono text-neutral-400">localStorage: slides-deck-v1</code>). They do not sync across browsers or devices — re-export the JSON to share. Full contract: <code className="font-mono text-neutral-400">docs/slides/spec/import-export.spec.md</code>.
+            Decks &amp; slides stay in this browser (<code className="font-mono text-neutral-400">localStorage</code>) until you export the JSON. Contract: <code className="font-mono text-neutral-400">docs/slides/spec/import-export.spec.md</code>.
           </p>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              onClick={handleImportDeck}
-              className="inline-flex items-center justify-center gap-1.5 rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700"
-            >
-              <Upload size={13} /> Import deck
-            </button>
-            <button
-              onClick={() => exportDeck(deck)}
-              className="inline-flex items-center justify-center gap-1.5 rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700"
-            >
-              <Download size={13} /> Export deck
-            </button>
-            <button
-              onClick={handleImportSlide}
-              className="inline-flex items-center justify-center gap-1.5 rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700"
-            >
-              <Upload size={13} /> Import slide
-            </button>
-            <button
-              onClick={handleExportSlide}
-              className="inline-flex items-center justify-center gap-1.5 rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700"
-            >
-              <Download size={13} /> Export slide
-            </button>
+
+          {/* Deck */}
+          <div className="rounded bg-neutral-900 p-2 space-y-1.5">
+            <div className="px-1 text-[10px] uppercase tracking-wider text-neutral-500">Deck (single JSON file)</div>
+            <div className="grid grid-cols-2 gap-1.5">
+              <button onClick={handleImportDeck} className="inline-flex items-center justify-center gap-1.5 rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700">
+                <Upload size={13} /> Import deck
+              </button>
+              <button onClick={() => exportDeck(deck)} className="inline-flex items-center justify-center gap-1.5 rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700">
+                <Download size={13} /> Export deck
+              </button>
+            </div>
+          </div>
+
+          {/* Slide */}
+          <div className="rounded bg-neutral-900 p-2 space-y-1.5">
+            <div className="px-1 text-[10px] uppercase tracking-wider text-neutral-500">Single slide</div>
+            <div className="grid grid-cols-2 gap-1.5">
+              <button onClick={handleImportSlide} className="inline-flex items-center justify-center gap-1.5 rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700">
+                <Upload size={13} /> Import slide
+              </button>
+              <button onClick={handleExportSlide} className="inline-flex items-center justify-center gap-1.5 rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700">
+                <Download size={13} /> Export slide
+              </button>
+            </div>
+          </div>
+
+          {/* Theme */}
+          <div className="rounded bg-neutral-900 p-2 space-y-1.5">
+            <div className="flex items-center justify-between px-1">
+              <span className="text-[10px] uppercase tracking-wider text-neutral-500">Theme (single or batch)</span>
+              <a
+                href="/docs/slides/spec/theme-json-guideline.md"
+                target="_blank"
+                rel="noreferrer"
+                className="text-[10px] text-neutral-500 underline hover:text-neutral-300"
+              >
+                LLM guide
+              </a>
+            </div>
+            <div className="grid grid-cols-2 gap-1.5">
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    const incoming = await pickThemesFile();
+                    upsertCustomThemes(incoming);
+                    toast.success(`Imported ${incoming.length} theme${incoming.length === 1 ? "" : "s"}`);
+                  } catch (err) {
+                    toast.error((err as Error).message ?? "Import failed");
+                  }
+                }}
+                className="inline-flex items-center justify-center gap-1.5 rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700"
+              >
+                <Upload size={13} /> Import themes
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const all = getAllThemes();
+                  downloadThemesJson(all, "themes.json");
+                  toast.success(`Exported ${all.length} themes`);
+                }}
+                className="inline-flex items-center justify-center gap-1.5 rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700"
+              >
+                <Download size={13} /> Export themes
+              </button>
+            </div>
+            <p className="px-1 text-[10px] leading-snug text-neutral-500">
+              Per-theme export &amp; delete buttons live on each tile in the Theme section above.
+            </p>
+          </div>
+
+          {/* PDF exports */}
+          <div className="rounded bg-neutral-900 p-2 space-y-1.5">
+            <div className="px-1 text-[10px] uppercase tracking-wider text-neutral-500">PDF export</div>
             {EXPORT_OPTIONS.map((option) => (
-              <div key={option.path} className="col-span-2 grid grid-cols-4 gap-1.5 rounded bg-neutral-900 p-1.5">
-                <span className="flex items-center gap-1.5 px-2 text-sm text-neutral-300">
-                  <Printer size={13} /> {option.label}
+              <div key={option.path} className="grid grid-cols-4 gap-1.5">
+                <span className="flex items-center gap-1.5 px-2 text-xs text-neutral-300">
+                  <Printer size={12} /> {option.label}
                 </span>
                 {EXPORT_PAPERS.map((paper) => (
                   <button
@@ -637,29 +688,34 @@ export function SettingsDrawer({
                 ))}
               </div>
             ))}
+            <p className="px-1 text-[10px] leading-snug text-neutral-500">
+              Opens a print-ready route in a new tab — use the browser's “Save as PDF”. PPTX export is not yet implemented.
+            </p>
+          </div>
+
+          {/* Samples */}
+          <div className="grid grid-cols-2 gap-1.5">
             <button
               onClick={handleLoadSpecSample}
-              className="col-span-2 inline-flex items-center justify-center gap-1.5 rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700"
+              className="inline-flex items-center justify-center gap-1.5 rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700"
               title="Load docs/slides/spec/sample-deck.json"
             >
-              <Sparkles size={13} /> Try spec sample deck
+              <Sparkles size={13} /> Spec sample
             </button>
             <button
-              onClick={() => {
-                resetDeck();
-                toast.success("Reset to sample deck");
-              }}
-              className="col-span-2 inline-flex items-center justify-center gap-1.5 rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700"
+              onClick={() => { resetDeck(); toast.success("Reset to sample deck"); }}
+              className="inline-flex items-center justify-center gap-1.5 rounded bg-neutral-800 px-3 py-2 text-sm hover:bg-neutral-700"
             >
-              <RotateCcw size={13} /> Reset sample deck
+              <RotateCcw size={13} /> Reset deck
             </button>
           </div>
+
           <p className="text-xs text-neutral-500">
             See the{" "}
             <Link to="/slides/spec" className="underline decoration-neutral-600 underline-offset-2 hover:text-neutral-300">
               JSON spec
             </Link>{" "}
-            any LLM can write.
+            any LLM can write — emit the whole deck as <em>one</em> file.
           </p>
           <input
             ref={fileRef}
@@ -670,6 +726,7 @@ export function SettingsDrawer({
             className="pointer-events-none fixed h-px w-px opacity-0"
           />
         </section>
+
 
         {/* Presenter tools */}
         <section className="mb-6 space-y-2">
