@@ -33,6 +33,7 @@ export function PresenterWebcamOverlay() {
     setPosition,
     setFreeSize,
     stepSize,
+    show,
     hide,
     close,
     toggleMinimized,
@@ -230,8 +231,93 @@ export function PresenterWebcamOverlay() {
     );
   }
 
-  // Steps 7–8 wire tray / fullscreen / stage. For now mount the hidden video
-  // sinks so the stream stays bound when transitioning through these phases.
+  // Step 7 — tray surface (spec 02 §5): 40×40 ember-pulse icon parked at the
+  // last `on` card's top-right corner. Hover fans out Expand / Fullscreen /
+  // Stop. The MediaStream stays alive (state.phase === "tray").
+  if (state.phase === "tray") {
+    const trayX = position.x + size.w - 40;
+    const trayY = position.y;
+    return (
+      <div
+        role="region"
+        aria-label="Presenter camera (tray)"
+        data-testid="presenter-webcam-tray"
+        style={{
+          position: "absolute",
+          left: trayX,
+          top: trayY,
+          zIndex: 50,
+        }}
+      >
+        {/* Hidden sink keeps the stream warm while parked. */}
+        <video
+          ref={(node) => {
+            floatingVideoRef.current = node;
+            attachStreamToVideo(node);
+          }}
+          muted
+          playsInline
+          autoPlay
+          style={{ display: "none" }}
+        />
+
+        <button
+          type="button"
+          aria-label="Show camera"
+          onClick={() => {
+            // No `show()` Promise needed — phase=tray reuses the live stream.
+            void (async () => {})();
+          }}
+          className="cam-tray-pulse group"
+          style={{
+            position: "relative",
+            width: 40,
+            height: 40,
+            borderRadius: 999,
+            border: "none",
+            background:
+              "radial-gradient(circle at 30% 30%, hsl(var(--gold) / 0.95), hsl(var(--gold) / 0.55) 60%, hsl(var(--background) / 0.85))",
+            color: "hsl(var(--background))",
+            fontSize: 18,
+            cursor: "pointer",
+            boxShadow:
+              "0 0 0 2px hsl(var(--background) / 0.6), 0 0 24px hsl(var(--gold) / 0.55)",
+          }}
+        >
+          ●
+          {/* Hover fan: appears to the left of the puck. */}
+          <span
+            style={{
+              position: "absolute",
+              top: "50%",
+              right: 48,
+              transform: "translateY(-50%)",
+              display: "none",
+              gap: 6,
+              padding: "6px 8px",
+              borderRadius: 10,
+              background: "hsl(var(--background) / 0.9)",
+              boxShadow: "0 8px 24px hsl(var(--background) / 0.6)",
+            }}
+            className="cam-tray-fan"
+          >
+            <FanBtn label="Expand" onClick={(e) => { e.stopPropagation(); void show(); }}>
+              Expand
+            </FanBtn>
+            <FanBtn label="Fullscreen" onClick={(e) => { e.stopPropagation(); enterFullscreen(); }}>
+              Full
+            </FanBtn>
+            <FanBtn label="Stop" onClick={(e) => { e.stopPropagation(); close(); }}>
+              Stop
+            </FanBtn>
+          </span>
+        </button>
+      </div>
+    );
+  }
+
+  // Steps 8 wires fullscreen + stage surfaces. Keep hidden sinks bound so the
+  // stream survives transitions until those surfaces are wired.
   return (
     <div data-testid="presenter-webcam-overlay" aria-hidden>
       <video
@@ -255,6 +341,36 @@ export function PresenterWebcamOverlay() {
         style={{ display: "none" }}
       />
     </div>
+  );
+}
+
+function FanBtn({
+  children,
+  onClick,
+  label,
+}: {
+  children: React.ReactNode;
+  onClick: (e: React.MouseEvent) => void;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      title={label}
+      onClick={onClick}
+      style={{
+        padding: "4px 8px",
+        borderRadius: 6,
+        border: "none",
+        background: "hsl(var(--foreground) / 0.08)",
+        color: "hsl(var(--foreground))",
+        fontSize: 12,
+        cursor: "pointer",
+      }}
+    >
+      {children}
+    </button>
   );
 }
 
