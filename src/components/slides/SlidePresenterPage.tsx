@@ -26,6 +26,11 @@ import { getDisplayNumber, slideStepCount } from "@/components/slides/types";
 import { useFullscreen } from "@/components/slides/useFullscreen";
 import { emitSlidesEvent, installConsoleSink } from "@/components/slides/telemetry";
 import { SLIDES_FULLSCREEN_URL_CHANGE_EVENT, type SlidesFullscreenUrlChangeDetail, useSlideNavigation } from "@/components/slides/useSlideNavigation";
+import {
+  usePresenterWebcam,
+  WEBCAM_PASSTHROUGH_EVENT,
+  type WebcamPassthroughDetail,
+} from "@/components/slides/usePresenterWebcam";
 
 const CommandPalette = lazy(() =>
   import("@/components/slides/CommandPalette").then((m) => ({ default: m.CommandPalette })),
