@@ -2,6 +2,11 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.39.0 — 2026-06-06
+
+### Planning
+- **Next-task triage (prompt 20).** No product code change. Read the active project memory and the source files for plan 05 before selecting work: `.lovable/coding-guidelines.md`, `.lovable/plan.md`, `.lovable/memory/index.md`, `.lovable/plans/pending/05-controller-whitebal-fonts.md`, `.lovable/issues/04-controller-whitebal-step-back-fonts.md`, `src/components/slides/SlidePresenterPage.tsx`, `src/components/slides/RenderSlide.tsx`, `src/styles.css`, and `src/components/slides/controls/ControllerPill.tsx`. Root cause: the active plan still has unresolved implementation work, so the correct next task output must be derived from the pending plan and source-level audit rather than inventing or reordering work. Next 2 implementation steps remain pinned to SS-01 symmetric back-step navigation, then SS-03 heading font weight + anti-aliasing; remaining plan items are SS-02 white-balance-in-controller, parity/doc updates if needed, end-to-end verification, and plan closure.
+
 ## 1.38.0 — 2026-06-06
 
 ### Planning
