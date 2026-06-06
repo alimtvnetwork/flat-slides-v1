@@ -4,7 +4,7 @@
 > each invocation (e.g. `next task 7`) so chat-history search can locate
 > the exact batch.
 
-**Latest invocation:** `next task 14` → v1.10.0 (planning-only: surfaced next 2 steps — controller coexistence + settings spec parity).
+**Latest invocation:** `next task 15` → v1.11.0 (executed plan step 11: ControllerPill suppressed on `/slides/1` so DeckLauncher owns deck-home chrome).
 
 ## What I want
 
