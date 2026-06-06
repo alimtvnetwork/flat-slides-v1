@@ -2,6 +2,12 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.32.0 — 2026-06-06
+
+### Docs
+- **Plan 04 moved to `completed/`.** `.lovable/plans/pending/04-highlight-fullscreen-settings-llm-guide.md` → `completed/`. Issue 03 is closed (v1.31.0), so leaving it under `pending/` was lying about in-flight work.
+- **SettingsDrawer ↔ spec 27 parity audit.** New `spec/audits/27-settings-drawer-audit.md` inventories all 13 drawer sections, maps the three §10 visibility toggles (Presenter top bar / Slide number badge / Dot pagination) to their current lines in `SettingsDrawer.tsx`, and records net-new sections (Theme, Background, Text color, Highlight color, LLM guide, Camera, Darken, Blur, Transition, Music volume, Import/Export, Presenter tools, Dev). Result: no gaps, no duplicates, no conflicts — ship as-is.
+
 ## 1.31.0 — 2026-06-06
 
 ### Docs
