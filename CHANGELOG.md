@@ -2,6 +2,11 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.29.0 — 2026-06-06
+
+### Added
+- **LLM guide download in Settings.** New "LLM guide" section in `SettingsDrawer.tsx` ships a single-click `.zip` (`glasswing-llm-guide.zip`) containing `README.txt`, `llm-json-guideline.md`, and `sample-deck.json` (both Vite `?raw` imports). `fflate` (`zipSync`) is dynamic-imported on click to keep first-paint bundle small. Errors surface via `toast.error` + `console.error` (memory: never swallow). New dep: `fflate@0.8.3`.
+
 ## 1.28.0 — 2026-06-06
 
 ### Added

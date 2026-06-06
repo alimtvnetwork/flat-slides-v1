@@ -25,8 +25,9 @@ import {
   pickJsonFile,
 } from "@/lib/slides/io";
 import { MAX_MUSIC_VOLUME, MIN_MUSIC_VOLUME, MUSIC_VOLUME_STEP } from "@/lib/slides/musicVolume";
-// Inline-loaded LLM spec sample deck (see docs/slides/spec/llm-json-guideline.md).
+// Inline-loaded LLM spec (see docs/slides/spec/llm-json-guideline.md).
 import sampleDeckJson from "../../../docs/slides/spec/sample-deck.json?raw";
+import llmGuidelineMd from "../../../docs/slides/spec/llm-json-guideline.md?raw";
 
 import { useAnnotations } from "./annotations-store";
 import { nextBackgroundSettings } from "./backgroundMode";
@@ -142,6 +143,36 @@ export function SettingsDrawer({
   const openExport = (path: string, paper: ExportPaper) => {
     window.open(exportUrl(path, paper), "_blank", "noopener,noreferrer");
   };
+
+  const handleDownloadGuide = async () => {
+    try {
+      const { zipSync, strToU8 } = await import("fflate");
+      const zipped = zipSync({
+        "README.txt": strToU8(
+          "Glasswing — LLM JSON deck guide\n\n" +
+            "1. llm-json-guideline.md — full spec (slide types, RichText, highlights, images, focus regions).\n" +
+            "2. sample-deck.json     — canonical deck JSON that validates against the spec.\n\n" +
+            "Feed both files to your LLM, ask it to emit a deck.json that matches the schema, then Import via Settings.\n",
+        ),
+        "llm-json-guideline.md": strToU8(llmGuidelineMd),
+        "sample-deck.json": strToU8(sampleDeckJson),
+      });
+      const blob = new Blob([zipped], { type: "application/zip" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "glasswing-llm-guide.zip";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      toast.success("Downloaded glasswing-llm-guide.zip");
+    } catch (error) {
+      console.error("[settings:guide] download failed", error);
+      toast.error("Guide download failed — see console for details");
+    }
+  };
+
 
   return (
     <div
@@ -298,6 +329,21 @@ export function SettingsDrawer({
               />
             ))}
           </div>
+        </section>
+
+        <section className="mb-6 space-y-2">
+          <label className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wider text-neutral-400">
+            <Download size={12} /> LLM guide
+          </label>
+          <p className="text-xs text-neutral-500">
+            Spec + sample deck. Feed both to ChatGPT/Claude/etc. and ask for a deck.json, then Import.
+          </p>
+          <button
+            onClick={handleDownloadGuide}
+            className="inline-flex w-full items-center justify-center gap-2 rounded bg-neutral-800 px-3 py-2 text-sm text-neutral-100 ring-1 ring-neutral-700 hover:bg-neutral-700"
+          >
+            <Download size={14} /> Download guide (.zip)
+          </button>
         </section>
 
         <section className="mb-6 space-y-3">
