@@ -8,7 +8,7 @@ import { useReducedMotion } from "@/components/slides/useReducedMotion";
 import { cn } from "@/lib/utils";
 import { useHoverReveal } from "./useHoverReveal";
 
-import { anchorStyles, type ControllerAnchor } from "./controller-anchor";
+import { anchorStyles, clampControllerAnchor, type ControllerAnchor } from "./controller-anchor";
 import { useControllerAnchor } from "./controller-anchor-store";
 
 import { SlideIndicator } from "./SlideIndicator";
@@ -40,6 +40,7 @@ interface Props {
 export function ControllerPill(props: Props) {
   const { current, total, onPrev, onNext, onJump, onToggleFullscreen, onOpenSettings, onOpenHelp, isFullscreen, canPrev, canNext } = props;
   const anchor = useControllerAnchor((s) => s.anchor);
+  const setAnchor = useControllerAnchor((s) => s.setAnchor);
   const cycleAnchor = useControllerAnchor((s) => s.cycleAnchor);
   const isNarrow = useNarrowViewport();
   const reduced = useReducedMotion();
@@ -55,6 +56,22 @@ export function ControllerPill(props: Props) {
       if (active instanceof HTMLElement && active.closest('[aria-label="Slide controller"]')) active.blur();
     });
   }, [isFullscreen]);
+
+  // Issue 029: re-clamp the persisted anchor when the viewport shrinks
+  // below what the pill needs at a corner. Snaps to bottom-center so the
+  // pill never disappears past the right/left edge after resize.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const clamp = () => {
+      const el = containerRef.current;
+      if (!el) return;
+      const next = clampControllerAnchor(anchor, window.innerWidth, el.getBoundingClientRect().width);
+      if (next !== anchor) setAnchor(next);
+    };
+    clamp();
+    window.addEventListener("resize", clamp);
+    return () => window.removeEventListener("resize", clamp);
+  }, [anchor, setAnchor]);
 
   if (!mounted) return null;
 

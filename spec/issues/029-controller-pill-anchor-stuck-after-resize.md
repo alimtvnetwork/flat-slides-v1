@@ -24,3 +24,4 @@ Anchor is set to bottom-right; user resizes the window narrow — pill overflows
 ## Status log
 
 - 2026-06-06 — opened. RCA + fix plan ready. No code changes yet (per user request — fixes deferred).
+- 2026-06-06 — fixed in v1.2.0. Added pure `clampControllerAnchor(anchor, viewportWidth, pillWidth)` helper in `controller-anchor.ts` plus a `resize`-listening effect in `ControllerPill` that snaps back to `bottom-center` when a corner anchor would overflow. Regression lock: `clampControllerAnchor (issue 029)` cases in `controller-anchor.test.ts`.

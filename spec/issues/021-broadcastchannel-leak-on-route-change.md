@@ -24,3 +24,4 @@ Long sessions show ballooning memory + duplicate sync messages.
 ## Status log
 
 - 2026-06-06 — opened. RCA + fix plan ready. No code changes yet (per user request — fixes deferred).
+- 2026-06-06 — fixed in v1.2.0. `useAudienceSync` now opens exactly one `BroadcastChannel` per `sessionId`; slide-arg changes publish over the existing channel via a ref. Regression lock: `src/components/slides/useAudienceSync.test.ts` (100 rerenders → 1 channel constructed).
