@@ -23,7 +23,7 @@ export const SLIDES_EVENT = "slides:event" as const;
  * needing an external analytics sink. Never populated in production.
  */
 export const SLIDES_EVENT_BUFFER_CAP = 200;
-type BufferedEvent = SlidesEventDetail & { at: number };
+export type BufferedEvent = SlidesEventDetail & { at: number };
 
 declare global {
   interface Window {

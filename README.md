@@ -1,6 +1,6 @@
 # Glasswing — JSON-driven slide system
 
-**Version:** `1.18.0` (pinned) · See [CHANGELOG.md](./CHANGELOG.md) for release notes.
+**Version:** `1.19.0` (pinned) · See [CHANGELOG.md](./CHANGELOG.md) for release notes.
 
 
 A presentation engine where every deck is a JSON file. Three themes,

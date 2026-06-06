@@ -2,6 +2,14 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.19.0 — 2026-06-06
+
+### Added
+- **Dev-only slides event viewer.** `SettingsDrawer` now mounts `DevSlidesEventsPanel` inside the existing `import.meta.env.DEV` section, rendering the latest 20 `window.__slidesEvents` entries with timestamp, event type, payload summary, and a Clear action. This makes `home-launcher-click` telemetry visible in-app without DevTools while keeping production builds unchanged.
+
+### Tests
+- Added `SettingsDrawer.dev-events.test.ts` to lock that the viewer remains dev-gated, and exported the `BufferedEvent` type from `telemetry.ts` for the panel.
+
 ## 1.18.0 — 2026-06-06
 
 ### Added
