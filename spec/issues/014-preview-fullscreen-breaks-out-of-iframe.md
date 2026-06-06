@@ -1,6 +1,6 @@
 # 014 — Pressing F/Present in preview iframe escapes to top window unexpectedly
 
-**Status:** open
+**Status:** closed (v1.34.0)
 **Area:** useFullscreen / presenter-window
 
 ## Symptom
