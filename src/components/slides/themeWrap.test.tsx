@@ -57,7 +57,7 @@ describe("ThemeWrap background pipeline", () => {
     const root = container.firstElementChild as HTMLElement;
     expect(root.style.getPropertyValue("--slide-bg")).toBe("#0a0a0a");
     expect(root.style.getPropertyValue("--slide-fg")).toBe("#ffffff");
-    expect(root.style.getPropertyValue("--slide-text-shadow")).toBe("none");
+    expect(root.style.getPropertyValue("--slide-text-shadow")).toBe("rgb(0 0 0) 1px 0.7px 0px");
   });
 
   it("uses true white as the default midnight foreground", () => {

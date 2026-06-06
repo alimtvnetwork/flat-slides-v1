@@ -58,8 +58,12 @@ function applyDarkPresetTokens(style: Record<string, string>): void {
   style["--slide-bg"] = DARK_PRESET_BG;
   style["--slide-fg"] = DARK_PRESET_FG;
   style["--slide-muted"] = DARK_PRESET_MUTED;
-  style["--slide-text-shadow"] = "none";
+  // Dark preset = light text on dark bg, which is the exact case the
+  // legibility ink-stamp shadow exists for. Keep it ON (matches themeStyle's
+  // light-on-dark branch in themes.ts and the spec in styles.css).
+  style["--slide-text-shadow"] = "rgb(0 0 0) 1px 0.7px 0px";
 }
+
 
 function ThemeWrap({ slide, children }: { slide: Slide; children: React.ReactNode }) {
   const deckThemeId = useDeck((s) => s.deck.themeId);
