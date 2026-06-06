@@ -468,6 +468,28 @@ export function PresenterWebcamOverlay() {
           </>
         )}
 
+        {/* Spec 05 §7 — halo vignette around the box. Independent of plate
+            and circle; theme-tokenized so it works in light + dark themes. */}
+        {halo && (
+          <div
+            aria-hidden
+            data-testid="presenter-webcam-halo"
+            style={{
+              position: "absolute",
+              left: -platePad,
+              top: -platePad,
+              width: size.w + platePad * 2,
+              height: size.h + platePad * 2,
+              pointerEvents: "none",
+              zIndex: 3,
+              borderRadius: circle ? "50%" : "38% / 34%",
+              boxShadow:
+                "inset 0 0 60px hsl(var(--background) / 0.55), 0 0 48px hsl(var(--gold) / 0.18)",
+            }}
+          />
+        )}
+
+
         {/* Inner masked frame — squircle mask + radius live here so the plates
             above remain visible around it. Stable DOM node (no remount on
             shape/plate toggles — spec 02 §4). */}
