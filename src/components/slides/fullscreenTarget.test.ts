@@ -150,4 +150,41 @@ describe("slide fullscreen target", () => {
 
     expect(result).toEqual({ ok: false, reason: "native-failed", error });
   });
+
+  it("routes embedded preview iframes straight to the presenter popup when fullscreen is disabled", async () => {
+    // Lovable preview iframe: host lacks allow="fullscreen" so
+    // document.fullscreenEnabled === false. The native attempt can never
+    // succeed; we must use the popup fallback instead of returning silent
+    // "unsupported". Regression for spec/issues/001-preview-iframe-fullscreen.md.
+    Object.defineProperty(document, "fullscreenEnabled", { configurable: true, value: false });
+    const stableRoot = document.createElement("div");
+    stableRoot.setAttribute("data-slides-fullscreen-root", "");
+    const stableRequest = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(stableRoot, "requestFullscreen", { value: stableRequest });
+    document.body.append(stableRoot);
+    const openPresenterWindow = vi.fn(() => ({ focus: vi.fn() }) as unknown as Window);
+
+    const result = await enterFullscreen(stableRoot, {
+      isEmbeddedWindow: () => true,
+      openPresenterWindow,
+    });
+
+    expect(result).toEqual({ ok: true, mode: "presenter-window" });
+    expect(stableRequest).not.toHaveBeenCalled();
+    expect(openPresenterWindow).toHaveBeenCalledOnce();
+  });
+
+  it("reports embedded-popup-blocked when the iframe popup fallback is blocked", async () => {
+    Object.defineProperty(document, "fullscreenEnabled", { configurable: true, value: false });
+    const stableRoot = document.createElement("div");
+    stableRoot.setAttribute("data-slides-fullscreen-root", "");
+    document.body.append(stableRoot);
+
+    const result = await enterFullscreen(stableRoot, {
+      isEmbeddedWindow: () => true,
+      openPresenterWindow: () => null,
+    });
+
+    expect(result).toEqual({ ok: false, reason: "embedded-popup-blocked" });
+  });
 });
