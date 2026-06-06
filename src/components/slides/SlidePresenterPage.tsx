@@ -76,6 +76,7 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [lintOpen, setLintOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
+  const [launcherHidden, setLauncherHidden] = useState(false);
   const { isFs, toggle: toggleFs } = useFullscreen();
   const toggleTopJumper = useChrome((s) => s.toggleTopJumper);
   const toggleCamera = useChrome((s) => s.toggleCamera);
@@ -435,8 +436,8 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
       <PresenterFallbackLink />
       <PresenterAutoStart />
       <CameraBubble />
-      {!isFs && current === 1 && !isStepRoute && (
-        <DeckLauncher onOpenSettings={() => setSettingsOpen(true)} onPresent={() => { void toggleFs(); }} />
+      {!launcherHidden && !isFs && current === 1 && !isStepRoute && (
+        <DeckLauncher onOpenSettings={() => setSettingsOpen(true)} onPresent={() => { setLauncherHidden(true); void toggleFs(); }} />
       )}
       {settingsOpen && (
         <Suspense fallback={null}>
