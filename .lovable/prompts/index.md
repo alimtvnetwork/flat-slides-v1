@@ -1,6 +1,6 @@
 # Prompt Registry
 
-Latest: `32-next-task.md` (repeat-request version refresh; next 3 remain fullscreen persistence, slide-4 step black-frame repair, white/default text + highlight no-glow regression lock).
+Latest: `33-next-task.md` (repeat-request version refresh; same 3 next steps: fullscreen persistence, slide-4 step black-frame, visual-rule + regression lock).
 
 | ID  | File                          | Title         | Trigger phrases                                            | Purpose                                  |
 | --- | ----------------------------- | ------------- | ---------------------------------------------------------- | ---------------------------------------- |
