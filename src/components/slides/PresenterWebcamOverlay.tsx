@@ -44,6 +44,8 @@ export function PresenterWebcamOverlay() {
     toggleHalo,
     toggleCircle,
     runCinematicCycle,
+    pushFullscreenAction,
+    emitPassthrough,
   } = usePresenterWebcam();
 
   // ─── Step 9 — core keydown listener (spec 03 §2) ────────────────────────
@@ -162,6 +164,36 @@ export function PresenterWebcamOverlay() {
     enterFullscreen,
     runCinematicCycle,
   ]);
+
+  // ─── Step 10 — fullscreen/stage nav passthrough (spec 02 §6) ───────────
+  // Capture-phase listener beats the deck's bubble-phase listener so nav keys
+  // reach the deck via `riseup:webcam-passthrough` instead of advancing twice.
+  useEffect(() => {
+    if (state.phase !== "fullscreen" && state.phase !== "stage") return;
+    const onCaptureKey = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const forward = ["ArrowRight", "ArrowDown", "Enter", " ", "PageDown"].includes(e.key);
+      const back = ["ArrowLeft", "PageUp"].includes(e.key);
+      if (!forward && !back) return;
+      e.preventDefault();
+      e.stopPropagation();
+      if (forward) {
+        pushFullscreenAction("goNext");
+        emitPassthrough("next");
+      } else {
+        // Back inside fullscreen first undoes the entry if that was the last action.
+        const last = (window as unknown as { __riseupWebcamLastAction?: string }).__riseupWebcamLastAction;
+        if (state.phase === "fullscreen" && last === "enter-fullscreen") {
+          exitFullscreen();
+        } else {
+          pushFullscreenAction("goPrev");
+          emitPassthrough("prev");
+        }
+      }
+    };
+    window.addEventListener("keydown", onCaptureKey, true);
+    return () => window.removeEventListener("keydown", onCaptureKey, true);
+  }, [state.phase, pushFullscreenAction, emitPassthrough, exitFullscreen]);
 
   const floatingVideoRef = useRef<HTMLVideoElement | null>(null);
   const fullscreenVideoRef = useRef<HTMLVideoElement | null>(null);
