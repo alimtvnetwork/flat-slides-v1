@@ -397,7 +397,11 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
         </div>
         {surfaces}
       </SlideStageShell>
-      {!isFs && controller}
+      {/* Step 11 — controller/launcher coexistence: on the deck-home surface
+          (`/slides/1`, no step, non-fullscreen) the DeckLauncher owns the
+          bottom-center chrome. Suppress ControllerPill there so the two
+          toolbars don't collide and double-claim the same hover zone. */}
+      {!isFs && !(current === 1 && !isStepRoute) && controller}
       <PresenterToast />
       <PresenterFallbackLink />
       <PresenterAutoStart />
