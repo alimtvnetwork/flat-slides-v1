@@ -2,6 +2,11 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.73.0 — 2026-06-06
+
+### Docs
+- **Plan 06 Phase A Step 8 (theme-hooks channel surface).** Wrote `spec/old-slides/26-slide-definitions/01-theme-hooks.md`: `--slide-<group>-<role>` channel naming rule, shared channels (bg/fg/accent/border/shadow/focus), per-group tables for all 6 catalog groups (text-first, media, data+diagrams, structure, interactive, comparison), 4-level override precedence (inline `background` → per-slide `themeId` → deck theme → `:root`), authoring rules (no hex/rgb/hsl in renderers, every consumed channel declared in per-type stub §4), and test fixture plan (`channels.test.ts` resolves via `getComputedStyle` not literal colors). Locks the surface so Phase D renderers and Phase E palette swaps stay independent. Prompt 54 registered.
+
 ## 1.72.0 — 2026-06-06
 
 ### Added
