@@ -140,3 +140,8 @@ export function themeStyle(theme: Theme): React.CSSProperties {
     ["--slide-text-shadow" as string]: textShadow,
   };
 }
+
+// Side-effect import: registers the custom-themes resolver via
+// _registerCustomThemesResolver. Kept at the bottom to avoid TDZ on the
+// resolver setter during module evaluation.
+import "./customThemes";
