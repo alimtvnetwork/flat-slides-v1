@@ -131,3 +131,18 @@ Confirmed root cause at `RenderSlide.tsx:223–263`:
 Fix target (Phase C, step 8–10): replace `<AnimatePresence>` + `motion.div` keyed on `focus` with a single persistent `motion.div` using `mode="wait"` + sequenced 140ms fade-out / 220ms fade-in (+8px translateY), reduced-motion = instant. Within Core memory's "opacity + ≤16px translate" envelope. No scale.
 
 Status: investigation complete. Awaiting code fix in step 8.
+
+---
+
+## Reproduction (step 7) & fix applied (step 8)
+
+Repro path: `/slides/4/1` → `/slides/4/2` → `/slides/4/3`. With the old `<AnimatePresence>` (sync mode, 450ms easeOut on both exit and enter), the detail pane's combined opacity dipped below 1.0 mid-swap, revealing `--slide-bg` as a dark/black frame.
+
+Fix shipped in `src/components/slides/RenderSlide.tsx:224–268` (StepsSlide detail pane):
+- `mode="wait"` — exit completes before enter starts, so there is never a moment when both layers are partially transparent simultaneously.
+- Sequenced timing: 180ms opacity, 220ms `y` translate (±8px), within Core memory's "opacity + ≤16px translate" envelope.
+- `useReducedMotion()` honored — both durations collapse to 0 and `y` offset is 0.
+- `transform: translate(-50%, -50%)` replaced with Motion's `x`/`y` shorthand so the translate animation composes cleanly with the centering transform (no fight between inline `transform` and Motion's animated transform).
+- Added `data-testid="step-detail-pane"` for the regression test in step 11.
+
+Status: fix applied. Pending: regression test (step 11), preview verification (step 20).
