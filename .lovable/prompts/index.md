@@ -1,6 +1,6 @@
 # Prompt Registry
 
-Latest: `41-next-task.md` (Step 1 LANDED: fullscreen-persistence fix in useSlideNavigation. Next 2: slide-4 step black-frame, visual-rule + regression lock).
+Latest: `42-next-task.md` (Step 1 already landed in 1.60.0. Step 2 black-frame requires live reproduction — root cause not yet provable from code alone; honest "unsure" per definition of done).
 
 | ID  | File                          | Title         | Trigger phrases                                            | Purpose                                  |
 | --- | ----------------------------- | ------------- | ---------------------------------------------------------- | ---------------------------------------- |

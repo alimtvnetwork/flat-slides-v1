@@ -2,6 +2,11 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.61.0 — 2026-06-06
+
+### Planning
+- **Next-task triage (prompt 42).** Read `RenderSlide.tsx:215-265` (`StepDetailContent` + `StepDetailPane`): displayed swaps immediately, exiting copy fades over 220ms with no black layer, and the surrounding `SlideLayout` background never blanks between renders. No code path in the static source produces a black frame between step 2→3 — the failure must be reproduced live (camera-zoom transition, theme background swap, or a slide-specific media element) before a fix can be made minimum-correct. Marking step 2 as "unsure — needs live repro" per the prompt's hard rule, instead of shipping a speculative patch.
+
 ## 1.60.0 — 2026-06-06
 
 ### Fixed
