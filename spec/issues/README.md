@@ -17,3 +17,23 @@ criteria for one defect. Status is updated when the fix lands.
   (`open` → `in-progress` → `fixed`).
 - Link the regression test from both the table and the file body so anyone
   can verify the lock without re-deriving the RCA.
+
+## Core memory audit (2026-06-06)
+
+Confirmed the following rules still hold for slide/step rendering:
+
+- **Default transition is `fade`** — `SlideTransition.resolveSlideTransition`
+  (`SlideTransition.tsx:36–48`) returns `fadeTransition()` unless the deck
+  explicitly opts into `camera-zoom`. ✓
+- **Steps/timeline never zoom** — `canUseCameraZoom()`
+  (`SlideTransition.tsx:30–34`) returns `false` for both. ✓
+- **`useReducedMotion` is consulted** — both `SlideTransition` and `CameraStage`
+  import it from `./useReducedMotion`. ✓
+- **Step URLs are 1-based** — slide layout at `src/routes/slides.$slideId.tsx`
+  passes `slideId` through; `SlidePresenterPage` resolves via
+  `slides[Number(slideId)-1]`. ✓
+
+**Only documented `scale(...)` use:** `CameraStage.focusTransform()` for
+authored focus regions on non-step slides. Issue 002 stays within Core memory
+because the proposed fix only touches the steps-slide detail-pane crossfade
+(opacity + ≤16 px translate), never adds scale.
