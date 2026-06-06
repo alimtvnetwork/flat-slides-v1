@@ -1,6 +1,6 @@
 # Prompt Registry
 
-Latest: `43-next-task.md` (Step 3 LANDED: removed `.hl-pill` 40px blur glow in src/styles.css per no-glow rule. Step 2 still needs live repro).
+Latest: `44-next-task.md` (regression test added: hl-pill-no-glow.test.ts pins crisp ink-drop. Step 2 black-frame still needs live repro).
 
 | ID  | File                          | Title         | Trigger phrases                                            | Purpose                                  |
 | --- | ----------------------------- | ------------- | ---------------------------------------------------------- | ---------------------------------------- |

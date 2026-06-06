@@ -2,6 +2,11 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.63.0 — 2026-06-06
+
+### Added
+- **Regression test: `.hl` / `.hl-pill` no-glow contract.** New `src/components/slides/hl-pill-no-glow.test.ts` parses `src/styles.css`, extracts every `box-shadow` layer on `.hl` and `.hl-pill`, and asserts blur ≤ 2px. Prevents the 40px-blur halo from being reintroduced (verified: 2/2 passing).
+
 ## 1.62.0 — 2026-06-06
 
 ### Fixed

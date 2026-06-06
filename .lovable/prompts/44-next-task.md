@@ -1,4 +1,4 @@
-# 43 — Next Task v5 (Step 3 landed: .hl-pill glow removed)
+# 44 — Next Task v5 (regression: hl-pill no-glow test added)
 
 ## Files, functions, and signals read before selecting work
 
