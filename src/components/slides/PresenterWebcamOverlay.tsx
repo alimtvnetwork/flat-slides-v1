@@ -9,6 +9,7 @@
  *          and resize math divide pointer deltas by `--stage-scale` (§2).
  */
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useAutoFrame } from "./useAutoFrame";
 import {
   FREE_MAX_W,
   FREE_MIN_W,
@@ -46,6 +47,7 @@ export function PresenterWebcamOverlay() {
     runCinematicCycle,
     pushFullscreenAction,
     emitPassthrough,
+    autoFrame,
   } = usePresenterWebcam();
 
   // ─── Step 9 — core keydown listener (spec 03 §2) ────────────────────────
@@ -201,6 +203,11 @@ export function PresenterWebcamOverlay() {
   const resizeRef = useRef<ResizeRef | null>(null);
   const [dragging, setDragging] = useState(false);
 
+  // Spec 04 — auto-frame: track the largest face per video element and bias
+  // object-position toward the face center. No-op without window.FaceDetector.
+  const floatingAutoFrame = useAutoFrame(floatingVideoRef, autoFrame);
+  const fullscreenAutoFrame = useAutoFrame(fullscreenVideoRef, autoFrame);
+
   // Spec 02 §3 — share one MediaStream across multiple <video> nodes.
   const attachStreamToVideo = useCallback(
     (node: HTMLVideoElement | null) => {
@@ -311,6 +318,7 @@ export function PresenterWebcamOverlay() {
             width: "100%",
             height: "100%",
             objectFit: "cover",
+            objectPosition: fullscreenAutoFrame.objectPosition,
             transform: "scaleX(-1)",
           }}
         />
@@ -350,6 +358,7 @@ export function PresenterWebcamOverlay() {
             width: "100%",
             height: "100%",
             objectFit: "cover",
+            objectPosition: fullscreenAutoFrame.objectPosition,
             transform: "scaleX(-1)",
           }}
         />
@@ -396,6 +405,7 @@ export function PresenterWebcamOverlay() {
             width: "100%",
             height: "100%",
             objectFit: "cover",
+            objectPosition: floatingAutoFrame.objectPosition,
             transform: "scaleX(-1)", // mirrored selfie view
             display: "block",
           }}
