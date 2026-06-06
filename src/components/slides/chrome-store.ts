@@ -160,7 +160,7 @@ const DEFAULT_CAMERA: CameraState = {
 export interface ChromeStore {
   /** Top-bar (presenter jumper) hidden by default; toggle with `J`. */
   topJumperHidden: boolean;
-  /** Dot pagination row visible by default; toggle in settings. */
+  /** Optional dot pagination row; hidden by default to keep controls compact. */
   dotPaginationVisible: boolean;
   /** Bottom-right small badge "04 / 13"; visible by default. */
   slideNumberBadgeVisible: boolean;
