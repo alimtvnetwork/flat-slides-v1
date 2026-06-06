@@ -1,6 +1,6 @@
 # Prompt Registry
 
-Latest: `40-next-task.md` (repeat-request version refresh; same 3 next steps: fullscreen persistence, slide-4 step black-frame, visual-rule + regression lock).
+Latest: `41-next-task.md` (Step 1 LANDED: fullscreen-persistence fix in useSlideNavigation. Next 2: slide-4 step black-frame, visual-rule + regression lock).
 
 | ID  | File                          | Title         | Trigger phrases                                            | Purpose                                  |
 | --- | ----------------------------- | ------------- | ---------------------------------------------------------- | ---------------------------------------- |
