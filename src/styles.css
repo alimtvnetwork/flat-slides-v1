@@ -296,6 +296,11 @@
   overscroll-behavior: none;
 }
 
+html[data-slides-app-presenting] [data-testid="deck-launcher"],
+:fullscreen [data-testid="deck-launcher"] {
+  display: none !important;
+}
+
 [data-slide-stage-shell] {
   inline-size: 100%;
   max-inline-size: 100%;
