@@ -16,8 +16,34 @@ export type SlidesEventDetail =
 
 export const SLIDES_EVENT = "slides:event" as const;
 
+/**
+ * Dev-only ring buffer of the most recent slides events. Exposed on
+ * `window.__slidesEvents` so DevTools / the settings drawer dev panel
+ * can answer "which launcher case did the user just press?" without
+ * needing an external analytics sink. Never populated in production.
+ */
+export const SLIDES_EVENT_BUFFER_CAP = 200;
+type BufferedEvent = SlidesEventDetail & { at: number };
+
+declare global {
+  interface Window {
+    __slidesEvents?: BufferedEvent[];
+  }
+}
+
+function pushToBuffer(detail: SlidesEventDetail) {
+  if (typeof window === "undefined") return;
+  if (import.meta.env.PROD) return;
+  const buf = (window.__slidesEvents ??= []);
+  buf.push({ ...detail, at: Date.now() });
+  if (buf.length > SLIDES_EVENT_BUFFER_CAP) {
+    buf.splice(0, buf.length - SLIDES_EVENT_BUFFER_CAP);
+  }
+}
+
 export function emitSlidesEvent(detail: SlidesEventDetail) {
   if (typeof window === "undefined") return;
+  pushToBuffer(detail);
   window.dispatchEvent(new CustomEvent(SLIDES_EVENT, { detail }));
 }
 
