@@ -148,7 +148,7 @@
  * ============================================================ */
 :root {
   --slide-bg: oklch(0.16 0 0);
-  --slide-fg: oklch(0.96 0.01 80);
+  --slide-fg: oklch(1 0 0); /* true white default — secondary copy must opt into --slide-muted */
   --slide-muted: oklch(0.7 0.01 80);
   --slide-hl: oklch(0.88 0.18 95);          /* ~#FFD83A */
   --slide-hl-ink: oklch(0.18 0 0);
