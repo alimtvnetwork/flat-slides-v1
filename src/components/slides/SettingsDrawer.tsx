@@ -106,6 +106,7 @@ export function SettingsDrawer({
     const r = parseDeckJson(sampleDeckJson);
     if (!r.ok) return toast.error(`Spec sample failed to parse:\n${r.error}`, { duration: 8000 });
     setDeck(r.value);
+    goToFirstSlide();
     toast.success(`Loaded spec sample deck (${r.value.slides.length} slides)`);
   };
 
