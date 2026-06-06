@@ -268,7 +268,7 @@ function StepsSlide({ slide, step }: { slide: StepsSlideProps; step: number }) {
         <div className="min-w-0">
         <h2
           className="slide-heading slide-subtitle mb-[52px]"
-          style={{ color: "var(--slide-muted)" }}
+          style={{ color: "var(--slide-fg)" }}
         >
           {slide.heading}
         </h2>
