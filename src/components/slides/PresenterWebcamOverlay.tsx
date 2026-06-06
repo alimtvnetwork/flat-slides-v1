@@ -217,14 +217,33 @@ export function PresenterWebcamOverlay() {
 
   const floatingVideoRef = useRef<HTMLVideoElement | null>(null);
   const fullscreenVideoRef = useRef<HTMLVideoElement | null>(null);
+  const shapeFrameRef = useRef<HTMLDivElement | null>(null);
   const dragRef = useRef<DragRef | null>(null);
   const resizeRef = useRef<ResizeRef | null>(null);
   const [dragging, setDragging] = useState(false);
+  const reducedMotion = useReducedMotion();
 
   // Spec 04 — auto-frame: track the largest face per video element and bias
   // object-position toward the face center. No-op without window.FaceDetector.
   const floatingAutoFrame = useAutoFrame(floatingVideoRef, autoFrame);
   const fullscreenAutoFrame = useAutoFrame(fullscreenVideoRef, autoFrame);
+
+  // Spec 02 §4 / spec 06 step 28 — shape-pop animation on circle toggle.
+  // WAAPI on the clipping wrapper only (never remount the <video>); skip
+  // under prefers-reduced-motion.
+  useEffect(() => {
+    if (reducedMotion) return;
+    const el = shapeFrameRef.current;
+    if (!el || typeof el.animate !== "function") return;
+    el.animate(
+      [
+        { transform: "scale(1)" },
+        { transform: "scale(1.06)" },
+        { transform: "scale(1)" },
+      ],
+      { duration: 320, easing: "cubic-bezier(0.34, 1.56, 0.64, 1)" },
+    );
+  }, [circle, reducedMotion]);
 
   // Spec 02 §3 — share one MediaStream across multiple <video> nodes.
   const attachStreamToVideo = useCallback(
