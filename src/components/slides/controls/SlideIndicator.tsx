@@ -57,7 +57,7 @@ export function SlideIndicator({ current, total, onJump }: Props) {
           }}
           aria-label={`Jump to slide. Current ${current} of ${total}`}
           className={cn(
-            "inline-flex items-center justify-center h-7 min-w-[64px] px-2",
+            "inline-flex h-7 w-14 items-center justify-center px-1.5",
             "rounded-md text-[12px] tabular-nums font-medium",
             "text-[color:var(--ctrl-fg)] hover:bg-white/10 transition-colors",
           )}
