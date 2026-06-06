@@ -2,6 +2,15 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.23.0 — 2026-06-06
+
+### Fixed
+- **Slide text-shadow restored under dark preset.** `applyDarkPresetTokens` in `src/components/slides/RenderSlide.tsx` was overwriting `--slide-text-shadow` with `none`, which contradicted the spec at `src/styles.css:174-176` and the light-on-dark branch in `themeStyle()` (`src/components/slides/themes.ts:114-115`). With the dark preset (light text on dark bg) being the canonical case for the ink-stamp shadow, it is now preserved as `rgb(0 0 0) 1px 0.7px 0px`. Updated `themeWrap.test.tsx` assertion accordingly.
+
+### Verification
+- `bunx vitest run themeWrap.test.tsx themes.test.ts highlight-style-guardrails.test.ts` → **16/16 passed**.
+
+
 ## 1.22.0 — 2026-06-06
 
 ### Planning
