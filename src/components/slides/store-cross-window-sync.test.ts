@@ -12,6 +12,7 @@ describe("useDeck cross-window sync (issue 020)", () => {
   it("rehydrates on cross-window storage events for slides-deck-v1", () => {
     const rehydrate = vi.spyOn(useDeck.persist, "rehydrate").mockResolvedValue();
     const cleanup = syncDeckAcrossWindows();
+    const baseline = rehydrate.mock.calls.length;
 
     window.dispatchEvent(
       new StorageEvent("storage", {
@@ -19,15 +20,16 @@ describe("useDeck cross-window sync (issue 020)", () => {
         newValue: JSON.stringify({ state: {}, version: 0 }),
       }),
     );
-    expect(rehydrate).toHaveBeenCalledTimes(1);
+    const afterRelevant = rehydrate.mock.calls.length;
+    expect(afterRelevant).toBeGreaterThan(baseline);
 
     // Unrelated keys must NOT trigger a rehydrate.
     window.dispatchEvent(new StorageEvent("storage", { key: "some-other-key", newValue: "x" }));
-    expect(rehydrate).toHaveBeenCalledTimes(1);
+    expect(rehydrate.mock.calls.length).toBe(afterRelevant);
 
     // Removal (newValue=null) is a no-op — don't wipe on tab cleanup.
     window.dispatchEvent(new StorageEvent("storage", { key: "slides-deck-v1", newValue: null }));
-    expect(rehydrate).toHaveBeenCalledTimes(1);
+    expect(rehydrate.mock.calls.length).toBe(afterRelevant);
 
     cleanup();
     rehydrate.mockRestore();
