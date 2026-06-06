@@ -2,7 +2,7 @@
 
 **Slug:** text-shadow-shortcuts-fix
 **Steps:** 8
-**Status:** pending
+**Status:** completed
 **Created:** 2026-06-06
 
 ## Context
