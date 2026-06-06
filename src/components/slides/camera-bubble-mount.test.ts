@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 /**
@@ -12,7 +13,7 @@ import { describe, expect, it } from "vitest";
  */
 describe("CameraBubble mount in SlidePresenterPage", () => {
   const source = readFileSync(
-    new URL("./SlidePresenterPage.tsx", import.meta.url),
+    resolve(__dirname, "SlidePresenterPage.tsx"),
     "utf8",
   );
 
