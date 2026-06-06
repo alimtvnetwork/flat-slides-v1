@@ -1,4 +1,4 @@
-# 40 — Next Task v5 (repeat-request version refresh)
+# 41 — Next Task v5 (Step 1 landed: fullscreen persistence)
 
 ## Files, functions, and signals read before selecting work
 
