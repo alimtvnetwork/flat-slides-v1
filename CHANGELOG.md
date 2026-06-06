@@ -2,6 +2,25 @@
 
 All notable changes to Glasswing are documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [1.5.0] — 2026-06-06
+
+### Fixed
+- **Image background contrast (issue 026)**: switching `backgroundMode`
+  to `image` from the SettingsDrawer now auto-bumps `darken` from 0 →
+  35 so default text colors stay readable over bright photos. Respects
+  any non-zero value the user already chose. Auto-luminance toggle is
+  the follow-up.
+- **HMR stale-deck escape hatch (issue 018)**: SettingsDrawer now
+  shows a dev-only "Reset cached deck" button (`import.meta.env.DEV`
+  gated) that clears the zustand-persist snapshot and reseeds the
+  default deck. The full migrate-on-version-bump fix is queued as a
+  follow-up; this gives developers an immediate way out of stale-HMR
+  loops.
+
+### Added
+- `src/components/slides/backgroundMode.ts` + test
+- `src/components/slides/devResetDeck.ts` + test
+
 ## [1.4.0] — 2026-06-06
 
 ### Fixed

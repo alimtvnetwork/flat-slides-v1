@@ -22,7 +22,7 @@ criteria for one defect. Status is updated when the fix lands.
 | 015 | [`015-presenter-controller-settings-button-hidden-at-narrow-width.md`](./015-presenter-controller-settings-button-hidden-at-narrow-width.md) | Settings gear vanishes from controller pill below 1280 CSS px | fixed |
 | 016 | [`016-settings-drawer-zindex-blocked-by-controller-pill.md`](./016-settings-drawer-zindex-blocked-by-controller-pill.md) | SettingsDrawer can render under the controller pill on some routes | fixed |
 | 017 | [`017-scaled-slide-zero-height-when-parent-flex.md`](./017-scaled-slide-zero-height-when-parent-flex.md) | ScaledSlide renders 0 px tall inside flex parents that don’t set `min-height` | fixed |
-| 018 | [`018-stale-deck-after-hmr.md`](./018-stale-deck-after-hmr.md) | HMR after editing slide content sometimes shows the previous slide JSON | open |
+| 018 | [`018-stale-deck-after-hmr.md`](./018-stale-deck-after-hmr.md) | HMR after editing slide content sometimes shows the previous slide JSON | fixed |
 | 019 | [`019-annotations-not-cleared-between-decks.md`](./019-annotations-not-cleared-between-decks.md) | Annotations from a previous deck render on the new deck after import | fixed |
 | 020 | [`020-presenter-window-loses-deck-on-hard-refresh.md`](./020-presenter-window-loses-deck-on-hard-refresh.md) | Refreshing the popup presenter window resets to the default sample deck | fixed |
 | 021 | [`021-broadcastchannel-leak-on-route-change.md`](./021-broadcastchannel-leak-on-route-change.md) | BroadcastChannel listeners accumulate on each slide navigation | fixed |
@@ -30,7 +30,7 @@ criteria for one defect. Status is updated when the fix lands.
 | 023 | [`023-rich-text-highlights-strip-on-import.md`](./023-rich-text-highlights-strip-on-import.md) | Imported decks lose `.hl` highlight spans authored as `<mark>` | fixed |
 | 024 | [`024-focus-region-svg-paths-not-validated.md`](./024-focus-region-svg-paths-not-validated.md) | Focus regions referencing missing SVG ids silently render no zoom | fixed |
 | 025 | [`025-settings-persistence-throws-on-quota.md`](./025-settings-persistence-throws-on-quota.md) | SettingsDrawer changes are lost when localStorage quota is full | fixed |
-| 026 | [`026-themes-fg-mismatch-with-background-image.md`](./026-themes-fg-mismatch-with-background-image.md) | Theme `fg` is unreadable over user-supplied background image | open |
+| 026 | [`026-themes-fg-mismatch-with-background-image.md`](./026-themes-fg-mismatch-with-background-image.md) | Theme `fg` is unreadable over user-supplied background image | fixed |
 | 027 | [`027-rich-component-renders-html-entities-literally.md`](./027-rich-component-renders-html-entities-literally.md) | `&amp;` and `&mdash;` render as literal text in slide bodies | fixed |
 | 028 | [`028-presenter-inspector-timer-resets-on-route-change.md`](./028-presenter-inspector-timer-resets-on-route-change.md) | Inspector timer resets when navigating between slides | fixed |
 | 029 | [`029-controller-pill-anchor-stuck-after-resize.md`](./029-controller-pill-anchor-stuck-after-resize.md) | Controller pill anchor sticks to old corner after the window is resized | fixed |
