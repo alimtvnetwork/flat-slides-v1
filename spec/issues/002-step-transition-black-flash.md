@@ -166,3 +166,4 @@ Conclusion: no scale/zoom leak onto `steps`. Core memory rule ("lists/steps/time
 ## Status log
 - 2026-06-06 — opened, RCA + investigation logged.
 - 2026-06-06 — fixed at `RenderSlide.tsx:224–268`. Locked by `step-transition-no-black.test.tsx` (2/2).
+- 2026-06-06 — design-token guardrails added (`highlight-style-guardrails.test.ts`, 2/2): root `--slide-fg` locked to true white (oklch(1 0 0)) and `.hl` locked to ink-stamp shadow with no filter/blur/drop-shadow/box-shadow.
