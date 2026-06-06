@@ -1,6 +1,6 @@
 # 005 — Camera bubble does not appear even when “Show camera” is enabled
 
-**Status:** open
+**Status:** in-progress (mount landed; permission-denied toast + fullscreen-only handling still pending)
 **Area:** CameraBubble + usePresenterWebcam
 
 ## Symptom
@@ -24,3 +24,14 @@ Toggling Settings → Camera → Show camera does nothing visible. There is no c
 ## Status log
 
 - 2026-06-06 — opened. RCA + fix plan ready. No code changes yet (per user request — fixes deferred).
+
+
+## Partial fix (2026-06-06)
+
+- `src/components/slides/SlidePresenterPage.tsx`: imported `CameraBubble` and rendered `<CameraBubble />` alongside the other overlays (next to `PresenterFallbackLink` / `PresenterAutoStart`). The component already self-gates on `useChrome.camera.visible` and self-manages `getUserMedia`, so mounting it unconditionally is safe.
+- Regression test: `src/components/slides/camera-bubble-mount.test.ts` (2/2 passing) — asserts the import + `<CameraBubble />` JSX both exist in `SlidePresenterPage.tsx`. Will fail loudly if a future refactor removes the mount again.
+
+Remaining sub-tasks for full closure:
+1. Surface a friendly toast when `getUserMedia` is denied (currently silent).
+2. Treat the popup presenter window as "fullscreen-equivalent" so `camera.fullscreenOnly === true` does not hide the bubble there.
+3. `bunx vitest run` full-suite green check after the two follow-ups land.
