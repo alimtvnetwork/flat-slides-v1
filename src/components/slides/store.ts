@@ -179,6 +179,20 @@ function getUsablePersistedDeck(value: unknown): Pick<DeckStore, "deck" | "theme
   };
 }
 
+/**
+ * Decide whether a persisted payload at `fromVersion` should be kept,
+ * dropped, or coerced when zustand rehydrates the deck store. Exposed for
+ * unit tests; the `console.warn` is the only observable signal on a drop.
+ */
+export function migratePersistedDeck(persisted: unknown, fromVersion: number): unknown {
+  if (fromVersion === DECK_SCHEMA_VERSION) return persisted;
+  console.warn(
+    `[slides:persist] dropping v${fromVersion} payload (current v${DECK_SCHEMA_VERSION}); re-import the deck JSON to restore.`,
+  );
+  return undefined;
+}
+
+
 export interface DeckStore {
   deck: Deck;
   themeId: string;
