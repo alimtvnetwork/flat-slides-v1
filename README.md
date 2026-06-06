@@ -1,6 +1,6 @@
 # Glasswing — JSON-driven slide system
 
-**Version:** `1.20.0` (pinned) · See [CHANGELOG.md](./CHANGELOG.md) for release notes.
+**Version:** `1.21.0` (pinned) · See [CHANGELOG.md](./CHANGELOG.md) for release notes.
 
 
 A presentation engine where every deck is a JSON file. Three themes,
@@ -75,6 +75,11 @@ Open <http://localhost:5173>, click **Open deck →**, then:
 - `G` — grid overview
 - `S` — Settings (theme, background, transition, import/export)
 - Double-click the slide counter — jump to any slide
+
+Run browser smoke tests with `bun run test:e2e`. The script first launches a
+Chromium preflight and prints the missing host library if the browser image is
+not ready; use `bunx playwright install --with-deps chromium` in normal Linux
+environments before rerunning.
 
 ---
 

@@ -2,6 +2,14 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.21.0 — 2026-06-06
+
+### Fixed
+- **Actionable e2e host preflight.** `bun run test:e2e` now runs `scripts/check-playwright-host.mjs` before Playwright specs. If Chromium cannot launch because a host library is missing, the script logs `[e2e:preflight] Chromium failed to launch`, names the missing library when Playwright reports it, and points to `bunx playwright install --with-deps chromium` instead of failing later with an opaque test-runner crash.
+
+### Changed
+- Added `test:e2e:raw` for bypassing the preflight in CI images that already perform their own browser-host validation.
+
 ## 1.20.0 — 2026-06-06
 
 ### Tests
