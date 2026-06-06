@@ -126,6 +126,12 @@ export const SHORTCUTS: ShortcutDef[] = [
 ];
 
 export function matchesShortcut(event: KeyboardEvent, def: ShortcutDef): boolean {
+  // Issue 030: every alias in this catalogue is a single bare key. If the
+  // user is holding a system modifier (Cmd/Ctrl/Alt) it's a browser/OS
+  // shortcut (Cmd+P print, Ctrl+R reload, Alt+Tab, …) and we must not
+  // intercept it. Shift is allowed because we use it for shifted aliases
+  // (e.g. "?").
+  if (event.metaKey || event.ctrlKey || event.altKey) return false;
   return def.keys.some((key) => matchesKeyAlias(event, key));
 }
 
@@ -133,6 +139,7 @@ function matchesKeyAlias(event: KeyboardEvent, alias: string): boolean {
   const normalized = alias.toLowerCase();
   return normalized === event.key.toLowerCase() || normalized === event.code.toLowerCase();
 }
+
 
 /**
  * Step 26: find the first SHORTCUTS entry whose `keys` aliases match
