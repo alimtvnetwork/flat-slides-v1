@@ -28,6 +28,7 @@ import { MAX_MUSIC_VOLUME, MIN_MUSIC_VOLUME, MUSIC_VOLUME_STEP } from "@/lib/sli
 // Inline-loaded LLM spec (see docs/slides/spec/llm-json-guideline.md).
 import sampleDeckJson from "../../../docs/slides/spec/sample-deck.json?raw";
 import llmGuidelineMd from "../../../docs/slides/spec/llm-json-guideline.md?raw";
+import themeGuidelineMd from "../../../docs/slides/spec/theme-json-guideline.md?raw";
 
 import { useAnnotations } from "./annotations-store";
 import { nextBackgroundSettings } from "./backgroundMode";
@@ -167,10 +168,12 @@ export function SettingsDrawer({
         "README.txt": strToU8(
           "Glasswing — LLM JSON deck guide\n\n" +
             "1. llm-json-guideline.md — full spec (slide types, RichText, highlights, images, focus regions).\n" +
-            "2. sample-deck.json     — canonical deck JSON that validates against the spec.\n\n" +
-            "Feed both files to your LLM, ask it to emit a deck.json that matches the schema, then Import via Settings.\n",
+            "2. theme-json-guideline.md — full spec for single-theme and multi-theme JSON imports.\n" +
+            "3. sample-deck.json     — canonical deck JSON that validates against the spec.\n\n" +
+            "Feed these files to your LLM, ask it to emit one complete deck.json or theme JSON that matches the schema, then Import via Settings.\n",
         ),
         "llm-json-guideline.md": strToU8(llmGuidelineMd),
+        "theme-json-guideline.md": strToU8(themeGuidelineMd),
         "sample-deck.json": strToU8(sampleDeckJson),
       });
       const blob = new Blob([zipped], { type: "application/zip" });
