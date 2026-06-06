@@ -21,7 +21,7 @@ criteria for one defect. Status is updated when the fix lands.
 | 014 | [`014-preview-fullscreen-breaks-out-of-iframe.md`](./014-preview-fullscreen-breaks-out-of-iframe.md) | Pressing F/Present in preview iframe escapes to top window unexpectedly | open |
 | 015 | [`015-presenter-controller-settings-button-hidden-at-narrow-width.md`](./015-presenter-controller-settings-button-hidden-at-narrow-width.md) | Settings gear vanishes from controller pill below 1280 CSS px | open |
 | 016 | [`016-settings-drawer-zindex-blocked-by-controller-pill.md`](./016-settings-drawer-zindex-blocked-by-controller-pill.md) | SettingsDrawer can render under the controller pill on some routes | open |
-| 017 | [`017-scaled-slide-zero-height-when-parent-flex.md`](./017-scaled-slide-zero-height-when-parent-flex.md) | ScaledSlide renders 0 px tall inside flex parents that don’t set `min-height` | open |
+| 017 | [`017-scaled-slide-zero-height-when-parent-flex.md`](./017-scaled-slide-zero-height-when-parent-flex.md) | ScaledSlide renders 0 px tall inside flex parents that don’t set `min-height` | fixed |
 | 018 | [`018-stale-deck-after-hmr.md`](./018-stale-deck-after-hmr.md) | HMR after editing slide content sometimes shows the previous slide JSON | open |
 | 019 | [`019-annotations-not-cleared-between-decks.md`](./019-annotations-not-cleared-between-decks.md) | Annotations from a previous deck render on the new deck after import | open |
 | 020 | [`020-presenter-window-loses-deck-on-hard-refresh.md`](./020-presenter-window-loses-deck-on-hard-refresh.md) | Refreshing the popup presenter window resets to the default sample deck | open |
