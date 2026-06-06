@@ -9,12 +9,12 @@ export type ControllerAnchor =
   | "bottom-left"
   | "top-right";
 
-export const DEFAULT_CONTROLLER_ANCHOR: ControllerAnchor = "bottom-center";
+export const DEFAULT_CONTROLLER_ANCHOR: ControllerAnchor = "top-right";
 
 export const CONTROLLER_ANCHOR_SHORTCUT_KEY = "b";
 
 export const CONTROLLER_ANCHOR_ORDER: ControllerAnchor[] = [
-  "bottom-center", "bottom-right", "bottom-left", "top-right",
+  "top-right", "bottom-right", "bottom-center", "bottom-left",
 ];
 
 /** Next anchor in the right-click cycle. */
