@@ -48,6 +48,28 @@ describe("ScaledSlide", () => {
     const stage = container.querySelector(".slide-stage") as HTMLElement;
     expect(stage.style.getPropertyValue("--stage-scale")).not.toBe("0.1");
   });
+
+  it("can cover the full presenter viewport in fullscreen instead of letterboxing", async () => {
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function (this: HTMLElement) {
+      if (this.classList.contains("slide-stage")) return rect(1024, 768);
+      return rect(0, 0);
+    });
+
+    render(
+      <div data-slide-presenter-root>
+        <ScaledSlide scaleMode="cover">
+          <div />
+        </ScaledSlide>
+      </div>,
+    );
+
+    await waitFor(() => {
+      expect(document.documentElement.style.getPropertyValue("--stage-scale")).toBe(String(768 / 1080));
+    });
+    expect(document.documentElement.style.getPropertyValue("--presenter-frame-width")).toBe("1024px");
+    expect(document.documentElement.style.getPropertyValue("--presenter-frame-height")).toBe("768px");
+    expect(document.documentElement.style.getPropertyValue("--presenter-frame-bottom")).toBe("0px");
+  });
 });
 
 function rect(width: number, height: number) {
