@@ -65,11 +65,19 @@ export const SHORTCUTS: ShortcutDef[] = [
   shortcut("open-help", "?", ["/", "?"], "Show keyboard shortcuts", "Presenter"),
   shortcut("command-palette", "⌘K", [], "Command palette", "Presenter"),
   shortcut("click-jump", "Click N", [], "Jump to slide N", "Navigation"),
-  shortcut("toggle-camera", "C", ["c"], "Toggle camera bubble", "Camera"),
-  shortcut("cycle-camera-size", "Shift+C", [], "Cycle camera size", "Camera"),
-  shortcut("cycle-camera-shape", "O", ["o"], "Cycle camera shape", "Camera"),
-  shortcut("nudge-camera", "Shift+←→↑↓", [], "Nudge camera position", "Camera"),
-  shortcut("camera-pip", "P", ["p"], "Picture-in-picture", "Camera"),
+  shortcut("webcam-hard-toggle", "I", [], "Hard toggle camera", "Camera"),
+  shortcut("webcam-soft-minimize", "M", [], "Minimize camera to tray", "Camera"),
+  shortcut("webcam-autoframe", "F", [], "Toggle camera auto-frame", "Camera"),
+  shortcut("webcam-zoom-in", "+", [], "Zoom camera in", "Camera"),
+  shortcut("webcam-zoom-out", "−", [], "Zoom camera out", "Camera"),
+  shortcut("webcam-exit-surface", "Esc", [], "Exit camera fullscreen or stage", "Camera"),
+  shortcut("webcam-halo", "H", [], "Toggle camera halo", "Camera"),
+  shortcut("webcam-stage-fill", "1", [], "Toggle camera stage-fill", "Camera"),
+  shortcut("webcam-shape", "O", [], "Toggle camera shape", "Camera"),
+  shortcut("webcam-fullscreen", "P", [], "Enter camera fullscreen", "Camera"),
+  shortcut("webcam-fullscreen-exit", "[", [], "Exit camera fullscreen", "Camera"),
+  shortcut("webcam-cinematic-cycle", "]", [], "Cycle camera cinematic mode", "Camera"),
+  shortcut("webcam-nav-passthrough", "← → Space Enter", [], "Navigate slides from camera fullscreen", "Camera"),
   shortcut("toggle-music", "M", ["m"], "Toggle background music", "Presenter"),
   shortcut("cycle-scene", "S", ["s"], "Cycle scene preset", "Presenter"),
   shortcut("toggle-pointer", "L", ["l"], "Toggle laser pointer", "Annotate"),
@@ -145,50 +153,3 @@ function hasScope(def: ShortcutDef, scope: ShortcutScope): boolean {
   return def.scope !== "inspector";
 }
 
-/**
- * camera-2026 task 10 — explicit camera shortcut catalogue.
- *
- * Reconciled with existing deck shortcuts above to avoid silent collisions:
- *   - `m` (Music) and `f` (Focus regions) keep their current meanings.
- *     Camera soft-hide / auto-frame use Alt-modified variants so both
- *     features remain reachable from the keyboard.
- *   - `1`–`5` are claimed by the ink-color picker only while an ink tool
- *     is active; outside annotation mode, the camera handler may consume
- *     `1` to enter stage-fill. The presenter dispatcher decides priority.
- *
- * The handler in `SlidePresenterPage` should iterate this list AFTER its
- * input-guard check and AFTER ink/annotation tools have first refusal.
- */
-export const CAMERA_SHORTCUTS: ShortcutDef[] = [
-  {
-    id: "cam-info",
-    display: "I",
-    keys: ["i"],
-    label: "Show camera info / status",
-    group: "Camera",
-  },
-  {
-    id: "cam-soft-hide",
-    display: "Alt+M",
-    keys: [],
-    label: "Soft-hide camera to tray",
-    group: "Camera",
-  },
-  {
-    id: "cam-autoframe",
-    display: "Alt+F",
-    keys: [],
-    label: "Toggle camera auto-frame",
-    group: "Camera",
-  },
-  { id: "cam-halo", display: "H", keys: ["h"], label: "Toggle camera halo", group: "Camera" },
-  {
-    id: "cam-size-down",
-    display: "[",
-    keys: ["["],
-    label: "Camera size step down",
-    group: "Camera",
-  },
-  { id: "cam-size-up", display: "]", keys: ["]"], label: "Camera size step up", group: "Camera" },
-  { id: "cam-fill-stage", display: "1", keys: ["1"], label: "Camera fill stage", group: "Camera" },
-];
