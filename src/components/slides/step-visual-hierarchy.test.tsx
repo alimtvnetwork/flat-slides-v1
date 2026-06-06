@@ -10,9 +10,9 @@ const SLIDE: StepsSlideProps = {
   title: "Step Hierarchy",
   heading: "Steps",
   steps: [
-    { label: "01", title: "First", detail: "" },
-    { label: "02", title: "Second", detail: "" },
-    { label: "03", title: "Third", detail: "" },
+    { label: "01", title: "First", detail: [] },
+    { label: "02", title: "Second", detail: [] },
+    { label: "03", title: "Third", detail: [] },
   ],
 };
 
