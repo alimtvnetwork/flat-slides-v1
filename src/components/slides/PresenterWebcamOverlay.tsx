@@ -48,6 +48,7 @@ export function PresenterWebcamOverlay() {
     pushFullscreenAction,
     emitPassthrough,
     autoFrame,
+    toggleAutoFrame,
   } = usePresenterWebcam();
 
   // ─── Step 9 — core keydown listener (spec 03 §2) ────────────────────────
@@ -149,6 +150,17 @@ export function PresenterWebcamOverlay() {
         runCinematicCycle();
         return;
       }
+      // Spec 04 — `f` toggles auto-frame, but only while the camera is
+      // visible. Otherwise let the event fall through to the focus editor
+      // shortcut (`toggle-focus-editor`).
+      if (key === "f" || key === "F") {
+        if (phase === "on" || phase === "tray" || phase === "fullscreen" || phase === "stage") {
+          e.preventDefault();
+          e.stopPropagation();
+          toggleAutoFrame();
+        }
+        return;
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -165,6 +177,7 @@ export function PresenterWebcamOverlay() {
     toggleCircle,
     enterFullscreen,
     runCinematicCycle,
+    toggleAutoFrame,
   ]);
 
   // ─── Step 10 — fullscreen/stage nav passthrough (spec 02 §6) ───────────

@@ -67,7 +67,7 @@ export const SHORTCUTS: ShortcutDef[] = [
   shortcut("click-jump", "Click N", [], "Jump to slide N", "Navigation"),
   shortcut("webcam-hard-toggle", "I", [], "Hard toggle camera", "Camera"),
   shortcut("webcam-soft-minimize", "M", [], "Minimize camera to tray", "Camera"),
-  shortcut("webcam-autoframe", "F", [], "Toggle camera auto-frame", "Camera"),
+  shortcut("webcam-autoframe", "F (cam)", [], "Toggle camera auto-frame", "Camera"),
   shortcut("webcam-zoom-in", "+", [], "Zoom camera in", "Camera"),
   shortcut("webcam-zoom-out", "−", [], "Zoom camera out", "Camera"),
   shortcut("webcam-exit-surface", "Esc", [], "Exit camera fullscreen or stage", "Camera"),
