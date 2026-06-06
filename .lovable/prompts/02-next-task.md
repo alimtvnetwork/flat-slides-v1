@@ -4,7 +4,7 @@
 > each invocation (e.g. `next task 7`) so chat-history search can locate
 > the exact batch.
 
-**Latest invocation:** `next task 16` → v1.12.0 (executed plan step 12: SettingsDrawer visibility parity plus mounted PresenterTopBar/DotPagination surfaces).
+**Latest invocation:** `next task 17` → v1.13.0 (executed launcher telemetry + unit-test lock: `home-launcher-click` events and `DeckLauncher.test.tsx`).
 
 ## What I want
 
