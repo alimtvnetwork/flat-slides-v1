@@ -2,6 +2,13 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.22.0 — 2026-06-06
+
+### Planning
+- **Next 2 steps committed.** Recorded the next two execution steps for the pending `03-text-shadow-shortcuts-fix` plan: (1) guideline + spec audit with a one-sentence root cause, (2) text-shadow rendering-path inspection across `src/styles.css` `.hl` and the active rich-text emitter. Remaining steps 3–8 of the plan plus appended prior pending tasks (`01-slides-first-preview`, `02-present-fullscreen-preview-fix`) stay queued.
+- Saved the invoking prompt to `.lovable/prompts/03-next-task.md` for chat-history retrieval.
+
+
 ## 1.21.0 — 2026-06-06
 
 ### Fixed
