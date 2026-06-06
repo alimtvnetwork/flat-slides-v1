@@ -224,10 +224,17 @@
 .slide-badge,
 .slide-page     { white-space: nowrap; }
 
-/* Inline yellow highlight — crisp ink-stamp shadow (user spec, no glow). */
+/* Inline yellow highlighter — flat yellow background behind the word, dark
+   ink on top, plus the crisp text-shadow spec. No blur, no glow (see
+   .lovable/memory/avoid/02-no-hl-glow.md and decisions/02-highlight-text-shadow.md). */
 .hl {
-  color: var(--slide-hl);
+  background-color: var(--slide-hl);
+  color: var(--slide-hl-ink);
   font-weight: 700;
+  padding: 0 0.12em;
+  border-radius: 0.1em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
   text-shadow: rgb(0 0 0) 1px 0.7px 0px;
 }
 
