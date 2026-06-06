@@ -2,6 +2,11 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.58.0 — 2026-06-06
+
+### Planning
+- **Next-task triage (prompt 39).** Repeat next-task request, no new stack trace. Next 3 unchanged: (1) fullscreen persistence, (2) slide-4 step 2→3 black-frame, (3) lock visual rules + regression coverage. No product code change.
+
 ## 1.57.0 — 2026-06-06
 
 ### Fixed
