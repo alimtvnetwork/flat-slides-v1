@@ -2,6 +2,14 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.45.0 — 2026-06-06
+
+### Closed
+- **Plan 05 → completed.** Moved `.lovable/plans/pending/05-controller-whitebal-fonts.md` → `.lovable/plans/completed/05-…md` with `Status: completed` + closure note. SS-01 (back-step nav) was already correct (verified 1.41.0); SS-03 (font antialiasing + Ubuntu Bold) shipped in 1.41.0 + 1.44.0; SS-02 (white-balance-in-controller) deferred into plan 06 Phase C — `grep -rn "whitebal" src/` returns zero hits, so SS-02 is properly a build-from-scratch task that belongs with plan 06's controller work, not a "move existing slider" task in plan 05.
+
+### Planning
+- **Next-task triage (prompt 26).** Next 3 steps: (1) plan 06 typography addendum locking the Ubuntu-everywhere rule + memory index Core line, (2) plan 06 ellipsis-pagination + threshold spec under `spec/old-slides/27-slides-number/03-ellipsis-pagination.md`, (3) Vitest computed-style snapshot test pinning Ubuntu Bold on hero `<h1>` so Phase D's 35 new type renderers cannot silently regress the 1.44.0 fix.
+
 ## 1.44.0 — 2026-06-06
 
 ### Fixed
