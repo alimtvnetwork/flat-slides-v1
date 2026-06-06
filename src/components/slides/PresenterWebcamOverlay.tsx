@@ -40,7 +40,128 @@ export function PresenterWebcamOverlay() {
     enterFullscreen,
     exitFullscreen,
     restoreFromOverlay,
+    toggleStage,
+    toggleHalo,
+    toggleCircle,
+    runCinematicCycle,
   } = usePresenterWebcam();
+
+  // ─── Step 9 — core keydown listener (spec 03 §2) ────────────────────────
+  // Single-press, no modifier, ignored while a text input is focused.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const t = e.target as HTMLElement | null;
+      if (
+        t?.tagName === "INPUT" ||
+        t?.tagName === "TEXTAREA" ||
+        t?.isContentEditable
+      ) {
+        return;
+      }
+      const key = e.key;
+      const phase = state.phase;
+
+      if (key === "Escape") {
+        if (phase === "fullscreen" || phase === "stage") {
+          e.preventDefault();
+          exitFullscreen();
+          if (phase === "stage") restoreFromOverlay();
+        }
+        return;
+      }
+
+      // Let nav keys fall through to the capture-phase passthrough handler.
+      if (
+        (phase === "fullscreen" || phase === "stage") &&
+        ["ArrowRight", "ArrowDown", "Enter", " ", "PageDown", "ArrowLeft", "PageUp"].includes(key)
+      ) {
+        return;
+      }
+
+      if (key === "i" || key === "I") {
+        e.preventDefault();
+        if (phase === "on" || phase === "tray" || phase === "stage") close();
+        else if (phase === "fullscreen") {
+          exitFullscreen();
+          queueMicrotask(() => close());
+        } else {
+          void show();
+        }
+        return;
+      }
+      if (key === "m" || key === "M") {
+        if (phase !== "on") return;
+        e.preventDefault();
+        toggleMinimized();
+        return;
+      }
+      if (key === "+" || key === "=") {
+        if (phase !== "on") return;
+        e.preventDefault();
+        stepSize(1);
+        return;
+      }
+      if (key === "-" || key === "_") {
+        if (phase !== "on") return;
+        e.preventDefault();
+        stepSize(-1);
+        return;
+      }
+      if (key === "h" || key === "H") {
+        e.preventDefault();
+        toggleHalo();
+        return;
+      }
+      if (key === "1") {
+        if (phase !== "on" && phase !== "stage") return;
+        e.preventDefault();
+        toggleStage();
+        return;
+      }
+      // v5 keys (spec 03 §1 row O/P/[/])
+      if (key === "O") {
+        e.preventDefault();
+        toggleCircle();
+        return;
+      }
+      if (key === "P") {
+        e.preventDefault();
+        if (phase === "off" || phase === "denied") {
+          void show().then(() => enterFullscreen());
+        } else {
+          enterFullscreen();
+        }
+        return;
+      }
+      if (key === "[") {
+        if (phase !== "fullscreen") return;
+        e.preventDefault();
+        exitFullscreen();
+        return;
+      }
+      if (key === "]") {
+        e.preventDefault();
+        runCinematicCycle();
+        return;
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [
+    state.phase,
+    show,
+    close,
+    exitFullscreen,
+    restoreFromOverlay,
+    toggleMinimized,
+    stepSize,
+    toggleHalo,
+    toggleStage,
+    toggleCircle,
+    enterFullscreen,
+    runCinematicCycle,
+  ]);
 
   const floatingVideoRef = useRef<HTMLVideoElement | null>(null);
   const fullscreenVideoRef = useRef<HTMLVideoElement | null>(null);
