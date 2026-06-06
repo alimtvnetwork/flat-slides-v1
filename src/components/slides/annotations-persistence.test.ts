@@ -46,7 +46,7 @@ describe("annotation persistence flag", () => {
 
     // Simulate a reload: wipe in-memory state, then rehydrate from storage.
     useAnnotations.setState({ strokes: {}, persistStrokes: false });
-    useAnnotations.persist.rehydrate();
+    await useAnnotations.persist.rehydrate();
 
     const after = useAnnotations.getState();
     expect(after.persistStrokes).toBe(true);
