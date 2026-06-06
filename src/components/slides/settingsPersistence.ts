@@ -5,7 +5,9 @@ import { DEFAULT_MUSIC_VOLUME } from "@/lib/slides/musicVolume";
 
 import type { DeckSettings } from "./types";
 
-export const SETTINGS_STORAGE_KEY = "riseup.settings.v2";
+// v3: reset persisted settings so any prior custom textColor (e.g. cream tint)
+// is discarded and the slide foreground returns to pure theme white.
+export const SETTINGS_STORAGE_KEY = "riseup.settings.v3";
 const DECK_STORAGE_PREFIX = "riseup.deck.";
 
 export const DEFAULT_DECK_SETTINGS: DeckSettings = {
