@@ -492,6 +492,32 @@ export function SettingsDrawer({
             />
           </label>
         </section>
+
+        {import.meta.env.DEV ? (
+          <section className="mb-6 space-y-2">
+            <label className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wider text-neutral-400">
+              <RotateCcw size={12} /> Dev
+            </label>
+            <button
+              type="button"
+              data-testid="dev-reset-cached-deck"
+              onClick={async () => {
+                try {
+                  await devResetCachedDeck();
+                  toast.success("Cached deck cleared", { description: "Reloaded the default deck." });
+                  onClose();
+                } catch (err) {
+                  console.error("[SettingsDrawer] devResetCachedDeck failed", err);
+                  toast.error("Couldn't clear cached deck", { description: (err as Error)?.message });
+                }
+              }}
+              className="inline-flex w-full items-center gap-2 rounded bg-neutral-800 px-3 py-2 text-left text-sm hover:bg-neutral-700"
+            >
+              <RotateCcw size={13} /> Reset cached deck
+              <span className="ml-auto text-[11px] text-neutral-500">HMR fix (issue 018)</span>
+            </button>
+          </section>
+        ) : null}
       </aside>
     </div>
   );
