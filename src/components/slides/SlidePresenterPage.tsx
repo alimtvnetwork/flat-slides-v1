@@ -26,6 +26,11 @@ import { getDisplayNumber, slideStepCount } from "@/components/slides/types";
 import { useFullscreen } from "@/components/slides/useFullscreen";
 import { emitSlidesEvent, installConsoleSink } from "@/components/slides/telemetry";
 import { SLIDES_FULLSCREEN_URL_CHANGE_EVENT, type SlidesFullscreenUrlChangeDetail, useSlideNavigation } from "@/components/slides/useSlideNavigation";
+import {
+  usePresenterWebcam,
+  WEBCAM_PASSTHROUGH_EVENT,
+  type WebcamPassthroughDetail,
+} from "@/components/slides/usePresenterWebcam";
 
 const CommandPalette = lazy(() =>
   import("@/components/slides/CommandPalette").then((m) => ({ default: m.CommandPalette })),
@@ -246,7 +251,33 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
       document.removeEventListener("pointerup", handleNavButtonEvent, true);
       document.removeEventListener("click", handleNavButtonEvent, true);
     };
-  });
+  }, []);
+
+  // ─── Step 11 — deck-side webcam nav passthrough (spec 02 §6 / 06 step 20) ─
+  // Register goNext/goPrev with the camera context AND listen for the
+  // `riseup:webcam-passthrough` event so either path (handler or event)
+  // advances the deck while fullscreen/stage owns focus.
+  const { registerNavHandlers } = usePresenterWebcam();
+  const navRef = useRef({ moveNextStepAware, movePrevStepAware });
+  navRef.current = { moveNextStepAware, movePrevStepAware };
+
+  useEffect(() => {
+    const unregister = registerNavHandlers({
+      goNext: () => navRef.current.moveNextStepAware(),
+      goPrev: () => navRef.current.movePrevStepAware(),
+    });
+    const onPassthrough = (e: Event) => {
+      const detail = (e as CustomEvent<WebcamPassthroughDetail>).detail;
+      if (!detail) return;
+      if (detail.direction === "next") navRef.current.moveNextStepAware();
+      else navRef.current.movePrevStepAware();
+    };
+    window.addEventListener(WEBCAM_PASSTHROUGH_EVENT, onPassthrough);
+    return () => {
+      unregister();
+      window.removeEventListener(WEBCAM_PASSTHROUGH_EVENT, onPassthrough);
+    };
+  }, [registerNavHandlers]);
 
   if (!slide) {
     return (
