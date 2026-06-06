@@ -106,7 +106,7 @@ export function ControllerPill(props: Props) {
         className={cn(
           "flex items-center gap-1 rounded-full",
           "border border-[color:var(--ctrl-border)] bg-[color:var(--ctrl-bg)]",
-          "backdrop-blur-md px-2 py-1 shadow-2xl",
+          "backdrop-blur-md px-1.5 py-1 shadow-2xl",
         )}
       >
         <PillButton navAction="prev" onClick={onPrev} disabled={canPrev === undefined ? current <= 1 : !canPrev} ariaLabel="Previous slide">
@@ -119,18 +119,14 @@ export function ControllerPill(props: Props) {
           <ChevronRight size={16} />
         </PillButton>
 
-        <span className="mx-1 h-4 w-px bg-white/15" aria-hidden />
+        <span className="mx-0.5 h-4 w-px bg-white/15" aria-hidden />
         <PillButton onClick={onToggleFullscreen} ariaLabel={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}>
           {isFullscreen ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
         </PillButton>
         <PillButton onClick={onOpenSettings} ariaLabel="Settings">
           <Settings size={15} />
         </PillButton>
-        {isNarrow ? (
-          <ControllerOverflowMenu onOpenSettings={onOpenSettings} onOpenHelp={onOpenHelp} />
-        ) : (
-          null
-        )}
+        <ControllerOverflowMenu onOpenSettings={onOpenSettings} onOpenHelp={onOpenHelp} />
       </motion.div>
     </div>
   );
