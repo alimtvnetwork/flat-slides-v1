@@ -145,12 +145,20 @@ export async function enterFullscreen(target?: HTMLElement | null, environment: 
 
   const embedded = (environment.isEmbeddedWindow ?? isEmbeddedWindow)();
 
-  // Lovable preview and other embedded frames must not try iframe fullscreen
-  // first: it looks like a no-op to the presenter. The in-app presentation
-  // mode above is the reliable fallback inside the current preview surface.
+  // Lovable preview iframe cannot enter true browser fullscreen (the host
+  // does not set allow="fullscreen"), so attempt a top-level presenter window
+  // instead — it CAN request native fullscreen. Only fall back to the in-app
+  // cover surface when the popup is blocked. See diagnostics/06-present-fullscreen-preview-rca.md.
   if (embedded) {
-    return { ok: true, mode: "app" };
+    const opener = environment.openPresenterWindow ?? openPresenterWindow;
+    const win = opener();
+    if (win) {
+      setAppPresentationMode(false);
+      return { ok: true, mode: "presenter-window" };
+    }
+    return { ok: false, reason: POPUP_BLOCKED_REASON };
   }
+
 
   if (document.fullscreenEnabled === false) {
     return { ok: true, mode: "app" };
