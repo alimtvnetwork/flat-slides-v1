@@ -8,7 +8,12 @@ describe("ScaledSlide zero-height guardrail (issue 017)", () => {
     vi.spyOn(Element.prototype, "getBoundingClientRect").mockReturnValue({
       x: 0, y: 0, top: 0, left: 0, right: 0, bottom: 0, width: 0, height: 0, toJSON: () => ({}),
     } as DOMRect);
+    vi.spyOn(window, "innerWidth", "get").mockReturnValue(0);
+    vi.spyOn(window, "innerHeight", "get").mockReturnValue(0);
+    Object.defineProperty(HTMLElement.prototype, "clientWidth", { configurable: true, get: () => 0 });
+    Object.defineProperty(HTMLElement.prototype, "clientHeight", { configurable: true, get: () => 0 });
   });
+
   afterEach(() => vi.restoreAllMocks());
 
   it("marks the stage with data-debug-zero-height when parent collapses to 0", () => {
