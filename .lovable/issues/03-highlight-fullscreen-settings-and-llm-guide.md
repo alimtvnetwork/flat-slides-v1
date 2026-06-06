@@ -58,7 +58,7 @@ All four user-reported symptoms are resolved. RCA write-ups (referenced below) a
 
 2. **Fullscreen no longer "covers in" inside the preview iframe.** From the embedded preview, the fullscreen action opens the presenter route in a top-level window where Fullscreen API works. The controller pill stays mounted in fullscreen so the user can always exit.
    - RCA: `.lovable/memory/diagnostics/08-fullscreen-presenter-window-rca.md`
-   - Closes `spec/issues/014-preview-fullscreen-breaks-out-of-iframe.md`.
+   - Related: `spec/issues/014-preview-fullscreen-breaks-out-of-iframe.md` — **still open**. Current code uses popup-first when embedded; spec 014 wants in-iframe modal first. See 014 status log for the v1.32.0 correction.
 
 3. **Settings drawer exposes text + highlight color pickers** (landed in v1.28.0, locked here).
 

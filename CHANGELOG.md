@@ -2,6 +2,14 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.33.0 — 2026-06-06
+
+### Tests
+- **LLM-guide ZIP payload locked in tests.** New `src/components/slides/llm-guide-zip.test.ts` (3/3 green): asserts the `?raw` imports of `docs/slides/spec/llm-json-guideline.md` + `sample-deck.json` resolve to non-empty strings, that `sample-deck.json` parses as JSON, and that `fflate.zipSync`/`unzipSync` round-trips a zip with the three expected entries (`README.txt`, `llm-json-guideline.md`, `sample-deck.json`). If Vite ever drops `?raw` resolution for those paths, CI fails before a user can ever see the silent `toast.error` in `SettingsDrawer.handleDownloadGuide` (line 147–174).
+
+### Corrected (honesty)
+- **Spec issue 014 is NOT closed.** Audited `useFullscreen.ts:152–161` against the issue 014 fix plan: current code does popup-first when `isEmbeddedWindow()`, which IS the breakout symptom the issue describes. RCA 08 documented the popup contract but did not implement the requested in-iframe modal preference. Issue 014 status log updated with the real next action (invert the embedded branch, rewrite `fullscreenTarget.test.ts:65–86`). Issue 03's closing block reworded — it no longer claims to close 014.
+
 ## 1.32.0 — 2026-06-06
 
 ### Docs
