@@ -6,8 +6,12 @@ import {
   usePresenterWebcam,
   readStoredPos,
   readStoredSize,
+  readStoredFlag,
+  readStoredPlate,
   writeStoredPos,
   writeStoredSize,
+  writeStoredFlag,
+  writeStoredPlate,
   describeGetUserMediaError,
   clampPos,
   freeSizeFromWidth,
@@ -15,8 +19,14 @@ import {
   SIZE_STEPS,
   DEFAULT_POS,
   DEFAULT_SIZE,
+  DEFAULT_PLATE,
   SIZE_KEY,
   POS_KEY,
+  MIN_KEY,
+  HALO_KEY,
+  CIRCLE_KEY,
+  AUTOFRAME_KEY,
+  PLATE_KEY,
 } from "./usePresenterWebcam";
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
@@ -307,5 +317,74 @@ describe("usePresenterWebcam step 2 — toggle / minimized / actions / nav handl
     act(() => { vi.advanceTimersByTime(800); });
     expect(result.current.cinematicExiting).toBe(false);
     vi.useRealTimers();
+  });
+});
+
+describe("usePresenterWebcam step 3 — storage sweep (every riseup.webcam.* key)", () => {
+  beforeEach(() => localStorage.clear());
+
+  const ALL_KEYS = [POS_KEY, MIN_KEY, SIZE_KEY, HALO_KEY, CIRCLE_KEY, AUTOFRAME_KEY, PLATE_KEY];
+
+  it("all keys carry the riseup.webcam.* prefix", () => {
+    for (const k of ALL_KEYS) expect(k.startsWith("riseup.webcam.")).toBe(true);
+    expect(new Set(ALL_KEYS).size).toBe(ALL_KEYS.length); // unique
+  });
+
+  it("corrupt JSON in every key falls back to defaults without throwing", () => {
+    for (const k of ALL_KEYS) localStorage.setItem(k, "{not json");
+    expect(readStoredPos()).toEqual(DEFAULT_POS);
+    expect(readStoredSize()).toEqual(DEFAULT_SIZE);
+    // Flags treat anything non-"0"/"1" as fallback.
+    expect(readStoredFlag(HALO_KEY, true)).toBe(true);
+    expect(readStoredFlag(HALO_KEY, false)).toBe(false);
+    expect(readStoredFlag(CIRCLE_KEY, false)).toBe(false);
+    expect(readStoredFlag(AUTOFRAME_KEY, false)).toBe(false);
+    expect(readStoredFlag(MIN_KEY, false)).toBe(false);
+    expect(readStoredPlate()).toBe(DEFAULT_PLATE);
+  });
+
+  it("round-trips valid values for every key", () => {
+    writeStoredPos({ x: 12, y: 34 });
+    writeStoredSize({ kind: "free", w: 480, h: 270 });
+    writeStoredFlag(HALO_KEY, false);
+    writeStoredFlag(CIRCLE_KEY, true);
+    writeStoredFlag(AUTOFRAME_KEY, true);
+    writeStoredFlag(MIN_KEY, true);
+    writeStoredPlate("gold");
+
+    expect(readStoredPos()).toEqual({ x: 12, y: 34 });
+    expect(readStoredSize()).toEqual({ kind: "free", w: 480, h: 270 });
+    expect(readStoredFlag(HALO_KEY, true)).toBe(false);
+    expect(readStoredFlag(CIRCLE_KEY, false)).toBe(true);
+    expect(readStoredFlag(AUTOFRAME_KEY, false)).toBe(true);
+    expect(readStoredFlag(MIN_KEY, false)).toBe(true);
+    expect(readStoredPlate()).toBe("gold");
+  });
+
+  it("rejects garbage plate values and keeps the default", () => {
+    localStorage.setItem(PLATE_KEY, "rainbow");
+    expect(readStoredPlate()).toBe(DEFAULT_PLATE);
+  });
+
+  it("swallows localStorage.getItem throws (private mode) and returns fallback", () => {
+    const spy = vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+      throw new Error("SecurityError: storage disabled");
+    });
+    expect(readStoredPos()).toEqual(DEFAULT_POS);
+    expect(readStoredSize()).toEqual(DEFAULT_SIZE);
+    expect(readStoredFlag(HALO_KEY, true)).toBe(true);
+    expect(readStoredPlate()).toBe(DEFAULT_PLATE);
+    spy.mockRestore();
+  });
+
+  it("swallows localStorage.setItem quota errors without throwing", () => {
+    const spy = vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new Error("QuotaExceededError");
+    });
+    expect(() => writeStoredPos({ x: 1, y: 2 })).not.toThrow();
+    expect(() => writeStoredSize({ kind: "step", id: "S" })).not.toThrow();
+    expect(() => writeStoredFlag(HALO_KEY, true)).not.toThrow();
+    expect(() => writeStoredPlate("none")).not.toThrow();
+    spy.mockRestore();
   });
 });
