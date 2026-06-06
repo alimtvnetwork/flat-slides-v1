@@ -19,6 +19,7 @@ import { useChrome } from "./chrome-store";
 import { cycleControllerAnchor } from "./controls/controller-anchor-store";
 import type { ShortcutDef } from "./shortcuts";
 import { matchShortcut, SHORTCUTS } from "./shortcuts";
+import { openPresenterWindow, reportFullscreenFailure } from "./useFullscreen";
 import { useTimer } from "./timer-store";
 
 export interface PresenterActionCtx {
