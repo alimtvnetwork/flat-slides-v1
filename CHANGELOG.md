@@ -2,6 +2,11 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.43.0 — 2026-06-06
+
+### Planning
+- **Next-task triage (prompt 24).** No product code change. Re-confirmed pinned next 3 steps for plan 06: (1) close plan 05 SS-02 white-balance-in-controller, (2) RCA Ubuntu regression on slide 1, (3) ship minimum-correct font fix with computed-style snapshot. Captured fresh code-level signal: `src/styles.css:226` `.slide-display` is Poppins/weight-400 (wrong for headings) while `.slide-heading` line 227 is correct Ubuntu/700 — likely root cause is title element using `.slide-display` or no font class at all (inheriting Poppins body from line 146). Controller surface confirmed: `ControllerPill.tsx` + `DotPagination.tsx` + `ControllerOverflowMenu.tsx` with parity test must stay green through SS-02.
+
 ## 1.42.0 — 2026-06-06
 
 ### Planning

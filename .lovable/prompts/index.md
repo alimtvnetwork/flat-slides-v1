@@ -1,6 +1,6 @@
 # Prompt Registry
 
-Latest: `23-next-task.md` (plan 06 opened, 100 steps; next 3 = close plan 05 SS-02, then RCA Ubuntu regression on slide 1, then ship minimum-correct font fix with computed-style snapshot).
+Latest: `24-next-task.md` (plan 06 — re-pinned next 3 with fresh code signal: `.slide-display` Poppins/400 vs `.slide-heading` Ubuntu/700 in `src/styles.css:226-227` is likely Ubuntu regression root cause).
 
 | ID  | File                          | Title         | Trigger phrases                                            | Purpose                                  |
 | --- | ----------------------------- | ------------- | ---------------------------------------------------------- | ---------------------------------------- |
