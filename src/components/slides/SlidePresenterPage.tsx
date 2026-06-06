@@ -403,7 +403,7 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
       <PresenterAutoStart />
       <CameraBubble />
       {!isFs && current === 1 && !isStepRoute && (
-        <DeckLauncher onOpenSettings={() => setSettingsOpen(true)} onPresent={toggleFs} />
+        <DeckLauncher onOpenSettings={() => setSettingsOpen(true)} onPresent={() => { void toggleFs(); }} />
       )}
       {settingsOpen && (
         <Suspense fallback={null}>
