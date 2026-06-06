@@ -30,7 +30,7 @@ describe("buildPaginationSlots", () => {
       { kind: "number", n: 5 },
       { kind: "number", n: 6 },
       { kind: "number", n: 7 },
-      { kind: "ellipsis", id: "right", range: [8, 8] },
+      { kind: "number", n: 8 },
       { kind: "number", n: 9 },
     ]);
   });
