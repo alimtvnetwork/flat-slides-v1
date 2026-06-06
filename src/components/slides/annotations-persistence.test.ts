@@ -33,7 +33,7 @@ describe("annotation persistence flag", () => {
     expect(parsed.state.strokes).toBeUndefined();
   });
 
-  it("persists strokes when persistStrokes is true and survives a store remount", () => {
+  it("persists strokes when persistStrokes is true and survives a store remount", async () => {
     useAnnotations.getState().setPersist(true);
     useAnnotations.getState().beginStroke("slide-2", { x: 5, y: 5 });
 
