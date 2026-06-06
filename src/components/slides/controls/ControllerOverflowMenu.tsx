@@ -1,4 +1,4 @@
-import { HelpCircle, MonitorPlay, MoreHorizontal, Settings } from "lucide-react";
+import { ExternalLink, HelpCircle, MonitorPlay, MoreHorizontal, Settings } from "lucide-react";
 
 import { useSlideNumber } from "./useSlideNumber";
 
@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MusicToggle } from "./MusicToggle";
 import { ThemeChip } from "./ThemeChip";
+import { openPresenterWindow, reportFullscreenFailure } from "../useFullscreen";
 
 interface Props {
   onOpenSettings: () => void;
@@ -44,6 +45,9 @@ export function ControllerOverflowMenu({ onOpenSettings, onOpenHelp }: Props) {
         <DropdownMenuItem onSelect={() => openInspectorWindow(slideNumber)} className="gap-2">
           <MonitorPlay size={14} /> Open inspector
         </DropdownMenuItem>
+        <DropdownMenuItem onSelect={openPresentWindow} className="gap-2">
+          <ExternalLink size={14} /> Open in new window
+        </DropdownMenuItem>
         <DropdownMenuItem onSelect={onOpenSettings} className="gap-2">
           <Settings size={14} /> Settings
         </DropdownMenuItem>
@@ -59,4 +63,12 @@ function openInspectorWindow(slideNumber: number) {
   if (typeof window === "undefined") return;
   const url = `${window.location.origin}/slides/inspector/${slideNumber}`;
   window.open(url, "riseup-presenter-inspector", "noopener,noreferrer");
+}
+
+// Mirror the `present-window` shortcut action so keyboard (Shift+W) and
+// mouse paths converge on a single contract: open a top-level popup, and if
+// the browser blocks it, surface the same failure toast.
+function openPresentWindow() {
+  const win = openPresenterWindow();
+  if (!win) reportFullscreenFailure({ ok: false, reason: "embedded-popup-blocked" });
 }
