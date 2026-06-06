@@ -96,7 +96,7 @@ describe("slide fullscreen target", () => {
   });
 
 
-  it("reports popup-blocked when embedded native fullscreen would fail and popup is blocked", async () => {
+  it("stays in app mode when embedded even if native fullscreen would have failed (popup no longer attempted)", async () => {
     const stableRoot = document.createElement("div");
     stableRoot.setAttribute("data-slides-fullscreen-root", "");
     document.body.append(stableRoot);
@@ -107,8 +107,9 @@ describe("slide fullscreen target", () => {
       openPresenterWindow: () => null,
     });
 
-    expect(result).toEqual({ ok: false, reason: "embedded-popup-blocked" });
+    expect(result).toEqual({ ok: true, mode: "app" });
   });
+
 
 
   it("surfaces a persistent fallback URL when presenter popup is blocked", () => {
