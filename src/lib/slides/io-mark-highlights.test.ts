@@ -22,6 +22,7 @@ describe("expandMarkHighlights (issue 023)", () => {
       id: "d",
       title: "T",
       version: 1,
+      settings: {},
       slides: [
         {
           id: "s1",
