@@ -40,6 +40,15 @@ export type ImportResult<T> =
 
 const MAX_TOAST_ISSUES = 4;
 
+/** Issue 011: bail before Zod when the JSON payload is implausibly large. */
+export const MAX_DECK_JSON_BYTES = 8_000_000;
+
+function sizeFailure<T>(raw: string): ImportResult<T> {
+  const mb = (raw.length / 1_000_000).toFixed(1);
+  const msg = `Deck JSON is ${mb} MB (limit ${MAX_DECK_JSON_BYTES / 1_000_000} MB). Host large images on a CDN and use https:// URLs instead of base64.`;
+  return { ok: false, error: msg, errorFull: msg, errorCount: 1 };
+}
+
 function jsonFailure<T>(e: unknown): ImportResult<T> {
   const msg = `Invalid JSON: ${(e as Error).message}`;
   return { ok: false, error: msg, errorFull: msg, errorCount: 1 };
@@ -55,6 +64,7 @@ function zodFailure<T>(err: import("zod").ZodError): ImportResult<T> {
 }
 
 export function parseDeckJson(raw: string): ImportResult<Deck> {
+  if (raw.length > MAX_DECK_JSON_BYTES) return sizeFailure(raw);
   let json: unknown;
   try { json = JSON.parse(raw); } catch (e) { return jsonFailure(e); }
   const result = DeckSchema.safeParse(json);
@@ -63,12 +73,14 @@ export function parseDeckJson(raw: string): ImportResult<Deck> {
 }
 
 export function parseSlideJson(raw: string): ImportResult<Slide> {
+  if (raw.length > MAX_DECK_JSON_BYTES) return sizeFailure(raw);
   let json: unknown;
   try { json = JSON.parse(raw); } catch (e) { return jsonFailure(e); }
   const result = SlideSchema.safeParse(json);
   if (!result.success) return zodFailure(result.error);
   return { ok: true, value: result.data as Slide };
 }
+
 
 /** Trigger a mounted file input — returns the file's text contents. */
 export function pickJsonFile(input?: HTMLInputElement | null, accept = ".json,application/json"): Promise<string | null> {
