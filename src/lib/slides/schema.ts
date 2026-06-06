@@ -93,7 +93,7 @@ export const LeftSlideSchema = z.object({
   heading: RichTextSchema,
   body: RichTextSchema.optional(),
   media: z
-    .object({ src: z.string().url().or(z.string().startsWith("data:")), alt: z.string().optional() })
+    .object({ src: ImageSrcSchema, alt: z.string().optional() })
     .optional(),
 });
 
@@ -152,7 +152,7 @@ export const BulletsSlideSchema = z.object({
 export const ImageSlideSchema = z.object({
   ...BaseSlideShape,
   type: z.literal("image"),
-  src: z.string().url().or(z.string().startsWith("data:")),
+  src: ImageSrcSchema,
   alt: z.string().max(200).optional(),
   caption: RichTextSchema.optional(),
   fit: z.enum(["cover", "contain", "split"]).optional(),
