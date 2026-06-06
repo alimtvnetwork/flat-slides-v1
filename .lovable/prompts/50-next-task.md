@@ -1,4 +1,4 @@
-# 49 — Next Task v5 (registry refresh; Phase A Step 4 already landed at 1.67.0)
+# 50 — Next Task v5 (Plan 06 Phase A Step 5 landed: ellipsis pagination spec)
 
 ## Files, functions, and signals read before selecting work
 
