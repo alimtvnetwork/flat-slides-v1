@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { useAnnotations } from "@/components/slides/annotations-store";
 import { useChrome } from "@/components/slides/chrome-store";
@@ -17,11 +17,18 @@ const deck: Deck = {
 };
 
 describe("deck runtime metadata round-trip (issue 009)", () => {
+  beforeEach(() => {
+    Object.defineProperty(URL, "createObjectURL", { configurable: true, value: vi.fn(() => "blob:deck") });
+    Object.defineProperty(URL, "revokeObjectURL", { configurable: true, value: vi.fn() });
+  });
+
   afterEach(() => {
     vi.restoreAllMocks();
     localStorage.clear();
     document.body.innerHTML = "";
     useAnnotations.getState().clearAll();
+    useChrome.getState().setCamera({ shape: "circle", visible: false, fullscreenOnly: true });
+    useChrome.getState().setScene("normal");
   });
 
   it("exportDeck includes chrome, annotation, and webcam runtime state", () => {
