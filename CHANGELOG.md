@@ -2,6 +2,11 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.27.0 — 2026-06-06
+
+### Fixed
+- **Fullscreen from preview iframe now opens true fullscreen.** `enterFullscreen` in `src/components/slides/useFullscreen.ts` (lines 146–160) previously short-circuited every embedded context to in-app "presentation mode" — a `position: fixed; inset: 0` cover bounded by the iframe viewport, which the user reported as "covers in" rather than fullscreen. Lovable's preview iframe lacks `allow="fullscreen"`, so the only path to true browser fullscreen is a top-level window. The embedded branch now calls `openPresenterWindow()` first; on success returns `{ mode: "presenter-window" }` and clears app-presentation mode; on popup-block returns `{ ok: false, reason: "embedded-popup-blocked" }` so `reportFullscreenFailure` surfaces the existing toast + persistent fallback URL. Top-level (non-embedded) behavior unchanged. Tests in `fullscreenTarget.test.ts` updated to lock the new contract (13/13 green).
+
 ## 1.26.0 — 2026-06-06
 
 ### Fixed
