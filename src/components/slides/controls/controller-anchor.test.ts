@@ -56,7 +56,7 @@ describe("anchorStyles", () => {
 describe("controller anchor persistence", () => {
   it("cycles with the B shortcut and persists under the required key", () => {
     localStorage.clear();
-    useControllerAnchor.getState().setAnchor("bottom-center");
+    useControllerAnchor.getState().setAnchor("top-right");
     expect(isControllerAnchorShortcut(new KeyboardEvent("keydown", { key: "b" }))).toBe(true);
     cycleControllerAnchor();
     expect(useControllerAnchor.getState().anchor).toBe("bottom-right");
