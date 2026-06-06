@@ -24,3 +24,4 @@ If the spec sample drifts from the schema, the “Try spec sample deck” button
 ## Status log
 
 - 2026-06-06 — opened. RCA + fix plan ready. No code changes yet (per user request — fixes deferred).
+- 2026-06-06 — fixed in v1.3.0. `src/lib/slides/sample-deck.test.ts` now imports the sample with `?raw` and runs it through `parseDeckJson` — the exact pipeline `SettingsDrawer` uses for "Try spec sample deck". Schema drift fails CI before users see a runtime toast.
