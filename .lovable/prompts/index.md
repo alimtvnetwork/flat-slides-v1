@@ -1,6 +1,6 @@
 # Prompt Registry
 
-Latest: `51-next-task.md` (Plan 06 Phase A Step 6 landed — `15-ellipsis-threshold-setting.md` written; next 3 steps: slide-types catalog draft, `buildPaginationSlots` unit-test scaffold, theme catalog addendum).
+Latest: `52-next-task.md` (Plan 06 Phase A Step 7 landed — `26-slide-definitions/00-catalog.md` written; next 3 steps: `buildPaginationSlots` unit-test scaffold, theme-hooks addendum, first batch of per-type stubs).
 
 | ID  | File                          | Title         | Trigger phrases                                            | Purpose                                  |
 | --- | ----------------------------- | ------------- | ---------------------------------------------------------- | ---------------------------------------- |
