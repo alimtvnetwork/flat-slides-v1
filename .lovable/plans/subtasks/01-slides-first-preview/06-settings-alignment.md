@@ -2,19 +2,18 @@
 
 **Parent:** 01-slides-first-preview
 **Slug:** settings-alignment
-**Status:** pending
+**Status:** completed in v1.12.0
 **Created:** 2026-06-06
 
-## To be filled during step 12
+## Step 12 table
 
-Read `spec/old-slides/27-slides-number/10-visibility-and-settings.md`
-and produce a table: Spec row | Current SettingsDrawer row | Action
-(add / rename / remove / no-op) | Persistence key.
+| Spec row | Current row | Action | Persistence key |
+|---|---|---|---|
+| Presenter Top Bar OFF by default, opt in via `J` | `PresenterTopBar` existed but was not mounted; `SettingsDrawer` had no row | Mounted surface in `SlidePresenterPage`; removed the `J` shortcut suppression; added Visibility row | `slides-chrome-v2.topJumperHidden` (state name preserves spec term) |
+| Slide Number Badge ON by default | `SlideNumberBadge` mounted and persisted, no drawer row | Added Visibility row to toggle existing state | `slides-chrome-v2.slideNumberBadgeVisible` |
+| Dot Pagination ON by default | `DotPagination` existed and state existed, but it was not mounted or exposed | Mounted surface in `SlidePresenterPage`; added Visibility row | `slides-chrome-v2.dotPaginationVisible` |
+| Controller Indicator shown when controller pill is expanded | `SlideIndicator` renders inside `ControllerPill` expansion | No stateful toggle; added read-only row explaining expansion-owned visibility | n/a |
+| Legacy Top Jumper OFF unless `?jumper=1` | Not implemented in current route tree | No-op for this pass; current top bar is the supported top-center surface | n/a |
+| Grid Overview numbers only in grid | Existing `/slides` overview owns grid numbering | No-op | route-local |
 
-Persistence convention: `riseup.<area>.<key>` (existing). Document any
-keys that need migration helpers; defer the migration code to a
-follow-up plan but list it here.
-
-Open question for Step 12: does the spec mandate a separate
-"Visibility" tab vs the current single-pane drawer? Default answer:
-single pane with section dividers, deviation noted.
+Deviation: the spec does not require a separate tabbed settings route; v1.12.0 keeps the current single drawer and adds a `Visibility` section divider.

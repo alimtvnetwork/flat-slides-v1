@@ -65,6 +65,12 @@ export function SettingsDrawer({
   const upsertSlide = useDeck((s) => s.upsertSlide);
   const resetDeck = useDeck((s) => s.resetDeck);
   const settings = deck.settings;
+  const isTopJumperHidden = useChrome((s) => s.topJumperHidden);
+  const isDotPaginationVisible = useChrome((s) => s.dotPaginationVisible);
+  const isSlideNumberBadgeVisible = useChrome((s) => s.slideNumberBadgeVisible);
+  const setTopJumperHidden = useChrome((s) => s.setTopJumperHidden);
+  const setDotPaginationVisible = useChrome((s) => s.setDotPaginationVisible);
+  const setSlideNumberBadgeVisible = useChrome((s) => s.setSlideNumberBadgeVisible);
   const camera = useChrome((s) => s.camera);
   const setCamera = useChrome((s) => s.setCamera);
   const cycleCameraSize = useChrome((s) => s.cycleCameraSize);
@@ -259,6 +265,27 @@ export function SettingsDrawer({
                 style={{ background: c }}
               />
             ))}
+          </div>
+        </section>
+
+        <section className="mb-6 space-y-3">
+          <label className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wider text-neutral-400">
+            <SettingsIcon size={12} /> Visibility
+          </label>
+          <label className="flex items-center justify-between gap-3 rounded bg-neutral-900 px-3 py-2 text-sm">
+            <span>Presenter top bar <span className="ml-1 text-neutral-500">(J)</span></span>
+            <input type="checkbox" checked={!isTopJumperHidden} onChange={(e) => setTopJumperHidden(!e.target.checked)} />
+          </label>
+          <label className="flex items-center justify-between gap-3 rounded bg-neutral-900 px-3 py-2 text-sm">
+            <span>Slide number badge</span>
+            <input type="checkbox" checked={isSlideNumberBadgeVisible} onChange={(e) => setSlideNumberBadgeVisible(e.target.checked)} />
+          </label>
+          <label className="flex items-center justify-between gap-3 rounded bg-neutral-900 px-3 py-2 text-sm">
+            <span>Dot pagination</span>
+            <input type="checkbox" checked={isDotPaginationVisible} onChange={(e) => setDotPaginationVisible(e.target.checked)} />
+          </label>
+          <div className="rounded bg-neutral-900 px-3 py-2 text-sm text-neutral-400">
+            Controller indicator shows while the controller is expanded.
           </div>
         </section>
 

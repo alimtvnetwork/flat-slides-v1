@@ -18,6 +18,8 @@ import { CameraBubble } from "@/components/slides/controls/CameraBubble";
 import { DeckLauncher } from "@/components/slides/controls/DeckLauncher";
 import { PresenterFallbackLink } from "@/components/slides/controls/PresenterFallbackLink";
 import { SlideNumberBadge } from "@/components/slides/controls/SlideNumberBadge";
+import { DotPagination } from "@/components/slides/controls/DotPagination";
+import { PresenterTopBar } from "@/components/slides/controls/PresenterTopBar";
 import { RenderSlide } from "@/components/slides/RenderSlide";
 import { CameraStage } from "@/components/slides/CameraStage";
 import { ScaledSlide } from "@/components/slides/ScaledSlide";
@@ -81,6 +83,7 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
   const cycleScene = useChrome((s) => s.cycleScene);
   const scene = useChrome((s) => s.scene);
   const focusEditorOpen = useChrome((s) => s.focusEditorOpen);
+  const isDotPaginationVisible = useChrome((s) => s.dotPaginationVisible);
 
   usePresentationTimer();
   useAudienceSync({
@@ -344,7 +347,9 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
   const focusStep = Math.max(1, cameraStep || 1);
   const surfaces = (
     <>
+      <PresenterTopBar current={current} total={total} onPrev={movePrevStepAware} onNext={moveNextStepAware} />
       <SlideNumberBadge current={current} total={total} display={getDisplayNumber(slide, current)} />
+      {isDotPaginationVisible && <DotPagination current={current} total={total} slides={linearSlides} onJump={jump} />}
       <AnnotationLayer slideId={slide.id} />
       <FocusEditor
         slide={slide}
@@ -458,7 +463,7 @@ function getNavigationKeyId(event: KeyboardEvent) {
 function isHiddenPresenterChromeShortcut(event: KeyboardEvent) {
   if (event.metaKey || event.ctrlKey || event.altKey) return false;
   const key = event.key.toLowerCase();
-  if (["j", "c", "m", "s", "t", "q", "p", "n"].includes(key)) {
+  if (["c", "m", "s", "t", "q", "p", "n"].includes(key)) {
     event.preventDefault();
     return true;
   }
