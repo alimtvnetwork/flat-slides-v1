@@ -68,6 +68,15 @@ export function SettingsDrawer({
 }) {
   const deck = useDeck((s) => s.deck);
   const themeId = useDeck((s) => s.themeId);
+  // Re-render when custom themes change (import/remove fires this event).
+  const [, bumpThemes] = useState(0);
+  useEffect(() => {
+    const onChange = () => bumpThemes((n) => n + 1);
+    window.addEventListener("riseup:custom-themes-changed", onChange);
+    return () => window.removeEventListener("riseup:custom-themes-changed", onChange);
+  }, []);
+  // Touch loader so first paint reflects persisted custom themes.
+  useEffect(() => { loadCustomThemes(); }, []);
   const setSettings = useDeck((s) => s.setSettings);
   const setThemeId = useDeck((s) => s.setThemeId);
   const setDeck = useDeck((s) => s.setDeck);
