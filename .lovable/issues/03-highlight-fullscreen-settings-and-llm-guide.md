@@ -43,3 +43,25 @@ User confirmed background color + theme switching is now working — that part i
 > "Write the root cause analysis into the memory and why it happened, how it happened, into the issues as well, so that I could share with any other AI in the future so that they do not make this mistake."
 
 RCA must be written to `.lovable/memory/diagnostics/` AND appended to this issue file once the fix lands.
+
+---
+
+## Status update — 2026-06-06 (v1.31.0)
+
+All four user-reported symptoms are resolved. RCA write-ups (referenced below) are durable so a future AI cannot silently reintroduce these regressions.
+
+### Resolutions
+
+1. **Yellow highlight visible again.** `.hl` now uses explicit `background-color: var(--slide-hl)`. Settings drawer exposes a per-deck highlight-color override that writes to `--slide-hl` via `RenderSlide.ThemeWrap`.
+   - RCA: `.lovable/memory/diagnostics/07-highlight-invisible-rca.md`
+   - Regression test: `src/components/slides/highlight-style-guardrails.test.ts` — new case asserts `background-color: var(--slide-hl)` and that the token is non-transparent.
+
+2. **Fullscreen no longer "covers in" inside the preview iframe.** From the embedded preview, the fullscreen action opens the presenter route in a top-level window where Fullscreen API works. The controller pill stays mounted in fullscreen so the user can always exit.
+   - RCA: `.lovable/memory/diagnostics/08-fullscreen-presenter-window-rca.md`
+   - Closes `spec/issues/014-preview-fullscreen-breaks-out-of-iframe.md`.
+
+3. **Settings drawer exposes text + highlight color pickers** (landed in v1.28.0, locked here).
+
+4. **LLM guide ZIP download** in Settings drawer (landed in v1.29.0; uses `fflate` + raw imports of `llm-json-guideline.md` + `sample-deck.json`).
+
+**Status:** closed.

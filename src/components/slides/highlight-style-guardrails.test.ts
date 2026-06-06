@@ -31,4 +31,16 @@ describe("slide design-token guardrails", () => {
     // box-shadow on inline highlight would read as a glow halo.
     expect(body).not.toMatch(/box-shadow\s*:/);
   });
+
+  it(".hl has an explicit background-color bound to --slide-hl (regression: invisible highlight on light themes)", () => {
+    const body = ruleBody(".hl");
+    // Must explicitly set background-color (not just `background:` shorthand
+    // which can be lost if a parent rule resets it). Must reference the
+    // --slide-hl token so theme/settings overrides take effect.
+    expect(body).toMatch(/background-color:\s*var\(--slide-hl\)/);
+    // Token itself must be a visible yellow/gold, not transparent.
+    const tokenMatch = css.match(/--slide-hl:\s*([^;]+);/);
+    expect(tokenMatch).not.toBeNull();
+    expect(tokenMatch![1]).not.toMatch(/transparent|rgba\(\s*0\s*,\s*0\s*,\s*0\s*,\s*0\s*\)/i);
+  });
 });
