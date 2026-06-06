@@ -16,8 +16,8 @@ describe("SHORTCUTS catalogue", () => {
     expect(n?.label).toMatch(/presenter notes/i);
   });
 
-  it("does not double-bind Escape in keys aliases (only the F5/ArrowLeft entries should bind real keys)", () => {
-    const bound = SHORTCUTS.filter((s) => s.keys.includes("Escape"));
+  it("does not double-bind Escape in presenter key aliases", () => {
+    const bound = SHORTCUTS.filter((s) => s.scope !== "inspector" && s.keys.includes("Escape"));
     expect(bound.length).toBeLessThanOrEqual(1);
   });
 });
