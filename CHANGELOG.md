@@ -2,6 +2,11 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.28.0 — 2026-06-06
+
+### Added
+- **Highlight color picker in Settings.** New `hlColor?: string` field on `DeckSettings` (`src/components/slides/types.ts:235`, `src/lib/slides/schema.ts:202`). `RenderSlide` `ThemeWrap` (lines 85–87) sets `--slide-hl` inline when present so the new yellow `.hl` background re-tints live. `SettingsDrawer.tsx` gains a Highlight-color section (color input + Auto reset + 6 swatch presets) directly under Text-color. Regression test `settings-hl-color-applied.test.tsx` (2/2 green) locks the override + theme fallback.
+
 ## 1.27.0 — 2026-06-06
 
 ### Fixed
