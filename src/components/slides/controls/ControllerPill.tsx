@@ -57,6 +57,22 @@ export function ControllerPill(props: Props) {
     });
   }, [isFullscreen]);
 
+  // Issue 029: re-clamp the persisted anchor when the viewport shrinks
+  // below what the pill needs at a corner. Snaps to bottom-center so the
+  // pill never disappears past the right/left edge after resize.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const clamp = () => {
+      const el = containerRef.current;
+      if (!el) return;
+      const next = clampControllerAnchor(anchor, window.innerWidth, el.getBoundingClientRect().width);
+      if (next !== anchor) setAnchor(next);
+    };
+    clamp();
+    window.addEventListener("resize", clamp);
+    return () => window.removeEventListener("resize", clamp);
+  }, [anchor, setAnchor]);
+
   if (!mounted) return null;
 
   const motionPreset = reduced
