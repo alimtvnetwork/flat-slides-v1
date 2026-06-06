@@ -14,6 +14,7 @@ import { dispatchPresenterKey } from "@/components/slides/presenterActions";
 import { KeyboardShortcutsDialog } from "@/components/slides/controls/KeyboardShortcutsDialog";
 import { PresenterToast } from "@/components/slides/controls/PresenterToast";
 import { PresenterAutoStart } from "@/components/slides/controls/PresenterAutoStart";
+import { CameraBubble } from "@/components/slides/controls/CameraBubble";
 import { PresenterFallbackLink } from "@/components/slides/controls/PresenterFallbackLink";
 import { SlideNumberBadge } from "@/components/slides/controls/SlideNumberBadge";
 import { RenderSlide } from "@/components/slides/RenderSlide";
