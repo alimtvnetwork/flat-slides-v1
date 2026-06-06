@@ -215,9 +215,12 @@ export const DeckMusicSchema = z.object({
 
 export const DeckRuntimeMetaSchema = z
   .object({
-    chrome: z.record(z.unknown()).optional(),
+    chrome: z.object({
+      camera: z.record(z.unknown()).optional(),
+      scene: z.enum(["normal", "cam-only", "split", "stage-fill"]).optional(),
+    }).optional(),
     annotations: z.record(z.unknown()).optional(),
-    webcam: z.record(z.unknown()).optional(),
+    webcam: z.record(z.string()).optional(),
   })
   .optional();
 
