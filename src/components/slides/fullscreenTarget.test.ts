@@ -174,6 +174,17 @@ describe("slide fullscreen target", () => {
     expect(openPresenterWindow).toHaveBeenCalledOnce();
   });
 
+  it("uses the default presenter popup from slide pages when embedded fullscreen is disabled", async () => {
+    Object.defineProperty(document, "fullscreenEnabled", { configurable: true, value: false });
+    const opened = { focus: vi.fn(), opener: window } as unknown as Window;
+    const open = vi.spyOn(window, "open").mockReturnValue(opened);
+
+    const result = await enterFullscreen(null, { isEmbeddedWindow: () => true });
+
+    expect(result).toEqual({ ok: true, mode: "presenter-window" });
+    expect(open).toHaveBeenCalledWith(expect.stringContaining("present=1"), "_blank", "popup");
+  });
+
   it("reports embedded-popup-blocked when the iframe popup fallback is blocked", async () => {
     Object.defineProperty(document, "fullscreenEnabled", { configurable: true, value: false });
     const stableRoot = document.createElement("div");
