@@ -71,6 +71,20 @@ describe("CameraBubble shape surfaces", () => {
     expect(region.querySelector('[data-camera-plate="gold"]')).toBeNull();
   });
 
+  it.each([
+    ["circle", "9999px"],
+    ["squircle", "38% / 34%"],
+    ["rect", "18px"],
+  ] as const)("applies the %s shape radius from chrome state", (shape, radius) => {
+    createSlidesRoot();
+    useChrome.setState({ camera: { ...useChrome.getState().camera, shape } });
+    render(<CameraBubble />);
+
+    const frame = screen.getByRole("region", { name: /presenter camera/i }).querySelector(`[data-camera-shape="${shape}"]`) as HTMLElement | null;
+
+    expect(frame?.style.borderRadius).toBe(radius);
+  });
+
   it("applies camera background color and image settings to the shaped frame", () => {
     createSlidesRoot();
     useChrome.setState({
