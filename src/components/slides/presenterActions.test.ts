@@ -64,6 +64,15 @@ describe("presenterActions — single keymap parity (Step 26)", () => {
     expect(ctx.toggleCamera).toHaveBeenCalledTimes(1);
   });
 
+  it("plain F and uppercase F both toggle fullscreen", () => {
+    for (const event of [new KeyboardEvent("keydown", { key: "f" }), new KeyboardEvent("keydown", { key: "F", shiftKey: true })]) {
+      const ctx = { ...baseCtx(), event };
+      const def = dispatchPresenterKey(ctx);
+      expect(def?.id).toBe("fullscreen-toggle");
+      expect(ctx.toggleFullscreen).toHaveBeenCalledTimes(1);
+    }
+  });
+
   it("Shift+I opens /slides/inspector/N in a new window", () => {
     const originalOpen = window.open;
     const openSpy = vi.fn();

@@ -113,19 +113,19 @@ export async function enterFullscreen(target?: HTMLElement | null, environment: 
   // document first, then the route can change while fullscreen stays active.
   const fullscreenTarget = getSlidesFullscreenRoot() ?? target ?? document.documentElement;
 
-  // Embedded preview iframes without `allow="fullscreen"` set
-  // `document.fullscreenEnabled === false`. In that case `requestFullscreen`
-  // can never succeed, so skip it and route directly to the presenter popup
-  // instead of returning a silent `unsupported`. Top-level windows still try
-  // native fullscreen first and only fall back on failure (see catch below).
   const openWindow = environment.openPresenterWindow ?? openPresenterWindow;
+  const embedded = (environment.isEmbeddedWindow ?? isEmbeddedWindow)();
+
+  // Lovable preview and other embedded frames must not try iframe fullscreen
+  // first: it looks like a no-op to the presenter. Open the same slide route
+  // as a top-level presenter window immediately; direct slide URLs still use
+  // native fullscreen below.
+  if (embedded) {
+    const opened = openWindow();
+    return opened ? { ok: true, mode: "presenter-window" } : { ok: false, reason: "embedded-popup-blocked" };
+  }
 
   if (document.fullscreenEnabled === false) {
-    const embedded = (environment.isEmbeddedWindow ?? isEmbeddedWindow)();
-    if (embedded) {
-      const opened = openWindow();
-      return opened ? { ok: true, mode: "presenter-window" } : { ok: false, reason: "embedded-popup-blocked" };
-    }
     return { ok: false, reason: "unsupported" };
   }
   if (!fullscreenTarget?.requestFullscreen) return { ok: false, reason: "unsupported" };
@@ -136,11 +136,6 @@ export async function enterFullscreen(target?: HTMLElement | null, environment: 
     blurActiveElement();
     return { ok: true, mode: "native" };
   } catch (error) {
-    const embedded = (environment.isEmbeddedWindow ?? isEmbeddedWindow)();
-    if (embedded) {
-      const opened = openWindow();
-      return opened ? { ok: true, mode: "presenter-window" } : { ok: false, reason: "embedded-popup-blocked" };
-    }
     return { ok: false, reason: "native-failed", error };
   }
 }
