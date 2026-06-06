@@ -2,6 +2,14 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.31.0 — 2026-06-06
+
+### Docs
+- **RCAs for highlight + fullscreen issues.** Added `.lovable/memory/diagnostics/07-highlight-invisible-rca.md` (yellow `.hl` invisible on light themes — caused by shorthand `background:` losing the cascade; locked with regression test) and `.lovable/memory/diagnostics/08-fullscreen-presenter-window-rca.md` (preview iframe Fullscreen API silently degraded; presenter window is the contract). Appended status summary to `.lovable/issues/03-highlight-fullscreen-settings-and-llm-guide.md` and marked it closed.
+
+### Tests
+- **`.hl background-color` regression test.** `src/components/slides/highlight-style-guardrails.test.ts` now asserts `.hl` declares `background-color: var(--slide-hl)` and that `--slide-hl` is not transparent. Fails fast if a future refactor collapses the rule back to `background:` shorthand or zeroes out the token. 3/3 green.
+
 ## 1.30.0 — 2026-06-06
 
 ### Fixed
