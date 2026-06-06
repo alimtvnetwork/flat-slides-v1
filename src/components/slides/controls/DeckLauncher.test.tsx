@@ -2,8 +2,6 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import type { AnchorHTMLAttributes, ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 
-import type { Deck } from "../types";
-
 const ioMocks = vi.hoisted(() => ({
   exportDeck: vi.fn(),
   parseDeckJson: vi.fn(),
@@ -82,7 +80,7 @@ describe("DeckLauncher", () => {
     fireEvent.click(screen.getByRole("button", { name: "Export" }));
 
     await vi.waitFor(() => expect(ioMocks.pickJsonFile).toHaveBeenCalledOnce());
-    expect(ioMocks.exportDeck).toHaveBeenCalledWith(deck satisfies Deck);
+    expect(ioMocks.exportDeck).toHaveBeenCalledWith(deck);
     expect(events).toEqual(["import", "export"]);
     off();
   });

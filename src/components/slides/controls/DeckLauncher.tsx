@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import {
   Download,
   FileText,
@@ -10,7 +10,7 @@ import {
   SquareUserRound,
   Upload,
 } from "lucide-react";
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, type ReactNode } from "react";
 import { toast } from "sonner";
 
 import { useDeck } from "@/components/slides/store";
@@ -30,7 +30,6 @@ export type DeckLauncherProps = {
 type LauncherAction = "present" | "inspector" | "handout" | "handout-3up" | "print" | "overview" | "import" | "export" | "settings";
 
 export function DeckLauncher({ onOpenSettings, onPresent }: DeckLauncherProps) {
-  const navigate = useNavigate();
   const reduced = useReducedMotion();
   const deck = useDeck((s) => s.deck);
   const setDeck = useDeck((s) => s.setDeck);
@@ -103,7 +102,7 @@ function LauncherButton({
 }: {
   action: LauncherAction;
   onClick: () => void;
-  icon: React.ReactNode;
+  icon: ReactNode;
   label: string;
   primary?: boolean;
 }) {
@@ -120,7 +119,7 @@ function LauncherButton({
 // guideline 5 ("never `any`") is consciously relaxed here for the launcher's
 // single-purpose internal helper; the public surface (DeckLauncher) stays typed.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function LauncherLink({ action, to, params, icon, label }: { action: LauncherAction; to: any; params?: any; icon: React.ReactNode; label: string }) {
+function LauncherLink({ action, to, params, icon, label }: { action: LauncherAction; to: string; params?: Record<string, string>; icon: ReactNode; label: string }) {
   return (
     <Link to={to} params={params} className={BUTTON_CLASS} onClick={() => emitLauncherClick(action)}>
       {icon}
