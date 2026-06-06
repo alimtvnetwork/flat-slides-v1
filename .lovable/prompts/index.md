@@ -1,6 +1,6 @@
 # Prompt Registry
 
-Latest: `53-next-task.md` (Plan 06 Phase C Step 26 pulled forward — `buildPaginationSlots` implemented/tested; next 3 steps: theme-hooks addendum, first per-type stubs, wire pagination surfaces).
+Latest: `54-next-task.md` (Plan 06 Phase A Step 8 — theme-hooks channel surface spec; next 3 steps: per-type stub batch 02–05, pagination UI wiring, settings drawer threshold control).
 
 | ID  | File                          | Title         | Trigger phrases                                            | Purpose                                  |
 | --- | ----------------------------- | ------------- | ---------------------------------------------------------- | ---------------------------------------- |
