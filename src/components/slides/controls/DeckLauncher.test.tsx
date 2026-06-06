@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import type { AnchorHTMLAttributes, ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 
 import type { Deck } from "../types";
@@ -9,10 +10,10 @@ const ioMocks = vi.hoisted(() => ({
   pickJsonFile: vi.fn(),
 }));
 
-type MockLinkProps = React.AnchorHTMLAttributes<HTMLAnchorElement> & {
+type MockLinkProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
   to: string;
   params?: Record<string, string>;
-  children: React.ReactNode;
+  children: ReactNode;
 };
 
 vi.mock("@tanstack/react-router", () => ({
@@ -46,7 +47,7 @@ describe("DeckLauncher", () => {
       expect(screen.getByRole("button", { name: label })).toBeTruthy();
     }
     for (const [label, href] of expectedLinks) {
-      expect(screen.getByRole("link", { name: label })).toHaveAttribute("href", href);
+      expect(screen.getByRole("link", { name: label }).getAttribute("href")).toBe(href);
     }
   });
 
