@@ -27,7 +27,7 @@ import {
 import { MAX_MUSIC_VOLUME, MIN_MUSIC_VOLUME, MUSIC_VOLUME_STEP } from "@/lib/slides/musicVolume";
 // Inline-loaded LLM spec (see docs/slides/spec/llm-json-guideline.md).
 import sampleDeckJson from "../../../docs/slides/spec/sample-deck.json?raw";
-import llmGuidelineMd from "../../../docs/llm-json-guideline.md?raw";
+import llmGuidelineMd from "../../../docs/slides/spec/llm-json-guideline.md?raw";
 
 import { useAnnotations } from "./annotations-store";
 import { nextBackgroundSettings } from "./backgroundMode";
