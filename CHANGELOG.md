@@ -2,6 +2,14 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.18.0 — 2026-06-06
+
+### Added
+- **`window.__slidesEvents` dev ring buffer.** `emitSlidesEvent` (`src/components/slides/telemetry.ts`) now also pushes each event (timestamped) into a capped buffer of the last `SLIDES_EVENT_BUFFER_CAP = 200` events, exposed on `window.__slidesEvents` in dev/preview builds. Closes the v1.13.0 telemetry observability gap — `home-launcher-click` (and every other slides event) is now inspectable from DevTools without an external sink. Strictly disabled when `import.meta.env.PROD`.
+
+### Tests
+- Added 2 ring-buffer tests to `telemetry.test.ts` (now 5 passing): capture-with-timestamp and FIFO cap-and-drop-oldest behavior at `SLIDES_EVENT_BUFFER_CAP + 5` events.
+
 ## 1.17.0 — 2026-06-06
 
 ### Tests
