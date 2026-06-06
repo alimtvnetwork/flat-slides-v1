@@ -331,6 +331,21 @@ export function SettingsDrawer({
           </div>
         </section>
 
+        <section className="mb-6 space-y-2">
+          <label className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wider text-neutral-400">
+            <Download size={12} /> LLM guide
+          </label>
+          <p className="text-xs text-neutral-500">
+            Spec + sample deck. Feed both to ChatGPT/Claude/etc. and ask for a deck.json, then Import.
+          </p>
+          <button
+            onClick={handleDownloadGuide}
+            className="inline-flex w-full items-center justify-center gap-2 rounded bg-neutral-800 px-3 py-2 text-sm text-neutral-100 ring-1 ring-neutral-700 hover:bg-neutral-700"
+          >
+            <Download size={14} /> Download guide (.zip)
+          </button>
+        </section>
+
         <section className="mb-6 space-y-3">
           <label className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wider text-neutral-400">
             <SettingsIcon size={12} /> Visibility
