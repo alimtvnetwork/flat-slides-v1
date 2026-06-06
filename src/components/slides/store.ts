@@ -4,6 +4,7 @@ import { persist } from "zustand/middleware";
 import { DeckSchema } from "@/lib/slides/schema";
 import { DECK_SCHEMA_VERSION } from "@/lib/slides/version";
 
+import { useAnnotations } from "./annotations-store";
 import { useChrome } from "./chrome-store";
 import { getDefaultDeckSettings, persistDeckSettings, readPersistedDeckSettings, resetPersistedDeckSettings } from "./settingsPersistence";
 import { emitSlidesEvent } from "./telemetry";
