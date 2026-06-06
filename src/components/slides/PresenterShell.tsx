@@ -1,4 +1,4 @@
-import { useRef, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useRef, type CSSProperties, type ReactNode } from "react";
 
 import { useCursorAutoHide } from "@/components/slides/useCursorAutoHide";
 import { useHydratedDeckSettings } from "@/components/slides/useHydratedDeckSettings";
@@ -18,6 +18,11 @@ function resolveShellBg(settings: { backgroundMode?: string; backgroundColor?: s
 export function PresenterShell({ isFullscreen, children }: Props) {
   const rootRef = useRef<HTMLDivElement>(null);
   useCursorAutoHide(() => rootRef.current, isFullscreen);
+  useEffect(() => {
+    const active = document.activeElement;
+    if (active instanceof HTMLElement && (active.tagName === "INPUT" || active.tagName === "TEXTAREA" || active.isContentEditable)) return;
+    rootRef.current?.focus({ preventScroll: true });
+  }, []);
   const settings = useHydratedDeckSettings();
   const bg = resolveShellBg(settings);
   const style = { ["--slide-bg" as string]: bg, backgroundColor: bg } as CSSProperties;
@@ -26,8 +31,9 @@ export function PresenterShell({ isFullscreen, children }: Props) {
       ref={rootRef}
       data-slide-presenter-root
       data-fullscreen={isFullscreen ? "true" : "false"}
+      tabIndex={-1}
       style={style}
-      className="flex h-dvh w-full max-h-dvh max-w-[100vw] flex-col overflow-hidden overscroll-none"
+      className="flex h-dvh w-full max-h-dvh max-w-[100vw] flex-col overflow-hidden overscroll-none focus:outline-none"
     >
       {children}
     </div>
