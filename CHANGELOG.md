@@ -2,6 +2,11 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.26.0 — 2026-06-06
+
+### Fixed
+- **Yellow highlighter is visible again.** `.hl` in `src/styles.css` (lines 227–240) now paints a flat yellow background (`var(--slide-hl)`) behind the word with dark ink (`var(--slide-hl-ink)`) and keeps the spec text-shadow `rgb(0 0 0) 1px 0.7px 0px`. Previously `.hl` only colored the text yellow, so on light themes the highlight was invisible. No blur, no glow, no multi-layer shadows — complies with `.lovable/memory/avoid/02-no-hl-glow.md` and `decisions/02-highlight-text-shadow.md`. `box-decoration-break: clone` keeps the background continuous across line wraps.
+
 ## 1.25.0 — 2026-06-06
 
 ### Tests
