@@ -50,7 +50,7 @@ export function CommandPalette({ open, onClose, slides, onJump, onOpenOverview, 
         run: () => window.open(exportUrl("/slides/handout-3up", "wide"), "_blank", "noopener,noreferrer") },
       { id: "act-open-guideline", label: "Open LLM JSON Guideline (spec)", hint: "↗",
         run: () => {
-          const url = new URL("/docs/slides/spec/llm-json-guideline.md", window.location.origin).toString();
+          const url = new URL("/docs/llm-json-guideline.md", window.location.origin).toString();
           window.open(url, "_blank", "noopener,noreferrer");
         } },
     ];
