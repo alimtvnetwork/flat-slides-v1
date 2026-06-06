@@ -367,7 +367,7 @@ export function PresenterWebcamProvider({ children }: { children: ReactNode }) {
   const [sizeCfg, setSizeCfgState] = useState<SizeConfig>(() => readStoredSize());
   const [autoFrame, setAutoFrameState] = useState(() => readStoredFlag(AUTOFRAME_KEY, false));
   const [halo, setHaloState] = useState(() => readStoredFlag(HALO_KEY, true));
-  const [circle, setCircleState] = useState(() => readStoredFlag(CIRCLE_KEY, false));
+  const [circle, setCircleState] = useState(() => readStoredFlag(CIRCLE_KEY, true));
   const [plateVariant, setPlateVariantState] = useState<PlateVariant>(() => readStoredPlate());
   const [minimized, setMinimizedState] = useState(() => readStoredFlag(MIN_KEY, false));
   const [cinematicExiting, setCinematicExiting] = useState(false);

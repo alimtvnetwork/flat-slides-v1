@@ -152,8 +152,15 @@ export function PresenterWebcamOverlay() {
         return;
       }
       if (key === "]") {
+        // User-requested override (2026-06): `]` hides the camera immediately
+        // instead of running the cinematic show/fullscreen/exit cycle.
         e.preventDefault();
-        runCinematicCycle();
+        if (phase === "on" || phase === "tray" || phase === "stage") {
+          close();
+        } else if (phase === "fullscreen") {
+          exitFullscreen();
+          queueMicrotask(() => close());
+        }
         return;
       }
       // Spec 04 — `f` toggles auto-frame, but only while the camera is
