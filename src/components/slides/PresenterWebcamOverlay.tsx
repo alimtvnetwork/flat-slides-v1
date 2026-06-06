@@ -405,6 +405,7 @@ export function PresenterWebcamOverlay() {
             width: "100%",
             height: "100%",
             objectFit: "cover",
+            objectPosition: floatingAutoFrame.objectPosition,
             transform: "scaleX(-1)", // mirrored selfie view
             display: "block",
           }}
