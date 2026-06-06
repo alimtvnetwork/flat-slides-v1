@@ -69,6 +69,7 @@ export function parseDeckJson(raw: string): ImportResult<Deck> {
   if (raw.length > MAX_DECK_JSON_BYTES) return sizeFailure(raw);
   let json: unknown;
   try { json = JSON.parse(raw); } catch (e) { return jsonFailure(e); }
+  json = expandMarkHighlights(json);
   const result = DeckSchema.safeParse(json);
   if (!result.success) return zodFailure(result.error);
   const deck = result.data as Deck;
@@ -80,11 +81,52 @@ export function parseSlideJson(raw: string): ImportResult<Slide> {
   if (raw.length > MAX_DECK_JSON_BYTES) return sizeFailure(raw);
   let json: unknown;
   try { json = JSON.parse(raw); } catch (e) { return jsonFailure(e); }
+  json = expandMarkHighlights(json);
   const result = SlideSchema.safeParse(json);
   if (!result.success) return zodFailure(result.error);
   const slide = result.data as Slide;
   warnFocusRegionIssues([slide]);
   return { ok: true, value: slide };
+}
+
+/**
+ * Issue 023: legacy decks author highlights as `<mark>x</mark>` inside RichText
+ * string segments. The Rich renderer expects Highlight objects, so split any
+ * such strings into `[pre, { text }, post]` segments before Zod validation.
+ */
+const MARK_RE = /<mark(?:\s[^>]*)?>([\s\S]*?)<\/mark>/gi;
+function looksLikeRichText(arr: unknown[]): boolean {
+  return arr.length > 0 && arr.every(
+    (el) => typeof el === "string"
+      || (el !== null && typeof el === "object" && typeof (el as { text?: unknown }).text === "string"),
+  );
+}
+export function expandMarkHighlights(node: unknown): unknown {
+  if (Array.isArray(node)) {
+    const mapped = node.map(expandMarkHighlights);
+    if (looksLikeRichText(mapped) && mapped.some((el) => typeof el === "string" && /<mark/i.test(el))) {
+      const out: unknown[] = [];
+      for (const el of mapped) {
+        if (typeof el !== "string" || !/<mark/i.test(el)) { out.push(el); continue; }
+        let last = 0; let m: RegExpExecArray | null; MARK_RE.lastIndex = 0;
+        while ((m = MARK_RE.exec(el))) {
+          if (m.index > last) out.push(el.slice(last, m.index));
+          if (m[1].trim().length > 0) out.push({ text: m[1] });
+          last = m.index + m[0].length;
+        }
+        if (last < el.length) out.push(el.slice(last));
+      }
+      return out.filter((el) => typeof el !== "string" || el.length > 0);
+    }
+    return mapped;
+  }
+  if (node && typeof node === "object") {
+    const obj = node as Record<string, unknown>;
+    const next: Record<string, unknown> = {};
+    for (const k of Object.keys(obj)) next[k] = expandMarkHighlights(obj[k]);
+    return next;
+  }
+  return node;
 }
 
 /** Issue 024: log a single grouped warning instead of failing import. */
