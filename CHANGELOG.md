@@ -2,6 +2,15 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.24.0 — 2026-06-06
+
+### Fixed
+- **`I` and all registry-driven shortcuts restored.** `SlidePresenterPage.tsx:176` called `target?.closest(...)` without checking the target was an `Element`. When keydown bubbled to `window`/`document` with no focused element, `event.target` was the `Document` (no `.closest`) and the handler threw a silent `TypeError` BEFORE reaching `dispatchPresenterKey` — so `I` (camera), `M`, `T`, `G`, `J`, etc. all died. `F` survived because it's matched in the early branch at lines 169-172. Guarded with `rawTarget instanceof Element` before the `closest` call.
+
+### Verification
+- `bunx vitest run SlidePresenterPage.keyboard.test.ts presenterActions.test.ts` → **10/10 passed**.
+
+
 ## 1.23.0 — 2026-06-06
 
 ### Fixed
