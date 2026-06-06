@@ -14,7 +14,7 @@ criteria for one defect. Status is updated when the fix lands.
 | 007 | [`007-import-deck-input-not-clicked.md`](./007-import-deck-input-not-clicked.md) | “Import deck” button shows the file dialog inconsistently in Safari | fixed |
 | 008 | [`008-import-deck-toast-truncates-zod-error.md`](./008-import-deck-toast-truncates-zod-error.md) | Import failure toast hides the offending JSON path past 4 errors | fixed |
 | 009 | [`009-export-deck-loses-runtime-state.md`](./009-export-deck-loses-runtime-state.md) | Exported deck JSON does not round-trip presenter annotations or camera prefs | open |
-| 010 | [`010-import-deck-skips-store-replacement-side-effects.md`](./010-import-deck-skips-store-replacement-side-effects.md) | Importing a deck does not reset slide index, annotations, or audience state | open |
+| 010 | [`010-import-deck-skips-store-replacement-side-effects.md`](./010-import-deck-skips-store-replacement-side-effects.md) | Importing a deck does not reset slide index, annotations, or audience state | fixed |
 | 011 | [`011-schema-rejects-base64-images-over-1mb.md`](./011-schema-rejects-base64-images-over-1mb.md) | Importing a deck with embedded base64 images can silently fail validation | fixed |
 | 012 | [`012-node-build-deck-script-missing.md`](./012-node-build-deck-script-missing.md) | There is no Node.js script that compiles deck JSON into a deployable bundle | open |
 | 013 | [`013-sample-deck-json-not-validated-in-ci.md`](./013-sample-deck-json-not-validated-in-ci.md) | `docs/slides/spec/sample-deck.json` is not validated in CI | open |
