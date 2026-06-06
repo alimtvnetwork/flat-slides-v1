@@ -24,3 +24,5 @@ Users expect `Cmd+P` to open the browser print dialog. The deck eats it to toggl
 ## Status log
 
 - 2026-06-06 — opened. RCA + fix plan ready. No code changes yet (per user request — fixes deferred).
+
+- 2026-06-06 — **fixed**. Root cause was `matchesShortcut` ignoring modifier state; Cmd/Ctrl/Alt + any catalogued key would still match. Added a modifier guard in `shortcuts.ts` that rejects events with `metaKey | ctrlKey | altKey` set (Shift remains allowed for `?`). Cmd+P / Ctrl+P now fall through to the browser. Regression: `src/components/slides/shortcuts-modifier-guard.test.ts` (5/5 green).

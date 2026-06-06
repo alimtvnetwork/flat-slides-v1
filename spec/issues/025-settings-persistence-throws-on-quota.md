@@ -24,3 +24,5 @@ Edge case: users with many decks stored hit the 5 MB cap; settings appear to rev
 ## Status log
 
 - 2026-06-06 — opened. RCA + fix plan ready. No code changes yet (per user request — fixes deferred).
+
+- 2026-06-06 — **fixed**. `writeSettingsStorage` now detects `QuotaExceededError`/`NS_ERROR_DOM_QUOTA_REACHED`/code 22, shows a sonner toast `"Storage full — settings not saved."` with a `Clear saved decks` action that wipes `riseup.deck.*` keys and retries the write. `persistDeckSettings` now returns a boolean so callers can react. Regression: `src/components/slides/settings-persistence-quota.test.ts` (3/3 green).
