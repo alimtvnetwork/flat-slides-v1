@@ -4,7 +4,7 @@
 > each invocation (e.g. `next task 7`) so chat-history search can locate
 > the exact batch.
 
-**Latest invocation:** `next task 13` → v1.9.0 (launcher cases inventory + `DeckLauncher` mounted on `/slides/1`).
+**Latest invocation:** `next task 14` → v1.10.0 (planning-only: surfaced next 2 steps — controller coexistence + settings spec parity).
 
 ## What I want
 
