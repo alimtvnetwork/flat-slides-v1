@@ -166,3 +166,7 @@ Extended `src/components/slides/fullscreenTarget.test.ts` with two new cases:
 2. `reports embedded-popup-blocked when the iframe popup fallback is blocked` — same setup but `openPresenterWindow: () => null` expects `{ ok: false, reason: "embedded-popup-blocked" }`.
 
 Validation: `fullscreenTarget.test.ts` 11/11 pass. The existing "tries native fullscreen before using the embedded presenter-window fallback" case still passes — top-level windows (`fullscreenEnabled === true`) keep the native-first contract.
+
+## Status log
+- 2026-06-06 — opened, RCA + investigation logged.
+- 2026-06-06 — fixed at `useFullscreen.ts:103–118`. Locked by `fullscreenTarget.test.ts` (11/11, +2 embedded-disabled cases).
