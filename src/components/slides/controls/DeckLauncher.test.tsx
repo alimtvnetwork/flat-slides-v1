@@ -52,7 +52,7 @@ describe("DeckLauncher", () => {
   it("emits telemetry and invokes the present/settings actions", () => {
     const events: string[] = [];
     const off = onSlidesEvent((detail) => {
-      if (detail.type === "home-launcher-click") events.push(detail.action);
+      if (detail.type === "home-launcher-click") events.push(detail.case);
     });
     const onPresent = vi.fn();
     const onOpenSettings = vi.fn();
@@ -70,7 +70,7 @@ describe("DeckLauncher", () => {
   it("logs import/export launcher clicks before running IO", async () => {
     const events: string[] = [];
     const off = onSlidesEvent((detail) => {
-      if (detail.type === "home-launcher-click") events.push(detail.action);
+      if (detail.type === "home-launcher-click") events.push(detail.case);
     });
     ioMocks.pickJsonFile.mockResolvedValue(null);
     const deck = useDeck.getState().deck;

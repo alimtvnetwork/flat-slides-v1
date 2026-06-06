@@ -128,6 +128,6 @@ function LauncherLink({ action, to, params, icon, label }: { action: LauncherAct
   );
 }
 
-function emitLauncherClick(action: LauncherAction) {
-  emitSlidesEvent({ type: "home-launcher-click", action });
+function emitLauncherClick(launcherCase: LauncherAction) {
+  emitSlidesEvent({ type: "home-launcher-click", case: launcherCase });
 }
