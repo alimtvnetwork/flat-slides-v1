@@ -24,3 +24,13 @@ Saving an edit, the preview keeps the old slide until a hard reload.
 ## Status log
 
 - 2026-06-06 — opened. RCA + fix plan ready. No code changes yet (per user request — fixes deferred).
+
+## Fix (2026-06-06, v1.5.0)
+
+Shipped fix-plan step 2: dev-only "Reset cached deck" button in `SettingsDrawer.tsx` (gated by `import.meta.env.DEV`) that calls `devResetCachedDeck()` from `src/components/slides/devResetDeck.ts`. The helper awaits `useDeck.persist.clearStorage()`, runs `resetDeck()`, and wipes `useAnnotations`. Errors are logged with `[devResetCachedDeck]` prefix and surfaced as a `toast.error`.
+
+The persist-version-bump + migrate approach (fix-plan step 1) is queued — it requires touching every persisted snapshot's shape and the user-facing impact (wiping in-progress work) needs a deliberate call.
+
+Regression: `src/components/slides/devResetDeck.test.ts` covers happy-path reset + error-rethrow with `[devResetCachedDeck] clearStorage failed` log assertion.
+
+- 2026-06-06 — fixed in v1.5.0 (partial — step 1 follow-up tracked).
