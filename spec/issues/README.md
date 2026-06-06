@@ -3,10 +3,40 @@
 Each file is a self-contained root-cause analysis (RCA) + fix plan + acceptance
 criteria for one defect. Status is updated when the fix lands.
 
-| # | File | Title | Status | Regression test |
-|---|------|-------|--------|-----------------|
-| 001 | [`001-preview-iframe-fullscreen.md`](./001-preview-iframe-fullscreen.md) | Present-from-preview-iframe is silently unsupported (no popup fallback) | fixed | `fullscreenTarget.test.ts` (12/12, embedded+disabled branch locked) |
-| 002 | [`002-step-transition-black-flash.md`](./002-step-transition-black-flash.md) | Slide-4 step→step shows a black flash instead of a text crossfade | fixed | `step-transition-no-black.test.tsx` (3/3) + `highlight-style-guardrails.test.ts` (2/2 — white-fg + `.hl` no-glow lock) |
+| # | File | Title | Status |
+|---|------|-------|--------|
+| 001 | [`001-preview-iframe-fullscreen.md`](./001-preview-iframe-fullscreen.md) | Present-from-preview-iframe is silently unsupported | fixed |
+| 002 | [`002-step-transition-black-flash.md`](./002-step-transition-black-flash.md) | Slide-4 step→step shows a black flash | fixed |
+| 003 | [`003-settings-text-color-not-applied.md`](./003-settings-text-color-not-applied.md) | Settings → Text color does not visibly update slide text | open |
+| 004 | [`004-settings-changes-no-preview-update.md`](./004-settings-changes-no-preview-update.md) | Editing any Settings drawer control sometimes does not re-render the slide | open |
+| 005 | [`005-camera-bubble-never-mounted.md`](./005-camera-bubble-never-mounted.md) | Camera bubble does not appear even when “Show camera” is enabled | open |
+| 006 | [`006-camera-shape-test-uses-removed-prop.md`](./006-camera-shape-test-uses-removed-prop.md) | `CameraBubble.shape.test.tsx` exercises an API the component no longer exposes | open |
+| 007 | [`007-import-deck-input-not-clicked.md`](./007-import-deck-input-not-clicked.md) | “Import deck” button shows the file dialog inconsistently in Safari | open |
+| 008 | [`008-import-deck-toast-truncates-zod-error.md`](./008-import-deck-toast-truncates-zod-error.md) | Import failure toast hides the offending JSON path past 4 errors | open |
+| 009 | [`009-export-deck-loses-runtime-state.md`](./009-export-deck-loses-runtime-state.md) | Exported deck JSON does not round-trip presenter annotations or camera prefs | open |
+| 010 | [`010-import-deck-skips-store-replacement-side-effects.md`](./010-import-deck-skips-store-replacement-side-effects.md) | Importing a deck does not reset slide index, annotations, or audience state | open |
+| 011 | [`011-schema-rejects-base64-images-over-1mb.md`](./011-schema-rejects-base64-images-over-1mb.md) | Importing a deck with embedded base64 images can silently fail validation | open |
+| 012 | [`012-node-build-deck-script-missing.md`](./012-node-build-deck-script-missing.md) | There is no Node.js script that compiles deck JSON into a deployable bundle | open |
+| 013 | [`013-sample-deck-json-not-validated-in-ci.md`](./013-sample-deck-json-not-validated-in-ci.md) | `docs/slides/spec/sample-deck.json` is not validated in CI | open |
+| 014 | [`014-preview-fullscreen-breaks-out-of-iframe.md`](./014-preview-fullscreen-breaks-out-of-iframe.md) | Pressing F/Present in preview iframe escapes to top window unexpectedly | open |
+| 015 | [`015-presenter-controller-settings-button-hidden-at-narrow-width.md`](./015-presenter-controller-settings-button-hidden-at-narrow-width.md) | Settings gear vanishes from controller pill below 1280 CSS px | open |
+| 016 | [`016-settings-drawer-zindex-blocked-by-controller-pill.md`](./016-settings-drawer-zindex-blocked-by-controller-pill.md) | SettingsDrawer can render under the controller pill on some routes | open |
+| 017 | [`017-scaled-slide-zero-height-when-parent-flex.md`](./017-scaled-slide-zero-height-when-parent-flex.md) | ScaledSlide renders 0 px tall inside flex parents that don’t set `min-height` | open |
+| 018 | [`018-stale-deck-after-hmr.md`](./018-stale-deck-after-hmr.md) | HMR after editing slide content sometimes shows the previous slide JSON | open |
+| 019 | [`019-annotations-not-cleared-between-decks.md`](./019-annotations-not-cleared-between-decks.md) | Annotations from a previous deck render on the new deck after import | open |
+| 020 | [`020-presenter-window-loses-deck-on-hard-refresh.md`](./020-presenter-window-loses-deck-on-hard-refresh.md) | Refreshing the popup presenter window resets to the default sample deck | open |
+| 021 | [`021-broadcastchannel-leak-on-route-change.md`](./021-broadcastchannel-leak-on-route-change.md) | BroadcastChannel listeners accumulate on each slide navigation | open |
+| 022 | [`022-deck-music-autoplay-blocked-without-gesture.md`](./022-deck-music-autoplay-blocked-without-gesture.md) | Deck music never starts in the preview iframe | open |
+| 023 | [`023-rich-text-highlights-strip-on-import.md`](./023-rich-text-highlights-strip-on-import.md) | Imported decks lose `.hl` highlight spans authored as `<mark>` | open |
+| 024 | [`024-focus-region-svg-paths-not-validated.md`](./024-focus-region-svg-paths-not-validated.md) | Focus regions referencing missing SVG ids silently render no zoom | open |
+| 025 | [`025-settings-persistence-throws-on-quota.md`](./025-settings-persistence-throws-on-quota.md) | SettingsDrawer changes are lost when localStorage quota is full | open |
+| 026 | [`026-themes-fg-mismatch-with-background-image.md`](./026-themes-fg-mismatch-with-background-image.md) | Theme `fg` is unreadable over user-supplied background image | open |
+| 027 | [`027-rich-component-renders-html-entities-literally.md`](./027-rich-component-renders-html-entities-literally.md) | `&amp;` and `&mdash;` render as literal text in slide bodies | open |
+| 028 | [`028-presenter-inspector-timer-resets-on-route-change.md`](./028-presenter-inspector-timer-resets-on-route-change.md) | Inspector timer resets when navigating between slides | open |
+| 029 | [`029-controller-pill-anchor-stuck-after-resize.md`](./029-controller-pill-anchor-stuck-after-resize.md) | Controller pill anchor sticks to old corner after the window is resized | open |
+| 030 | [`030-keyboard-shortcut-conflicts-with-browser.md`](./030-keyboard-shortcut-conflicts-with-browser.md) | `Cmd+P` (Print) is intercepted by the deck and breaks browser print | open |
+| 031 | [`031-node-render-script-missing.md`](./031-node-render-script-missing.md) | No headless Node renderer to produce PNG/PDF previews of slides | open |
+| 032 | [`032-import-button-accepts-any-file-extension.md`](./032-import-button-accepts-any-file-extension.md) | Import deck accepts `.txt`, `.png`, anything — fails late with cryptic JSON error | open |
 
 ## Conventions
 
