@@ -1,59 +1,60 @@
-# Camera 2026 — 20-step completion plan
+# Plan — Image samples in JSON, white text, settings fix, full camera-2026 parity
 
-Source of truth: `spec/old-slides/camera-2026/` only (00–14). The 30-step spec is folded into 20 ordered, ship-ready steps. Each step lists the spec file it implements, the file(s) to touch, and the done-when signal. Nothing is left "pending" — the final step is full sign-off against the acceptance checklist.
+Source specs:
+- `spec/old-slides/camera-2026/` (all files, 00–10)
+- `.lovable/camera-controller-2026-gap-tasks.md`
+- `docs/slides/spec/llm-json-guideline.md`, `docs/slides/spec/sample-deck.json`
 
-## Current baseline (already in repo)
+## Scope (user's 4 asks, mapped to 20 steps)
 
-- `src/components/slides/usePresenterWebcam.tsx` — provider + state machine (~570 lines).
-- `src/components/slides/controls/PresenterWebcamOverlay.tsx` — overlay mount (~150 lines).
-- `src/components/slides/controls/CameraBubble.tsx` — primary surface (~540 lines).
-- `src/components/slides/controls/CameraPlate.tsx` — squircle plate.
-- `src/components/slides/autoFrame.ts` + `useAutoFrame.ts` + tests.
-- `src/assets/camera-2026/02..04*.png` — squircle mask + 2 plates.
-- Chrome scenes (`normal | split | cam-only | stage-fill`) in `chrome-store.ts`.
+A. Slide JSON gains image samples: **left, right, center**, both **URL** and **base64** variants; the deck loader renders them from JSON.
+B. Slide text color corrected to white (theme token, not raw hex).
+C. Settings drawer audited/fixed.
+D. Camera-2026 spec fully implemented from the `spec/old-slides/camera-2026/` folder — nothing left pending in the gap-tasks file.
 
-The plan finishes what is missing and reconciles the implementation with the spec.
+The user will issue `next` ×20. One step per turn.
 
-## Phase A — State & persistence (steps 1–4)
+---
 
-1. **Audit state machine vs spec 01** — open `usePresenterWebcam.tsx`, diff types & actions against `01-state-machine-and-hook.md` (phases `off|requesting|on|tray|fullscreen|stage|denied`, `SIZE_STEPS`, `STEP_ORDER`, refs `fullscreenReturnPhaseRef`, `actionStackRef`, `navHandlersRef`, `stageRestoreRef`). File a per-action diff list at the top of the file as a comment block. Done when every action in the spec is either ✅ present or ❌ flagged.
-2. **Fill missing actions** — implement any ❌ from step 1: `hide`, `close`, `toggleMinimized`, `resizeFree`, `growSize/shrinkSize`, `enterStage`, `restoreFromSnapshot`, `dispatchPassthrough(dir)`, `runCinematicCycle`. Wire `stopStream` on `close`. Done when `usePresenterWebcam.test.tsx` covers each new action.
-3. **localStorage keys** — confirm all spec keys exist (`POS_KEY`, `SIZE_KEY`, `HALO_KEY`, `CIRCLE_KEY`, `AUTOFRAME_KEY`, `PLATE_KEY`); add SSR guards + corrupt-JSON fallbacks. Done when a unit test that writes `"{"` then reads returns defaults.
-4. **Provider mount audit** — confirm `<PresenterWebcamProvider>` wraps the router in `src/router.tsx`/`__root.tsx` (spec calls for `src/App.tsx`; this stack uses TanStack Start so wrap in `__root.tsx`). Done when `usePresenterWebcam()` throws outside the tree and works inside any route.
+## Steps
 
-## Phase B — Overlay surfaces (steps 5–8)
+### Track A — Image samples in JSON (steps 1–4)
 
-5. **Four-surface router (spec 02 §1)** — in `PresenterWebcamOverlay.tsx`, branch on phase: `on → <CameraBubble/>`, `tray → <CameraTray/>`, `fullscreen → <CameraFullscreen/>`, `stage → <CameraStageFill/>`. Early-return `null` for `off|requesting|denied`. Done when DOM shows exactly one surface per phase.
-6. **Stream binding (spec 02 §3)** — extract `attachStreamToVideo` helper; ensure both floating and fullscreen `<video>` re-bind via a ref-effect; never `srcObject = null` mid-transition. Done when a Vitest with a fake `MediaStream` shows the same track instance survives `on → fullscreen → on`.
-7. **Drag + resize math (spec 02 §2)** — pointer-capture + `delta / --stage-scale → setPosition`; width-only resize handle, 16:9 derived, clamp `[160, 960]`, `stopPropagation` on the handle. Done when manual drag at 50% zoom moves bubble in true stage coords.
-8. **Tray + stage-fill surfaces (spec 02 §5, 15)** — 40×40 ember-pulse tray with hover-fan (Expand / Fullscreen / Stop); stage-fill covers full 1920×1080 with `stageRestoreRef` round-trip. Done when `1` toggles into stage-fill and `Esc` restores prior size+position exactly.
+1. **Audit current `image` / `left` / `right` / `center` slide types + media schema.** Read `src/components/slides/types.ts`, the renderers (`Slide*.tsx`), and `docs/slides/spec/llm-json-guideline.md` §media. Confirm `media.src` already accepts URL + `data:` base64. Note what's missing for explicit `align: "left" | "right" | "center"` on image slides.
+2. **Extend the deck schema for image placement.** Add `media.align` (default `center`) and document URL vs `data:image/...;base64,...` usage in `llm-json-guideline.md`. Update `types.ts` and any Zod/runtime validation.
+3. **Render `align` in `image`/`left`/`right`/`center` slides.** Update slide components to honor `media.align` (image floats left, right, or full-width center). Lazy-load URL images; render base64 inline.
+4. **Add 3 image sample slides to `docs/slides/spec/sample-deck.json`.** One left-image (URL), one right-image (URL), one center-image (base64 inline — small SVG-as-data-URL is fine). Verify the deck loader picks them up by running the deck JSON loader test.
 
-## Phase C — Shortcuts & nav passthrough (steps 9–12)
+### Track B — Text color to white (step 5)
 
-9. **Core keymap (spec 03 §2)** — register `i`, `m`, `f`, `+`, `-`, `Esc`, `h`, `1` with modifier + `isEditableTarget` guard. Route through the existing `SHORTCUTS` registry so the `/` dialog auto-lists them. Done when `KeyboardShortcutsDialog` shows all 8 rows under "Camera".
-10. **v5 keys (spec 03 §1)** — add `O` (circle/rect toggle), `P` (enter fullscreen), `[` (exit fullscreen), `]` (`runCinematicCycle`: play `whoosh` from `audio.ts`, 0.8 s squish; reduced-motion = instant). Done when reduced-motion media-query test asserts no animation runs.
-11. **Fullscreen nav passthrough (spec 02 §6)** — capture-phase keydown that forwards arrow/space/PgUp/PgDn as `riseup:webcam-passthrough` CustomEvent with `{detail:{dir:'next'|'prev'}}`; set `window.__riseupWebcamLastAction` so Back works. Done when listener fires while camera fullscreen has focus.
-12. **Deck wiring (spec 06 step 20)** — in the slide presenter route, `registerNavHandlers({goNext, goPrev})` on mount and `addEventListener(WEBCAM_PASSTHROUGH_EVENT, …)` mapped to those handlers. Done when pressing → while camera fullscreen advances the slide.
+5. **Fix slide text color to white via design tokens.** Replace any stray `text-black`/`text-gray-*`/hex colors inside `.slide-content` with `hsl(var(--slide-foreground))` (or equivalent) and set the dark-theme `--slide-foreground` to white in `src/styles.css`. Re-run `lint-batch*` tests and visual QA one slide.
 
-## Phase D — Auto-frame (steps 13–14)
+### Track C — Settings fix (steps 6–7)
 
-13. **Detection loop (spec 04 §4)** — in `useAutoFrame.ts` confirm: offscreen `<video>` + 320 px `<canvas>`, 250 ms tick, largest face, EMA α=0.18, zoom to 0.55 height ratio, ease-back on loss. Feature-detect `window.FaceDetector`; no-op + log once on Safari/FF. Done when `useAutoFrame.test.ts` asserts `unsupported` path returns identity transform.
-14. **Wire `f` toggle + transform (spec 04 §1)** — apply `objectPosition` and `transform: scale(z)` to the `<video>` honoring mirror state. Persist enable flag to `AUTOFRAME_KEY`. Done when toggling `f` updates the bubble live with no remount.
+6. **Reproduce the settings bug.** Open `SettingsDrawer.tsx` + `useHydratedDeckSettings.ts` + `settingsPersistence.ts`. Run `settingsStore.test.ts`. Identify the failing/broken control (likely volume, music, or transition not persisting/hydrating).
+7. **Patch the bug at the source** (not the symptom), add a regression test in `settingsStore.test.ts`, and verify the drawer round-trips every field across reload.
 
-## Phase E — Plates, shape, polish (steps 15–18)
+### Track D — Camera-2026 spec parity (steps 8–20)
 
-15. **Squircle clip (spec 05 §3, §8)** — keep `border-radius: 38% / 34%` fallback **and** apply `mask-image: url(/src/assets/camera-2026/02-squircle-mask-black.png) 100% 100%` on the clipping wrapper (not the `<video>`); `O` overrides to `border-radius:50%`; tray puck stays `999px`. Done when `CameraBubble.shape.test.tsx` covers all three shapes.
-16. **Two-layer plate stack (spec 05 §2, §5)** — render plates inside `CameraPlate.tsx` sized `boxW + 2*platePad` with `platePad = round(boxW*0.07)`: white shadow plate `z:0`, gold plate `z:1`, video frame `z:2`. All plates `pointer-events:none`. Done when DOM shows 3 stacked layers and bubble visually matches `01-reference-frame-gold-rim.png`.
-17. **Gold→ember rim + halo (spec 05 §4, §7)** — tokenise frame border + glow with `--gold` and `--background`; `h` toggles a vignette behind the bubble. No inline hex anywhere; verify against light theme (paper-ink). Done when `rg "#[0-9a-fA-F]{3,6}" src/components/slides/controls/CameraBubble.tsx` returns 0 matches.
-18. **Shape-pop animation (spec 02 §4)** — WAAPI on the clipping wrapper only, not on `<video>`; bail under `useReducedMotion()`. Done when toggling `O` does not flash the video and reduced-motion env shows no animation.
+Map directly onto `.lovable/camera-controller-2026-gap-tasks.md` items + spec files 00–07.
 
-## Phase F — Controller, tests, sign-off (steps 19–20)
+8. **Wire `PresenterWebcamProvider` into the live app.** Spec 06 step 8. Confirm it's mounted in `src/App.tsx` or the slides shell and that `useCamera.ts` (legacy) no longer owns visibility for the presenter overlay.
+9. **Replace `CameraBubble` viewport anchoring with stage-coordinate render.** Spec 02 §2. Drag/resize deltas divide by `--stage-scale`; clamp inside 1920×1080. Migrate any leftover viewport math out of `CameraBubble.tsx`.
+10. **Migrate legacy `chrome-store` camera prefs to `riseup.webcam.*` keys.** Spec 01 §2. Ensure `chrome-store` no longer owns camera visual prefs; one-shot migrator reads old keys, writes new keys, deletes old.
+11. **Auto-frame: FaceDetector + EMA pipeline persistence.** Spec 04 §2–§5. Replace `object-position` shortcut with the spec's offscreen-canvas sample → EMA α=0.18 → transform applied via WAAPI. Persist `riseup.webcam.autoframe`.
+12. **Controller: collapsed hover-reveal with grace delay.** Spec controller-2026 §collapsed-hover. Replace always-expanded `ControllerPill` with hover hit-area + 250ms grace; remains visible while a child menu is open.
+13. **Controller: overflow / hamburger menu under 1280px.** Already partially done per memory `presenter-controller-pill`; finish overflow items + first-run story re-trigger menu entry.
+14. **Single keymap source of truth.** Spec 03 + memory `presenter-controller-pill`. Remove bespoke handler in `SlidePresenterPage`; route every key through `SHORTCUTS` → `presenterActions.ts`. Verify parity test still green.
+15. **Cursor auto-hide contract.** Spec 02 §cursor. Auto-hide after 1.5s idle in fullscreen/stage; reveal on any pointer move; respect `prefers-reduced-motion` (no animated fade).
+16. **Plate variant selector UI in settings.** Spec 05 §plate-variants. Wire `plateVariant: none | neutral | gold` into `SettingsDrawer` (or controller menu) — already persisted by `cyclePlateVariant`; just expose the picker.
+17. **Theme-from-color engine for camera rim/glow.** Spec 05 §4 + controller-2026 theme engine. Derive `--gold` rim from current `--slide-accent` so the rim re-tints when the theme changes.
+18. **First-run story re-trigger.** Spec controller-2026. Add menu entry to replay the camera-intro story; persist `riseup.controller.firstRun` flag.
+19. **Full acceptance run against spec 07 checklist.** Walk every checkbox in `07-acceptance-checklist-and-tests.md` §1 manually on `/slides/1` and `/slides/inspector/1`. File any miss as a follow-up task.
+20. **Close out `.lovable/camera-controller-2026-gap-tasks.md`.** Mark every gap-task resolved with file:line refs, run the full slide+camera vitest suite, and update memory `presenter-controller-pill` if anything changed.
 
-19. **Controller chip + dropdown (spec 03 §3–§5)** — ensure `ControllerPill` exposes a `PresenterWebcamButton` chip with status icon/colour (off=ghost, requesting=spin, on=ember, denied=red), plus dropdown items: Show/Hide, Fullscreen, Auto-frame, Halo, Stage-fill, Circle/Rect, Plate variant, Stop. Done when chip parity test (`presenterActions.ts` registry) lists every camera action exactly once.
-20. **Acceptance run (spec 07 + 11/12/13)** — execute `T01–T30` checklist: phase transitions, drag, resize, fullscreen, stage-fill round-trip, autoframe on Chromium / no-op on Safari, halo, plate variants, shortcut dialog, nav passthrough, reduced-motion, no inline hex, light/dark theme contrast. Update `mem://features/webcam-halo-and-stage`. Done when every T-row in `11..13-test-execution-steps-*.md` is ✅ and `bunx vitest run src/components/slides` is green.
+---
 
-## Notes
+## Validation per step
 
-- All file paths above match the current repo layout (`src/components/slides/...`), not the spec's legacy `src/slides/...` paths. The spec text is the contract; the file locations are this stack's.
-- Steps 1–4 must land before Phase B because every surface reads context/state added there. Phases B–E can each be opened as one PR.
-- "Nothing pending" means: after step 20, every behaviour in `00..05` + every checklist row in `07` is implemented and tested. No TODOs, no `@ts-ignore`, no inline hex.
+- Each step ends with: targeted vitest run (camera, slides, settings as relevant) + a one-screen manual check on `/slides/1`.
+- Step 20 additionally runs the full suite and clears the gap-tasks file.
