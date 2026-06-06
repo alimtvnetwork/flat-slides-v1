@@ -240,7 +240,7 @@ export const useChrome = create<ChromeStore>()(
     (set) => ({
       topJumperHidden: true,
       dotPaginationVisible: false,
-      slideNumberBadgeVisible: true,
+      slideNumberBadgeVisible: false,
       timerVisible: true,
       focusEditorOpen: false,
       notesPeekOpen: false,
