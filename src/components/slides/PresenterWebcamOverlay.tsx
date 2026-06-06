@@ -13,6 +13,7 @@ import squircleMaskUrl from "@/assets/camera-2026/02-squircle-mask-black.png";
 import plateWhiteUrl from "@/assets/camera-2026/03-squircle-plate-white-shadow.png";
 import plateGoldUrl from "@/assets/camera-2026/04-squircle-plate-gold-shadow.png";
 import { useAutoFrame } from "./useAutoFrame";
+import { useReducedMotion } from "./useReducedMotion";
 import {
   FREE_MAX_W,
   FREE_MIN_W,
