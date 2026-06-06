@@ -23,10 +23,11 @@ describe("settings.hlColor override (plan 04 step 2)", () => {
     expect(root.style.getPropertyValue("--slide-hl")).toBe("#ff00aa");
   });
 
-  it("does not set --slide-hl when cleared (falls back to theme token)", () => {
+  it("falls back to theme --slide-hl when cleared", () => {
     act(() => useDeck.getState().setSettings({ hlColor: undefined }));
     const { container } = render(<RenderSlide slide={{ ...SLIDE, themeId: "midnight" }} />);
     const root = container.firstElementChild as HTMLElement;
-    expect(root.style.getPropertyValue("--slide-hl")).toBe("");
+    // Theme default highlight token (themeStyle / styles.css).
+    expect(root.style.getPropertyValue("--slide-hl")).toBe("#ffd83a");
   });
 });
