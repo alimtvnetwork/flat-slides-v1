@@ -18,11 +18,14 @@ const deck: Deck = {
 
 describe("deck runtime metadata round-trip (issue 009)", () => {
   beforeEach(() => {
+    vi.useFakeTimers();
     Object.defineProperty(URL, "createObjectURL", { configurable: true, value: vi.fn(() => "blob:deck") });
     Object.defineProperty(URL, "revokeObjectURL", { configurable: true, value: vi.fn() });
   });
 
   afterEach(() => {
+    vi.runOnlyPendingTimers();
+    vi.useRealTimers();
     vi.restoreAllMocks();
     localStorage.clear();
     document.body.innerHTML = "";
@@ -31,7 +34,7 @@ describe("deck runtime metadata round-trip (issue 009)", () => {
     useChrome.getState().setScene("normal");
   });
 
-  it("exportDeck includes chrome, annotation, and webcam runtime state", () => {
+  it("exportDeck includes chrome, annotation, and webcam runtime state", async () => {
     const click = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
     useChrome.getState().setCamera({ shape: "rect", visible: true, fullscreenOnly: false });
     useAnnotations.getState().beginStroke("one", { x: 10, y: 20 });
@@ -41,13 +44,11 @@ describe("deck runtime metadata round-trip (issue 009)", () => {
 
     expect(click).toHaveBeenCalledOnce();
     const blob = vi.mocked(URL.createObjectURL).mock.calls[0]?.[0] as Blob;
-    return blob.text().then((text) => {
-      const json = JSON.parse(text) as Deck;
-      expect(json.meta?.exportedAt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
-      expect(json.meta?.runtime?.chrome?.camera?.shape).toBe("rect");
-      expect(json.meta?.runtime?.annotations?.strokes?.one).toHaveLength(1);
-      expect(json.meta?.runtime?.webcam?.[POS_KEY]).toContain("11");
-    });
+    const json = JSON.parse(await blob.text()) as Deck;
+    expect(json.meta?.exportedAt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+    expect(json.meta?.runtime?.chrome?.camera?.shape).toBe("rect");
+    expect(json.meta?.runtime?.annotations?.strokes?.one).toHaveLength(1);
+    expect(json.meta?.runtime?.webcam?.[POS_KEY]).toContain("11");
   });
 
   it("parseDeckJson restores runtime metadata when present", () => {
