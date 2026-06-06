@@ -2,6 +2,14 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.41.0 — 2026-06-06
+
+### Fixed
+- **Heading anti-aliasing (SS-03).** `src/styles.css` body + `.slide-content` now set `-webkit-font-smoothing: antialiased`, `-moz-osx-font-smoothing: grayscale`, `text-rendering: optimizeLegibility`, and `font-feature-settings: "kern" 1, "liga" 1`. Ubuntu 400/500/700 were already loaded in `src/routes/__root.tsx:101` and `.slide-title`/`.slide-heading` already set `font-weight: 700` — root cause was missing glyph smoothing on the 1920×1080 scaled surface, which made 700-weight Ubuntu render as blurry sub-pixel text after CSS scaling. Now headings render crisp in fullscreen and at every scale.
+
+### Verified
+- **SS-01 symmetric back-step nav already correct.** `movePrevStepAware()` in `SlidePresenterPage.tsx:323-331` decrements `step` while `isStepRoute && stepNum > 0`, and `prev()` in `useSlideNavigation.ts:85-90` lands on the previous slide's `lastStep` via `slideStepCount`. No change needed; documented to close SS-01.
+
 ## 1.40.0 — 2026-06-06
 
 ### Planning
