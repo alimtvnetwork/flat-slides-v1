@@ -1,4 +1,4 @@
-# 42 — Next Task v5 (triage; step 2 needs live repro)
+# 43 — Next Task v5 (Step 3 landed: .hl-pill glow removed)
 
 ## Files, functions, and signals read before selecting work
 
