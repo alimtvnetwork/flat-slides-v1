@@ -2,6 +2,11 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.17.0 — 2026-06-06
+
+### Tests
+- **Persist-drop coverage.** Extracted `migratePersistedDeck` from the inline `persist` config in `src/components/slides/store.ts` and added `persist-migrate.test.ts` (2 tests) locking the contract: same-version returns the payload untouched with no console output; off-version returns `undefined` and emits a single `console.warn` containing both `[slides:persist] dropping`, the stale `v<N>`, and the `current v<M>`. Closes the v1.16.0 verification gap so future `DECK_SCHEMA_VERSION` bumps can't silently swallow the destructive drop.
+
 ## 1.16.0 — 2026-06-06
 
 ### Fixed
