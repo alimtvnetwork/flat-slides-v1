@@ -275,3 +275,27 @@ export const useDeck = create<DeckStore>()(
     },
   ),
 );
+
+/**
+ * Issue 020 — popup presenter window loses deck on hard refresh.
+ *
+ * The opener tab writes `slides-deck-v1` to localStorage when the user
+ * imports a deck. Other windows (presenter popup, second editor tab)
+ * don't see that write until their next persist write. Listening for
+ * cross-window `storage` events and replaying the persisted snapshot
+ * keeps every open window in sync.
+ */
+export function syncDeckAcrossWindows(): () => void {
+  if (typeof window === "undefined") return () => {};
+  const onStorage = (event: StorageEvent) => {
+    if (event.key !== "slides-deck-v1" || event.newValue === null) return;
+    // Re-read persisted state from storage in this window.
+    void useDeck.persist.rehydrate();
+  };
+  window.addEventListener("storage", onStorage);
+  return () => window.removeEventListener("storage", onStorage);
+}
+
+if (typeof window !== "undefined") {
+  syncDeckAcrossWindows();
+}

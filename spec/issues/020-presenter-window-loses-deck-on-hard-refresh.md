@@ -24,3 +24,11 @@ Popup loads `/slides/N` and hydrates `useDeck` from its own `localStorage` scope
 ## Status log
 
 - 2026-06-06 — opened. RCA + fix plan ready. No code changes yet (per user request — fixes deferred).
+
+## Fix (2026-06-06, v1.4.0)
+
+Added `syncDeckAcrossWindows()` in `src/components/slides/store.ts`. On module load (browser only) it registers a `window.storage` listener that calls `useDeck.persist.rehydrate()` whenever another window writes `slides-deck-v1`. Unrelated keys and removal events (`newValue === null`) are ignored so closing a tab can't wipe the popup's state.
+
+Regression: `src/components/slides/store-cross-window-sync.test.ts` — spies on `useDeck.persist.rehydrate`, dispatches relevant + unrelated `StorageEvent`s, asserts rehydrate fires for `slides-deck-v1` only.
+
+- 2026-06-06 — fixed in v1.4.0.
