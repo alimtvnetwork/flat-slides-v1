@@ -1,6 +1,6 @@
 # Prompt Registry
 
-Latest: `48-next-task.md` (Plan 06 Phase A Step 4 landed — typography addendum now codifies the live Ubuntu heading contract and the next exact 3 steps start at ellipsis pagination specs).
+Latest: `49-next-task.md` (Registry refresh — next 3 steps unchanged: ellipsis pagination spec, threshold setting spec, slide-types catalog draft).
 
 | ID  | File                          | Title         | Trigger phrases                                            | Purpose                                  |
 | --- | ----------------------------- | ------------- | ---------------------------------------------------------- | ---------------------------------------- |

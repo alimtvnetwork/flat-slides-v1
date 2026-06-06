@@ -2,6 +2,11 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.68.0 — 2026-06-06
+
+### Planning
+- **Prompt 49 — Next 3 steps registry refresh.** Confirmed Plan 06 Phase A Step 4 (typography addendum) is landed in `spec/old-slides/21-slides-system/llm/10-typography.md`; `src/styles.css:248-253` still omits explicit `font-family` on `.slide-title`/`.slide-subtitle`/`.slide-kicker` (intentional — Phase B Step 21 is the implementation slot). Next 3 steps remain: (1) write ellipsis pagination behavior spec, (2) specify `controller.ellipsisThreshold`, (3) draft new slide-types catalog spec. No code changed.
+
 ## 1.67.0 — 2026-06-06
 
 ### Docs
