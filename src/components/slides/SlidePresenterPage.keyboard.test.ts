@@ -6,6 +6,7 @@ describe("SlidePresenterPage fullscreen shortcut", () => {
   it("treats F, Shift+F, and F5 as fullscreen", () => {
     expect(isPresenterFullscreenShortcut(new KeyboardEvent("keydown", { key: "f" }))).toBe(true);
     expect(isPresenterFullscreenShortcut(new KeyboardEvent("keydown", { key: "F", shiftKey: true }))).toBe(true);
+    expect(isPresenterFullscreenShortcut(new KeyboardEvent("keydown", { key: "Unidentified", code: "KeyF" }))).toBe(true);
     expect(isPresenterFullscreenShortcut(new KeyboardEvent("keydown", { key: "F5", code: "F5" }))).toBe(true);
   });
 
