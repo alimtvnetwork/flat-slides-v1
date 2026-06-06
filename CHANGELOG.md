@@ -2,6 +2,11 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.48.0 — 2026-06-06
+
+### Planning
+- **Next-task triage (prompt 29).** Re-pinned same 3 Plan 06 tasks post-1.47.0 with no code work landed since: (1) Plan 06 Step 4 — Ubuntu-everywhere typography addendum, (2) Plan 06 Step 24 pulled forward — computed-style snapshot locking hero title to Ubuntu Bold, (3) Plan 06 Steps 5+6 — ellipsis-pagination spec + `riseup.controller.ellipsisThreshold` default/range. No product code change.
+
 ## 1.47.0 — 2026-06-06
 
 ### Planning
