@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { useChrome } from "../chrome-store";
@@ -16,7 +16,7 @@ describe("slide-number visibility surfaces", () => {
   it("keeps the presenter top bar hidden by default and visible when opted in", () => {
     const { rerender } = render(<PresenterTopBar current={1} total={2} onPrev={() => undefined} onNext={() => undefined} />);
     expect(screen.queryByText("Slide")).toBeNull();
-    useChrome.getState().setTopJumperHidden(false);
+    act(() => useChrome.getState().setTopJumperHidden(false));
     rerender(<PresenterTopBar current={1} total={2} onPrev={() => undefined} onNext={() => undefined} />);
     expect(screen.getByText("Slide").closest("[data-print-hide]")).toBeTruthy();
   });
@@ -24,7 +24,7 @@ describe("slide-number visibility surfaces", () => {
   it("toggles the bottom slide-number badge through chrome state", () => {
     const { rerender } = render(<SlideNumberBadge current={1} total={2} />);
     expect(screen.getByText("01")).toBeTruthy();
-    useChrome.getState().setSlideNumberBadgeVisible(false);
+    act(() => useChrome.getState().setSlideNumberBadgeVisible(false));
     rerender(<SlideNumberBadge current={1} total={2} />);
     expect(screen.queryByText("01")).toBeNull();
   });
