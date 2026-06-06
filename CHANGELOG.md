@@ -2,6 +2,16 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.34.0 — 2026-06-06
+
+### Fixed
+- **Spec issue 014 closed — preview no longer "breaks out" on F.** `src/components/slides/useFullscreen.ts:148–158` no longer auto-opens a top-level popup when `isEmbeddedWindow()`; it stays in the in-iframe app-presentation surface (`setAppPresentationMode(true)` + `mode: "app"`). `openPresenterWindow()` remains exported for an explicit "Open in new window" affordance. Root cause: the embedded branch popped a top-level window on every F press, which IS the "breakout" symptom users reported.
+- **Plan 02 moved to `completed/`** (`.lovable/plans/pending/02-present-fullscreen-preview-fix.md` → `completed/`) — it tracked the same fix.
+
+### Tests
+- **`fullscreenTarget.test.ts` rewritten for the new contract** (12/12 green). Three legacy cases that locked in popup-first behavior were replaced with assertions that embedded enterFullscreen never calls `window.open` / `requestFullscreen` and sets `data-slides-app-presenting`.
+- **Annotation persistence regression test.** New `src/components/slides/annotations-persistence.test.ts` (2/2 green) covers both branches of `annotations-store.ts:104` partialize: strokes stripped from storage when `persistStrokes=false`, strokes survive rehydrate when `persistStrokes=true`.
+
 ## 1.33.0 — 2026-06-06
 
 ### Tests

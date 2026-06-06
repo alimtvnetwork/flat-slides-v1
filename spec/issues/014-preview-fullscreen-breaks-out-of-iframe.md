@@ -1,6 +1,6 @@
 # 014 — Pressing F/Present in preview iframe escapes to top window unexpectedly
 
-**Status:** open
+**Status:** closed (v1.34.0)
 **Area:** useFullscreen / presenter-window
 
 ## Symptom
@@ -26,3 +26,7 @@ After issue 001 was fixed, embedded contexts always open a new top-level window 
 - 2026-06-06 — opened. RCA + fix plan ready. No code changes yet (per user request — fixes deferred).
 
 - 2026-06-06 (v1.32.0) — **Status check, NOT closed.** Audited `src/components/slides/useFullscreen.ts` against the original fix plan. Current behavior (since v1.30.0) is the OPPOSITE of step 1 of the plan: when `isEmbeddedWindow()` is true the code calls `openPresenterWindow()` immediately (lines 152–161) and only falls back to the in-app surface when the popup is blocked. The user-reported symptom ("preview breaks out of fullscreen") is therefore still reproducible — the popup IS the breakout. RCA 08 documented the popup-first contract but did NOT implement the in-iframe modal preference this issue asks for. Real next action: invert the branch — keep `setAppPresentationMode(true)` and return `{ ok: true, mode: "app" }` for the embedded case, expose an explicit "Open in window" affordance via `openPresenterWindow()` elsewhere, and update `fullscreenTarget.test.ts:65–86` which currently locks in the popup-first behavior. Estimated 60–90 min including test rewrite + docs/spec update.
+
+- 2026-06-06 (v1.34.0) — **CLOSED.** Inverted the embedded branch in `src/components/slides/useFullscreen.ts:148–158`: when `isEmbeddedWindow()` is true, `enterFullscreen` now keeps `setAppPresentationMode(true)` and returns `{ ok: true, mode: "app" }` — it no longer auto-opens a top-level popup. The exported `openPresenterWindow()` remains available for an explicit "Open in new window" UI affordance. Rewrote 3 cases in `src/components/slides/fullscreenTarget.test.ts` (lines 64–95, 99–111, 158–188) to assert the new contract (no `window.open`, no `requestFullscreen`, app mode flag set). Full file: 12/12 green.
+
+**Status:** closed.
