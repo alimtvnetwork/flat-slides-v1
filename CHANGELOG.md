@@ -2,6 +2,12 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.10.0 — 2026-06-06
+
+### Planning
+- `next task 14` (planning-only). Surfaced next 2 plan steps for `01-slides-first-preview`: **Step 11** (controller-pill coexistence with launcher across ≥1280/<1280) and **Step 12** (settings drawer parity vs `spec/old-slides/27-slides-number/10-visibility-and-settings.md`).
+- No app code changed this turn. Subtask files `05-controller-coexistence.md` and `06-settings-alignment.md` already scaffolded — execution slated for next turn.
+
 ## 1.9.0 — 2026-06-06
 
 ### Added
