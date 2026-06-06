@@ -2,6 +2,17 @@ import { z } from "zod";
 
 import { DEFAULT_MUSIC_VOLUME, MAX_MUSIC_VOLUME, MIN_MUSIC_VOLUME } from "./musicVolume";
 
+/** Issue 011: cap any single image src (URL or base64 data: URL) at 4 MB. */
+export const MAX_IMAGE_SRC_BYTES = 4_000_000;
+export const ImageSrcSchema = z
+  .string()
+  .max(MAX_IMAGE_SRC_BYTES, `image src exceeds ${MAX_IMAGE_SRC_BYTES} bytes (use a hosted URL for large images)`)
+  .refine(
+    (s) => /^https?:\/\//i.test(s) || s.startsWith("data:"),
+    "image src must be an http(s):// URL or a data: URL",
+  );
+
+
 /**
  * Zod schemas mirroring `src/components/slides/types.ts`.
  * Used by the JSON import path to validate untrusted input
