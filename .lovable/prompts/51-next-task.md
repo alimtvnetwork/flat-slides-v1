@@ -1,4 +1,4 @@
-# 50 — Next Task v5 (Plan 06 Phase A Step 5 landed: ellipsis pagination spec)
+# 51 — Next Task v5 (Plan 06 Phase A Step 6 landed: ellipsis threshold setting spec)
 
 ## Files, functions, and signals read before selecting work
 
