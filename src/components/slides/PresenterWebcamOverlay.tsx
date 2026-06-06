@@ -390,6 +390,12 @@ export function PresenterWebcamOverlay() {
   // Step 6 — `on` card surface. Subsequent steps add tray / fullscreen / stage.
   if (state.phase === "on") {
     return (
+  if (state.phase === "on") {
+    // Spec 05 §2 / §8 — plate padding scales with the box (~7%) so S/M/L/XL
+    // each show a proportional rim of the shade behind the masked video.
+    const platePad = Math.round(size.w * 0.07);
+    const showPlate = !circle;
+    return (
       <div
         role="region"
         aria-label="Presenter camera"
@@ -401,109 +407,154 @@ export function PresenterWebcamOverlay() {
           width: size.w,
           height: size.h,
           zIndex: 50,
-          // Spec 05 §3 — squircle border-radius fallback; circle `O` overrides.
-          borderRadius: circle ? "50%" : "38% / 34%",
-          overflow: "hidden",
-          // Spec 05 §3b — exact squircle mask from the asset pack (only when
-          // not in circle mode; the round crop owns its own silhouette).
-          ...(circle
-            ? null
-            : {
-                WebkitMaskImage: `url(${squircleMaskUrl})`,
-                maskImage: `url(${squircleMaskUrl})`,
-                WebkitMaskSize: "100% 100%",
-                maskSize: "100% 100%",
-                WebkitMaskRepeat: "no-repeat",
-                maskRepeat: "no-repeat",
-                WebkitMaskPosition: "center",
-                maskPosition: "center",
-              }),
-          background: "hsl(var(--background))",
-          boxShadow:
-            "0 0 32px hsl(var(--gold) / 0.18), 0 12px 32px hsl(var(--background) / 0.6)",
           userSelect: "none",
           touchAction: "none",
         }}
       >
-        <video
-          ref={(node) => {
-            floatingVideoRef.current = node;
-            attachStreamToVideo(node);
-          }}
-          muted
-          playsInline
-          autoPlay
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            objectPosition: floatingAutoFrame.objectPosition,
-            transform: "scaleX(-1)", // mirrored selfie view
-            display: "block",
-          }}
-        />
+        {/* Spec 05 §2/§8 — two-layer plate shade behind the masked video.
+            White (z0) + gold (z1) PNGs, grown by platePad on every side. */}
+        {showPlate && (
+          <>
+            <img
+              src={plateWhiteUrl}
+              alt=""
+              aria-hidden
+              draggable={false}
+              style={{
+                position: "absolute",
+                left: -platePad,
+                top: -platePad,
+                width: size.w + platePad * 2,
+                height: size.h + platePad * 2,
+                pointerEvents: "none",
+                opacity: 0.92,
+                zIndex: 0,
+              }}
+            />
+            <img
+              src={plateGoldUrl}
+              alt=""
+              aria-hidden
+              draggable={false}
+              style={{
+                position: "absolute",
+                left: -platePad,
+                top: -platePad,
+                width: size.w + platePad * 2,
+                height: size.h + platePad * 2,
+                pointerEvents: "none",
+                zIndex: 1,
+              }}
+            />
+          </>
+        )}
 
-        {/* Drag header (top strip) */}
+        {/* Inner masked frame — squircle mask + radius live here so the plates
+            above remain visible around it. Stable DOM node (no remount on
+            shape/plate toggles — spec 02 §4). */}
         <div
-          onPointerDown={onDragPointerDown}
-          onPointerMove={onDragPointerMove}
-          onPointerUp={onDragPointerUp}
-          onPointerCancel={onDragPointerUp}
           style={{
             position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            height: 28,
-            cursor: dragging ? "grabbing" : "grab",
-            background:
-              "linear-gradient(180deg, hsl(var(--background) / 0.55), transparent)",
-          }}
-          aria-label="Drag camera"
-        />
-
-        {/* Chrome row (top-right) */}
-        <div
-          style={{
-            position: "absolute",
-            top: 4,
-            right: 4,
-            display: "flex",
-            gap: 4,
+            inset: 0,
             zIndex: 2,
+            // Spec 05 §3 — radius fallback; circle `O` overrides.
+            borderRadius: circle ? "50%" : "38% / 34%",
+            overflow: "hidden",
+            ...(circle
+              ? null
+              : {
+                  WebkitMaskImage: `url(${squircleMaskUrl})`,
+                  maskImage: `url(${squircleMaskUrl})`,
+                  WebkitMaskSize: "100% 100%",
+                  maskSize: "100% 100%",
+                  WebkitMaskRepeat: "no-repeat",
+                  maskRepeat: "no-repeat",
+                  WebkitMaskPosition: "center",
+                  maskPosition: "center",
+                }),
+            background: "hsl(var(--background))",
           }}
         >
-          <ChromeBtn label="Shrink" onClick={() => stepSize(-1)}>−</ChromeBtn>
-          <ChromeBtn label="Grow" onClick={() => stepSize(1)}>+</ChromeBtn>
-          <ChromeBtn label="Fullscreen" onClick={enterFullscreen}>⛶</ChromeBtn>
-          <ChromeBtn label="Minimize" onClick={toggleMinimized}>–</ChromeBtn>
-          <ChromeBtn label="Hide to tray" onClick={hide}>▾</ChromeBtn>
-          <ChromeBtn label="Stop camera" onClick={close}>×</ChromeBtn>
-        </div>
+          <video
+            ref={(node) => {
+              floatingVideoRef.current = node;
+              attachStreamToVideo(node);
+            }}
+            muted
+            playsInline
+            autoPlay
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              objectPosition: floatingAutoFrame.objectPosition,
+              transform: "scaleX(-1)", // mirrored selfie view
+              display: "block",
+            }}
+          />
 
-        {/* Bottom-right resize handle */}
-        <div
-          role="slider"
-          aria-label="Resize camera"
-          aria-valuemin={FREE_MIN_W}
-          aria-valuemax={FREE_MAX_W}
-          aria-valuenow={Math.round(size.w)}
-          onPointerDown={onResizePointerDown}
-          onPointerMove={onResizePointerMove}
-          onPointerUp={onResizePointerUp}
-          onPointerCancel={onResizePointerUp}
-          style={{
-            position: "absolute",
-            right: 0,
-            bottom: 0,
-            width: 18,
-            height: 18,
-            cursor: "nwse-resize",
-            background:
-              "linear-gradient(135deg, transparent 50%, hsl(var(--gold) / 0.85) 50%)",
-            zIndex: 2,
-          }}
-        />
+          {/* Drag header (top strip) */}
+          <div
+            onPointerDown={onDragPointerDown}
+            onPointerMove={onDragPointerMove}
+            onPointerUp={onDragPointerUp}
+            onPointerCancel={onDragPointerUp}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              height: 28,
+              cursor: dragging ? "grabbing" : "grab",
+              background:
+                "linear-gradient(180deg, hsl(var(--background) / 0.55), transparent)",
+            }}
+            aria-label="Drag camera"
+          />
+
+          {/* Chrome row (top-right) */}
+          <div
+            style={{
+              position: "absolute",
+              top: 4,
+              right: 4,
+              display: "flex",
+              gap: 4,
+              zIndex: 2,
+            }}
+          >
+            <ChromeBtn label="Shrink" onClick={() => stepSize(-1)}>−</ChromeBtn>
+            <ChromeBtn label="Grow" onClick={() => stepSize(1)}>+</ChromeBtn>
+            <ChromeBtn label="Fullscreen" onClick={enterFullscreen}>⛶</ChromeBtn>
+            <ChromeBtn label="Minimize" onClick={toggleMinimized}>–</ChromeBtn>
+            <ChromeBtn label="Hide to tray" onClick={hide}>▾</ChromeBtn>
+            <ChromeBtn label="Stop camera" onClick={close}>×</ChromeBtn>
+          </div>
+
+          {/* Bottom-right resize handle */}
+          <div
+            role="slider"
+            aria-label="Resize camera"
+            aria-valuemin={FREE_MIN_W}
+            aria-valuemax={FREE_MAX_W}
+            aria-valuenow={Math.round(size.w)}
+            onPointerDown={onResizePointerDown}
+            onPointerMove={onResizePointerMove}
+            onPointerUp={onResizePointerUp}
+            onPointerCancel={onResizePointerUp}
+            style={{
+              position: "absolute",
+              right: 0,
+              bottom: 0,
+              width: 18,
+              height: 18,
+              cursor: "nwse-resize",
+              background:
+                "linear-gradient(135deg, transparent 50%, hsl(var(--gold) / 0.85) 50%)",
+              zIndex: 2,
+            }}
+          />
+        </div>
       </div>
     );
   }
