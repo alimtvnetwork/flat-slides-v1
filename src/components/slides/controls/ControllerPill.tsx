@@ -13,7 +13,6 @@ import { useControllerAnchor } from "./controller-anchor-store";
 
 import { SlideIndicator } from "./SlideIndicator";
 import { ControllerOverflowMenu } from "./ControllerOverflowMenu";
-import { useNarrowViewport } from "./useNarrowViewport";
 
 export type { ControllerAnchor };
 
@@ -42,7 +41,6 @@ export function ControllerPill(props: Props) {
   const anchor = useControllerAnchor((s) => s.anchor);
   const setAnchor = useControllerAnchor((s) => s.setAnchor);
   const cycleAnchor = useControllerAnchor((s) => s.cycleAnchor);
-  const isNarrow = useNarrowViewport();
   const reduced = useReducedMotion();
   const [mounted, setMounted] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -99,14 +97,14 @@ export function ControllerPill(props: Props) {
     >
       <motion.div
         key="expanded"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: isExpanded ? 1 : 0.28 }}
+        initial={{ opacity: 1 }}
+        animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={motionPreset}
         className={cn(
           "flex items-center gap-1 rounded-full",
           "border border-[color:var(--ctrl-border)] bg-[color:var(--ctrl-bg)]",
-          "backdrop-blur-md px-2 py-1 shadow-2xl",
+          "backdrop-blur-md px-1.5 py-1 shadow-2xl",
         )}
       >
         <PillButton navAction="prev" onClick={onPrev} disabled={canPrev === undefined ? current <= 1 : !canPrev} ariaLabel="Previous slide">
@@ -119,18 +117,14 @@ export function ControllerPill(props: Props) {
           <ChevronRight size={16} />
         </PillButton>
 
-        <span className="mx-1 h-4 w-px bg-white/15" aria-hidden />
+        <span className="mx-0.5 h-4 w-px bg-white/15" aria-hidden />
         <PillButton onClick={onToggleFullscreen} ariaLabel={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}>
           {isFullscreen ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
         </PillButton>
         <PillButton onClick={onOpenSettings} ariaLabel="Settings">
           <Settings size={15} />
         </PillButton>
-        {isNarrow ? (
-          <ControllerOverflowMenu onOpenSettings={onOpenSettings} onOpenHelp={onOpenHelp} />
-        ) : (
-          null
-        )}
+        <ControllerOverflowMenu onOpenSettings={onOpenSettings} onOpenHelp={onOpenHelp} />
       </motion.div>
     </div>
   );

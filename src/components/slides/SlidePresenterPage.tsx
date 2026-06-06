@@ -15,7 +15,6 @@ import { KeyboardShortcutsDialog } from "@/components/slides/controls/KeyboardSh
 import { PresenterToast } from "@/components/slides/controls/PresenterToast";
 import { PresenterAutoStart } from "@/components/slides/controls/PresenterAutoStart";
 import { CameraBubble } from "@/components/slides/controls/CameraBubble";
-import { DeckLauncher } from "@/components/slides/controls/DeckLauncher";
 import { PresenterFallbackLink } from "@/components/slides/controls/PresenterFallbackLink";
 import { SlideNumberBadge } from "@/components/slides/controls/SlideNumberBadge";
 import { DotPagination } from "@/components/slides/controls/DotPagination";
@@ -435,9 +434,6 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
       <PresenterFallbackLink />
       <PresenterAutoStart />
       <CameraBubble />
-      {!isFs && current === 1 && !isStepRoute && (
-        <DeckLauncher onOpenSettings={() => setSettingsOpen(true)} onPresent={() => { void toggleFs(); }} />
-      )}
       {settingsOpen && (
         <Suspense fallback={null}>
           <SettingsDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} currentSlideId={slide.id} />

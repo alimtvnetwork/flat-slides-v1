@@ -160,7 +160,7 @@ const DEFAULT_CAMERA: CameraState = {
 export interface ChromeStore {
   /** Top-bar (presenter jumper) hidden by default; toggle with `J`. */
   topJumperHidden: boolean;
-  /** Dot pagination row visible by default; toggle in settings. */
+  /** Optional dot pagination row; hidden by default to keep controls compact. */
   dotPaginationVisible: boolean;
   /** Bottom-right small badge "04 / 13"; visible by default. */
   slideNumberBadgeVisible: boolean;
@@ -239,8 +239,8 @@ export const useChrome = create<ChromeStore>()(
   persist(
     (set) => ({
       topJumperHidden: true,
-      dotPaginationVisible: true,
-      slideNumberBadgeVisible: true,
+      dotPaginationVisible: false,
+      slideNumberBadgeVisible: false,
       timerVisible: true,
       focusEditorOpen: false,
       notesPeekOpen: false,
@@ -334,7 +334,7 @@ export const useChrome = create<ChromeStore>()(
       toggleInspectorTimerPause: (now) => set((s) => resolveInspectorPausePatch(s, now)),
     }),
     {
-      name: "slides-chrome-v2",
+      name: "slides-chrome-v3",
       // Always pause music on reload — autoplay would be blocked anyway.
       partialize: (s) => ({
         topJumperHidden: s.topJumperHidden,

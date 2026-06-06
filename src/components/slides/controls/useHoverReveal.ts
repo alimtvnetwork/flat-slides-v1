@@ -18,7 +18,7 @@ const OPEN_CHILD_SELECTOR = '[data-state="open"]';
  */
 export function useHoverReveal(containerRef: RefObject<HTMLElement | null>) {
   const reduced = useReducedMotion();
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
   const expandTimer = useRef<number | null>(null);
   const collapseTimer = useRef<number | null>(null);
 
