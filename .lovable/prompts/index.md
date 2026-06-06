@@ -1,6 +1,6 @@
 # Prompt Registry
 
-Latest: `54-next-task.md` (Plan 06 Phase A Step 8 — theme-hooks channel surface spec; next 3 steps: per-type stub batch 02–05, pagination UI wiring, settings drawer threshold control).
+Latest: `55-next-task.md` (Plan 06 Phase A Step 8 — first per-type stub batch 02–05; next 3 steps: pagination UI wiring, indicator wiring, threshold control).
 
 | ID  | File                          | Title         | Trigger phrases                                            | Purpose                                  |
 | --- | ----------------------------- | ------------- | ---------------------------------------------------------- | ---------------------------------------- |
