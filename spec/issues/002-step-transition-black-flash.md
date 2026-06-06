@@ -146,3 +146,19 @@ Fix shipped in `src/components/slides/RenderSlide.tsx:224–268` (StepsSlide det
 - Added `data-testid="step-detail-pane"` for the regression test in step 11.
 
 Status: fix applied. Pending: regression test (step 11), preview verification (step 20).
+
+---
+
+## Audit (step 9) — scale/zoom on lists/steps/timeline
+
+`rg -n "scale\(|scale:|camera-zoom" src/components/slides/` results:
+- `SlideTransition.tsx:22–24` — `scale` only inside the `camera-zoom` variant; gated by `canUseCameraZoom(slide)` which excludes `steps` / `timeline` / focus-region slides. Locked by `zoom-disabled.test.tsx:127–141`.
+- `CameraStage.tsx:71,83` — legitimate authored focus-region transform, not applied to `steps`/`timeline` lists.
+- `autoFrame.ts` — camera-zoom autoframe path, same gating.
+- `PresenterWebcamOverlay.tsx:241–243` — webcam pulse animation, unrelated to slide body.
+
+Conclusion: no scale/zoom leak onto `steps`. Core memory rule ("lists/steps/timeline must never scale or zoom — only opacity + ≤16px translate") is intact. Step-8 fix uses opacity + 8px y translate — compliant.
+
+## Background persistence (step 10)
+
+`StepsSlide` renders `<SlideLayout background={slide.background}>` ONCE (RenderSlide.tsx:181), outside the `<AnimatePresence>`. The background layer (`resolveBackgroundLayerStyle` inside `SlideLayout`) is therefore stable across step swaps and never unmounts. The dark frame seen pre-fix was the slide bg showing through the transparent overlap window — not a missing/remounting bg layer. With `mode="wait"` from step 8, no overlap window exists, so the bg can never bleed through. No code change required for step 10.
