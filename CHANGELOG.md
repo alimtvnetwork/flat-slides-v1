@@ -2,6 +2,11 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.47.0 — 2026-06-06
+
+### Planning
+- **Next-task triage (prompt 28).** Re-pinned the next 3 Plan 06 tasks with corrected read-before-work evidence: `.lovable/coding-guidelines.md` exists and applies, `.lovable/memory/index.md` was read, Plan 06 remains the only pending plan, and dev-server logs show no actionable runtime stack trace. Next 3 remain: (1) Plan 06 Step 4 — Ubuntu-everywhere typography addendum, (2) Plan 06 Step 24 pulled forward — computed-style snapshot locking hero title to Ubuntu Bold, (3) Plan 06 Steps 5+6 — ellipsis-pagination spec plus `riseup.controller.ellipsisThreshold` default/range. No product code change.
+
 ## 1.46.0 — 2026-06-06
 
 ### Planning
