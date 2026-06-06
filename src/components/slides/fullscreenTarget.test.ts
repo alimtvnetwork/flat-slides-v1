@@ -61,7 +61,7 @@ describe("slide fullscreen target", () => {
     expect(getSlidesPortalRoot()).toBeNull();
   });
 
-  it("enters visible in-app presentation mode immediately when embedded", async () => {
+  it("opens a top-level presenter window when embedded so true browser fullscreen is reachable", async () => {
     const stableRoot = document.createElement("div");
     stableRoot.setAttribute("data-slides-fullscreen-root", "");
     document.body.append(stableRoot);
@@ -74,11 +74,12 @@ describe("slide fullscreen target", () => {
       openPresenterWindow,
     });
 
-    expect(result).toEqual({ ok: true, mode: "app" });
+    expect(result).toEqual({ ok: true, mode: "presenter-window" });
     expect(stableRequest).not.toHaveBeenCalled();
-    expect(openPresenterWindow).not.toHaveBeenCalled();
-    expect(document.documentElement.hasAttribute("data-slides-app-presenting")).toBe(true);
+    expect(openPresenterWindow).toHaveBeenCalledOnce();
+    expect(document.documentElement.hasAttribute("data-slides-app-presenting")).toBe(false);
   });
+
 
   it("uses in-app presentation without attempting iframe fullscreen when embedded popups are unavailable", async () => {
     const stableRoot = document.createElement("div");
