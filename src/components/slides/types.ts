@@ -1,5 +1,8 @@
 import type { ReactNode } from "react";
 
+import type { AnnotationMode, InkStroke } from "./annotations-store";
+import type { CameraState, Scene } from "./chrome-store";
+
 export type SlideType =
   | "left" | "center" | "steps" | "timeline" | "quote" | "bullets" | "image"
   | "poll" | "qa" | "embed";
@@ -244,9 +247,15 @@ export interface DeckMusic {
 }
 
 export interface DeckRuntimeMeta {
-  chrome?: Record<string, unknown>;
-  annotations?: Record<string, unknown>;
-  webcam?: Record<string, unknown>;
+  chrome?: { camera?: Partial<CameraState>; scene?: Scene };
+  annotations?: {
+    mode?: AnnotationMode;
+    color?: string;
+    width?: number;
+    persistStrokes?: boolean;
+    strokes?: Record<string, InkStroke[]>;
+  };
+  webcam?: Record<string, string>;
 }
 
 export interface DeckMeta {
