@@ -403,7 +403,7 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
   );
 
   return (
-    <PresenterShell isFullscreen={isFs}>
+    <PresenterShell isFullscreen={isFs} onKeyDownCapture={(event) => keyHandlerRef.current(event.nativeEvent)}>
       <SlideStageShell>
         <div
           style={{ opacity: scene === "cam-only" ? 0.05 : scene === "split" ? 0.75 : 1, transition: "opacity 300ms ease" }}
