@@ -1,14 +1,21 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { useChrome } from "../chrome-store";
 import { PresenterFallbackLink } from "./PresenterFallbackLink";
 
 describe("PresenterFallbackLink", () => {
+  beforeEach(() => {
+    // Component portals into [data-slides-fullscreen-root]; jsdom needs one.
+    const root = document.createElement("div");
+    root.setAttribute("data-slides-fullscreen-root", "");
+    document.body.appendChild(root);
+  });
   afterEach(() => {
     cleanup();
     vi.restoreAllMocks();
     useChrome.setState({ presenterFallback: null, toast: null });
+    document.querySelectorAll("[data-slides-fullscreen-root]").forEach((n) => n.remove());
   });
 
   it("shows a top-level presenter link when popup opening is blocked", () => {
