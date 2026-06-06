@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { decodeEntities } from "./decodeEntities";
 import type { Highlight, RichText } from "./types";
 
 function isHighlight(x: string | Highlight): x is Highlight {
@@ -8,7 +9,8 @@ function isHighlight(x: string | Highlight): x is Highlight {
 
 /**
  * Renders RichText, converting Highlight chips into `.hl` or `.hl-pill` spans
- * and preserving `\n` line breaks in plain strings.
+ * and preserving `\n` line breaks in plain strings. HTML entities such as
+ * `&amp;`, `&mdash;`, and numeric refs are decoded (issue 027).
  */
 export function Rich({ value }: { value: RichText }): ReactNode {
   return (
@@ -17,11 +19,11 @@ export function Rich({ value }: { value: RichText }): ReactNode {
         if (isHighlight(part)) {
           return (
             <span key={i} className={part.pill ? "hl-pill" : "hl"}>
-              {part.text}
+              {decodeEntities(part.text)}
             </span>
           );
         }
-        const lines = part.split("\n");
+        const lines = decodeEntities(part).split("\n");
         return (
           <span key={i}>
             {lines.map((line, j) => (
@@ -36,3 +38,4 @@ export function Rich({ value }: { value: RichText }): ReactNode {
     </>
   );
 }
+
