@@ -67,9 +67,9 @@ export function DeckLauncher({ onOpenSettings, onPresent }: DeckLauncherProps) {
       role="toolbar"
       aria-label="Slides launcher"
       className={cn(
-        "pointer-events-auto fixed right-4 top-4 z-40",
-        "grid max-w-[calc(100vw-2rem)] grid-cols-3 gap-1.5",
-        "rounded-lg border bg-card/95 px-2 py-2 text-card-foreground shadow-lg backdrop-blur",
+        "pointer-events-auto fixed right-4 top-14 z-40",
+        "grid max-w-[calc(100vw-2rem)] grid-cols-3 gap-1",
+        "rounded-lg border bg-card/95 p-1.5 text-card-foreground shadow-lg backdrop-blur",
         reduced ? "" : "animate-in fade-in slide-in-from-bottom-2 duration-200",
       )}
       data-testid="deck-launcher"
@@ -89,9 +89,9 @@ export function DeckLauncher({ onOpenSettings, onPresent }: DeckLauncherProps) {
 }
 
 const BUTTON_CLASS =
-  "inline-flex items-center justify-center gap-1.5 rounded-md border bg-background px-2 py-1.5 text-xs font-medium text-foreground transition hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+  "inline-flex h-8 w-8 items-center justify-center rounded-md border bg-background text-foreground transition hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 const PRIMARY_CLASS =
-  "inline-flex items-center justify-center gap-1.5 rounded-md bg-primary px-2 py-1.5 text-xs font-semibold text-primary-foreground transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+  "inline-flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
 function LauncherButton({
   action,
@@ -107,9 +107,9 @@ function LauncherButton({
   primary?: boolean;
 }) {
   return (
-    <button type="button" onClick={() => { emitLauncherClick(action); onClick(); }} className={primary ? PRIMARY_CLASS : BUTTON_CLASS}>
+    <button type="button" onClick={() => { emitLauncherClick(action); onClick(); }} className={primary ? PRIMARY_CLASS : BUTTON_CLASS} aria-label={label} title={label}>
       {icon}
-      <span>{label}</span>
+      <span className="sr-only">{label}</span>
     </button>
   );
 }
@@ -121,9 +121,9 @@ function LauncherButton({
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function LauncherLink({ action, to, params, icon, label }: { action: LauncherAction; to: string; params?: Record<string, string>; icon: ReactNode; label: string }) {
   return (
-    <Link to={to} params={params} className={BUTTON_CLASS} onClick={() => emitLauncherClick(action)}>
+    <Link to={to} params={params} className={BUTTON_CLASS} onClick={() => emitLauncherClick(action)} aria-label={label} title={label}>
       {icon}
-      <span>{label}</span>
+      <span className="sr-only">{label}</span>
     </Link>
   );
 }
