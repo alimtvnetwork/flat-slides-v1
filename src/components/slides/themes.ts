@@ -88,13 +88,39 @@ export const DEFAULT_THEME_ID = "snow";
 const THEME_INDEX: Map<string | undefined, Theme> = new Map();
 for (const t of THEMES) THEME_INDEX.set(t.id, t);
 
+// User-imported custom themes are persisted in localStorage under
+// `riseup.themes.custom` by ./customThemes. We read it inline here to keep
+// this module free of import cycles (themes.ts → customThemes.ts → themes.ts
+// would TDZ this file's exports).
+const CUSTOM_KEY = "riseup.themes.custom";
+function readCustomThemes(): Theme[] {
+  if (typeof localStorage === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(CUSTOM_KEY);
+    if (!raw) return [];
+    const arr = JSON.parse(raw);
+    if (!Array.isArray(arr)) return [];
+    return arr as Theme[];
+  } catch {
+    return [];
+  }
+}
+
+/** Built-ins + user-imported custom themes. */
+export function getAllThemes(): Theme[] {
+  const extras = readCustomThemes();
+  return extras.length ? [...THEMES, ...extras] : THEMES;
+}
+
 export function getTheme(id: string | undefined): Theme {
-  return THEME_INDEX.get(id) ?? THEMES[0];
+  if (id && THEME_INDEX.has(id)) return THEME_INDEX.get(id)!;
+  const custom = readCustomThemes().find((t) => t.id === id);
+  return custom ?? THEMES[0];
 }
 
 /** Lightweight `{id, name}` list — for pickers/UI that doesn't need full colors. */
 export function listThemes(): Array<{ id: string; name: string }> {
-  return THEMES.map((t) => ({ id: t.id, name: t.name }));
+  return getAllThemes().map((t) => ({ id: t.id, name: t.name }));
 }
 
 /** Relative perceived brightness 0..1 from a #rrggbb / #rgb hex. */

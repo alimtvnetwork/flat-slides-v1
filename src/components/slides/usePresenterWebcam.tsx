@@ -522,12 +522,16 @@ export function PresenterWebcamProvider({ children }: { children: ReactNode }) {
   }, [setState]);
 
   const hide = useCallback(() => {
-    setState((prev) =>
-      prev.phase !== "on" || !prev.stream
-        ? prev
-        : { phase: "tray", stream: prev.stream, error: null },
-    );
+    // CRITICAL: stop the underlying MediaStream tracks so the OS camera
+    // indicator goes off and we don't leak the webcam while "hidden".
+    // The tray phase is preserved so show() can re-acquire on demand.
+    setState((prev) => {
+      if (prev.phase !== "on" || !prev.stream) return prev;
+      prev.stream.getTracks().forEach((t) => t.stop());
+      return { phase: "tray", stream: null, error: null };
+    });
   }, [setState]);
+
 
   const close = useCallback(() => {
     setState((prev) => {

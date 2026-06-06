@@ -14,7 +14,7 @@ import {
   Volume2,
   X,
 } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import {
@@ -37,7 +37,14 @@ import { useChrome } from "./chrome-store";
 import { EXPORT_PAPERS, exportUrl, type ExportPaper } from "./exportPaper";
 import { getDefaultDeckSettings } from "./settingsPersistence";
 import { useDeck } from "./store";
-import { DEFAULT_THEME_ID, THEMES } from "./themes";
+import { DEFAULT_THEME_ID, getAllThemes, THEMES } from "./themes";
+import {
+  downloadThemesJson,
+  loadCustomThemes,
+  pickThemesFile,
+  removeCustomTheme,
+  upsertCustomThemes,
+} from "./customThemes";
 import type { TransitionKind } from "./types";
 
 const TRANSITIONS: TransitionKind[] = ["fade", "camera-zoom"];
@@ -61,6 +68,15 @@ export function SettingsDrawer({
 }) {
   const deck = useDeck((s) => s.deck);
   const themeId = useDeck((s) => s.themeId);
+  // Re-render when custom themes change (import/remove fires this event).
+  const [, bumpThemes] = useState(0);
+  useEffect(() => {
+    const onChange = () => bumpThemes((n) => n + 1);
+    window.addEventListener("riseup:custom-themes-changed", onChange);
+    return () => window.removeEventListener("riseup:custom-themes-changed", onChange);
+  }, []);
+  // Touch loader so first paint reflects persisted custom themes.
+  useEffect(() => { loadCustomThemes(); }, []);
   const setSettings = useDeck((s) => s.setSettings);
   const setThemeId = useDeck((s) => s.setThemeId);
   const setDeck = useDeck((s) => s.setDeck);
@@ -194,31 +210,110 @@ export function SettingsDrawer({
 
         {/* Theme */}
         <section className="mb-6 space-y-2">
-          <label className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wider text-neutral-400">
-            <Palette size={12} /> Theme
-          </label>
-          <div className="grid grid-cols-3 gap-2">
-            {THEMES.map((t) => (
+          <div className="flex items-center justify-between">
+            <label className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wider text-neutral-400">
+              <Palette size={12} /> Theme
+            </label>
+            <div className="flex items-center gap-1">
               <button
-                key={t.id}
-                onClick={() => setThemeId(t.id)}
-                className={`flex flex-col items-stretch gap-1 rounded p-2 text-left text-xs ring-1 transition ${
-                  (themeId ?? DEFAULT_THEME_ID) === t.id
-                    ? "ring-white"
-                    : "ring-neutral-800 hover:ring-neutral-600"
-                }`}
-                style={{ background: t.bg, color: t.fg }}
+                type="button"
+                onClick={async () => {
+                  try {
+                    const incoming = await pickThemesFile();
+                    upsertCustomThemes(incoming);
+                    toast.success(`Imported ${incoming.length} theme${incoming.length === 1 ? "" : "s"}`);
+                  } catch (err) {
+                    toast.error((err as Error).message ?? "Import failed");
+                  }
+                }}
+                className="inline-flex items-center gap-1 rounded px-2 py-1 text-[11px] text-neutral-300 hover:bg-neutral-800"
+                title="Import theme JSON"
               >
-                <span className="font-semibold">{t.name}</span>
-                <span className="flex gap-1">
-                  <span className="h-3 w-3 rounded-sm" style={{ background: t.fg }} />
-                  <span className="h-3 w-3 rounded-sm" style={{ background: t.muted }} />
-                  <span className="h-3 w-3 rounded-sm" style={{ background: t.hl }} />
-                </span>
+                <Upload size={11} /> Import
               </button>
-            ))}
+              <button
+                type="button"
+                onClick={() => {
+                  const all = getAllThemes();
+                  downloadThemesJson(all, "themes.json");
+                  toast.success(`Exported ${all.length} themes`);
+                }}
+                className="inline-flex items-center gap-1 rounded px-2 py-1 text-[11px] text-neutral-300 hover:bg-neutral-800"
+                title="Export all themes as JSON"
+              >
+                <Download size={11} /> Export
+              </button>
+            </div>
           </div>
+          <div className="grid grid-cols-3 gap-2">
+            {getAllThemes().map((t) => {
+              const isCustom = !THEMES.some((b) => b.id === t.id);
+              return (
+                <div key={t.id} className="relative">
+                  <button
+                    onClick={() => setThemeId(t.id)}
+                    className={`flex w-full flex-col items-stretch gap-1 rounded p-2 text-left text-xs ring-1 transition ${
+                      (themeId ?? DEFAULT_THEME_ID) === t.id
+                        ? "ring-white"
+                        : "ring-neutral-800 hover:ring-neutral-600"
+                    }`}
+                    style={{ background: t.bg, color: t.fg }}
+                  >
+                    <span className="font-semibold">{t.name}</span>
+                    <span className="flex gap-1">
+                      <span className="h-3 w-3 rounded-sm" style={{ background: t.fg }} />
+                      <span className="h-3 w-3 rounded-sm" style={{ background: t.muted }} />
+                      <span className="h-3 w-3 rounded-sm" style={{ background: t.hl }} />
+                    </span>
+                  </button>
+                  {isCustom ? (
+                    <div className="absolute right-1 top-1 flex gap-0.5">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          downloadThemesJson([t], `theme-${t.id}.json`);
+                        }}
+                        title="Export this theme"
+                        className="rounded bg-black/40 p-0.5 text-white/80 hover:bg-black/70"
+                      >
+                        <Download size={9} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeCustomTheme(t.id);
+                          if (themeId === t.id) setThemeId(DEFAULT_THEME_ID);
+                          toast.success(`Removed “${t.name}”`);
+                        }}
+                        title="Delete custom theme"
+                        className="rounded bg-black/40 p-0.5 text-white/80 hover:bg-red-600"
+                      >
+                        <X size={9} />
+                      </button>
+                    </div>
+                  ) : null}
+                </div>
+              );
+            })}
+          </div>
+          <p className="text-[11px] leading-snug text-neutral-500">
+            Import single themes or batches via JSON. See{" "}
+            <a
+              href="https://github.com"
+              onClick={(e) => {
+                e.preventDefault();
+                window.open("/docs/slides/spec/theme-json-guideline.md", "_blank");
+              }}
+              className="underline hover:text-neutral-300"
+            >
+              theme JSON guideline
+            </a>{" "}
+            for the schema LLMs can generate.
+          </p>
         </section>
+
 
         {/* Background color */}
         <section className="mb-6 space-y-2">
