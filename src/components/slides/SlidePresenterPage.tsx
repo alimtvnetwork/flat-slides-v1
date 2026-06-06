@@ -400,6 +400,7 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
       <PresenterToast />
       <PresenterFallbackLink />
       <PresenterAutoStart />
+      <CameraBubble />
       {settingsOpen && (
         <Suspense fallback={null}>
           <SettingsDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} currentSlideId={slide.id} />
