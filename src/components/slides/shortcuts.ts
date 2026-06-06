@@ -93,7 +93,7 @@ export const SHORTCUTS: ShortcutDef[] = [
   shortcut("toggle-qr", "Q", ["q"], "Toggle audience QR", "Audience"),
   shortcut("toggle-poll", "V", ["v"], "Toggle live poll results", "Audience"),
   shortcut("copy-share-link", "Y", ["y"], "Copy share link", "Audience"),
-  shortcut("toggle-focus-editor", "F", ["f"], "Edit focus regions", "Presenter"),
+  shortcut("toggle-focus-editor", "Shift+F", ["shift+f"], "Edit focus regions", "Presenter"),
   shortcut("export-rehearsal", "⌘E", [], "Export rehearsal report", "Timer"),
   shortcut("export-annotations", "⌘⇧E", [], "Export annotations", "Annotate"),
   shortcut("toggle-lint", "⌘⇧L", [], "Toggle lint panel", "Presenter"),
