@@ -398,8 +398,25 @@ export function PresenterWebcamOverlay() {
           width: size.w,
           height: size.h,
           zIndex: 50,
-          borderRadius: 16,
+          // Spec 05 §3 — squircle border-radius fallback; circle `O` overrides.
+          borderRadius: circle ? "50%" : "38% / 34%",
           overflow: "hidden",
+          // Spec 05 §3b — exact squircle mask from the asset pack (only when
+          // not in circle mode; the round crop owns its own silhouette).
+          ...(circle
+            ? null
+            : {
+                WebkitMaskImage:
+                  "url(/src/assets/camera-2026/02-squircle-mask-black.png)",
+                maskImage:
+                  "url(/src/assets/camera-2026/02-squircle-mask-black.png)",
+                WebkitMaskSize: "100% 100%",
+                maskSize: "100% 100%",
+                WebkitMaskRepeat: "no-repeat",
+                maskRepeat: "no-repeat",
+                WebkitMaskPosition: "center",
+                maskPosition: "center",
+              }),
           background: "hsl(var(--background))",
           boxShadow:
             "0 0 32px hsl(var(--gold) / 0.18), 0 12px 32px hsl(var(--background) / 0.6)",
