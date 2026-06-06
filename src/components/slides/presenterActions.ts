@@ -129,6 +129,13 @@ export const PRESENTER_KEY_ACTIONS: Record<string, PresenterAction> = {
     const url = `${window.location.origin}/slides/inspector/${current}`;
     window.open(url, "riseup-presenter-inspector", "noopener,noreferrer");
   },
+  // Spec issue 014 follow-up: F now stays in the iframe. Shift+W is the
+  // explicit, user-initiated path to a top-level presenter popup.
+  "present-window": ({ event }) => {
+    event.preventDefault();
+    const win = openPresenterWindow();
+    if (!win) reportFullscreenFailure({ ok: false, reason: "embedded-popup-blocked" });
+  },
 };
 
 export const INSPECTOR_KEY_ACTIONS: Record<string, InspectorAction> = {
