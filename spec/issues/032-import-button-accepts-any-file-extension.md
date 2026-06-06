@@ -24,3 +24,5 @@ User picks a `.txt` file; sees `Invalid JSON: Unexpected token <`.
 ## Status log
 
 - 2026-06-06 — opened. RCA + fix plan ready. No code changes yet (per user request — fixes deferred).
+
+- 2026-06-06 — locked with regression test `src/lib/slides/io-pickjsonfile.test.ts`. Status → fixed.
