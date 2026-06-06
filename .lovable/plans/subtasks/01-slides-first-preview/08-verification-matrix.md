@@ -2,7 +2,7 @@
 
 **Parent:** 01-slides-first-preview
 **Slug:** verification-matrix
-**Status:** pending
+**Status:** partial
 **Created:** 2026-06-06
 
 ## Matrix (fill during step 29; one row per parent-plan step)
@@ -27,9 +27,9 @@
 | 16 | Shortcut audit table | written in plan or subtask |
 | 17 | A11y contract | written in subtask 04 |
 | 18 | Reduced-motion contract | written in subtask 04 |
-| 19 | `07-test-plan.md` final | file exists |
+| 19 | `DeckLauncher.test.tsx` + `07-test-plan.md` progress | focused launcher test exists; 2 files / 6 tests passing |
 | 20 | e2e additions listed | in subtask 07 |
-| 21 | Telemetry event named | in plan |
+| 21 | `home-launcher-click` telemetry event | `telemetry.ts` union includes event; launcher emits `{ case }`; focused tests passing |
 | 22 | Helper migration list | in plan |
 | 23 | SSR decision recorded | in plan |
 | 24 | CHANGELOG + version policy | in plan |

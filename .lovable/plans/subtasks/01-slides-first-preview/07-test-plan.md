@@ -2,15 +2,20 @@
 
 **Parent:** 01-slides-first-preview
 **Slug:** test-plan
-**Status:** pending
+**Status:** partial
 **Created:** 2026-06-06
+
+## Progress
+
+- 2026-06-06 — Added `src/components/slides/controls/DeckLauncher.test.tsx`; verifies every case button/link renders, route targets are correct, Present/Settings callbacks fire, Import/Export IO is invoked, and `home-launcher-click` telemetry is emitted before each action.
+- Validation: `bunx vitest run src/components/slides/controls/DeckLauncher.test.tsx src/components/slides/telemetry.test.ts` → 2 files / 6 tests passing.
 
 ## Unit tests (vitest)
 
 - `DeckLauncher.test.tsx` — renders one button per case from
   `03-launcher-cases.md`; each button targets the expected route or
   fires the expected action (mock `useNavigate`, `openHomePresenterWindow`,
-  `enterFullscreen`, `pickJsonFile`, `exportDeck`, `devResetCachedDeck`).
+  `enterFullscreen`, `pickJsonFile`, `exportDeck`, `devResetCachedDeck`). ✅
 - `SlidesHomeShell.test.tsx` — renders `<ScaledSlide />` with slide
   index 0 and the launcher; respects `useReducedMotion()`.
 - Parity test (extend `presenterActions.test.ts`) — `B`-cycle skip-list
