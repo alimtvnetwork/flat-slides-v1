@@ -146,3 +146,15 @@ Status: investigation complete. Awaiting code fix in step 12.
 `src/components/slides/useFullscreen.ts:103–118`: when `document.fullscreenEnabled === false` AND `isEmbeddedWindow()` is true, skip the (impossible) native attempt and call `environment.openPresenterWindow()` directly. Returns `presenter-window` on success, `embedded-popup-blocked` on popup block. Top-level windows still try native first and only fall back via the existing `catch` — preserving `fullscreenTarget.test.ts:63` ("tries native fullscreen before using the embedded presenter-window fallback").
 
 Validation: `bunx vitest run src/components/slides/fullscreenTarget.test.ts` → 9/9 pass.
+
+## Verification (steps 13–14)
+
+**Step 13 — `PresenterFallbackLink` mount sites:**
+- Home: `src/routes/index.tsx:128` (under home Present button).
+- Slides: `src/components/slides/SlidePresenterPage.tsx:400`, hoisted as a layout in `src/routes/slides.$slideId.tsx:20` so it covers BOTH `/slides/N` and `/slides/N/S` without remount. No additional mount needed.
+
+**Step 14 — `?present=1` gesture overlay + `history.replaceState`:**
+- Already implemented in `src/components/slides/controls/PresenterAutoStart.tsx`. Reads `?present=1` on mount, renders a full-bleed "Start presentation" button (satisfies the user-gesture requirement for `requestFullscreen`), then on `isFs === true` strips the param via `window.history.replaceState`.
+- Mounted alongside `PresenterFallbackLink` at `SlidePresenterPage.tsx:401`, so it auto-arms on every slide step the popup lands on.
+
+Both behaviors required by the RCA are already shipped and mounted on the slide layout route — no code change for steps 13–14.
