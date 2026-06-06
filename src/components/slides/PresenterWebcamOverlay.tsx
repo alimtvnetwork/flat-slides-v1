@@ -9,6 +9,7 @@
  *          and resize math divide pointer deltas by `--stage-scale` (§2).
  */
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useAutoFrame } from "./useAutoFrame";
 import {
   FREE_MAX_W,
   FREE_MIN_W,
