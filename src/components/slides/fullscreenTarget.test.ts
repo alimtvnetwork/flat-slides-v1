@@ -61,7 +61,7 @@ describe("slide fullscreen target", () => {
     expect(getSlidesPortalRoot()).toBeNull();
   });
 
-  it("opens a top-level presenter window when embedded so true browser fullscreen is reachable", async () => {
+  it("stays in the in-iframe cover surface when embedded — never auto-opens a popup (spec issue 014)", async () => {
     const stableRoot = document.createElement("div");
     stableRoot.setAttribute("data-slides-fullscreen-root", "");
     document.body.append(stableRoot);
@@ -74,14 +74,13 @@ describe("slide fullscreen target", () => {
       openPresenterWindow,
     });
 
-    expect(result).toEqual({ ok: true, mode: "presenter-window" });
+    expect(result).toEqual({ ok: true, mode: "app" });
+    expect(openPresenterWindow).not.toHaveBeenCalled();
     expect(stableRequest).not.toHaveBeenCalled();
-    expect(openPresenterWindow).toHaveBeenCalledOnce();
-    expect(document.documentElement.hasAttribute("data-slides-app-presenting")).toBe(false);
+    expect(document.documentElement.hasAttribute("data-slides-app-presenting")).toBe(true);
   });
 
-
-  it("reports popup-blocked when embedded and the presenter window is unavailable", async () => {
+  it("never reports popup-blocked from the F-key path — popup is opt-in via explicit UI only", async () => {
     const stableRoot = document.createElement("div");
     stableRoot.setAttribute("data-slides-fullscreen-root", "");
     document.body.append(stableRoot);
@@ -93,9 +92,9 @@ describe("slide fullscreen target", () => {
       openPresenterWindow: () => null,
     });
 
-    expect(result).toEqual({ ok: false, reason: "embedded-popup-blocked" });
-    expect(stableRequest).not.toHaveBeenCalled();
+    expect(result).toEqual({ ok: true, mode: "app" });
   });
+
 
   it("reports popup-blocked when embedded native fullscreen would fail and popup is blocked", async () => {
     const stableRoot = document.createElement("div");
