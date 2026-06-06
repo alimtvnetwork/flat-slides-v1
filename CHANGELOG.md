@@ -2,6 +2,11 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.36.0 — 2026-06-06
+
+### Planning
+- **Next-task triage (prompt 17).** No code change. Confirmed remaining UI gap: `Shift+W` shortcut + action exist (`shortcuts.ts:102`, `presenterActions.ts:134`), but no visible "Open in new window" affordance in `ControllerPill` / `ControllerOverflowMenu` — keyboard-only users have a path, mouse-only users do not. Next implementation step pinned to that.
+
 ## 1.35.0 — 2026-06-06
 
 ### Added
