@@ -4,6 +4,9 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 import type { Slide } from "../types";
+import { buildPaginationSlots, type PaginationSlot } from "./pagination";
+
+const ELLIPSIS_THRESHOLD = 15;
 
 interface Props {
   current: number;
@@ -21,7 +24,8 @@ interface Props {
 export function DotPagination({ current, total, slides, onJump, className }: Props) {
   const [hovered, setHovered] = useState<number | null>(null);
   if (total === 0) return null;
-  const overflow = total > 28;
+  const slots = buildPaginationSlots(current, total, ELLIPSIS_THRESHOLD);
+  const overflow = slots.length > 28;
 
   return (
     <nav
@@ -50,7 +54,9 @@ export function DotPagination({ current, total, slides, onJump, className }: Pro
             : undefined
         }
       >
-        {Array.from({ length: total }, (_, i) => i + 1).map((n) => {
+        {slots.map((slot) => {
+          if (slot.kind === "ellipsis") return <EllipsisButton key={slot.id} slot={slot} />;
+          const n = slot.n;
           const slide = slides[n - 1];
           const active = n === current;
           return (
@@ -111,5 +117,20 @@ export function DotPagination({ current, total, slides, onJump, className }: Pro
         })}
       </div>
     </nav>
+  );
+}
+
+function EllipsisButton({ slot }: { slot: Extract<PaginationSlot, { kind: "ellipsis" }> }) {
+  return (
+    <button
+      type="button"
+      aria-label={`Slides ${slot.range[0]} to ${slot.range[1]}`}
+      className={cn(
+        "relative shrink-0 inline-flex h-6 w-5 items-center justify-center rounded-full",
+        "text-[10px] text-white/55 transition-colors hover:text-white/90",
+      )}
+    >
+      …
+    </button>
   );
 }
