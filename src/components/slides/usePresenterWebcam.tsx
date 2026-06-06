@@ -267,16 +267,32 @@ export function describeGetUserMediaError(err: unknown): string {
 
 // ─────────────────────────── Context shape ───────────────────────────
 
+/** spec 01 §3 — stack entry tracked so cinematic / fullscreen can undo cleanly. */
+export type FullscreenAction = "enter-fullscreen" | "enter-stage" | "cinematic";
+
+/** spec 06 step 20 — deck-side handlers the camera invokes on passthrough. */
+export interface NavHandlers {
+  goNext: () => void;
+  goPrev: () => void;
+}
+
 export interface PresenterWebcamCtx {
   state: WebcamState;
   position: { x: number; y: number };
   size: { w: number; h: number };
   sizeCfg: SizeConfig;
+  /** Spec 01 §3 — null when free-resized or minimized; else the active preset. */
+  sizeStep: SizeStep | null;
+  /** Spec 01 §2 — 96×96 puck override; persisted under MIN_KEY. */
+  minimized: boolean;
 
+  /** Spec 01 §3 — convenience: on→hide, tray→show, else show. */
+  toggle: () => Promise<void>;
   show: () => Promise<void>;
   hide: () => void;
   close: () => void;
   setPhase: (phase: WebcamPhase) => void;
+  toggleMinimized: () => void;
 
   /** Set position in stage coordinates (callers convert pointer deltas via `/ --stage-scale`). */
   setPosition: (pos: { x: number; y: number }) => void;
@@ -291,10 +307,23 @@ export interface PresenterWebcamCtx {
   enterFullscreen: () => void;
   /** Task 8 — fill the slide stage rect (cover), snapshotting prior state. */
   enterStage: () => void;
+  /** Spec 01 §7 — toggle stage on/off (re-uses the same snapshot/restore path). */
+  toggleStage: () => void;
   /** Task 8 — restore the snapshot taken by enterFullscreen/enterStage. Idempotent. */
   restoreFromOverlay: () => void;
+  /** Spec 01 §6 — named alias for `restoreFromOverlay` when only fullscreen is meant. */
+  exitFullscreen: () => void;
+  /** Spec 01 §3 — push an action onto the fullscreen back-stack. */
+  pushFullscreenAction: (action: FullscreenAction) => void;
+  /** Spec 06 step 20 — deck subscribes its goNext/goPrev; returns an unsubscribe. */
+  registerNavHandlers: (handlers: NavHandlers) => () => void;
   /** Task 9 — convenience: dispatch a `riseup:webcam-passthrough` next/prev event. */
   emitPassthrough: (direction: "next" | "prev") => void;
+
+  /** Spec 01 §3 — true while `runCinematicCycle()` plays its 0.8s squish/whoosh. */
+  cinematicExiting: boolean;
+  /** Spec 03 §1 — `]`: whoosh + 0.8s squish; reduced-motion = instant. */
+  runCinematicCycle: () => void;
 
   /** Task 11 — persisted auto-frame enable flag. */
   autoFrame: boolean;
