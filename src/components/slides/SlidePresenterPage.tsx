@@ -164,6 +164,12 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
 
   keyHandlerRef.current = (e: KeyboardEvent) => {
       if (!slide) return;
+      if (isPresenterFullscreenShortcut(e)) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        void toggleFs();
+        return;
+      }
       const target = e.target as HTMLElement | null;
       const tag = target?.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA" || target?.isContentEditable) return;
@@ -184,12 +190,6 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
         return;
       }
       if (e.metaKey || e.ctrlKey || e.altKey) return;
-      if (isPresenterFullscreenShortcut(e)) {
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        void toggleFs();
-        return;
-      }
       // Modifier-combo branches that don't fit the per-key registry shape.
       if (e.shiftKey && (e.key === "ArrowLeft" || e.key === "ArrowRight" || e.key === "ArrowUp" || e.key === "ArrowDown")) return;
       if (e.shiftKey && (e.key === "c" || e.key === "C")) { cycleCameraSize(); return; }
