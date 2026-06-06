@@ -103,6 +103,10 @@ export const FREE_MIN_W = 160;
 export const FREE_MAX_W = 960;
 export const ASPECT_H_OVER_W = 9 / 16;
 
+/** spec 01 §2 — minimized "puck" footprint. Independent of step/free sizes. */
+export const MINI_W = 96;
+export const MINI_H = 96;
+
 const STAGE_W = 1920;
 const STAGE_H = 1080;
 
