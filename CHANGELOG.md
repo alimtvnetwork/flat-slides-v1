@@ -2,6 +2,15 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.9.0 — 2026-06-06
+
+### Added
+- **DeckLauncher** (`src/components/slides/controls/DeckLauncher.tsx`): bottom-center toolbar mounted on `/slides/1` (deck home, non-fullscreen, no step). Buttons: Present, Inspector, Handout, 3-up, Print, Overview, Import, Export, Settings — each cited in `.lovable/plans/subtasks/01-slides-first-preview/03-launcher-cases.md`.
+- Reduced-motion aware (uses `useReducedMotion()`); semantic tokens only (no hex). Import/Export errors logged + surfaced via toast (no silent failure).
+
+### Changed
+- `SlidePresenterPage` mounts `<DeckLauncher />` next to existing chrome; visibility gated by `!isFs && current === 1 && !isStepRoute`.
+
 ## 1.8.0 — 2026-06-06
 
 ### Changed

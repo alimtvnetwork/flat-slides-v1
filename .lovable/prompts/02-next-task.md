@@ -4,7 +4,7 @@
 > each invocation (e.g. `next task 7`) so chat-history search can locate
 > the exact batch.
 
-**Latest invocation:** `next task 12` → v1.8.0 (slides-first IA: `/` → `/slides/1`, marketing → `/about`, RCAs 03–05 filed).
+**Latest invocation:** `next task 13` → v1.9.0 (launcher cases inventory + `DeckLauncher` mounted on `/slides/1`).
 
 ## What I want
 
