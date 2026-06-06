@@ -1,4 +1,4 @@
-# 41 — Next Task v5 (Step 1 landed: fullscreen persistence)
+# 42 — Next Task v5 (triage; step 2 needs live repro)
 
 ## Files, functions, and signals read before selecting work
 
