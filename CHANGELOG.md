@@ -2,6 +2,11 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.46.0 — 2026-06-06
+
+### Planning
+- **Next-task triage (prompt 27).** Next 3 steps re-pinned post-1.45.0 closure: (1) Plan 06 Step 4 — Ubuntu-everywhere typography addendum in `spec/old-slides/21-slides-system/llm/10-typography.md` + memory Core line, (2) Plan 06 Step 24 pulled forward — Vitest computed-style snapshot locking `<h1>` on hero slide to `Ubuntu` / `font-weight: 700`, (3) Plan 06 Steps 5+6 — ellipsis-pagination spec + `riseup.controller.ellipsisThreshold` (default 15, range 6–100) under `spec/old-slides/27-slides-number/03-ellipsis-pagination.md`. Remaining: Plan 06 Phases A (Steps 7–20), B (themes 21–35), C (controller + SS-02 white-balance 36–50), D (35 renderers 51–85), E (LLM guideline rewrite 86–92), F (launcher download 93–97), G (close-out 98–100).
+
 ## 1.45.0 — 2026-06-06
 
 ### Closed
