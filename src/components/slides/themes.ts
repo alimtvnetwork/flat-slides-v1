@@ -28,7 +28,7 @@ export const THEMES: Theme[] = [
     hlInk: "#000000",
     fontHeading: '"Ubuntu", system-ui, sans-serif',
     fontBody: '"Poppins", system-ui, sans-serif',
-    fontDisplay: '"Instrument Serif", "Ubuntu", serif',
+    fontDisplay: '"Ubuntu", system-ui, sans-serif',
   },
   {
     id: "midnight",
@@ -40,7 +40,7 @@ export const THEMES: Theme[] = [
     hlInk: "#1a1100",
     fontHeading: '"Ubuntu", system-ui, sans-serif',
     fontBody: '"Poppins", system-ui, sans-serif',
-    fontDisplay: '"Instrument Serif", "Ubuntu", serif',
+    fontDisplay: '"Ubuntu", system-ui, sans-serif',
   },
   {
     id: "paper",
@@ -52,7 +52,7 @@ export const THEMES: Theme[] = [
     hlInk: "#f5f0e6",
     fontHeading: '"Ubuntu", system-ui, sans-serif',
     fontBody: '"Poppins", system-ui, sans-serif',
-    fontDisplay: '"Instrument Serif", "Ubuntu", serif',
+    fontDisplay: '"Ubuntu", system-ui, sans-serif',
   },
   {
     id: "sunset",
@@ -64,7 +64,7 @@ export const THEMES: Theme[] = [
     hlInk: "#1b0d1f",
     fontHeading: '"Ubuntu", system-ui, sans-serif',
     fontBody: '"Poppins", system-ui, sans-serif',
-    fontDisplay: '"Instrument Serif", "Ubuntu", serif',
+    fontDisplay: '"Ubuntu", system-ui, sans-serif',
   },
   {
     // High-contrast theme tuned for exported PDFs / paper printouts.
@@ -77,7 +77,7 @@ export const THEMES: Theme[] = [
     hlInk: "#ffffff",
     fontHeading: '"Ubuntu", system-ui, sans-serif',
     fontBody: '"Poppins", system-ui, sans-serif',
-    fontDisplay: '"Instrument Serif", "Ubuntu", serif',
+    fontDisplay: '"Ubuntu", system-ui, sans-serif',
   },
 ];
 

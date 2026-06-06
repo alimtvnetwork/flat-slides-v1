@@ -163,7 +163,7 @@
   --slide-perspective: 2400px;
   --slide-font-heading: "Ubuntu", system-ui, sans-serif;
   --slide-font-body: "Poppins", system-ui, sans-serif;
-  --slide-font-display: "Instrument Serif", "Ubuntu", serif;
+  --slide-font-display: "Ubuntu", system-ui, sans-serif;
 
   /* Controller pill (see spec/old-slides/controller-2026) */
   --ctrl-bg: oklch(0.18 0 0 / 0.78);
