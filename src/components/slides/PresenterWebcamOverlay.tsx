@@ -387,9 +387,7 @@ export function PresenterWebcamOverlay() {
   }
 
 
-  // Step 6 — `on` card surface. Subsequent steps add tray / fullscreen / stage.
-  if (state.phase === "on") {
-    return (
+  // Step 6 — `on` card surface (spec 05 §2/§8 — two-plate shade).
   if (state.phase === "on") {
     // Spec 05 §2 / §8 — plate padding scales with the box (~7%) so S/M/L/XL
     // each show a proportional rim of the shade behind the masked video.
