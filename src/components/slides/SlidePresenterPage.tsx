@@ -55,6 +55,7 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
   const fullscreenPathnameRef = useRef<string | null>(null);
   const lastNavigationAtRef = useRef(0);
   const pressedNavigationKeysRef = useRef<Set<string>>(new Set());
+  const handledKeyEventsRef = useRef<WeakSet<KeyboardEvent>>(new WeakSet());
   const keyHandlerRef = useRef<(event: KeyboardEvent) => void>(() => {});
   const deck = useDeck((s) => s.deck);
   const allSlides = deck.slides;
@@ -227,15 +228,23 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
     };
 
   useEffect(() => {
-    const onKey = (event: KeyboardEvent) => keyHandlerRef.current(event);
+    const onKey = (event: KeyboardEvent) => {
+      if (handledKeyEventsRef.current.has(event)) return;
+      handledKeyEventsRef.current.add(event);
+      keyHandlerRef.current(event);
+    };
     const onKeyUp = (event: KeyboardEvent) => {
       pressedNavigationKeysRef.current.delete(getNavigationKeyId(event));
     };
     window.addEventListener("keydown", onKey, { capture: true });
+    document.addEventListener("keydown", onKey, { capture: true });
     window.addEventListener("keyup", onKeyUp, { capture: true });
+    document.addEventListener("keyup", onKeyUp, { capture: true });
     return () => {
       window.removeEventListener("keydown", onKey, true);
+      document.removeEventListener("keydown", onKey, true);
       window.removeEventListener("keyup", onKeyUp, true);
+      document.removeEventListener("keyup", onKeyUp, true);
     };
   }, []);
 
