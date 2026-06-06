@@ -2,6 +2,15 @@
 
 All notable changes to Glasswing are documented in this file.
 
+## 1.13.0 — 2026-06-06
+
+### Added
+- **DeckLauncher regression lock.** Added `DeckLauncher.test.tsx` covering every launcher case from `.lovable/plans/subtasks/01-slides-first-preview/03-launcher-cases.md`: Present, Inspector, Handout, 3-up, Print, Overview, Import, Export, and Settings.
+- **Launcher telemetry.** `DeckLauncher` now emits `home-launcher-click` events with `{ case }` through the shared `slides:event` telemetry bus before running each launcher action, giving future regressions a visible signal.
+
+### Tests
+- Verified focused launcher/telemetry coverage: `bunx vitest run src/components/slides/controls/DeckLauncher.test.tsx src/components/slides/telemetry.test.ts` → 2 files / 6 tests passing.
+
 ## 1.12.0 — 2026-06-06
 
 ### Fixed

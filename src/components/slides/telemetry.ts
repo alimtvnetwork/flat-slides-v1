@@ -10,6 +10,7 @@ export type SlidesEventDetail =
   | { type: "scene-change"; scene: string }
   | { type: "theme-change"; themeId: string }
   | { type: "deck-load"; slideCount: number; deckId?: string; title?: string }
+  | { type: "home-launcher-click"; case: string }
   | { type: "lint-issue-clicked"; rule: string; severity: "warn" | "error"; slideId?: string };
 
 
