@@ -92,7 +92,7 @@ export function CameraBubble() {
   const cycleShape = useChrome((s) => s.cycleCameraShape);
   const setCameraCustomSize = useChrome((s) => s.setCameraCustomSize);
   const { status, errorMessage, start, hide, close, attach, togglePiP } = useCamera();
-  const { isFs } = useFullscreen();
+  const { isFs, isPresenterContext } = useFullscreen();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const shapeFrameRef = useRef<HTMLDivElement | null>(null);
   const firstShapeRef = useRef(true);
@@ -232,12 +232,7 @@ export function CameraBubble() {
 
   // Respect "show only in fullscreen" preference.
   if (!camera.visible) return null;
-  // `fullscreenOnly` is satisfied by native fullscreen OR a dedicated
-  // presenter popup (URL carries `?present=1`). The popup is at top level
-  // but not in native fullscreen — still an explicit "I'm presenting" mode.
-  const isPresenterPopup = typeof window !== "undefined"
-    && new URLSearchParams(window.location.search).get("present") === "1";
-  if (camera.fullscreenOnly && !isFs && !isPresenterPopup) return null;
+  if (camera.fullscreenOnly && !isPresenterContext) return null;
 
   const dims = cameraDimensions(camera);
   const visualWidth = Math.round((stageFill ? CAMERA_STAGE.w : dims.w) * stageFrame.scale);
