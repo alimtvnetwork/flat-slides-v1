@@ -82,6 +82,18 @@ export function pickJsonFile(accept = ".json,application/json"): Promise<string 
     input.onchange = async () => {
       const f = input.files?.[0];
       if (!f) return resolve(null);
+      // Reject non-JSON files early (issue 032) — the OS picker honors
+      // `accept` loosely, so users can still pick `.txt`, images, etc.
+      const looksJson =
+        f.name.toLowerCase().endsWith(".json") ||
+        f.type === "application/json" ||
+        f.type === "" /* some OSes report empty mime for .json */;
+      if (!looksJson) {
+        toast.error(`Not a JSON file: ${f.name}`, {
+          description: "Pick a `.deck.json` or `.slide.json` file exported from this app.",
+        });
+        return resolve(null);
+      }
       if (f.size > 5 * 1024 * 1024) {
         toast.error("File too large (max 5 MB)");
         return resolve(null);
