@@ -8,7 +8,7 @@ import { useReducedMotion } from "@/components/slides/useReducedMotion";
 import { cn } from "@/lib/utils";
 import { useHoverReveal } from "./useHoverReveal";
 
-import { anchorStyles, type ControllerAnchor } from "./controller-anchor";
+import { anchorStyles, clampControllerAnchor, type ControllerAnchor } from "./controller-anchor";
 import { useControllerAnchor } from "./controller-anchor-store";
 
 import { SlideIndicator } from "./SlideIndicator";
