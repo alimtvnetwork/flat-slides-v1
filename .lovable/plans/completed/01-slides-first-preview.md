@@ -174,3 +174,25 @@ that informs this plan but is NOT a pending task to merge:
 `.lovable/suggestions/`, `.lovable/todo-tasks.md`. These will be
 folded into follow-up plans as separate XX-<slug> files; they are NOT
 duplicated into this plan's step list.
+
+---
+
+## Status closeout — 2026-06-06 (v1.35.0)
+
+The core IA outcome of this plan **landed** through piecemeal work:
+
+- `src/routes/index.tsx` redirects `/` → `/slides/1` (slides-first; pinned in `mem://index.md` Core).
+- Marketing landing moved to `src/routes/about.tsx`.
+- Diagnostics 03/04/05 exist under `.lovable/memory/diagnostics/`.
+- SettingsDrawer ↔ spec 27 §10 parity verified in `spec/audits/27-settings-drawer-audit.md` (v1.32.0). All three §10 toggles present at `SettingsDrawer.tsx:354/358/362`.
+- Controller pill anchors + overflow + parity test live (`mem://features/presenter-controller-pill`).
+- Highlight + fullscreen + LLM-guide work tracked under issue 03 (closed v1.31.0) and issue 014 (closed v1.34.0).
+
+What was **NOT** built and is dropped on purpose:
+
+- `DeckLauncher` component / launcher visual contract (steps 8–10, 13). Current UX uses the controller pill as the launcher surface; the dedicated launcher was never re-justified.
+- `SlidesHomeShell` (step 13). Same reason — `/slides/$slideId` is the home shell.
+- `featureFlags.ts` rollback plan (step 28). Not needed; redirect-based IA has no failure mode that requires a flag.
+- The remaining 30-step "specify everything before implementing" gate (steps 19–30). Superseded by per-issue plans (`plans/completed/03`, `04`).
+
+**Status:** closed. Moved to `.lovable/plans/completed/`.
