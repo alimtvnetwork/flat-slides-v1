@@ -47,6 +47,7 @@ export function PresenterWebcamOverlay() {
     runCinematicCycle,
     pushFullscreenAction,
     emitPassthrough,
+    autoFrame,
   } = usePresenterWebcam();
 
   // ─── Step 9 — core keydown listener (spec 03 §2) ────────────────────────
