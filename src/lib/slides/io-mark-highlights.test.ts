@@ -25,7 +25,8 @@ describe("expandMarkHighlights (issue 023)", () => {
       slides: [
         {
           id: "s1",
-          kind: "title",
+          title: "Slide One",
+          type: "center",
           heading: ["Welcome <mark>back</mark>"],
         },
       ],
