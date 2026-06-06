@@ -34,6 +34,17 @@ export function isEmbeddedWindow() {
   }
 }
 
+export function isPresenterWindowUrl(href?: string) {
+  const source = href ?? (typeof window === "undefined" ? "" : window.location.href);
+  if (!source) return false;
+  try {
+    return new URL(source).searchParams.get("present") === "1";
+  } catch (error) {
+    console.warn("[slides:fullscreen] invalid presenter URL", { href: source, error });
+    return false;
+  }
+}
+
 export function getPresenterWindowUrl(href?: string) {
   const source = href ?? (typeof window === "undefined" ? "" : window.location.href);
   if (!source) return "";
@@ -188,5 +199,5 @@ export function useFullscreen() {
   };
   const toggle = (target?: HTMLElement | null) => (document.fullscreenElement ? exit() : enter(target));
 
-  return { isFs, enter, exit, toggle };
+  return { isFs, isPresenterContext: isFs || isPresenterWindowUrl(), enter, exit, toggle };
 }
