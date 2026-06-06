@@ -54,6 +54,7 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
   const [fullscreenPathname, setFullscreenPathname] = useState<string | null>(null);
   const fullscreenPathnameRef = useRef<string | null>(null);
   const lastNavigationAtRef = useRef(0);
+  const lastFullscreenShortcutAtRef = useRef(0);
   const pressedNavigationKeysRef = useRef<Set<string>>(new Set());
   const handledKeyEventsRef = useRef<WeakSet<KeyboardEvent>>(new WeakSet());
   const keyHandlerRef = useRef<(event: KeyboardEvent) => void>(() => {});
@@ -166,9 +167,7 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
   keyHandlerRef.current = (e: KeyboardEvent) => {
       if (!slide) return;
       if (isPresenterFullscreenShortcut(e)) {
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        void toggleFs();
+        runFullscreenShortcut(e);
         return;
       }
       const target = e.target as HTMLElement | null;
@@ -235,6 +234,7 @@ export function SlidePresenterPage({ slideId }: { slideId: string }) {
     };
     const onKeyUp = (event: KeyboardEvent) => {
       pressedNavigationKeysRef.current.delete(getNavigationKeyId(event));
+      if (isPresenterFullscreenShortcut(event)) runFullscreenShortcut(event);
     };
     window.addEventListener("keydown", onKey, { capture: true });
     document.addEventListener("keydown", onKey, { capture: true });
