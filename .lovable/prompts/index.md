@@ -1,6 +1,6 @@
 # Prompt Registry
 
-Latest: `37-next-task.md` (repeat-request version refresh; same 3 next steps: fullscreen persistence, slide-4 step black-frame, visual-rule + regression lock).
+Latest: `38-next-task.md` (heading-font hardening landed: Ubuntu Bold + rem sizing + display=block; same 3 next steps remain: fullscreen persistence, slide-4 step black-frame, visual-rule + regression lock).
 
 | ID  | File                          | Title         | Trigger phrases                                            | Purpose                                  |
 | --- | ----------------------------- | ------------- | ---------------------------------------------------------- | ---------------------------------------- |
