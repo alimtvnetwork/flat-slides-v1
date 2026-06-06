@@ -2,6 +2,22 @@
 
 All notable changes to Glasswing are documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [1.3.0] — 2026-06-06
+
+### Fixed
+- **Sample-deck pipeline lock (issue 013)**: `sample-deck.test.ts` now
+  also runs the deck through the same `?raw` → `parseDeckJson` pipeline
+  used by `SettingsDrawer`'s "Try spec sample deck" button. Schema drift
+  fails CI before it can surface as a runtime error toast.
+- **`setDeck` side-effects lock (issue 010)**: regression test asserts
+  `useDeck.setDeck` clears `useAnnotations.strokes` and reseats
+  `lastVisitedSlideId` on the new deck's first slide. The behaviour was
+  already implemented; the lock prevents silent regression.
+
+### Added
+- `src/components/slides/store-setdeck-side-effects.test.ts`
+- Raw-pipeline assertion in `src/lib/slides/sample-deck.test.ts`
+
 ## [1.2.0] — 2026-06-06
 
 ### Fixed
