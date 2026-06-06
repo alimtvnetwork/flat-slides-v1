@@ -191,7 +191,7 @@ export function SettingsDrawer({
             {(["color", "dark", "image"] as const).map((mode) => (
               <button
                 key={mode}
-                onClick={() => setSettings({ backgroundMode: mode })}
+                onClick={() => setSettings(nextBackgroundSettings(settings, mode))}
                 className={`flex-1 rounded px-3 py-1 text-sm capitalize ${
                   settings.backgroundMode === mode
                     ? "bg-neutral-700 text-white"
