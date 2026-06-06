@@ -58,7 +58,7 @@ export const SHORTCUTS: ShortcutDef[] = [
   shortcut("nav-prev", "←", ["ArrowLeft"], "Previous slide or step", "Navigation"),
   shortcut("nav-next", "→", ["ArrowRight", " ", "Enter"], "Next slide or step", "Navigation"),
   shortcut("annotate-clear-mode", "Esc", ["Escape"], "Clear annotation tool", "Annotate"),
-  shortcut("fullscreen-toggle", "F / F5", ["F5", "f", "shift+f"], "Toggle fullscreen", "Presenter"),
+  shortcut("fullscreen-toggle", "F / F5", ["F5", "f", "KeyF", "shift+f"], "Toggle fullscreen", "Presenter"),
   shortcut("open-overview", "G", ["g"], "Open deck overview", "Surfaces"),
   shortcut("move-controller", "B", ["b"], "Move controller", "Presenter"),
   shortcut("toggle-top-jumper", "J", ["j"], "Toggle top jumper", "Surfaces"),
