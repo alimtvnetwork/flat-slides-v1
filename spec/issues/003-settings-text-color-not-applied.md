@@ -24,3 +24,4 @@ User picks white in Settings → Text color. The preview shows no change. Same f
 ## Status log
 
 - 2026-06-06 — opened. RCA + fix plan ready. No code changes yet (per user request — fixes deferred).
+- 2026-06-06 — verified RenderSlide ThemeWrap already threads `settings.textColor` into `--slide-fg`/`--slide-muted`/`color`. Added regression test `src/components/slides/settings-text-color-applied.test.tsx` (2/2 green) locking the override + theme fallback. Status: **fixed**.

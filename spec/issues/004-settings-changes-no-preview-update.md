@@ -24,3 +24,4 @@ Toggling transition, background mode, darken/blur, or camera options occasionall
 ## Status log
 
 - 2026-06-06 — opened. RCA + fix plan ready. No code changes yet (per user request — fixes deferred).
+- 2026-06-06 — verified `setSettings` already returns a new top-level `deck` reference (store.ts:203–208). Added regression test `src/components/slides/settings-store-immutability.test.ts` (2/2 green) locking deck/settings reference change per patch. Status: **fixed**.
