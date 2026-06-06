@@ -76,3 +76,36 @@ instead of utilitarian. **Never** widen title tracking past `0`.
 - Open: support a presenter-specific font for keynote decks? Default: no.
 - 2026-04-26 (v0.80.3): Phase 9 — pinned Ubuntu/Inter pair, full size
   scale, weight + tracking rules.
+
+## 8. Addendum — live slide heading contract (2026-06-06)
+
+This addendum supersedes stale path/token names above where they differ from
+the current app. The live slide engine uses `src/styles.css`, not
+`src/index.css`, and centralized rendering in
+`src/components/slides/RenderSlide.tsx`; `src/components/slides/types/` does
+not currently exist.
+
+Every slide heading class MUST explicitly resolve to Ubuntu through the live
+slide heading token. Do not rely on inheritance from `.slide-content`, because
+`.slide-content` deliberately sets `font-family: var(--slide-font-body)` for
+body copy.
+
+Required CSS contract in `src/styles.css`:
+
+- `--slide-font-heading` resolves to `"Ubuntu", system-ui, sans-serif`.
+- `--slide-font-display` resolves to `"Ubuntu", system-ui, sans-serif`.
+- `.slide-heading`, `.slide-title-lg`, `.slide-title`, `.slide-subtitle`, and
+  `.slide-kicker` MUST each declare `font-family: var(--slide-font-heading)` or
+  `font-family: var(--slide-font-display)` directly in their own rule.
+- Title-like heading rules use `font-weight: 700`; display-only decorative text
+  may use another weight only when it is not functioning as a header.
+
+Issue 05 RCA: `.slide-title`, `.slide-subtitle`, and `.slide-kicker` currently
+set size/weight but omit `font-family`, so they inherit Poppins from
+`.slide-content`. The minimum implementation fix is one declaration per missing
+rule, followed by a regression test that parses `src/styles.css` and fails if a
+heading rule drops its explicit Ubuntu family again.
+
+Verification requirement: inspect computed style on `/slides/1` title and show
+`font-family` starts with Ubuntu and `font-weight` is `700` before closing issue
+05 or Phase B.
